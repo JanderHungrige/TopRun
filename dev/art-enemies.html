@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>TopGun enemy art preview</title>
+  <style>
+    body{margin:0;background:#0d1520;color:#cfd8e3;font:13px system-ui,sans-serif}
+    nav{display:flex;gap:14px;padding:8px 12px;align-items:center}
+    nav a{color:#9fd0ff}
+    canvas{display:block}
+  </style></head>
+  <body>
+    <nav>
+      <a href="#units">units</a><a href="#zoom">units ×2.5</a><a href="#ironclad">ironclad</a><a href="#sandstorm">sandstorm</a>
+      <a href="#blackjack">blackjack</a><a href="#typhoon">typhoon</a><a href="#leviathan">leviathan</a>
+      <span>move the mouse to aim turrets · H toggles hitboxes</span>
+    </nav>
+    <canvas id="c"></canvas>
+    <script type="module" src="./art-enemies.ts"></script>
+  </body>
+</html>

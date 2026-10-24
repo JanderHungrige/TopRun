@@ -1,0 +1,36 @@
+:root {
+  color-scheme: dark;
+  --bg: #05090f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  overscroll-behavior: none;
+}
+
+canvas#game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.noscript {
+  color: #e9eff5;
+  font: 16px system-ui, sans-serif;
+  text-align: center;
+  padding: 2rem;
+}

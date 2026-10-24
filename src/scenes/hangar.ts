@@ -1,0 +1,198 @@
+import { formatMoney } from '../core/math';
+import type { Scene } from '../core/scene';
+import { PLANES } from '../data/planes';
+import type { SecondaryId } from '../data/types';
+import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
+import type { SaveData } from '../game/save';
+import type { GameContext } from '../game/state';
+import { COLORS, text } from '../render/text';
+import { drawButton, hit, type Button } from '../ui/widgets';
+import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
+import { itemAction, itemName, TABS } from './hangar-items';
+
+const BACK_BTN = { x: 1150, y: 14, w: 110, h: 44 };
+
+export class HangarScene implements Scene {
+  private t = 0;
+  private tab = 0;
+  private focus = [0, 0, 0];
+  private toast = '';
+  private toastTime = 0;
+  private slotCursor = 0;
+
+  constructor(private readonly game: GameContext) {}
+
+  enter(): void {
+    this.game.music.play('menu');
+  }
+
+  private get items(): readonly ShopItem[] {
+    return TABS[this.tab]?.items ?? [];
+  }
+
+  private get item(): ShopItem | undefined {
+    return this.items[this.focus[this.tab] ?? 0];
+  }
+
+  private actionButton(): Button | null {
+    const item = this.item;
+    if (!item) return null;
+    const a = itemAction(this.game.save, item);
+    return { id: 'action', label: a.label, enabled: a.enabled, primary: true, x: DETAIL.x + DETAIL.w - 274, y: DETAIL.y + DETAIL.h - 66, w: 250, h: 48, hint: 'ENTER' };
+  }
+
+  private tabButtons(): Button[] {
+    return TABS.map((tab, i) => ({ id: `tab${i}`, label: tab.name, x: 24 + i * 182, y: 76, w: 172, h: 42, primary: i === this.tab }));
+  }
+
+  update(dt: number): void {
+    this.t += dt;
+    this.toastTime = Math.max(0, this.toastTime - dt);
+    const input = this.game.input;
+    if (input.pressed('back')) return this.leave();
+    if (input.pressed('left')) this.setTab(this.tab - 1);
+    if (input.pressed('right')) this.setTab(this.tab + 1);
+    if (input.pressed('up')) this.setFocus((this.focus[this.tab] ?? 0) - 1);
+    if (input.pressed('down')) this.setFocus((this.focus[this.tab] ?? 0) + 1);
+    if (input.pressed('confirm')) this.doAction();
+    if (input.pressed('secondary')) this.unmountFocused();
+    for (const tap of input.taps) this.handleTap(tap);
+  }
+
+  private handleTap(p: { x: number; y: number }): void {
+    if (hit(p, BACK_BTN)) return this.leave();
+    this.tabButtons().forEach((b, i) => {
+      if (hit(p, b)) this.setTab(i);
+    });
+    this.items.forEach((_, i) => {
+      if (hit(p, rowRect(i))) this.setFocus(i);
+    });
+    const action = this.actionButton();
+    if (action && action.enabled !== false && hit(p, action)) this.doAction();
+    if (this.tab === 1) {
+      slotRects(PLANES[this.game.save.selectedPlane].hardpoints).forEach((r, i) => {
+        if (hit(p, r)) this.clickSlot(i);
+      });
+    }
+  }
+
+  private leave(): void {
+    this.game.audio.play('uiBack');
+    this.game.go({ to: 'map' });
+  }
+
+  private setTab(i: number): void {
+    const n = TABS.length;
+    const next = ((i % n) + n) % n;
+    if (next !== this.tab) this.game.audio.play('uiMove');
+    this.tab = next;
+  }
+
+  private setFocus(i: number): void {
+    const n = this.items.length;
+    const next = ((i % n) + n) % n;
+    if (next !== this.focus[this.tab]) this.game.audio.play('uiMove');
+    this.focus[this.tab] = next;
+  }
+
+  private say(msg: string, ok: boolean): void {
+    this.toast = msg;
+    this.toastTime = 2.2;
+    this.game.audio.play(ok ? 'buy' : 'denied');
+  }
+
+  private commit(next: SaveData, msg: string): void {
+    this.game.setSave(next);
+    this.say(msg, true);
+  }
+
+  private doAction(): void {
+    const item = this.item;
+    if (!item) return;
+    const save = this.game.save;
+    const a = itemAction(save, item);
+    if (!a.enabled) return this.say(a.note || `${a.label}`, false);
+    switch (a.kind) {
+      case 'buy': {
+        const check = canBuy(save, item);
+        if (!check.ok) return this.say(a.note || 'Cannot buy', false);
+        this.commit(buy(save, item), `${itemName(item)} acquired!`);
+        return;
+      }
+      case 'select':
+        if (item.type === 'plane') this.commit(selectPlane(save, item.id), `${PLANES[item.id].name} ready on the catapult`);
+        return;
+      case 'mount':
+        if (item.type === 'secondary') this.mountNext(item.id);
+        return;
+      case 'none':
+        return;
+      default:
+        throw new Error(`unhandled: ${a.kind satisfies never}`);
+    }
+  }
+
+  private mountNext(id: SecondaryId): void {
+    const save = this.game.save;
+    const plane = save.selectedPlane;
+    const slots = save.loadout[plane];
+    let slot = slots.findIndex((s) => s === null);
+    if (slot < 0) {
+      slot = this.slotCursor % slots.length;
+      this.slotCursor++;
+    }
+    if (!canMount(save, plane, id, slot).ok) return this.say('Cannot mount here', false);
+    this.commit(mount(save, plane, id, slot), `Mounted on hardpoint ${slot + 1}`);
+  }
+
+  private unmountFocused(): void {
+    const item = this.item;
+    if (item?.type !== 'secondary') return;
+    const slots = this.game.save.loadout[this.game.save.selectedPlane];
+    const slot = slots.lastIndexOf(item.id);
+    if (slot >= 0) this.commit(unmount(this.game.save, this.game.save.selectedPlane, slot), `Removed from hardpoint ${slot + 1}`);
+  }
+
+  private clickSlot(i: number): void {
+    const save = this.game.save;
+    const plane = save.selectedPlane;
+    if (save.loadout[plane][i]) return this.commit(unmount(save, plane, i), `Hardpoint ${i + 1} cleared`);
+    const item = this.item;
+    if (item?.type !== 'secondary') return;
+    const check = canMount(save, plane, item.id, i);
+    if (!check.ok) return this.say(check.reason === 'not-owned' ? 'Buy it first' : 'Not allowed on this jet', false);
+    this.commit(mount(save, plane, item.id, i), `Mounted on hardpoint ${i + 1}`);
+  }
+
+  render(ctx: CanvasRenderingContext2D): void {
+    const save = this.game.save;
+    const bg = ctx.createLinearGradient(0, 0, 0, 720);
+    bg.addColorStop(0, '#0d1824');
+    bg.addColorStop(1, '#05090f');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1280, 720);
+    text(ctx, 'HANGAR', 24, 50, { size: 30, display: true, italic: true });
+    text(ctx, formatMoney(save.money), 1130, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
+    drawButton(ctx, { id: 'back', label: 'MAP', ...BACK_BTN, hint: 'ESC' }, false, this.t);
+    this.tabButtons().forEach((b) => drawButton(ctx, b, false, this.t));
+    drawList(ctx, save, this.items, this.focus[this.tab] ?? 0, this.t);
+    const item = this.item;
+    if (item) drawDetail(ctx, save, item, this.t);
+    if (this.tab === 1) drawLoadout(ctx, save, item?.type === 'secondary' ? item.id : null);
+    this.renderAction(ctx);
+    const hintText = this.game.input.device === 'touch' ? 'Tap a hardpoint to clear it or to mount the selected weapon' : '←/→ tabs · ↑/↓ items · ENTER buy/mount · SHIFT unmount · ESC map';
+    text(ctx, hintText, 24, 700, { size: 12, color: COLORS.faint });
+    if (this.toastTime > 0) {
+      text(ctx, this.toast, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 16, color: COLORS.gold, alpha: Math.min(1, this.toastTime * 2), maxWidth: DETAIL.w - 320 });
+    }
+  }
+
+  private renderAction(ctx: CanvasRenderingContext2D): void {
+    const b = this.actionButton();
+    const item = this.item;
+    if (!b || !item) return;
+    drawButton(ctx, b, b.enabled !== false, this.t);
+    const note = itemAction(this.game.save, item).note;
+    if (note && this.toastTime <= 0) text(ctx, note, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 14, color: COLORS.red });
+  }
+}

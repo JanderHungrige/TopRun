@@ -1,0 +1,21 @@
+{
+  "name": "topgun",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "TopGun — carrier launch and top-down arcade shooter for the browser",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
+}

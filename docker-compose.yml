@@ -1,0 +1,25 @@
+services:
+  topgun:
+    build:
+      context: .
+    image: topgun:${BUILD_VERSION:-latest}
+    init: true
+    restart: unless-stopped
+    ports:
+      # Your reverse proxy forwards to this port. Bind to 127.0.0.1 if the proxy runs on the same host.
+      - "${TOPGUN_BIND:-127.0.0.1}:${TOPGUN_PORT:-8080}:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 16M

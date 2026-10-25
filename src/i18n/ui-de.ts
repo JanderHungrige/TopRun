@@ -224,7 +224,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'debrief.account': 'Konto: {money}',
   'debrief.starRules': '★ erfüllt   ★ Panzerung ≥ 70 %   ★ 80 % der Ziele zerstört',
   'debrief.newBest': 'NEUER BESTWERT',
-  'debrief.finale': '🎖  FELDZUG GEWONNEN — DU BIST TOPRUN  🎖',
+  'debrief.finale': '🎖  FELDZUG GEWONNEN — DU BIST TOPGUN  🎖',
   'debrief.continue': 'WEITER',
   'debrief.flyAgain': 'NOCHMAL',
   'debrief.hangar': 'HANGAR',

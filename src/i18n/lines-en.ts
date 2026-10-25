@@ -55,7 +55,7 @@ export const LINES_EN = {
     "Your next orders send you to {theater}. Good luck, pilot.",
   ],
   'adm.finale': [
-    "That's the war, {callsign}. You're the best of the best. Welcome to TopRun.",
+    "That's the war, {callsign}. You're the best of the best. Welcome to TopGun.",
   ],
   'adm.livery': [
     "And the paint shop has something for you: {livery}. Wear it with pride.",

@@ -1,6 +1,6 @@
 ---
 generated: 2026-10-25
-doc_count: 17
+doc_count: 19
 connection_count: 22
 overlap_count: 0
 ---
@@ -21,10 +21,12 @@ Game
 │   ├── Evasion   16-missile-evasion     complete
 │   ├── Flyby     13-tower-flyby         complete
 │   ├── Formation 14-formation-flying    complete
+│   ├── Landing   18-carrier-landing     complete
 │   ├── Hub       11-base-hub            complete
 │   ├── People    17-people-kit          complete
 │   ├── Pushups   12-pushup-challenge    complete
-│   └── Refuel    15-air-refuelling      complete
+│   ├── Refuel    15-air-refuelling      complete
+│   └── Tactics   19-dogfight-tactics    complete
 ├── Mission      05-mission-combat      complete
 ├── PaintJobs    09-paint-jobs          complete
 ├── Pilots       08-pilot-profiles      complete
@@ -54,6 +56,8 @@ graph TD
   refuel[15-air-refuelling]:::complete
   evasion[16-missile-evasion]:::complete
   people[17-people-kit]:::complete
+  landing[18-carrier-landing]:::complete
+  tactics[19-dogfight-tactics]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -87,6 +91,9 @@ graph TD
   refuel --> mgcore
   evasion --> mgcore
   pushups --> people
+  landing --> mgcore
+  tactics --> mgcore
+  tactics --> people
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

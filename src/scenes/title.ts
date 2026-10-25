@@ -19,6 +19,7 @@ const CONTROLS: ReadonlyArray<readonly [UiKey, UiKey | string, UiKey | string]> 
   ['controls.special', 'E', 'Y'],
   ['controls.pause', 'P / Esc', 'Start'],
   ['controls.mute', 'M', '—'],
+  ['controls.launch', 'Space + E', 'A + Y'],
 ];
 
 const label = (s: string): string => (s.startsWith('controls.') ? t(s as UiKey) : s);

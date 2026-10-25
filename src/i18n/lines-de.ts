@@ -119,8 +119,8 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Triebwerke hoch, {callsign}! Zeig mir volle Leistung, schön ruhig.',
   ],
   'sh.green': [
-    'Halten... halten...',
-    'Ruhig... sieht gut aus...',
+    'Genau, im Grünen! Mit E einrasten!',
+    'Grün! Drück E zum Einrasten!',
   ],
   'sh.overspeed': [
     'Vorsicht! Du kochst die Triebwerke!',
@@ -130,10 +130,6 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Los, los, los!',
     'Start!',
   ],
-  'sh.edge': [
-    'HOCHZIEHEN! HOCHZIEHEN!',
-    'Nase hoch, SOFORT!',
-  ],
   'sh.perfect': [
     'Lehrbuchstart! Wunderschön!',
     'Perfekter Schuss! So macht man das!',
@@ -142,17 +138,25 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Guter Start. Guten Flug.',
     'Sauberer Schuss. Du bist in der Luft.',
   ],
-  'sh.early': [
-    'Etwas früh am Knüppel, aber du fliegst.',
-    'Zu früh hochgezogen. Nächstes Mal weicher.',
-  ],
   'sh.late': [
-    'Du hast die Wellen geküsst! Mach das nie wieder!',
-    'Puh, das war knapp. Mir ist das Herz stehengeblieben.',
+    'Etwas langsam am Abzug, aber du fliegst.',
+    'Ganz schön Zeit gelassen, was? In der Luft bist du trotzdem.',
   ],
-  'sh.ditched': [
-    'Mann über Bord! Rausfischen, wir versuchen es nochmal.',
-    'Ab ins Wasser... Abschütteln, nächster Versuch.',
+  'sh.notYet': [
+    'Noch nicht! Mehr Schub, rein ins Grüne.',
+    'Zu wenig! Schieb ihn hoch ins Grüne.',
+  ],
+  'sh.locked': [
+    'Eingerastet! Bereithalten... drei, zwei, eins...',
+    'Schub fixiert. Festhalten... drei, zwei, eins...',
+  ],
+  'sh.waitForIt': [
+    'Warte!',
+    'Noch nicht, noch nicht!',
+  ],
+  'sh.go': [
+    'LOS! Drück E!',
+    'Start, Start, Start! Drück E!',
   ],
   // Lt. "Duke" Carter
   'wing.startPatrol': [

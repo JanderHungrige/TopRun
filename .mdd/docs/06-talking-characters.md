@@ -114,8 +114,8 @@ None.
   The payout count-up in the debrief runs while lines 1–3 are spoken.
 - **Chief** events: enter (rich/poor greeting), buyPlane, buyGun, buySecondary, buyEquipment,
   mount, selectPlane, denied (not enough money), restricted (Phoenix not on this jet), idle (15 s).
-- **Shooter** events: spool, green (holding), overspeed, launch, edge, perfect, good, early, late,
-  ditched.
+- **Shooter** events (since the simplified launch, doc 04): spool, green, notYet, overspeed, locked,
+  waitForIt, go, launch, perfect, good, late.
 - **Wingman** events (each at most once per mission unless noted): start (objective-flavoured),
   halfway, objectiveDone, bossWarning, hullLow (< 30 %), wingmanSpecial (F-14 special, every use),
   victory.

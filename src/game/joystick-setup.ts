@@ -1,5 +1,5 @@
 import {
-  defaultProfile, JOY_ACTIONS, type AxisBind, type ButtonBind, type JoyAction, type JoyProfile, type PadFrame,
+  defaultProfile, JOY_ACTIONS, withCenter, type AxisBind, type ButtonBind, type JoyAction, type JoyProfile, type PadFrame,
 } from './joystick';
 
 // JOYSTICK setup screen logic (doc 01): detects the stick axes, throttle and buttons step by step
@@ -11,7 +11,7 @@ export const SETUP_STEPS: readonly Exclude<SetupStep, 'done'>[] = Object.freeze(
 ] as const);
 
 /** How far an axis must move from where it was when the step started to count as the stick. */
-export const AXIS_MOVE = 0.6;
+export const AXIS_MOVE = 0.3;
 /** End-to-end travel a throttle axis must show during its step. */
 export const THROTTLE_TRAVEL = 0.8;
 
@@ -96,9 +96,10 @@ function movedAxis(s: SetupState, axes: readonly AxisRead[], exclude: AxisBind |
   let bestAbs = AXIS_MOVE;
   for (const a of axes) {
     if (same(exclude, a)) continue;
-    const d = a.v - (s.baseline[a.key] ?? a.v);
+    const rest = s.baseline[a.key] ?? a.v;
+    const d = a.v - rest;
     if (Math.abs(d) >= bestAbs) {
-      best = { pad: a.pad, index: a.index, invert: d < 0 };
+      best = withCenter({ pad: a.pad, index: a.index, invert: d < 0 }, rest);
       bestAbs = Math.abs(d);
     }
   }

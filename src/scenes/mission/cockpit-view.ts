@@ -2,7 +2,10 @@ import { formatMoney } from '../../core/math';
 import { BOSSES } from '../../data/bosses';
 import { PLANES } from '../../data/planes';
 import { SECONDARIES } from '../../data/weapons';
+import type { Device } from '../../core/input';
 import { buttonStates, radarContacts, warningLights, type ButtonStates } from '../../game/cockpit';
+import { defaultProfile, type JoyAction, type JoyProfile } from '../../game/joystick';
+import { slotFor } from '../../game/loadout';
 import { objectiveProgress } from '../../game/objectives';
 import { bossTitle, missionName, objectiveText, planeSpecialName } from '../../i18n/content';
 import { t } from '../../i18n/i18n';
@@ -15,8 +18,8 @@ import { PF_W, type World } from './world';
 export function cockpitLabels(): CockpitLabels {
   return {
     radar: t('cockpit.radar'), early: t('cockpit.early'), hull: t('cockpit.hull'), cannon: t('cockpit.cannon'),
-    power: t('cockpit.power'), stores: t('cockpit.stores'), noStores: t('mission.noStores'), missile: t('cockpit.missile'),
-    switch: t('cockpit.switch'), flare: t('cockpit.flare'), special: t('cockpit.special'), pause: t('cockpit.pause'),
+    power: t('cockpit.power'), stores: t('cockpit.stores'), noStores: t('mission.noStores'), air: t('cockpit.air'),
+    ground: t('cockpit.ground'), flare: t('cockpit.flare'), special: t('cockpit.special'), pause: t('cockpit.pause'),
     objective: t('mission.objective'), kills: t('mission.kills'), cash: t('mission.cash'), route: t('mission.route'),
     empty: t('cockpit.empty'), none: t('cockpit.none'), warnMissile: t('cockpit.warnMissile'),
     warnLowHull: t('cockpit.warnLowHull'), warnBoss: t('cockpit.warnBoss'), warnPower: t('cockpit.warnPower'),
@@ -26,7 +29,7 @@ export function cockpitLabels(): CockpitLabels {
 
 export function cockpitButtons(p: Player): ButtonStates {
   return buttonStates({
-    secondaries: p.secondaries, secIndex: p.secIndex, secCooldown: p.secCooldown, flares: p.flares,
+    secondaries: p.secondaries, secCooldown: p.secCooldown, flares: p.flares,
     flareCapacity: p.stats.flares, specialCooldown: p.specialCooldown, specialMax: p.stats.plane.specialCooldown,
     specialActive: p.specialActive,
   });
@@ -42,8 +45,10 @@ function upcomingSpawns(w: World): Array<{ dt: number; x: number }> {
   return out;
 }
 
-export function leftView(w: World, p: Player, callsign: string, labels: CockpitLabels): LeftConsoleView {
+export function leftView(w: World, p: Player, callsign: string, labels: CockpitLabels, keys: CockpitKeys): LeftConsoleView {
   const b = cockpitButtons(p);
+  const nextAir = slotFor(p.secondaries, 'air');
+  const nextGround = slotFor(p.secondaries, 'ground');
   const boss = w.boss && w.boss.phase !== 'gone' ? { x: w.boss.x, y: w.boss.y } : null;
   return {
     plane: p.stats.plane.id, planeName: PLANES[p.stats.plane.id].name, callsign,
@@ -57,14 +62,16 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
     },
     hull: { ratio: p.hullRatio, value: Math.ceil(p.hull), max: p.maxHull },
     cannon: { level: p.gunLevel, powered: p.powerTimer > 0, powerRatio: Math.min(1, p.powerTimer / 12) },
-    stores: p.secondaries.map((s, i) => ({ id: s.id, short: SECONDARIES[s.id].short, ammo: s.ammo, selected: i === p.secIndex })),
-    buttons: { missile: b.missile, switch: b.switch },
-    keys: { missile: 'SHIFT', switch: 'Q' },
+    stores: p.secondaries.map((s, i) => ({
+      id: s.id, short: SECONDARIES[s.id].short, ammo: s.ammo, role: SECONDARIES[s.id].role, next: i === nextAir || i === nextGround,
+    })),
+    buttons: { air: b.air, ground: b.ground },
+    keys: { air: keys.air, ground: keys.ground },
     labels,
   };
 }
 
-export function rightView(w: World, p: Player, labels: CockpitLabels): RightConsoleView {
+export function rightView(w: World, p: Player, labels: CockpitLabels, keys: CockpitKeys): RightConsoleView {
   const m = w.mission;
   const b = cockpitButtons(p);
   const prog = objectiveProgress(m.objective, w.tally);
@@ -83,7 +90,34 @@ export function rightView(w: World, p: Player, labels: CockpitLabels): RightCons
     flare: { state: b.flare, count: p.flares },
     special: { ...b.special, name: planeSpecialName(p.stats.plane.id) },
     attitude: { bank: p.bank, forward: p.forward },
-    keys: { flare: 'F', special: 'E', pause: 'P' },
+    keys: { flare: keys.flare, special: keys.special, pause: keys.pause },
     labels,
   };
+}
+
+export interface CockpitKeys {
+  air: string;
+  ground: string;
+  flare: string;
+  special: string;
+  pause: string;
+}
+
+/** What to print on the console key caps for the device in use (doc 05). */
+export function cockpitKeys(device: Device, joystick: JoyProfile | null): CockpitKeys {
+  switch (device) {
+    case 'keyboard':
+    case 'mouse': return { air: 'R', ground: 'Q', flare: 'F', special: 'E', pause: 'P' };
+    case 'gamepad': return { air: 'B', ground: 'RB', flare: 'X', special: 'Y', pause: '☰' };
+    case 'touch': return { air: '', ground: '', flare: '', special: '', pause: '' };
+    case 'joystick': {
+      const buttons = (joystick ?? defaultProfile('')).buttons;
+      const btn = (a: JoyAction): string => {
+        const bind = buttons[a];
+        return bind ? `BTN ${bind.index + 1}` : '';
+      };
+      return { air: btn('missile'), ground: btn('switch'), flare: btn('flare'), special: btn('special'), pause: btn('pause') };
+    }
+    default: throw new Error(`unhandled: ${device satisfies never}`);
+  }
 }

@@ -115,6 +115,12 @@ The round ends at **61 s** (the shell's result card follows).
   where the finger went down, **60 px = full deflection**), clamped to length 1.
 - Inertia: `dv/dt = stick · 400 − v · 1.6` px/s², integrated exactly per tick (top speed **250 px/s**; let go
   and it coasts on for ~0.6 s, `v / 1.6` px).
+- **Forward thrust** (2026-10-25, owner: "up does not speed you up, the player is always too slow"):
+  pushing forward (stick up) is throttle — its thrust is **×1.3** (top forward speed 325 px/s), so
+  catching up after the lead's surge and holding the outside of a turn feel responsive. Back / sideways
+  are unchanged. ×1.6 was tried: the simulated 12 Hz keyboard pilots overshot and lost a medal tier, so
+  ×1.3 keeps the medal table. The likelier cause of the report was the joystick axis bug (doc 01: a stick
+  reporting 0…1 rested at "pull back"), fixed the same day.
 - **Turn drift**: in a turn the outside wing has to fly a bigger circle. With `r` = jet − lead,
   the jet is moved by `(ω · r.y, −ω · r.x) · dt` on top of its own velocity — in the left turn the right
   wing falls behind and slides in unless the pilot holds forward (adds power).

@@ -127,3 +127,32 @@ export function pauseButton(ctx: CanvasRenderingContext2D, r: Rect, label: strin
   ctx.fillRect(c.x + 23, c.y + c.h / 2 - 9, 5, 18);
   screenText(ctx, label, c.x + 36 + (c.w - 44) / 2, c.y + c.h / 2, { size: 13, align: 'center', maxW: c.w - 46, color: lit.ink, weight: 900, mono: false, spacing: 1 });
 }
+
+/** A readable key cap in the button's top-right corner (owner: show which key fires it). Live, not cached. */
+export function keyCap(ctx: CanvasRenderingContext2D, r: Rect, key: string): void {
+  if (!key) return;
+  ctx.save();
+  ctx.font = '800 13px "Arial Black", "Helvetica Neue", Arial, sans-serif';
+  const w = Math.max(24, ctx.measureText(key).width + 12);
+  const x = r.x + r.w - w - 3;
+  const y = r.y + 3;
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  ctx.roundRect(x + 1, y + 2, w, 20, 4);
+  ctx.fill();
+  const g = ctx.createLinearGradient(0, y, 0, y + 20);
+  g.addColorStop(0, '#f4f6f8');
+  g.addColorStop(1, '#c3c9cf');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, 20, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#6f7880';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = '#15191d';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(key, x + w / 2, y + 10.5);
+  ctx.restore();
+}

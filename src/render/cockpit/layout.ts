@@ -20,8 +20,8 @@ export const LEFT = Object.freeze({
   hull: { cx: 84, cy: 392, r: 56 },
   cannon: { x: 160, y: 340, w: 146, h: 108 },
   stores: { x: 14, y: 462, w: 292, h: 132 },
-  missileBtn: { x: 14, y: 606, w: 140, h: 96 },
-  switchBtn: { x: 166, y: 606, w: 140, h: 96 },
+  airBtn: { x: 14, y: 606, w: 140, h: 96 },
+  groundBtn: { x: 166, y: 606, w: 140, h: 96 },
 });
 
 export const RIGHT = Object.freeze({

@@ -140,14 +140,19 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
 
 ## Business Rules
 
-- **Input actions**: `up, down, left, right, fire, secondary, switchWeapon, flare, special, confirm, back, pause, mute, skip, hangar`.
-  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); Shift/K secondary; Q/L switch; F flare;
+- **Input actions**: `up, down, left, right, fire, secondary (air weapon), groundWeapon, flare, special, confirm, back, pause, mute, skip, hangar`.
+  (2026-10-25, owner: weapon switching was too hectic — two weapon keys instead of fire + switch, doc 05.)
+  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); R/K air weapon; Q/L ground weapon; F flare;
     E special; Enter confirm; Esc/Backspace back (Esc also pauses); P pause; M mute; S skip launch (also down);
     H hangar.
-  - Gamepad (standard mapping): left stick/d-pad move; A fire+confirm; B secondary+back; X flare; Y special; LB/RB switch; Start pause.
+    **No Shift key** (2026-10-25): Windows opens its Sticky Keys prompt ("Einrastfunktion") when Shift
+    is pressed five times in a row, and hectic players spam the missile key — a web page cannot
+    suppress that system dialog, so the missile moved from Shift to **R** (K stays). Ctrl is not used
+    either (Ctrl+W etc. would close the tab).
+  - Gamepad (standard mapping): left stick/d-pad move; A fire+confirm; B air weapon+back; X flare; Y special; LB/RB ground weapon; Start pause.
   - Joystick / HOTAS: see **Joystick** below.
   - Touch: drag anywhere in the playfield moves the plane relatively; autofire on while touching;
-    on-screen buttons for secondary / switch / flare / special / pause (rendered by the mission HUD).
+    on-screen buttons for air / ground / flare / special / pause (the cockpit consoles, doc 05).
   - `pressed(action)` is true only on the first update tick after the key goes down.
 - **Joystick / HOTAS** (USB flight sticks via the Gamepad API, 2026-10-25):
   - Every connected controller is read each tick. Which mapping applies to it:
@@ -155,8 +160,9 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     2. else the **standard gamepad** mapping above when the browser reports `mapping: 'standard'`;
     3. else the **default joystick** mapping: axis 0 = left/right, axis 1 = forward/back, button 0
        (trigger) = fire, 1 = missile, 2 = flare, 3 = special, 4 = switch, 5 = pause, no throttle.
-  - Joystick actions → game actions: **fire** → fire + confirm, **missile** → secondary + back,
-    **flare**, **special** (E: lock & launch on the carrier), **switch** → switchWeapon, **pause**.
+  - Joystick actions → game actions: **fire** → fire + confirm, **missile** → secondary (air weapon) + back,
+    **flare**, **special** (E: lock & launch on the carrier), **switch** → groundWeapon (the ground-weapon
+    key; the profile key name stays `switch` so saved setups keep working), **pause**.
     The stick also drives menu up/down/left/right (digital threshold 0.55 like the gamepad stick).
   - Stick axes use a 0.12 dead zone (flight sticks centre precisely; the gamepad keeps 0.3).
     Forward = up the screen, back = down.
@@ -169,8 +175,8 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
   - **JOYSTICK setup** (start menu item → setup screen). The browser only reveals a controller after
     one of its buttons is pressed, so the screen first asks for that. Then step by step, reading the raw
     controllers (game actions from controllers are suspended while the screen is open):
-    1. "Push the stick fully RIGHT" → the axis that moved most (≥ 0.6 from where it was when the step
-       started) is X; it is inverted if it moved negative.
+    1. "Push the stick fully RIGHT" → the axis that moved most (≥ 0.3 from where it was when the step
+       started) is X, calibrated to that rest point; it is inverted if it moved negative.
     2. "Pull the stick fully BACK" → same for Y (X excluded); back must read positive.
     3. "Pull the TRIGGER" → the first button that goes down is fire.
     4. "Throttle: move it end to end, leave it at FULL, pull the trigger" → on the trigger, the
@@ -183,6 +189,14 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     shows a summary for 2 s, then returns to the title.
   - The live panel on the setup screen shows every controller's axes and buttons so the player can
     see the stick is detected.
+  - **Axis calibration** (bug fix 2026-10-25: a stick whose axes report 0…1 resting at 0.5 was never
+    detected — a full push only moved 0.5 < 0.6 — and in game "left" read as 0 = no movement):
+    stick axes are normalised as `clamp((raw − center) / span, −1, 1)` (inverted if needed) before the
+    dead zone. The setup records `center` = the axis value at rest when the step started and
+    `span = max(0.2, 1 − |center|)`, and accepts a stick move of **≥ 0.3** (was 0.6). A controller
+    without a saved profile and without the standard mapping takes the first values it reports
+    (the stick at rest when it wakes up) as the centre of axes 0/1. Saved profiles may carry
+    `center` (−1…1) and `span` (0.2…2) per axis; missing = 0 / 1 (old profiles keep working).
 - **Audio** starts only after the first user gesture (browser autoplay policy). Mute state and
   volumes persist in `settings`.
 - **Save**: every read from localStorage passes through `parseSave(raw: unknown)`, which never

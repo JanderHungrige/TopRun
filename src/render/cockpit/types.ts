@@ -1,3 +1,4 @@
+import type { WeaponRole } from '../../data/weapons';
 import type { PlaneId, SecondaryId } from '../../data/types';
 import type { ButtonStates, Contact, WarningLights } from '../../game/cockpit';
 
@@ -10,8 +11,8 @@ export interface CockpitLabels {
   power: string;
   stores: string;
   noStores: string;
-  missile: string;
-  switch: string;
+  air: string;
+  ground: string;
   flare: string;
   special: string;
   pause: string;
@@ -36,10 +37,11 @@ export interface LeftConsoleView {
   radar: { contacts: readonly Contact[]; early: boolean };
   hull: { ratio: number; value: number; max: number };
   cannon: { level: number; powered: boolean; powerRatio: number };
-  stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; selected: boolean }>;
-  buttons: { missile: ButtonStates['missile']; switch: ButtonStates['switch'] };
-  /** Keyboard hints engraved on the buttons. */
-  keys: { missile: string; switch: string };
+  /** Mounted weapons; `role` A/G tag, `next` = the one the AIR / GROUND key fires next. */
+  stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; role: WeaponRole; next: boolean }>;
+  buttons: { air: ButtonStates['air']; ground: ButtonStates['ground'] };
+  /** Key caps on the buttons for the current input device ('' = none, e.g. touch). */
+  keys: { air: string; ground: string };
   labels: CockpitLabels;
 }
 
@@ -57,6 +59,7 @@ export interface RightConsoleView {
   special: ButtonStates['special'] & { name: string };
   /** Plane attitude for the artificial horizon: bank −1..1, forward 0..1 (nose-down pitch while pushing ahead). */
   attitude: { bank: number; forward: number };
+  /** Key caps for the current input device ('' = none). */
   keys: { flare: string; special: string; pause: string };
   labels: CockpitLabels;
 }

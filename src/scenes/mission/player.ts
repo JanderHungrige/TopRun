@@ -1,6 +1,6 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
-import { gunLevelDef, SECONDARIES } from '../../data/weapons';
+import { gunLevelDef } from '../../data/weapons';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
 
@@ -25,7 +25,6 @@ export class Player {
   invuln = 1.2;
   gunCooldown = 0;
   secCooldown = 0;
-  secIndex = 0;
   readonly secondaries: SecondarySlot[];
   flares: number;
   specialCooldown = 0;
@@ -63,9 +62,6 @@ export class Player {
     return this.invuln > 0 || (this.specialActive > 0 && this.stats.plane.special !== 'wingman');
   }
 
-  get currentSecondary(): SecondarySlot | undefined {
-    return this.secondaries[this.secIndex];
-  }
 
   /** Moves by a normalised direction plus a raw drag delta (touch), clamped to the playfield. */
   move(dir: { x: number; y: number }, drag: { x: number; y: number }, dt: number): void {
@@ -88,18 +84,6 @@ export class Player {
     this.rollSpin = Math.max(0, this.rollSpin - dt);
   }
 
-  switchSecondary(): boolean {
-    const n = this.secondaries.length;
-    for (let step = 1; step <= n; step++) {
-      const i = (this.secIndex + step) % n;
-      if ((this.secondaries[i]?.ammo ?? 0) > 0) {
-        const changed = i !== this.secIndex;
-        this.secIndex = i;
-        return changed;
-      }
-    }
-    return false;
-  }
 
   /** Applies damage; returns true when this hit destroyed the jet. */
   damage(amount: number): boolean {
@@ -126,8 +110,4 @@ export class Player {
     for (const s of this.secondaries) s.ammo = Math.min(s.start * 2, s.ammo + Math.ceil(s.start * 0.5));
   }
 
-  secondaryName(): string {
-    const s = this.currentSecondary;
-    return s ? SECONDARIES[s.id].short : '—';
-  }
 }

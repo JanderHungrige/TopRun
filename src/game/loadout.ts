@@ -2,7 +2,7 @@ import { ARMOR_BONUS, ENGINE_BONUS, FLARE_COUNT } from '../data/equipment';
 import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
-import { SECONDARIES } from '../data/weapons';
+import { SECONDARIES, type WeaponRole } from '../data/weapons';
 import type { SaveData } from './save';
 
 export interface SecondaryAmmo {
@@ -52,4 +52,9 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     earlyWarning: eq.radar > 0,
     livery: save.livery[plane.id],
   };
+}
+
+/** The slot the AIR or GROUND key fires: the first mounted weapon of that role with ammo, or −1 (doc 05). */
+export function slotFor(secondaries: ReadonlyArray<{ id: SecondaryId; ammo: number }>, role: WeaponRole): number {
+  return secondaries.findIndex((s) => s.ammo > 0 && SECONDARIES[s.id].role === role);
 }

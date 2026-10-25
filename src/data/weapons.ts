@@ -43,8 +43,16 @@ export function gunLevelDef(level: number): GunLevelDef {
 export type SecondaryHits = 'air' | 'ground' | 'any';
 export type SecondaryBehavior = 'homing' | 'fan' | 'bomb';
 
+/** Which weapon key fires it (doc 05): AIR (R) or GROUND (Q). */
+export type WeaponRole = 'air' | 'ground';
+
+export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
+  aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground',
+});
+
 export interface SecondaryDef {
   id: SecondaryId;
+  role: WeaponRole;
   name: string;
   short: string;
   price: number;
@@ -62,27 +70,27 @@ export interface SecondaryDef {
 
 export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.freeze({
   aim9: {
-    id: 'aim9', name: 'AIM-9 Sidewinder', short: 'AIM-9', price: 3000, ammoPerSlot: 6,
+    id: 'aim9', role: 'air', name: 'AIM-9 Sidewinder', short: 'AIM-9', price: 3000, ammoPerSlot: 6,
     damage: 60, radius: 0, hits: 'air', behavior: 'homing', cooldown: 0.35, speed: 520,
     turnRate: 3.5, planes: null, description: 'Heat-seeking air-to-air missile. Locks the nearest bandit ahead.',
   },
   rockets: {
-    id: 'rockets', name: 'Zuni Rocket Pod', short: 'ROCKETS', price: 4500, ammoPerSlot: 5,
+    id: 'rockets', role: 'ground', name: 'Zuni Rocket Pod', short: 'ROCKETS', price: 4500, ammoPerSlot: 5,
     damage: 25, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.5, speed: 620,
     turnRate: 0, planes: null, description: 'Fires a fan of five unguided rockets. Hits air and ground.',
   },
   mk82: {
-    id: 'mk82', name: 'Mk-82 Bombs', short: 'MK-82', price: 5000, ammoPerSlot: 6,
+    id: 'mk82', role: 'ground', name: 'Mk-82 Bombs', short: 'MK-82', price: 5000, ammoPerSlot: 6,
     damage: 140, radius: 70, hits: 'ground', behavior: 'bomb', cooldown: 0.5, speed: 0,
     turnRate: 0, planes: null, description: '500 lb free-fall bomb. Big blast radius against ground and sea targets.',
   },
   agm65: {
-    id: 'agm65', name: 'AGM-65 Maverick', short: 'AGM-65', price: 9000, ammoPerSlot: 4,
+    id: 'agm65', role: 'ground', name: 'AGM-65 Maverick', short: 'AGM-65', price: 9000, ammoPerSlot: 4,
     damage: 160, radius: 0, hits: 'ground', behavior: 'homing', cooldown: 0.6, speed: 430,
     turnRate: 3.0, planes: null, description: 'TV-guided air-to-ground missile. Seeks SAMs, tanks and ships.',
   },
   aim54: {
-    id: 'aim54', name: 'AIM-54 Phoenix', short: 'AIM-54', price: 15000, ammoPerSlot: 2,
+    id: 'aim54', role: 'air', name: 'AIM-54 Phoenix', short: 'AIM-54', price: 15000, ammoPerSlot: 2,
     damage: 320, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.8, speed: 480,
     turnRate: 2.6, planes: ['f14'], description: 'Long-range heavy missile. Devastating against bosses. F-14 only.',
   },

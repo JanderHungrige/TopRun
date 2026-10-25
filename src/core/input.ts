@@ -5,7 +5,7 @@ import { pollGamepad } from './gamepad';
 
 export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'switchWeapon' | 'flare' | 'special'
-  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'delete';
+  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
 
@@ -15,7 +15,7 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   Space: ['fire', 'confirm'], KeyJ: ['fire'], Enter: ['confirm'], NumpadEnter: ['confirm'],
   ShiftLeft: ['secondary'], ShiftRight: ['secondary'], KeyK: ['secondary'],
   KeyQ: ['switchWeapon'], KeyL: ['switchWeapon'], KeyF: ['flare'], KeyE: ['special'],
-  Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'],
+  Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
 };
 
 /** Pure action bookkeeping: sources (keys, pad buttons) map to actions; presses are latched per tick. */

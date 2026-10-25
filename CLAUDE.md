@@ -18,7 +18,9 @@ files from an nginx container behind the owner's reverse proxy.
 - All drawing is in logical 1280×720 units — never read `canvas.width` in game code.
 - Persist only through `GameContext.setSave()` (active pilot) and `setSettings()` (device-wide) —
   both write the profile store via `persistStore()`; never touch `localStorage` elsewhere.
-- Every player-visible string goes through `t()` / `line()` / `src/i18n/content.ts`. Add new UI keys
+- Every player-visible string goes through `t()` / `line()` / `src/i18n/content.ts`, or — for a
+  minigame — its own table in `src/i18n/minigames/<id>.ts` built with `gameText(en, de)` and read
+  with `mt()` (doc 10). Add new UI keys
   to `ui-en.ts` AND `ui-de.ts` (the compiler rejects a missing German key); same `{placeholders}`.
 - Characters talk only through `SpeechBox` + `src/game/dialogue-scripts.ts`; lines may use `{callsign}`.
 - Never ship real photos of people: avatars/portraits are original vector cartoons (repo and site are public).

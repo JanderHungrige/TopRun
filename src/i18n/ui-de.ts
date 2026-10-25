@@ -1,3 +1,4 @@
+import { UI_DE_OFFDUTY } from './ui-de-offduty';
 import type { UiKey } from './ui-en';
 
 // German UI strings. Record<UiKey, string>: the compiler rejects a missing key.
@@ -278,4 +279,5 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.painted': '{plane} lackiert: {livery}',
   'hangar.paintSide': 'AUF DEM TRÄGER',
   'debrief.newPaint': 'NEUE LACKIERUNG: {livery}',
+  ...UI_DE_OFFDUTY,
 };

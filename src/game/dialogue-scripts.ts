@@ -120,7 +120,8 @@ export function shooterLine(ev: ShooterEvent): LineRef {
 
 export type WingmanEvent =
   | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'halfway' | 'objectiveDone'
-  | 'bossWarning' | 'hullLow' | 'special' | 'victory';
+  | 'bossWarning' | 'hullLow' | 'special' | 'victory'
+  | 'base' | 'baseLocked' | 'offer' | 'offerNew';
 
 export const WINGMAN_EVENTS: Readonly<Record<WingmanEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   startPatrol: { key: 'wing.startPatrol', mood: 'neutral', gesture: 'thumbsUp' },
@@ -133,12 +134,19 @@ export const WINGMAN_EVENTS: Readonly<Record<WingmanEvent, { key: LineKey; mood:
   hullLow: { key: 'wing.hullLow', mood: 'worried', gesture: 'none' },
   special: { key: 'wing.special', mood: 'happy', gesture: 'thumbsUp' },
   victory: { key: 'wing.victory', mood: 'happy', gesture: 'thumbsUp' },
+  base: { key: 'wing.base', mood: 'happy', gesture: 'none' },
+  baseLocked: { key: 'wing.baseLocked', mood: 'neutral', gesture: 'point' },
+  offer: { key: 'wing.offer', mood: 'happy', gesture: 'thumbsUp' },
+  offerNew: { key: 'wing.offerNew', mood: 'happy', gesture: 'point' },
 };
 
 export function wingmanLine(ev: WingmanEvent, params?: Params): LineRef {
   const e = WINGMAN_EVENTS[ev];
   return ref('wingman', e.key, e.mood, e.gesture, params);
 }
+
+/** The wingman off duty: BASE hub and after-mission offers (doc 11). */
+export const baseLine = (ev: 'base' | 'baseLocked' | 'offer' | 'offerNew', params?: Params): LineRef => wingmanLine(ev, params);
 
 /** The wingman's opening call, flavoured by the mission objective. */
 export function wingmanStart(o: Objective): LineRef {

@@ -209,6 +209,22 @@ export const LINES_EN = {
     "Yeehaw! That's how it's done, {callsign}!",
     "Great flying, {callsign}! Drinks are on me tonight.",
   ],
+  'wing.base': [
+    "Welcome back to base, {callsign}. Fancy a little off-duty fun?",
+    "Downtime, {callsign}! What'll it be?",
+  ],
+  'wing.baseLocked': [
+    "That one opens up after mission {n}. Keep flying!",
+    "Not yet. Clear mission {n} first.",
+  ],
+  'wing.offer': [
+    "Good flying! Up for a round of {game} before the next sortie?",
+    "Hey, the crew's doing {game}. You in?",
+  ],
+  'wing.offerNew': [
+    "New on base: {game}! Want to give it a go?",
+    "Check it out, {game} just opened up. Try it?",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type LineKey = keyof typeof LINES_EN;

@@ -10,9 +10,11 @@ export interface Settings {
   lang: Lang;
   /** Joystick / HOTAS bindings from the JOYSTICK setup (doc 01), null = defaults. */
   joystick: JoyProfile | null;
+  /** Offer an off-duty minigame after some missions (doc 10). */
+  minigameOffers: boolean;
 }
 
-export const defaultSettings = (): Settings => ({ music: 0.6, sfx: 0.8, autofire: false, muted: false, lang: 'en', joystick: null });
+export const defaultSettings = (): Settings => ({ music: 0.6, sfx: 0.8, autofire: false, muted: false, lang: 'en', joystick: null, minigameOffers: true });
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -30,5 +32,6 @@ export function parseSettings(v: unknown): Settings {
     muted: typeof v.muted === 'boolean' ? v.muted : d.muted,
     lang: isLang(v.lang) ? v.lang : d.lang,
     joystick: parseJoyProfile(v.joystick),
+    minigameOffers: typeof v.minigameOffers === 'boolean' ? v.minigameOffers : d.minigameOffers,
   };
 }

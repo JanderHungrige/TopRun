@@ -6,6 +6,7 @@ import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import { debriefScript } from '../game/dialogue-scripts';
 import { applyResult, type Payout } from '../game/economy';
 import { newlyUnlocked } from '../game/liveries';
+import { offerAfterMission } from '../game/minigames/core';
 import { campaignComplete } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { liveryName, missionName, objectiveText } from '../i18n/content';
@@ -14,6 +15,7 @@ import type { UiKey } from '../i18n/ui-en';
 import { drawPlaneTop } from '../render/draw-planes';
 import { COLORS, text } from '../render/text';
 import { pilotContext, SpeechBox } from '../ui/speech';
+import { playableIds } from './minigames/registry';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
@@ -36,11 +38,17 @@ export class DebriefScene implements Scene {
   private readonly admiral: SpeechBox;
   /** Paint jobs this mission unlocked (doc 09). */
   private readonly liveries: LiveryId[];
+  /** Off-duty minigame offered on CONTINUE (doc 11). */
+  private readonly offer: ReturnType<typeof offerAfterMission>;
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
     const applied = applyResult(game.save, mission, result);
     this.liveries = newlyUnlocked(game.save.progress, applied.save.progress);
+    this.offer = result.success ? offerAfterMission({
+      missionNumber: mission.number, before: game.save.progress, after: applied.save.progress,
+      playable: playableIds(), enabled: game.settings.minigameOffers,
+    }) : null;
     game.setSave(applied.save);
     this.payout = applied.payout;
     this.stars = applied.stars;
@@ -81,6 +89,7 @@ export class DebriefScene implements Scene {
     this.game.audio.play('uiSelect');
     if (to === 'retry') this.game.go({ to: 'takeoff', mission: this.mission });
     else if (to === 'hangar') this.game.go({ to: 'hangar' });
+    else if (this.offer) this.game.go({ to: 'offer', id: this.offer.id, isNew: this.offer.isNew });
     else this.game.go({ to: 'map', select: this.result.success ? undefined : this.mission.id });
   }
 

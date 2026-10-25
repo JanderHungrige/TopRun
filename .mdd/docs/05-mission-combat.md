@@ -204,7 +204,7 @@ None.
   - **Left console**: name plate (jet + callsign) · **RADAR** scope (circular, sweeping beam) ·
     **HULL** analog dial (green > 60 %, amber 30–60 %, red < 30 %) with digital readout · **CANNON**
     level lamps 1–5 + power-up lamp/timer · **STORES** screen (mounted weapons, ammo, selected one
-    bracketed) · buttons **MISSILE** (Shift) and **SWITCH** (Q).
+    bracketed) · buttons **MISSILE** (R) and **SWITCH** (Q).
   - **Right console**: mission screen (number, name, objective + progress, kills, cash, route, boss
     hull when present) · **warning panel** (MISSILE, LOW HULL, BOSS, POWER, ECM, DMG CTRL lamps) ·
     big buttons **FLARE** (F, with count) and **SPECIAL** (E, with recharge ring) · **PAUSE**.

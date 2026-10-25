@@ -13,7 +13,7 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   ArrowUp: ['up'], KeyW: ['up'], ArrowDown: ['down'], KeyS: ['down', 'skip'],
   ArrowLeft: ['left'], KeyA: ['left'], ArrowRight: ['right'], KeyD: ['right'],
   Space: ['fire', 'confirm'], KeyJ: ['fire'], Enter: ['confirm'], NumpadEnter: ['confirm'],
-  ShiftLeft: ['secondary'], ShiftRight: ['secondary'], KeyK: ['secondary'],
+  KeyR: ['secondary'], KeyK: ['secondary'], // never Shift: 5× Shift opens the Windows Sticky Keys prompt
   KeyQ: ['switchWeapon'], KeyL: ['switchWeapon'], KeyF: ['flare'], KeyE: ['special'],
   Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
 };

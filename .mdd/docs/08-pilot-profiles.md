@@ -54,6 +54,12 @@ Several people can play on one device. A new player types a **callsign** and pic
 three **pilot avatars**; their progress (money, jets, weapons, stars) is saved in their own
 profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 
+> **Pixel look (2026-10-25, doc 20):** the three avatars are pixel art drawn through the same bust pipeline as
+> the portraits (`src/render/pixel/bust.ts`); `drawAvatar` keeps its API. Skies are banded gradients with
+> dithered seams and a banded sun glow, clouds drift as pixel sprites, mouths/blinks use the portrait frames,
+> and `selected` is a pulsing gold pixel border with a dithered inner glow and a twinkling corner star.
+> Checked on the new-pilot cards (240×288), the pilot list (160×198) and the map header (50×60).
+
 ## Architecture
 
 ```

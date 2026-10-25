@@ -10,6 +10,10 @@ source_files:
   - src/ui/speech.ts
   - src/render/portraits/index.ts
   - src/render/portraits/parts.ts
+  - src/render/portraits/types.ts
+  - src/render/portraits/features.ts
+  - src/render/portraits/hands.ts
+  - src/render/typed-text.ts
   - src/render/portraits/admiral.ts
   - src/render/portraits/chief.ts
   - src/render/portraits/shooter.ts
@@ -55,6 +59,19 @@ portraits "pretend to talk" (animated mouth, blinking, moods, hand gestures, bab
 give the game personality: the admiral delivers the debrief while the pay is counted out, the
 crew chief comments in the hangar, the deck officer coaches the carrier launch and the wingman
 calls in over the radio during missions.
+
+> **Pixel look (2026-10-25, doc 20):** the portraits are modern hi-res pixel art and the comic bubble is a
+> retro RPG text box. `drawPortrait` keeps its API; each character is rasterised through `src/render/pixel/`
+> (cached background + outlined figure per animation frame + ambient sprites). Animation is quantised to pixel
+> frames: mouth closed/half/open, a 3-frame blink, ±1 px glances, a 2-frame idle phase, a 1-px breathing drop;
+> mood tilt is dropped, the mood nod is a whole-pixel drop. Features are hand-placed per pixel
+> (`portraits/features.ts`), gestures live in `portraits/hands.ts`. `radio: true` remaps the palette onto a
+> green phosphor ramp with pixel scanlines, flicker, noise and corner brackets. `SpeechBox` style `comic` draws
+> a dark navy box with a bevelled pixel border, a framed portrait, a gold name plate on the top edge, the line
+> in the typewriter font (`FONT_TYPE`) with a blinking block cursor while typing and waiting, and a bobbing ▼
+> when more lines are queued; `radio` keeps the green strip with the same typed text and cursor. Timing, voice
+> blips, layout rects and the public API are unchanged; the full line is wrapped up front so words no longer
+> jump lines while they are typed.
 
 ## Architecture
 

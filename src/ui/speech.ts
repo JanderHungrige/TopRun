@@ -5,10 +5,12 @@ import type { LineRef } from '../game/dialogue-scripts';
 import type { GameContext } from '../game/state';
 import { line, type Params } from '../i18n/i18n';
 import { drawPortrait, type Box, type CharacterId, type Gesture, type Mood } from '../render/portraits';
-import { paragraph, text, wrap } from '../render/text';
+import { frameAround, moreArrow, NAME_PLATE, PORTRAIT_FRAME, pixelFrame, RADIO_BOX, RPG_BOX } from '../render/pixel/frame';
+import { setFont, text, wrap } from '../render/text';
+import { typedLines } from '../render/typed-text';
 import { hit } from './widgets';
 
-// One talking character slot: portrait + speech bubble + voice (doc 06).
+// One talking character slot: framed pixel portrait + retro RPG text box (or radio strip) + voice (doc 06, doc 20).
 
 /** The active pilot's callsign for {callsign} in spoken lines. */
 export const pilotContext = (game: Pick<GameContext, 'profile'>) => (): Params => ({ callsign: game.profile?.callsign ?? 'PILOT' });
@@ -130,63 +132,57 @@ export class SpeechBox {
     const c = this.current;
     const talking = c !== null && c.t < typingTime(c.text);
     const speaker = c?.ref.speaker ?? this.idleSpeaker;
+    const radio = this.layout.style === 'radio';
+    const p = this.layout.portrait;
     ctx.save();
     ctx.globalAlpha = this.appear;
-    const p = this.layout.portrait;
-    drawPortrait(ctx, speaker, p, {
-      t: this.clock, mouth: mouthOpen(this.clock, talking), mood: this.mood,
-      gesture: this.gesture, radio: this.layout.style === 'radio',
-    });
-    if (c) this.renderBubble(ctx, c);
+    frameAround(ctx, p, radio ? RADIO_BOX : PORTRAIT_FRAME, radio ? 1 : 2);
+    drawPortrait(ctx, speaker, p, { t: this.clock, mouth: mouthOpen(this.clock, talking), mood: this.mood, gesture: this.gesture, radio });
+    if (c) this.renderBox(ctx, c, talking);
     ctx.restore();
   }
 
-  private renderBubble(ctx: CanvasRenderingContext2D, c: Current): void {
+  /** Retro RPG text box (or the green radio strip): frame, name, typed lines, block cursor, "more" arrow. */
+  private renderBox(ctx: CanvasRenderingContext2D, c: Current, typing: boolean): void {
     const b = this.layout.bubble;
     const radio = this.layout.style === 'radio';
-    ctx.beginPath();
-    ctx.roundRect(b.x, b.y, b.w, b.h, radio ? 6 : 14);
-    ctx.fillStyle = radio ? 'rgba(6,22,18,0.88)' : '#f6f1e4';
-    ctx.fill();
-    ctx.lineWidth = radio ? 1.5 : 3;
-    ctx.strokeStyle = radio ? 'rgba(120,255,200,0.6)' : '#1b2430';
-    ctx.stroke();
-    if (!radio) this.renderTail(ctx, b);
-    const nameColor = radio ? '#7dffc8' : '#b02a2a';
-    text(ctx, SPEAKER_NAMES[c.ref.speaker], b.x + 14, b.y + 20, { size: 12, display: true, color: nameColor, letterSpacing: 1 });
-    const shown = typewriter(c.text, c.t);
-    const size = this.fitSize(ctx, c.text, b);
-    paragraph(ctx, shown, b.x + 14, b.y + 26 + size, b.w - 28, {
-      size, weight: 600, color: radio ? '#c9ffe6' : '#1b2430', lineHeight: Math.round(size * 1.3),
+    const look = radio ? RADIO_LOOK : RPG_LOOK;
+    const size = this.fitSize(ctx, c.text, b, look);
+    pixelFrame(ctx, b, radio ? RADIO_BOX : RPG_BOX, radio ? 1 : 2);
+    if (radio) text(ctx, SPEAKER_NAMES[c.ref.speaker], b.x + look.pad, b.y + 18, { size: 12, type: true, weight: 700, color: look.name });
+    else namePlate(ctx, b, SPEAKER_NAMES[c.ref.speaker], look);
+    const lines = wrap(ctx, c.text, b.w - look.pad * 2, size, true);
+    const blinkOn = Math.floor(this.clock * 3.4) % 2 === 0;
+    typedLines(ctx, lines, typewriter(c.text, c.t).length, b.x + look.pad, b.y + look.top + size, {
+      size, color: look.text, lineHeight: lineHeight(size), cursor: blinkOn ? look.cursor : null,
     });
+    if (!typing && this.queue.length > 0) moreArrow(ctx, b.x + b.w - 20, b.y + b.h - 18, look.cursor, this.clock);
   }
 
-  /** Shrinks the font until the full line fits the bubble. */
-  private fitSize(ctx: CanvasRenderingContext2D, full: string, b: Box): number {
-    for (let size = this.layout.fontSize; size > 10; size -= 1) {
-      const lines = wrap(ctx, full, b.w - 28, size).length;
-      if (26 + size + (lines - 1) * size * 1.3 + 8 <= b.h) return size;
+  /** Shrinks the font until the full line fits the box. */
+  private fitSize(ctx: CanvasRenderingContext2D, full: string, b: Box, look: BoxLook): number {
+    for (let size = this.layout.fontSize; size > 11; size -= 1) {
+      const lines = wrap(ctx, full, b.w - look.pad * 2, size, true).length;
+      if (look.top + size + (lines - 1) * lineHeight(size) + 10 <= b.h) return size;
     }
-    return 10;
-  }
-
-  private renderTail(ctx: CanvasRenderingContext2D, b: Box): void {
-    const p = this.layout.portrait;
-    const tailY = Math.min(b.y + b.h - 18, Math.max(b.y + 18, p.y + p.h * 0.35));
-    const fromLeft = p.x + p.w <= b.x;
-    const bx = fromLeft ? b.x : b.x + b.w;
-    const tip = fromLeft ? bx - 18 : bx + 18;
-    ctx.beginPath();
-    ctx.moveTo(bx + (fromLeft ? 2 : -2), tailY - 10);
-    ctx.lineTo(tip, tailY + 4);
-    ctx.lineTo(bx + (fromLeft ? 2 : -2), tailY + 10);
-    ctx.closePath();
-    ctx.fillStyle = '#f6f1e4';
-    ctx.fill();
-    ctx.strokeStyle = '#1b2430';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillRect(bx + (fromLeft ? 0 : -3), tailY - 8, 3, 16);
+    return 11;
   }
 }
 
+interface BoxLook { pad: number; top: number; text: string; cursor: string; name: string }
+
+const RPG_LOOK: BoxLook = { pad: 18, top: 13, text: '#f3ead2', cursor: '#ffd76a', name: '#ffd76a' };
+const RADIO_LOOK: BoxLook = { pad: 14, top: 24, text: '#c9ffe6', cursor: '#7dffc8', name: '#7dffc8' };
+const lineHeight = (size: number): number => Math.round(size * 1.3);
+
+/** Gold name plate sitting on the box's top edge. */
+function namePlate(ctx: CanvasRenderingContext2D, b: Box, name: string, look: BoxLook): void {
+  const size = 13;
+  ctx.save();
+  setFont(ctx, size, false, 700, false, true);
+  const w = ctx.measureText(name).width;
+  ctx.restore();
+  const plate = { x: b.x + 12, y: b.y - 12, w: w + 32, h: 24 };
+  pixelFrame(ctx, plate, NAME_PLATE, 2);
+  text(ctx, name, plate.x + 16, plate.y + 16.5, { size, type: true, weight: 700, color: look.name });
+}

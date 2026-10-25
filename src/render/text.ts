@@ -1,5 +1,7 @@
 export const FONT_DISPLAY = '"Arial Black", "Helvetica Neue", Arial, sans-serif';
 export const FONT_BODY = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+/** Typewriter face for dialogue, briefings, debrief and minigame offer/rules lines (doc 20); system fonts only. */
+export const FONT_TYPE = '"American Typewriter", "Courier Prime", "Courier New", Courier, monospace';
 
 export const COLORS = Object.freeze({
   ink: '#e9eff5',
@@ -29,16 +31,18 @@ export interface TextOpts {
   alpha?: number;
   maxWidth?: number;
   letterSpacing?: number;
+  /** Typewriter font (dialogue, briefings); ignored when `display` is set. */
+  type?: boolean;
 }
 
-export function setFont(ctx: CanvasRenderingContext2D, size: number, display = false, weight = 600, italic = false): void {
-  const family = display ? FONT_DISPLAY : FONT_BODY;
+export function setFont(ctx: CanvasRenderingContext2D, size: number, display = false, weight = 600, italic = false, type = false): void {
+  const family = display ? FONT_DISPLAY : type ? FONT_TYPE : FONT_BODY;
   ctx.font = `${italic ? 'italic ' : ''}${display ? 900 : weight} ${size}px ${family}`;
 }
 
 export function text(ctx: CanvasRenderingContext2D, s: string, x: number, y: number, o: TextOpts = {}): void {
   ctx.save();
-  setFont(ctx, o.size ?? 16, o.display ?? false, o.weight ?? 600, o.italic ?? false);
+  setFont(ctx, o.size ?? 16, o.display ?? false, o.weight ?? 600, o.italic ?? false, o.type ?? false);
   ctx.textAlign = o.align ?? 'left';
   ctx.textBaseline = o.baseline ?? 'alphabetic';
   if (o.letterSpacing) ctx.letterSpacing = `${o.letterSpacing}px`;
@@ -59,22 +63,22 @@ export function text(ctx: CanvasRenderingContext2D, s: string, x: number, y: num
   ctx.restore();
 }
 
-export function measure(ctx: CanvasRenderingContext2D, s: string, size: number, display = false): number {
+export function measure(ctx: CanvasRenderingContext2D, s: string, size: number, display = false, type = false): number {
   ctx.save();
-  setFont(ctx, size, display);
+  setFont(ctx, size, display, 600, false, type);
   const w = ctx.measureText(s).width;
   ctx.restore();
   return w;
 }
 
 /** Greedy word wrap into lines no wider than maxWidth. */
-export function wrap(ctx: CanvasRenderingContext2D, s: string, maxWidth: number, size: number): string[] {
+export function wrap(ctx: CanvasRenderingContext2D, s: string, maxWidth: number, size: number, type = false): string[] {
   const words = s.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let line = '';
   for (const w of words) {
     const candidate = line ? `${line} ${w}` : w;
-    if (line && measure(ctx, candidate, size) > maxWidth) {
+    if (line && measure(ctx, candidate, size, false, type) > maxWidth) {
       lines.push(line);
       line = w;
     } else {
@@ -90,7 +94,7 @@ export function paragraph(
 ): number {
   const size = o.size ?? 15;
   const lh = o.lineHeight ?? Math.round(size * 1.4);
-  const lines = wrap(ctx, s, maxWidth, size);
+  const lines = wrap(ctx, s, maxWidth, size, o.type ?? false);
   lines.forEach((l, i) => text(ctx, l, x, y + i * lh, { ...o, size }));
   return lines.length * lh;
 }

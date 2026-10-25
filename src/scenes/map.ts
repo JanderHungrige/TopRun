@@ -132,7 +132,7 @@ export class MapScene implements Scene {
     const cleared = isCleared(s, m);
     text(ctx, t('map.reward'), x + 180, PANEL.y + 128, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
     text(ctx, formatMoney(cleared ? m.reward * 0.5 : m.reward) + (cleared ? `  ${t('map.replay')}` : ''), x + 244, PANEL.y + 129, { size: 14, color: COLORS.green });
-    const h = paragraph(ctx, missionBriefing(m), x, PANEL.y + 164, PANEL.w - 40, { size: 15, color: COLORS.ink });
+    const h = paragraph(ctx, missionBriefing(m), x, PANEL.y + 164, PANEL.w - 40, { size: 15, color: COLORS.ink, type: true });
     let y = PANEL.y + 182 + h;
     text(ctx, t('map.contacts'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
     paragraph(ctx, m.pool.map((k) => enemyName(k)).join('  ·  '), x, y + 22, PANEL.w - 40, { size: 13, color: COLORS.cyan });

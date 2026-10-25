@@ -109,9 +109,9 @@ function towel(ctx: CanvasRenderingContext2D, t: FrontTorso): void {
 
 function extrasFor(f: Fan, cheer: number): FrontExtras {
   switch (f.extra) {
-    case 'coach': return { head: cap, chest: (ctx, t) => whistle(ctx, t, cheer) };
-    case 'towel': return { chest: towel };
-    case 'shades': return { head: shades };
+    case 'coach': return { head: cap, chest: (ctx, t) => whistle(ctx, t, cheer), key: `coach${cheer > 0.5 ? 1 : 0}` };
+    case 'towel': return { chest: towel, key: 'towel' };
+    case 'shades': return { head: shades, key: 'shades' };
     default: throw new Error(`unhandled: ${f.extra satisfies never}`);
   }
 }

@@ -29,7 +29,7 @@ export function drawRulesCard(ctx: CanvasRenderingContext2D, mod: MinigameModule
   text(ctx, name.toUpperCase(), CARD.x + 220, CARD.y + 70, { size: 30, display: true, italic: true, color: COLORS.gold, maxWidth: CARD.w - 250 });
   text(ctx, best ? t('mg.best', { score: best }) : t('mg.noBest'), CARD.x + 220, CARD.y + 104, { size: 15, color: COLORS.dim });
   const r = mod.rules();
-  r.lines.forEach((ln, i) => text(ctx, ln, CARD.x + 220, CARD.y + 150 + i * 28, { size: 17, color: COLORS.ink, maxWidth: CARD.w - 250 }));
+  r.lines.forEach((ln, i) => text(ctx, ln, CARD.x + 220, CARD.y + 150 + i * 28, { size: 17, color: COLORS.ink, maxWidth: CARD.w - 250, type: true }));
   const cy = CARD.y + 170 + r.lines.length * 28;
   text(ctx, t('mg.controls'), CARD.x + 40, cy, { size: 12, color: COLORS.dim, letterSpacing: 2 });
   r.controls.forEach((c, i) => text(ctx, c, CARD.x + 40, cy + 28 + i * 25, { size: 15, color: COLORS.cyan, maxWidth: CARD.w - 80 }));

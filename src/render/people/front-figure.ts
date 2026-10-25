@@ -28,6 +28,8 @@ export interface FrontExtras {
   head?: (ctx: CanvasRenderingContext2D, m: HeadMap) => void;
   /** Drawn in the torso frame after the clothes (whistle, towel). */
   chest?: (ctx: CanvasRenderingContext2D, t: FrontTorso) => void;
+  /** Pixel-cache key for what `head` / `chest` draw (doc 20); needed when they are closures over changing state. */
+  key?: string;
 }
 
 const HIP_Y = -(BODY.ankle + BODY.shin + BODY.thigh);
@@ -137,8 +139,8 @@ function head(ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, 
   ctx.restore();
 }
 
-/** Draws a standing three-quarter person in the current transform. */
-export function drawFrontFigure(ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, face: FaceState, extras?: FrontExtras): void {
+/** Draws a standing three-quarter person in the current transform as vector art (pixel.ts pixelates it). */
+export function drawFrontVector(ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, face: FaceState, extras?: FrontExtras): void {
   const ft = frontTorso(pose.turn);
   const shift = 7 * Math.sin(pose.turn);
   const far: 1 | -1 = pose.turn >= 0 ? 1 : -1;

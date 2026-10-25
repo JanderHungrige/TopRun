@@ -1,7 +1,8 @@
 import { clamp, TAU } from '../../core/math';
+import { drawPixelated } from '../pixel/capture';
 
 // The controller in the Tower Flyby cab (doc 13): an original cartoon with a headset, a moustache and a
-// coffee mug. Drawn in local units: origin = top of his console, y up is negative.
+// coffee mug, shown as pixel art (doc 20). Drawn in local units: origin = top of his console, y up is negative.
 
 export type ControllerMood = 'idle' | 'spill' | 'flinch' | 'duck';
 
@@ -261,19 +262,31 @@ function flyingMug(ctx: CanvasRenderingContext2D, m: number): void {
   mug(ctx, 10 + 40 * m, -12 - 150 * m + 330 * m * m, m * 14, false);
 }
 
-export function drawController(ctx: CanvasRenderingContext2D, x: number, y: number, v: ControllerView): void {
-  const p = pose(v);
-  ctx.save();
-  ctx.translate(x, y + p.dy);
-  body(ctx, v.stains);
-  face(ctx, p, v.look);
+const BOUNDS = { x: -26, y: -56, w: 62, h: 64 };
+const qn = (v: number, step: number): number => Math.round(v / step) * step;
+
+function figure(ctx: CanvasRenderingContext2D, p: Pose, look: number, full: boolean, stains: number): void {
+  body(ctx, stains);
+  face(ctx, p, look);
   hairAndHeadset(ctx, p.hair);
   if (p.fist > 0) arm(ctx, [-10, -17], [-14 - 4 * p.fist, -20 - 18 * p.fist]);
-  if (!p.cupGone) {
-    arm(ctx, [10, -17], p.hand);
-    mug(ctx, p.hand[0] + 1, p.hand[1] + 1, p.cup, v.mood === 'idle' || v.moodT < SPILL_AT || v.mood === 'flinch');
-    drops(ctx, v, [p.hand[0] + 3, p.hand[1] - 6]);
-  }
+  if (p.cupGone) return;
+  arm(ctx, [10, -17], p.hand);
+  mug(ctx, p.hand[0] + 1, p.hand[1] + 1, p.cup, full);
+}
+
+/** The controller as pixel art (doc 20): his pose is quantised to frames and cached; coffee drops stay particles. */
+export function drawController(ctx: CanvasRenderingContext2D, x: number, y: number, v: ControllerView): void {
+  const raw = pose(v);
+  const p: Pose = { ...raw, hand: [qn(raw.hand[0], 1), qn(raw.hand[1], 1)], cup: qn(raw.cup, 0.15), hair: qn(raw.hair, 0.25), fist: qn(raw.fist, 0.25) };
+  const look = qn(v.look, 0.5);
+  const full = v.mood === 'idle' || v.moodT < SPILL_AT || v.mood === 'flinch';
+  const stains = Math.ceil(Math.min(3, v.stains));
+  ctx.save();
+  ctx.translate(x, y + Math.round(raw.dy));
+  const key = `ctl|${p.hand.join()}|${p.cup}|${p.eyes}|${p.mouth}|${p.hair}|${p.fist}|${p.cupGone}|${look}|${full}|${stains}`;
+  drawPixelated(ctx, key, BOUNDS, (g) => figure(g, p, look, full, stains), { units: 1.3, minD: 1 });
+  if (!p.cupGone) drops(ctx, v, [raw.hand[0] + 3, raw.hand[1] - 6]);
   ctx.restore();
   if (p.cupGone) {
     ctx.save();

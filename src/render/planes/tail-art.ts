@@ -165,11 +165,11 @@ export function finArtSide(ctx: CanvasRenderingContext2D, l: Look, f: Fin, size:
   ctx.restore();
 }
 
-/** Top-view fins: the tail colour, plus bands across the fin as a cue of the art (stripes / chevrons / rays). */
-export function finArtTop(ctx: CanvasRenderingContext2D, l: Look, fins: readonly Fin[]): void {
+/** Top-view fins: the tail colour plus bands as a cue of the art; `plain` tints fins of liveries without tail art. */
+export function finArtTop(ctx: CanvasRenderingContext2D, l: Look, fins: readonly Fin[], plain = 'rgba(255,255,255,0.1)'): void {
   const art = l.tail;
   if (art.kind === 'none') {
-    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.fillStyle = plain;
     for (const f of fins) ctx.fill(f.path);
     return;
   }

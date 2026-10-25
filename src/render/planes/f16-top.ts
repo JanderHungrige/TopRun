@@ -8,59 +8,61 @@ import type { Fin, Surface, TopOpts } from './surface';
 import { finArtTop } from './tail-art';
 
 
-/** F-16 seen from above, nose up (-y). ~50 px span with tip missiles, ~62 px long at scale 1. */
+/**
+ * F-16 seen from above, nose up (-y). Real proportions (15.1 m long, 10.0 m span over the tip missiles,
+ * length ≈ 1.5 × span): ~66 px long, ~45 px wide at scale 1.
+ */
 
-const FUSE: Pts = [0, -33, 0.9, -31.6, 1.7, -29.6, 2.3, -27.6, 2.7, -25.6, 3.0, -23, 3.2, -20, 3.4, -16.5, 3.7, -11, 4.0, -5,
-  4.3, 2, 4.5, 9, 4.6, 15, 4.6, 20, 4.3, 24, 3.6, 26.4, 2.9, 27.2, 0, 27.4];
-const WING: Pts = [3.3, -16.5, 4.3, -13, 5.5, -9.2, 6.9, -5.8, 8.4, -2.6, 22.6, 9.4, 22.6, 13.4, 4.4, 14.8, 3.6, 0];
-const RAIL: Pts = [22.2, 3.5, 23.6, 3.5, 23.6, 14.2, 22.2, 14.2];
-const STAB: Pts = [3.4, 18.2, 15.6, 25.4, 15.9, 28.4, 3.4, 28.6];
-const FIN: Pts = [0, 8.5, 0.5, 11, 0.9, 15, 1.0, 20, 0.8, 25, 0.5, 27.8, 0, 28.2];
-const CANOPY: Pts = [0, -23.6, 1.0, -22.2, 1.7, -19.8, 2.1, -16.8, 2.2, -14, 2.0, -11.4, 1.6, -9.6, 0.9, -8.4, 0, -8.0];
-const FLAPERON: Pts = [5, 11.95, 15.5, 11.15, 15.5, 13.95, 5, 14.75];
-const MISSILE_X = 24.4;
+const FUSE: Pts = [0, -34.5, 0.8, -33.0, 1.5, -31.0, 2.05, -28.8, 2.45, -26.4, 2.7, -24, 2.85, -21, 2.95, -18, 3.1, -14, 3.3, -9,
+  3.5, -3, 3.7, 4, 3.8, 10, 3.8, 16, 3.6, 21, 3.3, 24.5, 2.9, 26.8, 2.4, 27.6, 0, 27.8];
+const WING: Pts = [2.9, -17, 3.6, -14, 4.5, -11, 5.6, -8.4, 6.8, -6.2, 7.6, -5.0, 19.4, 4.9, 19.4, 9.3, 3.7, 11.0, 3.0, 0];
+const RAIL: Pts = [19.0, 0.5, 20.2, 0.5, 20.2, 10.2, 19.0, 10.2];
+const STAB: Pts = [3.0, 15.2, 12.2, 22.4, 12.4, 27.0, 3.0, 27.8];
+const FIN: Pts = [0, 7, 0.45, 9.5, 0.85, 13.5, 0.95, 18, 0.8, 23, 0.5, 26.6, 0, 27.4];
+const CANOPY: Pts = [0, -22.6, 0.95, -21.2, 1.6, -18.8, 2.0, -16.0, 2.1, -13.4, 1.95, -11.0, 1.55, -9.3, 0.85, -8.3, 0, -7.9];
+const FLAPERON: Pts = [4.5, 8.51, 13.5, 7.54, 13.5, 9.94, 4.5, 10.91];
+const MISSILE_X = 20.6;
+
+function surface(clip: Path2D): Surface {
+  return {
+    key: 'f16-top', clip, box: bounds(sym(FUSE), WING, mirror(WING), STAB, mirror(STAB)), cell: 8,
+    twoTone: polys(sym([0, -12, 2.8, -13.5, 5.0, -8, 8.4, -1.6, 11.0, 2.6, 10.8, 7.0, 8.0, 11.0, 4.2, 12.8, 3.6, 20, 2.2, 26, 0, 26])),
+    radome: polys(sym([0, -34.5, 0.8, -33.0, 1.5, -31.0, 2.05, -28.8, 2.45, -26.4, 0, -26.0])),
+    band: { x: -3, y: -29, w: 6, h: 2.6 },
+    nose: { x: -3.6, y: -35.5, w: 7.2, h: 18, dir: 'x', out: 1 },
+    tips: [{ x: 15, y: -5, w: 7.6, h: 16, dir: 'y', out: 1 }, { x: -22.6, y: -5, w: 7.6, h: 16, dir: 'y', out: -1 }],
+    tails: [
+      { x: 3.9, y: 15, w: 8.6, h: 13, dir: 'y', out: 1, ox: 3.9, oy: 27.6 },
+      { x: -12.5, y: 15, w: 8.6, h: 13, dir: 'y', out: -1, ox: -3.9, oy: 27.6 },
+    ],
+    stripes: [[0, -26, 2.6, -9, 19.8, 7.8], [0, -26, -2.6, -9, -19.8, 7.8]],
+    trim: [[-2.4, -26.7, 0, -26.3, 2.4, -26.7], ...[[8.0, -4.1, 19.0, 5.1], [1.6, -8.2, 1.8, 0, 1.5, 7.4]].flatMap((l) => [l, mirror(l)])],
+  };
+}
 
 const geo = lazy(() => {
   const clip = new Path2D();
   clip.addPath(polys(sym(FUSE)));
   clip.addPath(pairs(WING, STAB, RAIL));
-  const all = [sym(FUSE), WING, mirror(WING), STAB, mirror(STAB)];
-  const surface: Surface = {
-    key: 'f16-top', clip, box: bounds(...all), cell: 8,
-    twoTone: polys(sym([0, -13, 3.0, -14.5, 5.6, -8.6, 9.6, -1, 12.6, 4.4, 12.4, 9.6, 9.2, 14.8, 4.8, 16.6, 4.2, 22, 2.4, 27, 0, 27])),
-    radome: polys(sym([0, -33, 0.9, -31.6, 1.7, -29.6, 2.3, -27.6, 2.7, -25.6, 0, -25.2])),
-    band: { x: -3.4, y: -28.4, w: 6.8, h: 2.6 },
-    nose: { x: -4, y: -34, w: 8, h: 17, dir: 'x', out: 1 },
-    tips: [{ x: 16.8, y: -3, w: 7.2, h: 18, dir: 'y', out: 1 }, { x: -24, y: -3, w: 7.2, h: 18, dir: 'y', out: -1 }],
-    tails: [
-      { x: 4.6, y: 18, w: 11.6, h: 11, dir: 'y', out: 1, ox: 4.6, oy: 28.8 },
-      { x: -16.2, y: 18, w: 11.6, h: 11, dir: 'y', out: -1, ox: -4.6, oy: 28.8 },
-    ],
-    stripes: [[0, -25, 3, -8, 23, 11.5], [0, -25, -3, -8, -23, 11.5]],
-    trim: [[-2.8, -25.9, 0, -25.5, 2.8, -25.9], [8.8, -1.7, 22.2, 9.6], [-8.8, -1.7, -22.2, 9.6],
-      [1.7, -8.2, 1.9, 0, 1.6, 8.4], [-1.7, -8.2, -1.9, 0, -1.6, 8.4]],
-  };
-  const fin: Fin = { path: polys(sym(FIN)), q: [0.9, 12, -0.9, 12, -0.6, 27.4, 0.6, 27.4] };
+  const fin: Fin = { path: polys(sym(FIN)), q: [0.85, 10.5, -0.85, 10.5, -0.6, 26.6, 0.6, 26.6] };
   const shades = [
     { path: polys(contourStrip(FUSE, 0.5, 1, 1)), color: 'rgba(0,0,0,0.12)' },
     { path: polys(contourStrip(FUSE, 0.8, 1, 1)), color: 'rgba(0,0,0,0.1)' },
     { path: polys(contourStrip(FUSE, 0.84, 1, -1)), color: 'rgba(0,0,0,0.07)' },
     { path: polys(contourStrip(FUSE, 0.12, 0.55, -1)), color: 'rgba(255,255,255,0.13)', gloss: true },
-    { path: polys([4.4, -4, 7.2, 0, 7.0, 14.5, 4.6, 14.7]), color: 'rgba(0,0,0,0.09)' },
+    { path: polys([3.7, -6, 6.0, -3, 5.8, 10.8, 3.8, 11.0]), color: 'rgba(0,0,0,0.09)' },
     { path: pairs(FLAPERON, STAB), color: 'rgba(0,0,0,0.06)' },
   ];
-  const panels = lines([
-    [-2.7, -25.6, 0, -25.2, 2.7, -25.6], ...[[2.6, -21.5, 2.9, -15], [1.7, -8.2, 1.9, 0, 1.6, 8.6],
-      [3.4, -16, 4.0, -5, 4.4, 5, 4.6, 14.6], [1.9, -2, 4.1, -2], [1.8, 4.5, 4.35, 4.5], [1.4, 15.4, 4.6, 15.4],
-      [1.0, 21, 4.5, 21], [8.4, -2.6, 5.2, 0.8], [14, 4.4, 14, 14.1], [19, 8.6, 19, 13.7], [2.4, 23.6, 4.2, 23.6, 4.0, 27.2]]
-      .flatMap((l) => [l, mirror(l)]),
-  ]);
-  const hinges = lines([[8.6, -0.4, 21.4, 10.4], [5, 11.95, 15.5, 11.15, 15.5, 13.95], [4.9, 19, 4.9, 28.4]], true);
-  const le = lines([[8.7, -2.1, 22.3, 9.5], [3.9, 18.9, 15.2, 25.7]], true);
+  const panels = lines([[-2.4, -26.4, 0, -26.0, 2.4, -26.4], ...[[2.3, -22, 2.6, -16], [1.6, -8.2, 1.8, 0, 1.5, 7.6],
+    [2.9, -16.5, 3.4, -6, 3.7, 4, 3.8, 10.8], [1.8, -2, 3.5, -2], [1.7, 4, 3.7, 4], [1.3, 12.2, 3.8, 12.2], [1.0, 19, 3.7, 19],
+    [7.6, -5.0, 4.6, -2.2], [11.5, -1.7, 11.5, 10.1], [16, 2.0, 16, 9.6], [2.1, 22.4, 3.5, 22.4, 3.3, 26.6]].flatMap((l) => [l, mirror(l)])]);
+  const hinges = lines([[7.7, -3.1, 18.1, 5.6], [4.5, 8.51, 13.5, 7.54, 13.5, 9.94], [4.0, 16.2, 4.0, 27.6]], true);
+  const le = lines([[7.9, -4.6, 19.2, 4.9], [3.6, 16.0, 11.9, 22.5]], true);
   const silhouette = new Path2D();
   silhouette.addPath(clip);
-  silhouette.addPath(pairs([MISSILE_X - 1, 0, MISSILE_X + 1, 0, MISSILE_X + 1, 13.5, MISSILE_X - 1, 13.5], [-2.8, 26, 2.8, 26, 2.4, 30.8, -2.4, 30.8]));
-  return { surface, fin, shades, panels, hinges, le, silhouette, canopy: polys(sym(CANOPY)) };
+  silhouette.addPath(pairs([MISSILE_X - 0.9, -3.6, MISSILE_X + 0.9, -3.6, MISSILE_X + 0.9, 9.4, MISSILE_X - 0.9, 9.4],
+    [-2.6, 27, 2.6, 27, 2.2, 31.5, -2.2, 31.5]));
+  return { surface: surface(clip), fin, shades, panels, hinges, le, silhouette, canopy: polys(sym(CANOPY)) };
 });
 
 export const f16Silhouette = (): Path2D => geo().silhouette;
@@ -91,14 +93,14 @@ function canopy(ctx: CanvasRenderingContext2D, path: Path2D): void {
 function under(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = '#7d868f';
   for (const s of [1, -1]) {
-    ctx.fillRect(s * 12.05 - 0.5, -0.8, 1, 2);
-    ctx.fillRect(s * 17.1 - 0.5, 3.4, 1, 2);
+    ctx.fillRect(s * 10.5 - 0.45, -3.6, 0.9, 2);
+    ctx.fillRect(s * 14.8 - 0.45, 0, 0.9, 2);
   }
   ctx.strokeStyle = 'rgba(25,30,36,0.8)';
   ctx.lineWidth = 0.35;
   ctx.beginPath();
-  ctx.moveTo(0, -32);
-  ctx.lineTo(0, -36.2);
+  ctx.moveTo(0, -33.5);
+  ctx.lineTo(0, -37.4);
   ctx.stroke();
 }
 
@@ -116,8 +118,8 @@ function spine(ctx: CanvasRenderingContext2D): void {
 
 export function drawF16Top(ctx: CanvasRenderingContext2D, l: Look, o: TopOpts): void {
   const g = geo();
-  const r1 = 2.25 + o.throttle * 0.5;
-  flame(ctx, 0, 30.4, r1 * 1.9, o.throttle, o.t);
+  const r1 = 2.15 + o.throttle * 0.45;
+  flame(ctx, 0, 31.3, r1 * 1.9, o.throttle, o.t);
   under(ctx);
   paintPass(ctx, l, g.surface, { shades: g.shades, bank: o.bank });
   panelLines(ctx, l, g.panels, g.hinges);
@@ -126,8 +128,8 @@ export function drawF16Top(ctx: CanvasRenderingContext2D, l: Look, o: TopOpts): 
   finArtTop(ctx, l, [g.fin]);
   stroke(ctx, g.fin.path, l.ink, 0.35);
   ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.fillRect(-0.55, 12, 0.45, 15);
+  ctx.fillRect(-0.5, 10.5, 0.42, 15.5);
   canopy(ctx, g.canopy);
-  nozzleTop(ctx, 0, 26.6, 30.6, 2.75, r1);
-  for (const s of [1, -1]) missileTop(ctx, s * MISSILE_X, 0, 13.5, 0.75);
+  nozzleTop(ctx, 0, 27.4, 31.5, 2.6, r1);
+  for (const s of [1, -1]) missileTop(ctx, s * MISSILE_X, -3.6, 13, 0.62);
 }

@@ -3,7 +3,7 @@ id: 08-pilot-profiles
 title: Pilot Profiles - Callsign, Avatar, Per-Pilot Saves
 edition: TopRun
 depends_on: [01-game-core, 07-i18n]
-relates: [01-game-core, 06-talking-characters]
+relates: [01-game-core, 06-talking-characters, 29-avatar-builder]
 source_files:
   - src/game/profiles.ts
   - src/game/callsign.ts
@@ -22,6 +22,8 @@ models:
   - localStorage:topgun.save.v1 (legacy, read once for migration)
 test_files:
   - tests/unit/profiles.test.ts
+  - tests/unit/settings.test.ts
+  - tests/unit/pixel-cast.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-25
 status: complete
@@ -33,7 +35,7 @@ integration_contracts:
   - function: "GameContext.save / setSave(save)"
     when: "always the ACTIVE pilot's progress; scenes keep using it unchanged"
   - function: "GameContext.settings / setSettings(settings)"
-    when: "device-wide settings (music, sfx, muted, autofire, lang, joystick) — not per pilot"
+    when: "device-wide settings (music, sfx, sfxOn, musicOn, autofire, lang, joystick, minigameOffers) — not per pilot"
 satisfies_contracts:
   - from: 01-game-core
     function: "persistSave(save)"
@@ -60,6 +62,12 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > and `selected` is a pulsing gold pixel border with a dithered inner glow and a twinkling corner star.
 > Checked on the new-pilot cards (240×288), the pilot list (160×198) and the map header (50×60).
 
+> **Avatar builder + reworked faces (2026-10-25, doc 29):** the three presets got faces closer to the owner's
+> reference photos (eyes, brows, mouths, freckles, cheeks, hair; pilot 3's head is tilted) with the same outfits.
+> NEW PILOT has a fourth card, CREATE YOUR OWN, which opens the pixel avatar builder (route `avatarBuilder`); the
+> pilot list gets EDIT LOOK (and E). A built look is stored per pilot as `SaveData.look` (null = the preset
+> `profile.avatar`), only via `setSave`. Every player bust goes through `drawPilotAvatar(ctx, pilotFace(profile), …)`.
+
 ## Architecture
 
 ```
@@ -67,10 +75,11 @@ game/callsign.ts       normalizeCallsign(), validateCallsign() (pure)
 game/profiles.ts       ProfileStore: emptyStore, parseStore, migrateLegacy, createProfile,
                        selectProfile, deleteProfile, updateActiveSave, updateSettings,
                        profileSummary, loadStore/persistStore (localStorage IO)
-scenes/pilots.ts       CONTINUE screen: profile cards (avatar, callsign, progress), select, delete (confirm)
-scenes/new-pilot.ts    NEW PILOT screen: callsign field + 3 avatars + START
-ui/text-field.ts       a real DOM <input> laid over the canvas (mobile keyboards, IME, a11y)
-render/avatars/        drawAvatar(ctx, id, box, { t, mouth, mood })
+scenes/pilots.ts       CONTINUE screen: profile cards (avatar, callsign, progress), select, EDIT LOOK (doc 29), delete (confirm)
+scenes/new-pilot.ts    NEW PILOT screen: callsign field + 3 avatars + CREATE YOUR OWN (doc 29) + START
+ui/text-field.ts       a real DOM <input> laid over the canvas (mobile keyboards, IME, a11y); value setter, ↑/↓ hook
+render/avatars/        drawPilotAvatar(ctx, face, box, { t, mouth, mood, selected }), pilotFace, pilotAccent;
+                       drawAvatar(ctx, id, …) stays as an alias
 ```
 
 ## Data Model
@@ -80,13 +89,15 @@ render/avatars/        drawAvatar(ctx, id, box, { t, mouth, mood })
 ```ts
 interface ProfileStore {
   version: 1;
-  settings: Settings;            // { music, sfx, autofire, muted, lang, joystick } — device-wide
-                                 // joystick: JoyProfile | null (doc 01)
+  settings: Settings;            // { music, sfx, autofire, sfxOn, musicOn, lang, joystick, minigameOffers }
+                                 // — device-wide; joystick: JoyProfile | null (doc 01)
+                                 // sfxOn/musicOn replaced `muted` (2026-10-25): legacy muted: true → both off
   activeId: string | null;
   profiles: Profile[];           // max 6
 }
 interface Profile { id: string; callsign: string; avatar: AvatarId; createdAt: number; playedAt: number; save: SaveData }
 type AvatarId = 'pilot1' | 'pilot2' | 'pilot3';
+// SaveData.look: AvatarLook | null — the pilot's own look from the builder (doc 29); null = the preset `avatar`
 ```
 
 `SaveData` (01) no longer carries settings. Avatars are original cartoons *inspired by* three
@@ -95,9 +106,11 @@ because the site and repository are public.
 
 | Avatar | Look |
 |--------|------|
-| pilot1 | shaggy golden bob with side fringe, big dark eyes, serious look, tooth pendant on a cord |
-| pilot2 | long straight blond hair, freckles, friendly smile, navy flight suit with a guitar patch |
-| pilot3 | messy strawberry-blond fringe, head tilted, cheeky smirk, striped aviator scarf |
+| pilot1 | full shaggy golden bob parted left, heavy fringe over the right brow, big wide-set near-black eyes, faint brows, small serious pink-lipped mouth; orange suit, fang pendant on a cord + thin gold chain |
+| pilot2 | long sun-bleached blond hair parted near the centre, dense freckles, smiling narrowed blue-grey eyes, wide closed-lip smile; navy suit with a guitar patch, helmet in hand |
+| pilot3 | thick tousled honey-copper hair, heavy fringe swept right, very rosy round cheeks, relaxed hazel eyes, cheeky smirk, head tilted; olive suit, striped aviator scarf |
+
+A pilot can also have their **own look** from the avatar builder (doc 29), stored as `SaveData.look`.
 
 ## API Endpoints
 
@@ -109,7 +122,8 @@ None.
   length 2–12; unique among profiles (case-insensitive). `validateCallsign` returns
   `ok | too-short | too-long | invalid-chars | taken`.
 - **Create**: needs a valid callsign and an avatar; the new pilot gets `defaultSave()` and becomes
-  active. More than 6 profiles → `full` (NEW PILOT is disabled with a hint).
+  active. More than 6 profiles → `full` (NEW PILOT is disabled with a hint). With CREATE YOUR OWN
+  (doc 29) the avatar is `lookPreset(look)` and the look is stored right after via `setSave`.
 - **Select** sets `activeId` and `playedAt`; the pilot list is sorted by `playedAt` (newest first).
 - **Delete** asks for confirmation; deleting the active pilot clears `activeId`.
 - **Migration**: when no profile store exists but the legacy `topgun.save.v1` does, it becomes a
@@ -118,8 +132,8 @@ None.
 - **Validation**: `parseStore(raw: unknown)` validates every profile through `parseSave` (01),
   drops malformed profiles, unknown avatars → `pilot1`, duplicate ids/callsigns → first wins,
   dangling `activeId` → null. Corrupt JSON → empty store, never a crash.
-- **Title menu**: CONTINUE (only if profiles exist) → pilot list · NEW PILOT · CONTROLS · SOUND ·
-  AUTOFIRE · LANGUAGE. The old "NEW GAME / start over" confirm is gone — deleting a pilot replaces it.
+- **Title menu**: CONTINUE (only if profiles exist) → pilot list · NEW PILOT · CONTROLS · JOYSTICK ·
+  SOUND · MUSIC · AUTOFIRE · LANGUAGE (SOUND and MUSIC are independent switches, doc 01 Audio). The old "NEW GAME / start over" confirm is gone — deleting a pilot replaces it.
 - **Callsign in dialogue** (06): every spoken line may use `{callsign}`; SpeechBox injects it.
 - The map top bar shows the active pilot's avatar and callsign; the mission HUD shows the callsign.
 

@@ -73,8 +73,9 @@ export class Music {
     const synth: Synth = {
       ctx, out, echo, verb, noise: this.noiseBuf, step: d.stepDur, bright: d.song.bright, gate: d.gate,
     };
+    const audible = this.audio.musicOn; // MUSIC off: keep the song's place, create no notes
     while (!d.done && d.next < ctx.currentTime + LOOKAHEAD) {
-      for (const e of d.song.bars[d.bar]?.[d.step] ?? []) VOICES[e.i](synth, d.next, e);
+      if (audible) for (const e of d.song.bars[d.bar]?.[d.step] ?? []) VOICES[e.i](synth, d.next, e);
       advance(d);
     }
   }

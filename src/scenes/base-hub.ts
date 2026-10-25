@@ -16,7 +16,8 @@ import { moduleFor, playableIds } from './minigames/registry';
 const TOGGLE = { x: 690, y: 590, w: 370, h: 48 };
 const MAP_BTN = { x: 1076, y: 590, w: 180, h: 48 };
 
-/** BASE (doc 11): the off-duty games, the offers toggle and the way back to the map. */
+/** The rec room (doc 11, behind the hangar's FUN MISSIONS area, doc 30): the off-duty games, the offers
+ *  toggle and the way back to the hangar base. */
 export class BaseHubScene implements Scene {
   private time = 0;
   private focus = 0;
@@ -87,7 +88,7 @@ export class BaseHubScene implements Scene {
     }
     this.leaving = true;
     this.game.audio.play('uiSelect');
-    this.game.go({ to: 'minigame', id, from: 'base' });
+    this.game.go({ to: 'minigame', id, from: 'recRoom' });
   }
 
   private toggleOffers(): void {
@@ -100,7 +101,7 @@ export class BaseHubScene implements Scene {
     if (this.leaving) return;
     this.leaving = true;
     this.game.audio.play('uiBack');
-    this.game.go({ to: 'map' });
+    this.game.go({ to: 'base' });
   }
 
   render(ctx: CanvasRenderingContext2D): void {
@@ -113,7 +114,7 @@ export class BaseHubScene implements Scene {
     const offers = this.game.settings.minigameOffers;
     const toggle: Button = { id: 'offers', label: t(offers ? 'base.offersOn' : 'base.offersOff'), ...TOGGLE };
     drawButton(ctx, toggle, false, this.time);
-    drawButton(ctx, { id: 'map', label: t('base.map'), ...MAP_BTN, hint: 'ESC' }, false, this.time);
+    drawButton(ctx, { id: 'base', label: t('hbase.back'), ...MAP_BTN, hint: 'ESC' }, false, this.time);
     this.wingman.render(ctx);
   }
 }

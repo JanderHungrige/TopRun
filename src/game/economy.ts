@@ -4,6 +4,7 @@ import { PLANES } from '../data/planes';
 import type { EquipmentId, GunLevel, MissionDef, MissionResult, PlaneId, SecondaryId, TakeoffRating } from '../data/types';
 import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import type { SaveData } from './save';
+import { recordMission } from './service-record';
 
 export type ShopItem =
   | { type: 'plane'; id: PlaneId }
@@ -129,15 +130,20 @@ export function computeStars(result: MissionResult): number {
 }
 
 /** Applies a finished mission to the save: money and best stars. */
-export function applyResult(save: SaveData, mission: MissionDef, result: MissionResult): { save: SaveData; payout: Payout; stars: number } {
+/** Pays out, records the sortie (doc 24) and stores the best run's photo data when `now` is given. */
+export function applyResult(save: SaveData, mission: MissionDef, result: MissionResult, now?: number): { save: SaveData; payout: Payout; stars: number } {
   const firstClear = !(mission.id in save.progress);
   const payout = computePayout(mission, result, firstClear);
   const stars = computeStars(result);
   const next: SaveData = structuredClone(save);
   next.money += payout.total;
+  next.record = recordMission(save.record, result, save.selectedPlane);
   if (result.success) {
-    const best = Math.max(stars, save.progress[mission.id]?.stars ?? 0);
-    next.progress[mission.id] = { stars: best };
+    const prev = save.progress[mission.id];
+    const better = !prev || stars >= prev.stars;
+    next.progress[mission.id] = better && now !== undefined
+      ? { stars: Math.max(stars, prev?.stars ?? 0), at: now, plane: save.selectedPlane, livery: save.livery[save.selectedPlane] }
+      : { ...(prev ?? {}), stars: Math.max(stars, prev?.stars ?? 0) };
   }
   return { save: next, payout, stars };
 }

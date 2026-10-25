@@ -10,7 +10,7 @@ import { SECONDARIES } from '../data/weapons';
 import { campaignComplete, isCleared, isUnlocked, nextMission, totalStars } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { COLORS, paragraph, text } from '../render/text';
-import { drawAvatar } from '../render/avatars';
+import { drawPilotAvatar, pilotFace } from '../render/avatars';
 import { drawButton, drawPanel, hit, type Button } from '../ui/widgets';
 import { drawMapBase, drawNode, drawRoute } from './map-render';
 
@@ -108,7 +108,7 @@ export class MapScene implements Scene {
     text(ctx, t('map.progress', { done, stars: totalStars(s) }), 470, 44, { size: 15, color: COLORS.dim });
     const pilot = this.game.profile;
     if (pilot) {
-      drawAvatar(ctx, pilot.avatar, { x: 882, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
+      drawPilotAvatar(ctx, pilotFace(pilot), { x: 882, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
       text(ctx, pilot.callsign, 942, 32, { size: 17, display: true, italic: true, color: COLORS.gold, maxWidth: 196 });
     }
     text(ctx, formatMoney(s.money), 942, 60, { size: 20, display: true, color: COLORS.green });

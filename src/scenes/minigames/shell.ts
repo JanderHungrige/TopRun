@@ -1,5 +1,8 @@
 import type { Scene } from '../../core/scene';
+import type { MedalId } from '../../data/medals';
+import { earnedMedals, newMedals } from '../../game/medals';
 import { medalFor, recordScore, type Medal } from '../../game/minigames/core';
+import type { Route } from '../../game/state';
 import type { GameContext } from '../../game/state';
 import { t } from '../../i18n/i18n';
 import { mt } from '../../i18n/minigame-text';
@@ -7,6 +10,7 @@ import { MINIGAME_NAMES } from '../../i18n/minigames/names';
 import { COLORS, text } from '../../render/text';
 import { ButtonGroup, type Button } from '../../ui/widgets';
 import type { MinigameModule, MinigameRound } from './contract';
+import { goldCount } from './registry';
 import { CARD, drawBackdrop, drawCountdown, drawDim, drawResultCard, drawRulesCard, drawTopBar } from './shell-render';
 
 type Phase = 'rules' | 'countdown' | 'play' | 'paused' | 'result';
@@ -26,8 +30,10 @@ export class MinigameScene implements Scene {
   private result: { score: number; medal: Medal | null; newBest: boolean } | null = null;
   private readonly buttons = new ButtonGroup([], 'horizontal');
   private leaving = false;
+  /** Medals earned by rounds here; the ceremony plays when the player moves on (doc 24). */
+  private medals: MedalId[] = [];
 
-  constructor(private readonly game: GameContext, private readonly mod: MinigameModule, private readonly from: 'base' | 'offer') {
+  constructor(private readonly game: GameContext, private readonly mod: MinigameModule, private readonly from: 'recRoom' | 'offer') {
     this.setPhase('rules');
   }
 
@@ -84,6 +90,7 @@ export class MinigameScene implements Scene {
   }
 
   private startRound(): void {
+    if (this.medals.length > 0) return this.go({ to: 'minigame', id: this.mod.id, from: this.from });
     this.round?.dispose?.();
     this.round = this.mod.create(this.game);
     this.result = null;
@@ -110,8 +117,10 @@ export class MinigameScene implements Scene {
 
   private finish(score: number): void {
     this.round?.dispose?.();
+    const before = earnedMedals(this.game.save, goldCount(this.game.save));
     const rec = recordScore(this.game.save, this.mod.id, score, this.mod.higherIsBetter);
     this.game.setSave(rec.save);
+    this.medals.push(...newMedals(before, earnedMedals(rec.save, goldCount(rec.save))));
     const medal = medalFor(score, this.mod.medals, this.mod.higherIsBetter);
     this.result = { score, medal, newBest: rec.newBest };
     this.game.audio.play(medal ? 'cash' : 'uiBack');
@@ -123,7 +132,13 @@ export class MinigameScene implements Scene {
     this.leaving = true;
     this.round?.dispose?.();
     this.game.audio.play('uiBack');
-    this.game.go(this.from === 'base' ? { to: 'base' } : { to: 'map' });
+    this.go(this.from === 'recRoom' ? { to: 'recRoom' } : { to: 'map' });
+  }
+
+  /** Leaves for `next`, through the medal ceremony when rounds here earned medals. */
+  private go(next: Route): void {
+    this.leaving = true;
+    this.game.go(this.medals.length > 0 ? { to: 'ceremony', medals: this.medals, then: next } : next);
   }
 
   private bestText(): string | null {

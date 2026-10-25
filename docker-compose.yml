@@ -23,3 +23,32 @@ services:
         reservations:
           cpus: "0.05"
           memory: 16M
+
+  # Online ladder (doc 27); the game's nginx reaches it as ladder:8090. No published port.
+  ladder:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    image: toprun-ladder:${BUILD_VERSION:-latest}
+    init: true
+    restart: unless-stopped
+    volumes:
+      - ladder-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+        reservations:
+          cpus: "0.05"
+          memory: 32M
+
+volumes:
+  ladder-data:

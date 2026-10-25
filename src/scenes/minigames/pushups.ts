@@ -14,7 +14,8 @@ import {
   drawBanner, drawBurnoutLabel, drawKeyHints, drawPopups, drawStaminaBar, drawTempoMeter, POPUP_LIFE, RATING_COLOR, type Popup,
 } from '../../render/minigames/pushups-hud';
 import { drawPushupIcon } from '../../render/minigames/pushups-icon';
-import { PLAYER_LOOKS, RIVAL_LOOK } from '../../render/minigames/pushups-looks';
+import { faceOf, playerPerson } from '../../render/avatars/person';
+import { RIVAL_LOOK } from '../../render/minigames/pushups-looks';
 import { drawPushupPilot, type PilotLook } from '../../render/minigames/pushups-pilot';
 import { drawBoardPosts, drawPushupSet, FLOOR_Y, type PushupSetting } from '../../render/minigames/pushups-set';
 import { COLORS } from '../../render/text';
@@ -66,7 +67,7 @@ class PushupRound implements MinigameRound {
   constructor(private readonly game: GameContext, seed: number) {
     this.s = createPushups(seed);
     this.setting = seed % 2 === 0 ? 'gym' : 'beach';
-    this.look = PLAYER_LOOKS[game.profile?.avatar ?? 'pilot1'];
+    this.look = playerPerson(faceOf(game.profile));
     this.you = game.profile?.callsign ?? tx('you');
   }
 

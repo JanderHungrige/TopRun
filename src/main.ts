@@ -1,6 +1,7 @@
 import { AudioEngine } from './core/audio';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
+import { LadderSync } from './core/ladder-sync';
 import { startLoop } from './core/loop';
 import { Music } from './core/music';
 import { SceneManager, type Scene } from './core/scene';
@@ -8,8 +9,10 @@ import {
   activeProfile, createProfile, deleteProfile, loadStore, newProfileId, persistStore, selectProfile,
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type Profile, type ProfileStore,
 } from './game/profiles';
+import type { Submission } from './game/ladder';
+import { withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
-import type { Settings } from './game/settings';
+import { toggleAllSound, type Settings } from './game/settings';
 import type { GameContext, Route } from './game/state';
 import { setLang } from './i18n/i18n';
 import { DebriefScene } from './scenes/debrief';
@@ -17,11 +20,18 @@ import { HangarScene } from './scenes/hangar';
 import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
+import { AvatarBuilderScene } from './scenes/avatar-builder';
 import { BaseHubScene } from './scenes/base-hub';
+import { CeremonyScene } from './scenes/ceremony';
+import { HangarBaseScene } from './scenes/hangar-base';
 import { JoystickSetupScene } from './scenes/joystick-setup';
+import { LadderScene } from './scenes/ladder';
+import { LockerScene } from './scenes/locker';
+import { PhotoWallScene } from './scenes/photo-wall';
 import { MinigameOfferScene } from './scenes/minigame-offer';
 import { moduleFor } from './scenes/minigames/registry';
 import { MinigameScene } from './scenes/minigames/shell';
+import { pilotStats } from './scenes/pilot-rating';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -33,11 +43,11 @@ class Game implements GameContext {
   time = 0;
   readonly audio: AudioEngine;
   readonly music: Music;
+  readonly ladder = new LadderSync(() => this.ladderSubmission());
 
   constructor(readonly input: Input, private readonly scenes: SceneManager, readonly dom: { host: HTMLElement; viewport: () => Viewport }) {
     const st = this.store.settings;
-    this.audio = new AudioEngine({ music: st.music, sfx: st.sfx });
-    this.audio.setMuted(st.muted);
+    this.audio = new AudioEngine(st);
     setLang(st.lang);
     input.joystick = st.joystick;
     this.music = new Music(this.audio);
@@ -69,12 +79,21 @@ class Game implements GameContext {
       this.scratch = next;
       return;
     }
-    this.commit(updateActiveSave(this.store, next));
+    const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
+    this.commit(updateActiveSave(this.store, linked));
+    this.ladder.poke();
+  }
+
+  /** What the active pilot reports to the online ladder; null while not shared (doc 28). */
+  private ladderSubmission(): Submission | null {
+    const p = activeProfile(this.store);
+    const link = p?.save.ladder;
+    if (!p || !link?.share) return null;
+    return { id: link.id, secret: link.secret, callsign: p.callsign, stats: pilotStats(p.save) };
   }
 
   setSettings(next: Settings): void {
-    this.audio.setMuted(next.muted);
-    this.audio.setVolumes(next.music, next.sfx);
+    this.audio.setLevels(next);
     setLang(next.lang);
     this.input.joystick = next.joystick;
     this.commit(updateSettings(this.store, next));
@@ -99,7 +118,7 @@ class Game implements GameContext {
   }
 
   toggleMute(): void {
-    this.setSettings({ ...this.settings, muted: !this.settings.muted });
+    this.setSettings(toggleAllSound(this.settings));
   }
 }
 
@@ -107,12 +126,18 @@ function createScene(game: GameContext, route: Route): Scene {
   switch (route.to) {
     case 'title': return new TitleScene(game);
     case 'pilots': return new PilotsScene(game);
-    case 'newPilot': return new NewPilotScene(game);
+    case 'newPilot': return new NewPilotScene(game, route.draft);
+    case 'avatarBuilder': return new AvatarBuilderScene(game, route.target);
     case 'joystick': return new JoystickSetupScene(game);
+    case 'ladder': return new LadderScene(game);
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
-    case 'base': return new BaseHubScene(game);
+    case 'base': return new HangarBaseScene(game);
+    case 'recRoom': return new BaseHubScene(game);
+    case 'locker': return new LockerScene(game);
+    case 'photoWall': return new PhotoWallScene(game);
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
+    case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
     case 'minigame': {
       const mod = moduleFor(route.id);
       return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);

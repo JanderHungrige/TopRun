@@ -1,4 +1,9 @@
+import { UI_DE_HANGAR } from './ui-de-hangar';
+import { UI_DE_ROOMS } from './ui-de-rooms';
+import { UI_DE_LADDER } from './ui-de-ladder';
+import { UI_DE_HONOURS } from './ui-de-honours';
 import { UI_DE_OFFDUTY } from './ui-de-offduty';
+import { UI_DE_AVATAR } from './ui-de-avatar';
 import type { UiKey } from './ui-en';
 
 // German UI strings. Record<UiKey, string>: the compiler rejects a missing key.
@@ -11,6 +16,8 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'title.joystick': 'JOYSTICK',
   'title.soundOn': 'TON: AN',
   'title.soundOff': 'TON: AUS',
+  'title.musicOn': 'MUSIK: AN',
+  'title.musicOff': 'MUSIK: AUS',
   'title.autofireOn': 'DAUERFEUER: AN',
   'title.autofireOff': 'DAUERFEUER: AUS',
   'title.language': 'SPRACHE: DEUTSCH',
@@ -42,7 +49,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'pilots.deleteText': 'Geld, Jets und Orden dieses Piloten gehen verloren.',
   'pilots.back': 'ZURÜCK',
   'pilots.newPilot': 'NEUER PILOT',
-  'pilots.hint': '↑/↓ wählen  ·  ENTER fliegen  ·  ENTF löschen  ·  ESC zurück',
+  'pilots.hint': '↑/↓ wählen  ·  ENTER fliegen  ·  E Aussehen  ·  ENTF löschen  ·  ESC zurück',
   'newPilot.title': 'NEUER PILOT',
   'newPilot.callsign': 'RUFNAME',
   'newPilot.placeholder': 'DEIN RUFNAME',
@@ -54,7 +61,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'newPilot.invalid': 'Nur Buchstaben, Ziffern, Leerzeichen und -',
   'newPilot.taken': 'Dieser Rufname ist schon vergeben',
   'newPilot.full': 'Hangar voll: lösche erst einen Piloten',
-  'newPilot.hint': 'Rufnamen tippen, Piloten mit ←/→ wählen, ENTER drücken',
+  'newPilot.hint': 'Rufnamen tippen, Aussehen mit ←/→ wählen (↓ selbst gestalten), ENTER drücken',
   // Map
   'map.title': 'EINSATZGEBIET',
   'map.progress': '{done}/30 MISSIONEN  ·  ★ {stars}/90',
@@ -280,4 +287,9 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.paintSide': 'AUF DEM TRÄGER',
   'debrief.newPaint': 'NEUE LACKIERUNG: {livery}',
   ...UI_DE_OFFDUTY,
+  ...UI_DE_LADDER,
+  ...UI_DE_ROOMS,
+  ...UI_DE_HONOURS,
+  ...UI_DE_HANGAR,
+  ...UI_DE_AVATAR,
 };

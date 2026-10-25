@@ -13,6 +13,7 @@ import { MotorbikeFx } from '../../render/minigames/motorbike-fx';
 import { drawTach } from '../../render/minigames/motorbike-gauge';
 import { drawBanner, drawPopups, drawPrompt, drawRaceStrip, POPUP_LIFE, type Popup } from '../../render/minigames/motorbike-hud';
 import { drawMotorbikeIcon } from '../../render/minigames/motorbike-icon';
+import { faceOf } from '../../render/avatars/person';
 import { riderLook, type RiderLook } from '../../render/minigames/motorbike-rider';
 import { drawRace } from '../../render/minigames/motorbike-view';
 import { ROAD_Y } from '../../render/minigames/motorbike-world';
@@ -54,7 +55,7 @@ class MotorbikeRound implements MinigameRound {
 
   constructor(private readonly game: GameContext) {
     const callsign = game.profile?.callsign ?? 'PILOT';
-    this.look = riderLook(game.profile?.avatar ?? 'pilot1');
+    this.look = riderLook(faceOf(game.profile));
     this.you = game.profile?.callsign ?? tx('you');
     this.radio = new BikeRadio(game.audio, tx('duke'), callsign);
   }

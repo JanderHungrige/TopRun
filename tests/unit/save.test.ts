@@ -71,5 +71,33 @@ describe('Save', () => {
       expect(s?.loadout.f14).toEqual(['aim54', null, null, null]);
       expect(s?.loadout.sr71).toEqual([null, null, null]);
     });
+
+    describe('own avatar look (doc 29)', () => {
+      const look = { hair: 'braids', hairColor: 'auburn', skin: 'deep', eyes: 'green', freckles: 'some', cheeks: 'rosy', glasses: 'clear', accessory: 'scarf', suit: 'khaki', sky: 'night' } as const;
+
+      it('defaults to null (= the preset avatar)', () => {
+        expect(defaultSave().look).toBeNull();
+      });
+
+      it('loads an old save without a look unchanged, with look null', () => {
+        const old: Record<string, unknown> = JSON.parse(JSON.stringify(valid()));
+        delete old.look;
+        const s = parseSave(old);
+        expect(s?.look).toBeNull();
+        expect(s?.money).toBe(12345);
+      });
+
+      it('round-trips a stored look', () => {
+        const s = { ...valid(), look: { ...look } };
+        expect(parseSave(JSON.parse(JSON.stringify(s)))?.look).toEqual(look);
+      });
+
+      it('turns a non-object look into null and unknown parts into defaults', () => {
+        expect(parseSave({ ...valid(), look: 'pilot2' })?.look).toBeNull();
+        expect(parseSave({ ...valid(), look: [look] })?.look).toBeNull();
+        const s = parseSave({ ...valid(), look: { ...look, hair: 'mohawk', suit: 42 } });
+        expect(s?.look).toEqual({ ...look, hair: 'crop', suit: 'orange' });
+      });
+    });
   });
 });

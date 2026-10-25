@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "erasableSyntaxOnly": true
+  },
+  "include": ["server", "src/game/ladder.ts", "src/game/rating.ts", "src/game/callsign.ts", "src/data/ranks.ts"]
+}

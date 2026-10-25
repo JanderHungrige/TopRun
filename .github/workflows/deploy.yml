@@ -1,7 +1,8 @@
 name: build-and-push
 
-# Build the TopRun image and push it to GHCR on every push to main. The image build runs the
-# unit tests and the type-check (see Dockerfile), so a red test never reaches the registry.
+# Build the TopGun images (game + ladder service) and push them to GHCR on every push to main.
+# The image builds run the unit tests and the type-checks (see Dockerfile, server/Dockerfile),
+# so a red test never reaches the registry.
 # The host (159.195.148.193) runs a root cron (deploy/roll-all.sh -> deploy/auto-deploy.sh)
 # that polls GHCR and rolls the container — this workflow never SSHes into the host.
 #
@@ -35,6 +36,8 @@ env:
   REGISTRY: ghcr.io
   OWNER: janderhungrige
   IMAGE: toprun
+  # The online ladder service (doc 27), built from server/Dockerfile.
+  LADDER_IMAGE: toprun-ladder
 
 jobs:
   build-and-push:
@@ -60,10 +63,20 @@ jobs:
           set -euo pipefail
           docker build -t "$IMG:main" -t "$IMG:$SHA" .
 
-      - name: Push image
+      - name: Build ladder image (runs its type-check + tests)
+        env:
+          DOCKER_BUILDKIT: "1"
+          IMG: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.LADDER_IMAGE }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker build -f server/Dockerfile -t "$IMG:main" -t "$IMG:$SHA" .
+
+      - name: Push images
         if: github.event_name != 'pull_request'
         env:
           IMG: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE }}
+          LIMG: ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.LADDER_IMAGE }}
           SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -82,9 +95,11 @@ jobs:
           }
           push "$IMG:main"
           push "$IMG:$SHA"
+          push "$LIMG:main"
+          push "$LIMG:$SHA"
 
       - name: Summary
         if: github.event_name != 'pull_request'
         run: |
-          echo "Pushed :main and :${{ github.sha }} to ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE }}." >> "$GITHUB_STEP_SUMMARY"
+          echo "Pushed :main and :${{ github.sha }} to ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE }} and /${{ env.LADDER_IMAGE }}." >> "$GITHUB_STEP_SUMMARY"
           echo "The host cron rolls it out on its next tick (~1 min): https://toprun.questenterprise.de/" >> "$GITHUB_STEP_SUMMARY"

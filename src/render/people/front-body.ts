@@ -48,6 +48,8 @@ const TOPS: Readonly<Record<Exclude<TorsoWear, 'shirtless'>, Pts>> = {
   tank: [-23, -104, -12, -107, -6, -96, 0, -86, 6, -96, 12, -107, 23, -104, 27, -90, 32, -78, 37, -70, 50, -70, 50, 30, -50, 30, -50, -70, -37, -70, -32, -78, -27, -90],
   sportsTop: [-23, -104, -12, -107, -6, -96, 0, -88, 6, -96, 12, -107, 23, -104, 27, -90, 32, -78, 37, -70, 50, -70, 50, -56, -50, -56, -50, -70, -37, -70, -32, -78, -27, -90],
   tshirt: [-11, -107, -5, -101.5, 0, -100, 5, -101.5, 11, -107, 50, -112, 50, 30, -50, 30, -50, -112],
+  dressWhites: [-10, -108, -5, -106, 0, -105.5, 5, -106, 10, -108, 50, -112, 50, 30, -50, 30, -50, -112],
+  flightSuit: [-11, -107, -5, -98, 0, -93, 5, -98, 11, -107, 50, -112, 50, 30, -50, 30, -50, -112],
 };
 const SHORTS: Pts = [-31, -17, 31, -17, 33, 5, 37, 46, 6, 48, 2, 22, -2, 22, -6, 48, -37, 46, -33, 5];
 
@@ -76,7 +78,10 @@ function build(turn: number): FrontTorso {
     defs: path(DEFS.map(m)),
     shade: path([m(SHADE)]),
     lit: path(LIT.map(m)),
-    tops: { tank: path([m(TOPS.tank)]), sportsTop: path([m(TOPS.sportsTop)]), tshirt: path([m(TOPS.tshirt)]) },
+    tops: {
+      tank: path([m(TOPS.tank)]), sportsTop: path([m(TOPS.sportsTop)]), tshirt: path([m(TOPS.tshirt)]),
+      dressWhites: path([m(TOPS.dressWhites)]), flightSuit: path([m(TOPS.flightSuit)]),
+    },
     shorts: path([m(SHORTS)]),
     stripes: path(both(taper([32.4, -12, 34.6, 18, 36.4, 46], 3.4)).map(m)),
     centre: (x) => m([x, 0])[0] ?? x,

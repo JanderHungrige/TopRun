@@ -1,4 +1,6 @@
 import type { MinigameId } from '../../data/minigames';
+import { medalFor, type Medal } from '../../game/minigames/core';
+import type { SaveData } from '../../game/save';
 import type { MinigameModule } from './contract';
 import { EVASION } from './evasion';
 import { FLYBY } from './flyby';
@@ -27,3 +29,13 @@ export const PLAYABLE: readonly MinigameModule[] = [
 
 export const playableIds = (): MinigameId[] => PLAYABLE.map((m) => m.id);
 export const moduleFor = (id: MinigameId): MinigameModule | undefined => PLAYABLE.find((m) => m.id === id);
+
+/** The medal tier of each built minigame's personal best, in PLAYABLE order (ladder, doc 28). */
+export const minigameTiers = (save: SaveData): Array<Medal | null> =>
+  PLAYABLE.map((m) => {
+    const r = save.minigames[m.id];
+    return r ? medalFor(r.best, m.medals, m.higherIsBetter) : null;
+  });
+
+/** How many built minigames have a gold personal best (medals Off-Duty Star / Base Legend, doc 24). */
+export const goldCount = (save: SaveData): number => minigameTiers(save).filter((tier) => tier === 'gold').length;

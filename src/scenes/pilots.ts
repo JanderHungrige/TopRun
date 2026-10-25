@@ -3,10 +3,12 @@ import type { Scene } from '../core/scene';
 import { MAX_PROFILES, profileSummary, type Profile } from '../game/profiles';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
-import { AVATAR_COLORS, drawAvatar } from '../render/avatars';
+import { drawPilotAvatar, pilotAccent, pilotFace } from '../render/avatars';
 import { drawSunset } from '../render/backdrop';
+import { drawRankBoard, RANK_KEY } from '../render/ranks';
 import { COLORS, text } from '../render/text';
 import { drawButton, drawPanel, hit, type Button, type Rect } from '../ui/widgets';
+import { pilotStanding } from './pilot-rating';
 
 const CARD_W = 380;
 const CARD_H = 230;
@@ -17,9 +19,11 @@ const CONFIRM_NO: Button = { id: 'no', label: '', x: 650, y: 404, w: 180, h: 46 
 
 const cardRect = (i: number): Rect => ({ x: 50 + (i % 3) * (CARD_W + 20), y: 116 + Math.floor(i / 3) * (CARD_H + 20), w: CARD_W, h: CARD_H });
 const flyRect = (r: Rect): Rect => ({ x: r.x + 186, y: r.y + 134, w: 178, h: 42 });
-const delRect = (r: Rect): Rect => ({ x: r.x + 186, y: r.y + 186, w: 120, h: 30 });
+/** EDIT LOOK opens the avatar builder for this pilot (doc 29). */
+const lookRect = (r: Rect): Rect => ({ x: r.x + 186, y: r.y + 186, w: 92, h: 30 });
+const delRect = (r: Rect): Rect => ({ x: r.x + 284, y: r.y + 186, w: 80, h: 30 });
 
-/** CONTINUE: pick which pilot flies, or delete one (doc 08). */
+/** CONTINUE: pick which pilot flies, edit a pilot's look, or delete one (docs 08, 29). */
 export class PilotsScene implements Scene {
   private time = 0;
   private focus = 0;
@@ -60,6 +64,7 @@ export class PilotsScene implements Scene {
       if (!p) continue;
       this.focus = i;
       if (hit(tap, delRect(cardRect(i)))) this.askDelete(p);
+      else if (hit(tap, lookRect(cardRect(i)))) this.editLook(p);
       else this.fly(p);
       return;
     }
@@ -68,7 +73,13 @@ export class PilotsScene implements Scene {
     const p = this.list[this.focus];
     if (p && input.pressed('confirm')) return this.fly(p);
     if (p && input.pressed('delete')) return this.askDelete(p);
+    if (p && input.pressed('special')) return this.editLook(p);
     if (input.pressed('back')) this.leave('title');
+  }
+
+  private editLook(p: Profile): void {
+    this.game.audio.play('uiSelect');
+    this.game.go({ to: 'avatarBuilder', target: { kind: 'pilot', profileId: p.id } });
   }
 
   private leave(to: 'title' | 'newPilot'): void {
@@ -114,13 +125,18 @@ export class PilotsScene implements Scene {
   private renderCard(ctx: CanvasRenderingContext2D, p: Profile, i: number): void {
     const r = cardRect(i);
     const focused = i === this.focus && !this.confirmDelete;
-    drawPanel(ctx, r, { fill: focused ? 'rgba(30,52,80,0.95)' : 'rgba(10,18,30,0.9)', edge: focused ? COLORS.gold : AVATAR_COLORS[p.avatar], radius: 12 });
-    drawAvatar(ctx, p.avatar, { x: r.x + 14, y: r.y + 16, w: 160, h: 198 }, { t: this.time + i * 1.3, mood: focused ? 'happy' : 'neutral' });
+    const face = pilotFace(p);
+    drawPanel(ctx, r, { fill: focused ? 'rgba(30,52,80,0.95)' : 'rgba(10,18,30,0.9)', edge: focused ? COLORS.gold : pilotAccent(face), radius: 12 });
+    drawPilotAvatar(ctx, face, { x: r.x + 14, y: r.y + 16, w: 160, h: 198 }, { t: this.time + i * 1.3, mood: focused ? 'happy' : 'neutral' });
     const s = profileSummary(p);
-    text(ctx, p.callsign, r.x + 188, r.y + 52, { size: 26, display: true, italic: true, color: focused ? COLORS.gold : COLORS.ink, maxWidth: CARD_W - 200 });
-    text(ctx, t('map.progress', { done: s.cleared, stars: s.stars }), r.x + 188, r.y + 82, { size: 12, color: COLORS.dim, maxWidth: CARD_W - 200 });
-    text(ctx, formatMoney(s.money), r.x + 188, r.y + 112, { size: 20, display: true, color: COLORS.green });
+    text(ctx, p.callsign, r.x + 188, r.y + 48, { size: 26, display: true, italic: true, color: focused ? COLORS.gold : COLORS.ink, maxWidth: CARD_W - 200 });
+    text(ctx, t('map.progress', { done: s.cleared, stars: s.stars }), r.x + 188, r.y + 72, { size: 12, color: COLORS.dim, maxWidth: CARD_W - 200 });
+    const rank = pilotStanding(p.save).rank;
+    drawRankBoard(ctx, rank, r.x + 188, r.y + 82, 0.75);
+    text(ctx, t(RANK_KEY[rank]), r.x + 214, r.y + 97, { size: 13, color: COLORS.gold, maxWidth: CARD_W - 230 });
+    text(ctx, formatMoney(s.money), r.x + 188, r.y + 124, { size: 18, display: true, color: COLORS.green });
     drawButton(ctx, { id: 'fly', label: t('pilots.fly'), ...flyRect(r), primary: true }, focused, this.time);
+    drawButton(ctx, { id: 'look', label: t('avatar.editLook'), ...lookRect(r) }, false, this.time);
     drawButton(ctx, { id: 'del', label: t('pilots.delete'), ...delRect(r) }, false, this.time);
   }
 

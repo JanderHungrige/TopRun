@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Poll GHCR and roll out the newest image for one environment. Run from cron through
+# Poll GHCR and roll out the newest images for one environment. Run from cron through
 # deploy/roll-all.sh:
 #   deploy/auto-deploy.sh deploy/.env.prod   # prod (172.17.0.1:8081)
 #
-# Same mechanism as the other projects on this host (adapted from NinaNatur's):
-#   - the image the stack runs is kept as :<tag>-previous before a new one starts;
+# Same mechanism as the other projects on this host (adapted from NinaNatur's), per service
+# (app = the game, ladder = the online ladder, doc 27), each rolled and rolled back on its own:
+#   - the image a service runs is kept as :<tag>-previous before a new one starts;
 #   - a new image has HEALTH_WAIT_TRIES x HEALTH_WAIT_SLEEP seconds to report healthy;
-#   - one that does not is rolled back and remembered in deploy/.state/<env>.bad, so the
-#     next tick does not roll it forward again (prod would otherwise flap once a minute);
+#   - one that does not is rolled back and remembered in deploy/.state/<env>[.<service>].bad, so
+#     the next tick does not roll it forward again (prod would otherwise flap once a minute);
 #   - every roll is written, with its digest, to deploy/.state/deploy.log.
 # Uses the HOST docker (no Watchtower) so there is never a client-version mismatch.
 set -euo pipefail
@@ -22,6 +23,7 @@ NAME="${NAME#.env.}"
 STATE="${TOPRUN_DEPLOY_STATE:-$ROOT/deploy/.state}"
 TRIES="${HEALTH_WAIT_TRIES:-24}"
 PAUSE="${HEALTH_WAIT_SLEEP:-5}"
+SERVICES=(ladder app)
 
 # Two overlapping runs racing the same image pull corrupt the containerd content store.
 exec 9>"${TOPRUN_DEPLOY_LOCK:-/tmp/toprun-auto-deploy.lock}"
@@ -40,19 +42,24 @@ say() {
   echo "$line" >> "$STATE/deploy.log"
 }
 
+# The app keeps its original state file name, so an existing <env>.bad still counts.
+bad_file() {
+  if [ "$1" = app ]; then echo "$STATE/$NAME.bad"; else echo "$STATE/$NAME.$1.bad"; fi
+}
+
 container() {
-  "${COMPOSE[@]}" ps -q app 2>/dev/null || true
+  "${COMPOSE[@]}" ps -q "$1" 2>/dev/null || true
 }
 
 running_image() {
   local id
-  id="$(container)"
+  id="$(container "$1")"
   if [ -n "$id" ]; then docker inspect --format '{{.Image}}' "$id"; fi
 }
 
 health() {
   local id
-  id="$(container)"
+  id="$(container "$1")"
   if [ -z "$id" ]; then echo missing; return; fi
   docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$id" \
     2>/dev/null || echo missing
@@ -61,7 +68,7 @@ health() {
 wait_healthy() {
   local i
   for ((i = 0; i < TRIES; i++)); do
-    case "$(health)" in
+    case "$(health "$1")" in
       healthy) return 0 ;;
       unhealthy) return 1 ;;
     esac
@@ -70,45 +77,57 @@ wait_healthy() {
   return 1
 }
 
-IMAGE="$("${COMPOSE[@]}" config --images app | head -n 1)"
-TAG="${IMAGE##*:}"
-PREVIOUS="${IMAGE%:*}:${TAG}-previous"
+# Rolls one service; returns non-zero when it ends up unhealthy.
+roll() {
+  local svc="$1" image tag previous new current bad badf
+  image="$("${COMPOSE[@]}" config --images "$svc" | head -n 1)"
+  tag="${image##*:}"
+  previous="${image%:*}:${tag}-previous"
+  badf="$(bad_file "$svc")"
 
-"${COMPOSE[@]}" pull --quiet app
-new="$(docker image inspect --format '{{.Id}}' "$IMAGE")"
-current="$(running_image)"
-bad="$(cat "$STATE/$NAME.bad" 2>/dev/null || true)"
+  # Called as `roll … || status=1`, so `set -e` does not apply in here: check each step.
+  "${COMPOSE[@]}" pull --quiet "$svc" || { say "✖ $svc: pull of $image failed"; return 1; }
+  new="$(docker image inspect --format '{{.Id}}' "$image")" || return 1
+  current="$(running_image "$svc")"
+  bad="$(cat "$badf" 2>/dev/null || true)"
 
-if [ "$new" = "$bad" ]; then
-  # Failed its health check here already: stay on what runs.
-  IMAGE_TAG="${TAG}-previous" "${COMPOSE[@]}" up -d app
-  exit 0
-fi
+  if [ "$new" = "$bad" ]; then
+    # Failed its health check here already: stay on what runs.
+    IMAGE_TAG="${tag}-previous" "${COMPOSE[@]}" up -d "$svc"
+    return 0
+  fi
 
-if [ "$new" = "$current" ]; then
-  # Nothing new. `up -d` recreates only when the compose file has changed.
-  "${COMPOSE[@]}" up -d app
-  exit 0
-fi
+  if [ "$new" = "$current" ]; then
+    # Nothing new. `up -d` creates a missing service and recreates only when the compose file changed.
+    "${COMPOSE[@]}" up -d "$svc"
+    return 0
+  fi
 
-if [ -n "$current" ]; then
-  docker tag "$current" "$PREVIOUS"
-fi
-"${COMPOSE[@]}" up -d app
+  if [ -n "$current" ]; then
+    docker tag "$current" "$previous"
+  fi
+  "${COMPOSE[@]}" up -d "$svc"
 
-if wait_healthy; then
-  rm -f "$STATE/$NAME.bad"
-  say "live: $(docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE")"
-  docker image prune -f >/dev/null 2>&1 || true
-  exit 0
-fi
+  if wait_healthy "$svc"; then
+    rm -f "$badf"
+    say "live $svc: $(docker image inspect --format '{{index .RepoDigests 0}}' "$image")"
+    return 0
+  fi
 
-echo "$new" > "$STATE/$NAME.bad"
-if [ -z "$current" ]; then
-  say "✖ $new did not become healthy, and there is nothing to go back to"
-  exit 1
-fi
-say "✖ $new did not become healthy — rolling back to $current"
-IMAGE_TAG="${TAG}-previous" "${COMPOSE[@]}" up -d app
-wait_healthy || say "✖ the rollback is not healthy either — this host needs a person"
-exit 1
+  echo "$new" > "$badf"
+  if [ -z "$current" ]; then
+    say "✖ $svc $new did not become healthy, and there is nothing to go back to"
+    return 1
+  fi
+  say "✖ $svc $new did not become healthy — rolling back to $current"
+  IMAGE_TAG="${tag}-previous" "${COMPOSE[@]}" up -d "$svc"
+  wait_healthy "$svc" || say "✖ the $svc rollback is not healthy either — this host needs a person"
+  return 1
+}
+
+status=0
+for svc in "${SERVICES[@]}"; do
+  roll "$svc" || status=1
+done
+docker image prune -f >/dev/null 2>&1 || true
+exit "$status"

@@ -19,6 +19,9 @@ export type Route =
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
   | { to: 'base' }
+  | { to: 'recRoom' }
+  | { to: 'locker' }
+  | { to: 'photoWall' }
   | { to: 'offer'; id: MinigameId; isNew: boolean }
   | { to: 'minigame'; id: MinigameId; from: 'base' | 'offer' }
   /** Medal ceremony (doc 25), then on to `then`. */

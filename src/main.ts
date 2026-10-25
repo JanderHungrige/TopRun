@@ -24,6 +24,8 @@ import { BaseHubScene } from './scenes/base-hub';
 import { CeremonyScene } from './scenes/ceremony';
 import { JoystickSetupScene } from './scenes/joystick-setup';
 import { LadderScene } from './scenes/ladder';
+import { LockerScene } from './scenes/locker';
+import { PhotoWallScene } from './scenes/photo-wall';
 import { MinigameOfferScene } from './scenes/minigame-offer';
 import { moduleFor } from './scenes/minigames/registry';
 import { MinigameScene } from './scenes/minigames/shell';
@@ -128,6 +130,9 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
     case 'base': return new BaseHubScene(game);
+    case 'recRoom': return new BaseHubScene(game);
+    case 'locker': return new LockerScene(game);
+    case 'photoWall': return new PhotoWallScene(game);
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
     case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
     case 'minigame': {

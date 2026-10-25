@@ -1,3 +1,4 @@
+import { UI_DE_ROOMS } from './ui-de-rooms';
 import { UI_DE_LADDER } from './ui-de-ladder';
 import { UI_DE_HONOURS } from './ui-de-honours';
 import { UI_DE_OFFDUTY } from './ui-de-offduty';
@@ -285,5 +286,6 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'debrief.newPaint': 'NEUE LACKIERUNG: {livery}',
   ...UI_DE_OFFDUTY,
   ...UI_DE_LADDER,
+  ...UI_DE_ROOMS,
   ...UI_DE_HONOURS,
 };

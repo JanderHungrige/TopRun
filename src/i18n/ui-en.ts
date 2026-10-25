@@ -1,3 +1,4 @@
+import { UI_EN_ROOMS } from './ui-en-rooms';
 import { UI_EN_LADDER } from './ui-en-ladder';
 import { UI_EN_HONOURS } from './ui-en-honours';
 import { UI_EN_OFFDUTY } from './ui-en-offduty';
@@ -283,6 +284,7 @@ export const UI_EN = {
   'debrief.newPaint': 'NEW PAINT JOB: {livery}',
   ...UI_EN_OFFDUTY,
   ...UI_EN_LADDER,
+  ...UI_EN_ROOMS,
   ...UI_EN_HONOURS,
 } as const;
 

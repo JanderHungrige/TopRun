@@ -111,7 +111,7 @@ describe('Joystick', () => {
 
   describe('setup', () => {
     it('detects stick X from the axis pushed right, inverted when it reads negative', () => {
-      const small = feed(createSetup(rest()), [frame(STICK, [0.4, 0, 0.5])]);
+      const small = feed(createSetup(rest()), [frame(STICK, [0.2, 0, 0.5])]);
       expect(small.step).toBe('right');
       const s = feed(createSetup(rest()), [frame(STICK, [0.95, 0.1, 0.5])]);
       expect(s.step).toBe('back');
@@ -175,6 +175,39 @@ describe('Joystick', () => {
       const p = setupProfile(s, STICK);
       expect(p).toEqual({ ...defaultProfile(STICK), buttons: { fire: null, missile: null, flare: null, special: null, switch: null, pause: null } });
       expect(parseJoyProfile(p)).toEqual(p);
+    });
+  });
+
+  describe('axis calibration (sticks reporting 0…1, resting at 0.5)', () => {
+    const HALF = 'Generic   USB  Joystick';
+
+    it('detects such a stick in the setup and stores its centre', () => {
+      const s = feed(createSetup([frame(HALF, [0.5, 0.5, 0])]), [frame(HALF, [1, 0.5, 0])]);
+      expect(s.step).toBe('back');
+      expect(s.x).toEqual({ pad: HALF, index: 0, invert: false, center: 0.5, span: 0.5 });
+      const y = feed(s, [frame(HALF, [0.5, 1, 0])]);
+      expect(y.y).toEqual({ pad: HALF, index: 1, invert: false, center: 0.5, span: 0.5 });
+    });
+
+    it('reads a calibrated axis full left, centred and full right', () => {
+      const p: JoyProfile = { ...profile(), x: { pad: STICK, index: 0, invert: false, center: 0.5, span: 0.5 } };
+      expect(padInputs(frame(STICK, [0, 0, 0]), p).stick.x).toBe(-1);
+      expect(padInputs(frame(STICK, [0.5, 0, 0]), p).stick.x).toBe(0);
+      expect(padInputs(frame(STICK, [1, 0, 0]), p).stick.x).toBe(1);
+    });
+
+    it('centres an unknown stick on the values it first reported', () => {
+      const firstSeen = [0.5, 0.5];
+      expect(padInputs(frame(HALF, [0, 0.5]), null, firstSeen).stick.x).toBe(-1);
+      expect(padInputs(frame(HALF, [0.5, 0.5]), null, firstSeen).stick).toEqual({ x: 0, y: 0 });
+      expect(padInputs(frame(HALF, [0.5, 1]), null, firstSeen).stick.y).toBe(1);
+    });
+
+    it('keeps the calibration in saved profiles and rejects nonsense', () => {
+      const p: JoyProfile = { ...profile(), x: { pad: STICK, index: 0, invert: false, center: 0.5, span: 0.5 } };
+      expect(parseJoyProfile(JSON.parse(JSON.stringify(p)))).toEqual(p);
+      expect(parseJoyProfile({ ...p, x: { ...p.x, span: 0 } })).toBeNull();
+      expect(parseJoyProfile({ ...p, x: { ...p.x, center: 3 } })).toBeNull();
     });
   });
 });

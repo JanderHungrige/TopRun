@@ -21,6 +21,9 @@ export interface AxisBind {
   pad: string;
   index: number;
   invert: boolean;
+  /** Calibration: the raw value at rest and the raw distance to full deflection (default 0 / 1). */
+  center?: number;
+  span?: number;
 }
 
 export interface JoyProfile {
@@ -59,12 +62,28 @@ const STANDARD_BUTTONS: Readonly<Record<number, readonly Action[]>> = {
   12: ['up'], 13: ['down'], 14: ['left'], 15: ['right'],
 };
 
-/** Mapping for a non-standard controller nobody has set up: trigger fires, buttons 1–5 in order. */
-export function defaultProfile(pad: string): JoyProfile {
+/** Raw axis → −1…1 around its rest point (sticks that report 0…1 rest at 0.5). */
+export function calibrate(v: number, b: { center?: number; span?: number }): number {
+  return Math.max(-1, Math.min(1, (v - (b.center ?? 0)) / (b.span ?? 1)));
+}
+
+export const spanFor = (center: number): number => Math.max(0.2, 1 - Math.abs(center));
+
+/** Adds a calibration only when the axis does not rest at 0. */
+export function withCenter(b: AxisBind, center: number): AxisBind {
+  if (Math.abs(center) < 0.05) return { pad: b.pad, index: b.index, invert: b.invert };
+  return { pad: b.pad, index: b.index, invert: b.invert, center, span: spanFor(center) };
+}
+
+/**
+ * Mapping for a non-standard controller nobody has set up: trigger fires, buttons 1–5 in order.
+ * `rest` = the axis values it first reported, taken as the stick's centre.
+ */
+export function defaultProfile(pad: string, rest?: readonly number[]): JoyProfile {
   const b = (index: number): ButtonBind => ({ pad, index });
   return {
-    x: { pad, index: 0, invert: false },
-    y: { pad, index: 1, invert: false },
+    x: withCenter({ pad, index: 0, invert: false }, rest?.[0] ?? 0),
+    y: withCenter({ pad, index: 1, invert: false }, rest?.[1] ?? 0),
     throttle: null,
     buttons: { fire: b(0), missile: b(1), flare: b(2), special: b(3), switch: b(4), pause: b(5) },
   };
@@ -94,7 +113,7 @@ function standardInputs(pad: PadFrame): PadInputs {
 
 function profileInputs(pad: PadFrame, p: JoyProfile): PadInputs {
   const axis = (b: AxisBind): number =>
-    b.pad === pad.id ? deadzone(pad.axes[b.index] ?? 0, JOY_DEADZONE) * (b.invert ? -1 : 1) : 0;
+    b.pad === pad.id ? deadzone(calibrate(pad.axes[b.index] ?? 0, b), JOY_DEADZONE) * (b.invert ? -1 : 1) : 0;
   const buttons: Array<[number, readonly Action[]]> = [];
   for (const a of JOY_ACTIONS) {
     const b = p.buttons[a];
@@ -107,10 +126,10 @@ function profileInputs(pad: PadFrame, p: JoyProfile): PadInputs {
 }
 
 /** What one controller contributes this tick: the profile if it names it, else standard / default. */
-export function padInputs(pad: PadFrame, profile: JoyProfile | null): PadInputs {
+export function padInputs(pad: PadFrame, profile: JoyProfile | null, rest?: readonly number[]): PadInputs {
   if (profile && names(profile).includes(pad.id)) return profileInputs(pad, profile);
   if (pad.standard) return standardInputs(pad);
-  return profileInputs(pad, defaultProfile(pad.id));
+  return profileInputs(pad, defaultProfile(pad.id, rest));
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -123,10 +142,14 @@ function parseButton(v: unknown): ButtonBind {
   return { pad, index };
 }
 
+const inRange = (v: unknown, lo: number, hi: number): v is number => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+
 function parseAxis(v: unknown): AxisBind {
   const b = parseButton(v);
   if (!isRecord(v) || typeof v.invert !== 'boolean') throw new Error('axis');
-  return { ...b, invert: v.invert };
+  if (v.center === undefined && v.span === undefined) return { ...b, invert: v.invert };
+  if (!inRange(v.center, -1, 1) || !inRange(v.span, 0.2, 2)) throw new Error('calibration');
+  return { ...b, invert: v.invert, center: v.center, span: v.span };
 }
 
 /** Untrusted settings JSON → profile; anything malformed → null (back to the defaults). */

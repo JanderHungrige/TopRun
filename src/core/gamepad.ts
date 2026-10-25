@@ -16,6 +16,8 @@ export interface PadPoll {
 }
 
 let prev = new Set<string>();
+/** The axis values each controller first reported: its sticks' centre when nobody set it up (doc 01). */
+const firstSeen = new Map<string, readonly number[]>();
 
 /** Raw state of every connected controller (the setup screen reads this directly). */
 export function readPads(): PadFrame[] {
@@ -32,7 +34,8 @@ export function readPads(): PadFrame[] {
 const source = (i: number, s: string): string => `pad:${i}:${s}`;
 
 function collect(i: number, frame: PadFrame, profile: JoyProfile | null, now: Map<string, readonly Action[]>): ReturnType<typeof padInputs> {
-  const got = padInputs(frame, profile);
+  if (!firstSeen.has(frame.id)) firstSeen.set(frame.id, [...frame.axes]);
+  const got = padInputs(frame, profile, firstSeen.get(frame.id));
   for (const [b, acts] of got.buttons) now.set(source(i, `b${b}`), acts);
   // Digital directions from the stick drive menu navigation.
   const { x, y } = got.stick;

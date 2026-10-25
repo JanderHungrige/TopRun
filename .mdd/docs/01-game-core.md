@@ -169,8 +169,8 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
   - **JOYSTICK setup** (start menu item → setup screen). The browser only reveals a controller after
     one of its buttons is pressed, so the screen first asks for that. Then step by step, reading the raw
     controllers (game actions from controllers are suspended while the screen is open):
-    1. "Push the stick fully RIGHT" → the axis that moved most (≥ 0.6 from where it was when the step
-       started) is X; it is inverted if it moved negative.
+    1. "Push the stick fully RIGHT" → the axis that moved most (≥ 0.3 from where it was when the step
+       started) is X, calibrated to that rest point; it is inverted if it moved negative.
     2. "Pull the stick fully BACK" → same for Y (X excluded); back must read positive.
     3. "Pull the TRIGGER" → the first button that goes down is fire.
     4. "Throttle: move it end to end, leave it at FULL, pull the trigger" → on the trigger, the
@@ -183,6 +183,14 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     shows a summary for 2 s, then returns to the title.
   - The live panel on the setup screen shows every controller's axes and buttons so the player can
     see the stick is detected.
+  - **Axis calibration** (bug fix 2026-10-25: a stick whose axes report 0…1 resting at 0.5 was never
+    detected — a full push only moved 0.5 < 0.6 — and in game "left" read as 0 = no movement):
+    stick axes are normalised as `clamp((raw − center) / span, −1, 1)` (inverted if needed) before the
+    dead zone. The setup records `center` = the axis value at rest when the step started and
+    `span = max(0.2, 1 − |center|)`, and accepts a stick move of **≥ 0.3** (was 0.6). A controller
+    without a saved profile and without the standard mapping takes the first values it reports
+    (the stick at rest when it wakes up) as the centre of axes 0/1. Saved profiles may carry
+    `center` (−1…1) and `span` (0.2…2) per axis; missing = 0 / 1 (old profiles keep working).
 - **Audio** starts only after the first user gesture (browser autoplay policy). Mute state and
   volumes persist in `settings`.
 - **Save**: every read from localStorage passes through `parseSave(raw: unknown)`, which never

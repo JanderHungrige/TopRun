@@ -1,6 +1,6 @@
 ---
 id: deploy-toprun
-title: Deploy TopRun to toprun.questenterprise.de (GHCR + host cron)
+title: Deploy TopRun to topgun.questenterprise.de (GHCR + host cron)
 type: ops
 platform: docker-compose + github-actions + cron
 environments: [production]
@@ -19,7 +19,7 @@ services:
   - slug: app
     image: ghcr.io/janderhungrige/toprun:main
     port: 8081
-    health_check: "curl -fsS -o /dev/null https://toprun.questenterprise.de/ && ssh jan@159.195.148.193 'docker inspect -f {{.State.Health.Status}} toprun-prod-app-1' | grep -qx healthy"
+    health_check: "curl -fsS -o /dev/null https://topgun.questenterprise.de/ && ssh jan@159.195.148.193 'docker inspect -f {{.State.Health.Status}} toprun-prod-app-1' | grep -qx healthy"
     regions:
       prod:
         image: ghcr.io/janderhungrige/toprun:main
@@ -28,7 +28,7 @@ services:
   - slug: ladder
     image: ghcr.io/janderhungrige/toprun-ladder:main
     port: none (compose network only; nginx in app forwards /api/ladder)
-    health_check: "curl -fsS https://toprun.questenterprise.de/api/ladder | grep -q '\"pilots\"'"
+    health_check: "curl -fsS https://topgun.questenterprise.de/api/ladder | grep -q '\"pilots\"'"
     regions:
       prod:
         image: ghcr.io/janderhungrige/toprun-ladder:main
@@ -43,10 +43,11 @@ known_issues:
   - "The root cron needs a one-time sudo step by the owner (sudo needs a password on the host)."
   - "First rollout on 2026-10-25 was started by hand from ~/toprun-bootstrap (compose project toprun-prod); the /opt/toprun cron adopts the same project — the bootstrap checkout is removed in Step 1."
   - "NPM proxy host 25 has a certificate but Force SSL is off, so plain http:// is served too — enable Force SSL (and HSTS) in NPM."
+  - "2026-10-25: the owner moved the site from toprun.questenterprise.de to topgun.questenterprise.de (same NPM upstream 172.17.0.1:8081); the old name no longer has a proxy host."
   - "The host never pulls the repo by itself: changes to deploy/compose.app.yml or deploy/*.sh only arrive with a manual `git pull` in /opt/toprun (Step 2b)."
 ---
 
-# Deploy TopRun to toprun.questenterprise.de
+# Deploy TopRun to topgun.questenterprise.de
 
 ## Overview
 Push-to-deploy with no SSH from CI, the same mechanism as battlefuel, 3dmap2, ninanatur and
@@ -58,7 +59,7 @@ and rolls the container with a health gate and automatic rollback.
 push -> main   CI builds + pushes :main and :<sha>   -> root cron (deploy/roll-all.sh, :08)
                -> deploy/auto-deploy.sh pulls, starts, waits for healthy (or rolls back)
                -> container toprun-prod-app-1 on 172.17.0.1:8081
-               -> Nginx Proxy Manager: toprun.questenterprise.de -> http://172.17.0.1:8081 (TLS)
+               -> Nginx Proxy Manager: topgun.questenterprise.de -> http://172.17.0.1:8081 (TLS)
                app nginx: /api/ladder -> toprun-prod-ladder-1:8090 (compose network, doc 27)
 ```
 
@@ -110,14 +111,14 @@ Step 1 (Checkout + cron):
   Verify:  `sudo crontab -l | grep -q /opt/toprun`
 
 Step 2 (Proxy host — already present on 2026-10-25):
-  Action:  NPM → Proxy Hosts → `toprun.questenterprise.de` → `http://172.17.0.1:8081`, SSL cert + Force SSL.
-  Verify:  `curl -fsS -o /dev/null -w '%{http_code}' https://toprun.questenterprise.de/` → `200`
+  Action:  NPM → Proxy Hosts → `topgun.questenterprise.de` → `http://172.17.0.1:8081`, SSL cert + Force SSL.
+  Verify:  `curl -fsS -o /dev/null -w '%{http_code}' https://topgun.questenterprise.de/` → `200`
 
 Step 2b (Ladder service — one time, after the first deploy that contains doc 27):
   Action:  `cd /opt/toprun && sudo git pull && sudo docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml up -d`
            (git pull brings the new compose file and auto-deploy.sh; `up -d` creates the ladder
            service and its volume. Wait until CI has pushed `toprun-ladder:main` first.)
-  Verify:  `curl -fsS https://toprun.questenterprise.de/api/ladder` → `{"pilots":[…],"updatedAt":…}`
+  Verify:  `curl -fsS https://topgun.questenterprise.de/api/ladder` → `{"pilots":[…],"updatedAt":…}`
            and `sudo docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml ps` shows
            `ladder` healthy. Until this step runs, the game works and the ladder screen says offline.
 
@@ -129,7 +130,7 @@ Step 3 (Ship a change):
            `ssh jan@159.195.148.193 'tail -n 3 /opt/toprun/deploy/.state/deploy.log'` shows `live: ghcr.io/janderhungrige/toprun@sha256:…`
 
 Step 4 (Smoke test):
-  Action:  `curl -fsS https://toprun.questenterprise.de/ | grep -q '<canvas id="game"'`
+  Action:  `curl -fsS https://topgun.questenterprise.de/ | grep -q '<canvas id="game"'`
   Verify:  exit 0; open the page and start a mission.
 
 ## Rollback Plan

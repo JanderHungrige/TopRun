@@ -32,7 +32,7 @@ Dev-only art previews: `http://localhost:5173/dev/art.html` and `/dev/art-enemie
 
 ## Deploy
 
-Live at **https://toprun.questenterprise.de/**. Every push to `main` that changes the game is
+Live at **https://topgun.questenterprise.de/**. Every push to `main` that changes the game is
 built and tested by GitHub Actions, pushed to `ghcr.io/janderhungrige/toprun`, and rolled out
 by a cron job on the server within about a minute (health-checked, with automatic rollback).
 The full procedure, one-time host setup and rollback steps are in

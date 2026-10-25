@@ -1,4 +1,4 @@
-# TopGun — static build served by unprivileged nginx. Put your reverse proxy (TLS) in front of port 8080.
+# TopRun — static build served by unprivileged nginx. Put your reverse proxy (TLS) in front of port 8080.
 ARG NODE_VERSION=24.19.0-alpine
 ARG NGINX_VERSION=1.30.6-alpine
 
@@ -13,7 +13,7 @@ RUN npm test && npm run build
 
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runtime
 LABEL org.opencontainers.image.source="https://github.com/JanderHungrige/TopRun" \
-      org.opencontainers.image.description="TopGun — carrier launch and top-down arcade shooter (static web game)"
+      org.opencontainers.image.description="TopRun — carrier launch and top-down arcade shooter (static web game)"
 COPY deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 8080

@@ -1,9 +1,9 @@
 ---
 id: 05-mission-combat
 title: Mission Combat - Top-Down Vertical Shooter
-edition: TopGun
+edition: TopRun
 depends_on: [01-game-core, 02-hangar-economy, 03-campaign-map, 04-carrier-takeoff]
-relates: [02-hangar-economy, 03-campaign-map]
+relates: [02-hangar-economy, 03-campaign-map, 06-talking-characters, 07-i18n]
 source_files:
   - src/data/enemies.ts
   - src/data/bosses.ts
@@ -31,7 +31,7 @@ test_files:
   - tests/unit/waves.test.ts
   - tests/unit/combat.test.ts
 data_flow: greenfield
-last_synced: 2026-10-24
+last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
@@ -169,6 +169,8 @@ None.
   highlighted), flares, special cooldown ring. Right: mission name, objective progress, cash
   collected, kills, mission progress bar, boss HP bar when present. Touch buttons over the HUD
   panels when a touch device is used.
+
+- **Talking character (06):** wingman (radio calls on mission events). All visible text goes through i18n (07).
 
 ## Data Flow
 

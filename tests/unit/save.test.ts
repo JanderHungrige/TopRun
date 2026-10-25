@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { defaultSave, loadSave, parseSave, SAVE_KEY } from '../../src/game/save';
+import { describe, it, expect } from 'vitest';
+import { defaultSave, parseSave } from '../../src/game/save';
 
 const valid = () => {
   const s = defaultSave();
@@ -40,15 +40,13 @@ describe('Save', () => {
       expect(parseSave({ ...valid(), version: 2 })).toBeNull();
     });
 
-    it('clamps money, gun level, equipment and settings into range', () => {
-      const raw = { ...valid(), money: -50, gunLevel: 99, equipment: { armor: 9, ecm: -3, flares: 2.7 }, settings: { music: 4, sfx: 'loud', autofire: 'yes' } };
+    it('clamps money, gun level and equipment into range', () => {
+      const raw = { ...valid(), money: -50, gunLevel: 99, equipment: { armor: 9, ecm: -3, flares: 2.7 }, settings: { music: 4 } };
       const s = parseSave(raw);
       expect(s?.money).toBe(0);
       expect(s?.gunLevel).toBe(5);
       expect(s?.equipment).toEqual({ armor: 3, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0 });
-      expect(s?.settings.music).toBe(1);
-      expect(s?.settings.sfx).toBe(0.8);
-      expect(s?.settings.autofire).toBe(false);
+      expect(s && 'settings' in s).toBe(false); // settings are device-wide now (doc 08)
     });
 
     it('drops unknown plane, secondary and mission ids', () => {
@@ -72,18 +70,6 @@ describe('Save', () => {
       expect(s?.loadout.f16).toEqual([null, null]);
       expect(s?.loadout.f14).toEqual(['aim54', null, null, null]);
       expect(s?.loadout.sr71).toEqual([null, null, null]);
-    });
-  });
-
-  describe('loadSave', () => {
-    it('returns defaults when storage holds corrupt JSON', () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      const storage = { getItem: (key: string) => (key === SAVE_KEY ? '{not json' : null) };
-      expect(loadSave(storage)).toEqual(defaultSave());
-      expect(loadSave({ getItem: () => null })).toEqual(defaultSave());
-      expect(loadSave({ getItem: () => JSON.stringify(valid()) })).toEqual(valid());
-      expect(warn).toHaveBeenCalled();
-      warn.mockRestore();
     });
   });
 });

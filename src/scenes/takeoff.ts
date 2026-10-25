@@ -2,12 +2,16 @@ import { lerp } from '../core/math';
 import type { Scene } from '../core/scene';
 import { THEATERS } from '../data/theaters';
 import type { MissionDef } from '../data/types';
+import { shooterLine, type ShooterEvent } from '../game/dialogue-scripts';
 import { createTakeoff, stepTakeoff, type TakeoffPhase, type TakeoffState } from '../game/takeoff-logic';
 import type { GameContext } from '../game/state';
 import { DECK_Y, drawCarrier, drawSea, drawSky, SEA_Y } from '../render/draw-carrier';
 import { drawPlaneSide, SIDE_TAIL_X } from '../render/draw-planes-side';
 import { Particles } from '../render/particles';
 import { COLORS, text } from '../render/text';
+import { missionName } from '../i18n/content';
+import { t } from '../i18n/i18n';
+import { pilotContext, SpeechBox } from '../ui/speech';
 import { drawButton, hit } from '../ui/widgets';
 import { drawPrompt, drawThrottle, SKIP_BTN } from './takeoff-hud';
 
@@ -27,8 +31,22 @@ export class TakeoffScene implements Scene {
   private doneTimer = 0;
   private launched = false;
   private leaving = false;
+  private readonly shooter: SpeechBox;
+  private saidGreen = false;
+  private saidOverspeed = false;
 
-  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {}
+  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {
+    this.shooter = new SpeechBox(game.audio, {
+      portrait: { x: 24, y: 552, w: 112, h: 136 },
+      bubble: { x: 150, y: 566, w: 470, h: 104 },
+      fontSize: 17, style: 'comic', persistent: true,
+    }, 'shooter', pilotContext(game));
+    this.shooter.say(shooterLine('spool'));
+  }
+
+  private coach(ev: ShooterEvent, interrupt = true): void {
+    this.shooter.say(shooterLine(ev), interrupt);
+  }
 
   enter(): void {
     this.game.music.stop();
@@ -61,6 +79,8 @@ export class TakeoffScene implements Scene {
       skip: input.pressed('skip') || skipTap,
     }, dt);
     if (this.s.phase !== before) this.onPhase(before, this.s.phase);
+    this.coachSpool();
+    this.shooter.update(dt, input);
     this.movePlane(dt);
     this.effects(dt);
     this.game.audio.setJet(this.jetLevel());
@@ -91,10 +111,19 @@ export class TakeoffScene implements Scene {
       a.play('catapult');
       this.shake = 8;
       this.launched = true;
+      this.coach('launch');
     }
-    if (to === 'climb') a.play(this.s.rating === 'perfect' ? 'cash' : 'uiSelect');
-    if (to === 'edge') a.play('warning');
+    if (to === 'climb') {
+      a.play(this.s.rating === 'perfect' ? 'cash' : 'uiSelect');
+      const r = this.s.rating;
+      if (r && r !== 'skipped') this.coach(r);
+    }
+    if (to === 'edge') {
+      a.play('warning');
+      this.coach('edge');
+    }
     if (to === 'ditched') {
+      this.coach('ditched');
       this.sinkY = 0;
       this.sinkV = 0;
       this.sunk = false;
@@ -104,6 +133,21 @@ export class TakeoffScene implements Scene {
       this.launched = false;
       this.camX = -PLANE_SCREEN_X;
       a.play('uiSelect');
+      this.saidGreen = false;
+      this.saidOverspeed = false;
+      this.coach('spool');
+    }
+  }
+
+  /** Deck officer reacts to the throttle while spooling (once per attempt each). */
+  private coachSpool(): void {
+    if (this.s.phase !== 'spool') return;
+    if (this.s.overspeed && !this.saidOverspeed) {
+      this.saidOverspeed = true;
+      this.coach('overspeed');
+    } else if (this.s.greenTime > 0.25 && !this.saidGreen) {
+      this.saidGreen = true;
+      this.coach('green');
     }
   }
 
@@ -168,10 +212,11 @@ export class TakeoffScene implements Scene {
   }
 
   private renderHud(ctx: CanvasRenderingContext2D): void {
-    text(ctx, `MISSION ${this.mission.number}: ${this.mission.name.toUpperCase()}`, 24, 40, { size: 20, display: true, italic: true, shadow: true });
-    text(ctx, `CARRIER LAUNCH${this.s.attempts > 1 ? `  ·  ATTEMPT ${this.s.attempts}` : ''}`, 24, 64, { size: 13, color: COLORS.ink, letterSpacing: 2, shadow: true });
+    text(ctx, t('takeoff.title', { n: this.mission.number, name: missionName(this.mission).toUpperCase() }), 24, 40, { size: 20, display: true, italic: true, shadow: true });
+    text(ctx, t('takeoff.subtitle') + (this.s.attempts > 1 ? `  ·  ${t('takeoff.attempt', { n: this.s.attempts })}` : ''), 24, 64, { size: 13, color: COLORS.ink, letterSpacing: 2, shadow: true });
     drawPrompt(ctx, this.s, this.game.input.device === 'touch', this.t);
     if (this.s.phase === 'spool') drawThrottle(ctx, this.s, this.t);
-    if (this.s.phase !== 'done') drawButton(ctx, { id: 'skip', label: 'SKIP LAUNCH', ...SKIP_BTN, hint: 'S' }, false, this.t);
+    if (this.s.phase !== 'done') drawButton(ctx, { id: 'skip', label: t('takeoff.skip'), ...SKIP_BTN, hint: 'S' }, false, this.t);
+    this.shooter.render(ctx);
   }
 }

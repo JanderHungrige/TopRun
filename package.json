@@ -1,9 +1,9 @@
 {
-  "name": "topgun",
+  "name": "toprun",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "TopGun — carrier launch and top-down arcade shooter for the browser",
+  "description": "TopRun — carrier launch and top-down arcade shooter for the browser",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

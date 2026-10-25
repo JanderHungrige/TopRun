@@ -1,4 +1,4 @@
-# TopGun — Carrier Strike
+# TopRun — Carrier Strike
 
 A browser arcade game. Launch from the deck of an aircraft carrier (side view), then fly a classic
 top-down vertical shooter. 30 missions across 5 theaters, a hangar to spend your pay on new jets,
@@ -7,10 +7,14 @@ guns, missiles and equipment, and a boss at the end of every theater.
 - **Jets:** F-16 Fighting Falcon (starter), F-14 Tomcat, SR-71 Blackbird, each with its own special move
 - **Weapons:** M61 cannon (5 levels), AIM-9 Sidewinder, Zuni rockets, Mk-82 bombs, AGM-65 Maverick, AIM-54 Phoenix (F-14 only)
 - **Equipment:** armor, engine tuning, flares, ECM pod, damage control, cargo magnet
+- **Characters:** Admiral "Ace" Kincaid debriefs you while your pay is counted out, Chief "Wrench"
+  Kowalski runs the hangar, Lt. "Shooter" Reyes launches you off the deck and Lt. "Duke" Carter
+  flies your wing on the radio — animated vector portraits that talk in speech bubbles
+- **Languages:** English and German (language button in the start menu)
 - **Controls:** keyboard, gamepad and touch. Progress is saved in the browser (localStorage).
 
-No game engine and no asset files: all art is vector-drawn on a canvas and all sound is synthesized
-with Web Audio.
+No game engine and no asset files: all art is vector-drawn on a canvas and all sound — including the
+original 80s-style anthem soundtrack and the characters' babble voices — is synthesized with Web Audio.
 
 ## Develop
 

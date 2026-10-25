@@ -1,9 +1,9 @@
 ---
 id: 04-carrier-takeoff
 title: Carrier Takeoff - Side-View Catapult Launch Mini-Game
-edition: TopGun
+edition: TopRun
 depends_on: [01-game-core, 02-hangar-economy, 03-campaign-map]
-relates: [05-mission-combat]
+relates: [05-mission-combat, 06-talking-characters, 07-i18n]
 source_files:
   - src/game/takeoff-logic.ts
   - src/scenes/takeoff.ts
@@ -15,7 +15,7 @@ models: []
 test_files:
   - tests/unit/takeoff.test.ts
 data_flow: greenfield
-last_synced: 2026-10-24
+last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
@@ -98,6 +98,8 @@ None.
   throttle; deck crew "shooter" gives the launch signal; launch shakes the camera.
 - After `done` the scene fades to the mission (05) with the rating.
 - Plane art reflects the selected plane (F-16 / F-14 / SR-71).
+
+- **Talking character (06):** shooter (deck officer coaches the launch). All visible text goes through i18n (07).
 
 ## Data Flow
 

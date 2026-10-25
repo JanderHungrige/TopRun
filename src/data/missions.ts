@@ -1,5 +1,3 @@
-import { BOSSES } from './bosses';
-import { ENEMIES } from './enemies';
 import { THEATERS } from './theaters';
 import type { EnemyKind, MissionDef, Objective, TheaterId } from './types';
 
@@ -102,14 +100,4 @@ export const MISSIONS: readonly MissionDef[] = Object.freeze(buildMissions());
 
 export function missionById(id: string): MissionDef | undefined {
   return MISSIONS.find((m) => m.id === id);
-}
-
-export function objectiveText(o: Objective): string {
-  switch (o.type) {
-    case 'patrol': return 'Patrol: survive to the end of the route';
-    case 'intercept': return `Intercept: shoot down ${o.count} aircraft`;
-    case 'strike': return `Strike: destroy ${o.count} ${ENEMIES[o.target].name}${o.count > 1 ? 's' : ''}`;
-    case 'boss': return `Destroy the ${BOSSES[o.boss].name} (${BOSSES[o.boss].title})`;
-    default: throw new Error(`unhandled: ${o satisfies never}`);
-  }
 }

@@ -1,4 +1,4 @@
-# The TopRun (TopGun game) production stack, deployed from a prebuilt GHCR image and kept
+# The TopRun (the TopRun game) production stack, deployed from a prebuilt GHCR image and kept
 # current by deploy/auto-deploy.sh (root cron via deploy/roll-all.sh):
 #
 #   docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml up -d   # 172.17.0.1:8081

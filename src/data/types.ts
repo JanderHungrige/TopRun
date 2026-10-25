@@ -8,9 +8,9 @@ export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
   'aim9', 'rockets', 'mk82', 'agm65', 'aim54',
 ] as const);
 
-export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet';
+export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
 export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
-  'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet',
+  'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet', 'radar',
 ] as const);
 
 export type SpecialId = 'roll' | 'wingman' | 'dash';

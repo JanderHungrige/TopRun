@@ -123,6 +123,21 @@ const EQUIPMENT_ICONS: Readonly<Record<EquipmentId, IconFn>> = {
     ctx.arc(11, -11, 7, 0.6, TAU - 0.9);
     ctx.stroke();
   },
+  radar: (ctx) => {
+    ctx.strokeStyle = '#5be37d';
+    ctx.beginPath();
+    ctx.arc(0, 0, 17, 0, TAU);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 9, 0, TAU);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(13, -11);
+    ctx.stroke();
+    ctx.fillStyle = '#ffc83d';
+    ctx.fillRect(-9, -12, 4, 4);
+  },
   magnet: (ctx) => {
     ctx.beginPath();
     ctx.arc(0, 0, 13, Math.PI, 0, false);

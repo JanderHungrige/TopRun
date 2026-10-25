@@ -58,6 +58,10 @@ export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; descript
     name: 'Frachtmagnet', description: 'Aufsammelbares fliegt dir aus viel größerer Entfernung zu.',
     levelText: ['Eingebaut'],
   },
+  radar: {
+    name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen bis zu 4 Sekunden früher auf dem Schirm.',
+    levelText: ['Eingebaut'],
+  },
 };
 
 type Forms = readonly [singular: string, plural: string];

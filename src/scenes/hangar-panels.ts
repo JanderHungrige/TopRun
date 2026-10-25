@@ -18,8 +18,12 @@ export function slotRects(hardpoints: number): Rect[] {
   return Array.from({ length: hardpoints }, (_, i) => ({ x: DETAIL.x + 24 + i * 112, y: DETAIL.y + 498, w: 102, h: 46 }));
 }
 
-export function rowRect(i: number): Rect {
-  return { x: LIST.x, y: LIST.y + i * LIST.row, w: LIST.w, h: LIST.row - 8 };
+/** Rows shrink so long lists (7 equipment items) stay above the crew chief. */
+export const rowHeight = (count: number): number => Math.min(LIST.row, Math.floor(412 / Math.max(1, count)));
+
+export function rowRect(i: number, count: number): Rect {
+  const h = rowHeight(count);
+  return { x: LIST.x, y: LIST.y + i * h, w: LIST.w, h: h - 8 };
 }
 
 function drawThumb(ctx: CanvasRenderingContext2D, item: ShopItem, x: number, y: number, t: number): void {
@@ -34,7 +38,7 @@ function drawThumb(ctx: CanvasRenderingContext2D, item: ShopItem, x: number, y: 
 
 export function drawList(ctx: CanvasRenderingContext2D, save: SaveData, items: readonly ShopItem[], focus: number, t: number): void {
   items.forEach((item, i) => {
-    const r = rowRect(i);
+    const r = rowRect(i, items.length);
     const active = i === focus;
     drawPanel(ctx, r, { fill: active ? 'rgba(40,70,105,0.92)' : 'rgba(14,24,36,0.85)', edge: active ? COLORS.gold : COLORS.panelEdge, radius: 8 });
     drawThumb(ctx, item, r.x + 48, r.y + r.h / 2, t);

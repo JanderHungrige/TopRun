@@ -74,7 +74,7 @@ export class HangarScene implements Scene {
       if (hit(p, b)) this.setTab(i);
     });
     this.items.forEach((_, i) => {
-      if (hit(p, rowRect(i))) this.setFocus(i);
+      if (hit(p, rowRect(i, this.items.length))) this.setFocus(i);
     });
     const action = this.actionButton();
     if (action && action.enabled !== false && hit(p, action)) this.doAction();

@@ -5,13 +5,15 @@ import { derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
 import { bossTitle, missionName, objectiveText } from '../../i18n/content';
-import { t } from '../../i18n/i18n';
+import { getLang, t } from '../../i18n/i18n';
 import { COLORS, text } from '../../render/text';
 import { pilotContext } from '../../ui/speech';
 import { ButtonGroup, drawPanel, hit } from '../../ui/widgets';
 import { Boss } from './boss';
 import { spawnEnemy, updateEnemies } from './enemy-ai';
-import { drawLeftHud, drawRightHud, TOUCH_BUTTONS, type TouchAction } from './hud';
+import { drawLeftConsole, drawRightConsole } from '../../render/cockpit';
+import { LEFT, RIGHT, type Rect } from '../../render/cockpit/layout';
+import { cockpitButtons, cockpitLabels, leftView, rightView } from './cockpit-view';
 import { clipPlayfield, renderWorld } from './mission-render';
 import { updatePickups } from './pickups';
 import { Player } from './player';
@@ -39,6 +41,9 @@ export class MissionScene implements Scene {
     { id: 'abort', label: t('mission.abort'), x: 520, y: 392, w: 240, h: 48 },
   ]);
   private readonly radio: WingmanRadio;
+  /** Stable per language: the cockpit caches its painted plates by label identity. */
+  private labels = cockpitLabels();
+  private labelsLang = getLang();
   private banner: Banner | null = null;
   private ending: { success: boolean; timer: number } | null = null;
   private left = false;
@@ -63,15 +68,15 @@ export class MissionScene implements Scene {
     this.game.audio.setJet(0);
   }
 
-  private touched(action: TouchAction): boolean {
-    const b = TOUCH_BUTTONS.find((x) => x.id === action);
-    return !!b && (action === 'pause' || this.game.input.device === 'touch') && this.game.input.taps.some((p) => hit(p, b));
+  /** A cockpit button was clicked/tapped this tick (any device). */
+  private clicked(r: Rect): boolean {
+    return this.game.input.taps.some((p) => hit(p, r));
   }
 
   update(dt: number): void {
     this.t += dt;
     const input = this.game.input;
-    if (!this.ending && (input.pressed('pause') || this.touched('pause'))) {
+    if (!this.ending && (input.pressed('pause') || this.clicked(RIGHT.pauseBtn))) {
       this.paused = !this.paused;
       this.game.audio.play(this.paused ? 'uiBack' : 'uiSelect');
       return;
@@ -99,10 +104,29 @@ export class MissionScene implements Scene {
     p.move(input.moveVector(), input.dragDelta(PLAYFIELD), dt);
     const autofire = this.game.settings.autofire || (touch && input.touchingIn(PLAYFIELD));
     if (input.held('fire') || autofire) firePlayerGun(this.world, p, this.game.audio);
-    if (input.held('secondary') || this.touched('secondary')) fireSecondary(this.world, p, this.game.audio);
-    if ((input.pressed('switchWeapon') || this.touched('switchWeapon')) && p.switchSecondary()) this.game.audio.play('uiMove');
-    if (input.pressed('flare') || this.touched('flare')) dropFlare(this.world, p, this.game.audio);
-    if (input.pressed('special') || this.touched('special')) this.activateSpecial();
+    if (input.held('secondary')) fireSecondary(this.world, p, this.game.audio);
+    if (input.pressed('switchWeapon') && p.switchSecondary()) this.game.audio.play('uiMove');
+    if (input.pressed('flare')) dropFlare(this.world, p, this.game.audio);
+    if (input.pressed('special')) this.activateSpecial();
+    this.cockpitClicks();
+  }
+
+  /** Lit cockpit buttons act on click/tap; dark ones answer with the "denied" buzz (doc 05). */
+  private cockpitClicks(): void {
+    const p = this.player;
+    const b = cockpitButtons(p);
+    const a = this.game.audio;
+    const press = (r: Rect, ready: boolean, act: () => void): void => {
+      if (!this.clicked(r)) return;
+      if (ready) act();
+      else a.play('denied');
+    };
+    press(LEFT.missileBtn, b.missile === 'ready', () => fireSecondary(this.world, p, a));
+    press(LEFT.switchBtn, b.switch === 'ready', () => {
+      if (p.switchSecondary()) a.play('uiMove');
+    });
+    press(RIGHT.flareBtn, b.flare === 'ready', () => dropFlare(this.world, p, a));
+    press(RIGHT.specialBtn, b.special.state === 'ready', () => this.activateSpecial());
   }
 
   private activateSpecial(): void {
@@ -232,9 +256,12 @@ export class MissionScene implements Scene {
     ctx.restore();
     this.renderBanner(ctx);
     this.radio.render(ctx);
-    const touch = this.game.input.device === 'touch';
-    drawLeftHud(ctx, this.player, this.t, touch, this.game.profile?.callsign ?? 'PILOT');
-    drawRightHud(ctx, w, this.t, touch);
+    if (this.labelsLang !== getLang()) {
+      this.labels = cockpitLabels();
+      this.labelsLang = getLang();
+    }
+    drawLeftConsole(ctx, leftView(w, this.player, this.game.profile?.callsign ?? 'PILOT', this.labels), this.t);
+    drawRightConsole(ctx, rightView(w, this.player, this.labels), this.t);
     if (this.paused) this.renderPause(ctx);
   }
 

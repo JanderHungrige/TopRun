@@ -19,7 +19,19 @@ source_files:
   - src/scenes/mission/projectiles.ts
   - src/scenes/mission/boss.ts
   - src/scenes/mission/pickups.ts
-  - src/scenes/mission/hud.ts
+  - src/game/cockpit.ts
+  - src/scenes/mission/cockpit-view.ts
+  - src/render/cockpit/index.ts
+  - src/render/cockpit/layout.ts
+  - src/render/cockpit/types.ts
+  - src/render/cockpit/metal.ts
+  - src/render/cockpit/plates.ts
+  - src/render/cockpit/radar.ts
+  - src/render/cockpit/gauges.ts
+  - src/render/cockpit/screens.ts
+  - src/render/cockpit/mission.ts
+  - src/render/cockpit/lamps.ts
+  - src/render/cockpit/buttons.ts
   - src/render/draw-enemies.ts
   - src/render/draw-ground-units.ts
   - src/render/draw-bosses.ts
@@ -30,12 +42,13 @@ models: []
 test_files:
   - tests/unit/waves.test.ts
   - tests/unit/combat.test.ts
+  - tests/unit/cockpit.test.ts
 data_flow: greenfield
 last_synced: 2026-10-25
 status: complete
-phase: all
+phase: 3
 mdd_version: 11
-tags: [shooter, top-down, enemies, waves, bosses, weapons, pickups, hud, objectives]
+tags: [shooter, top-down, enemies, waves, bosses, weapons, pickups, cockpit, radar, objectives]
 path: Game/Mission
 integration_contracts:
   - function: "MissionResult"
@@ -68,7 +81,7 @@ boss at the end of every theater. Mission data (03) and the player loadout (02) 
 ## Architecture
 
 ```
-Screen 1280×720:  [ left HUD 320 ][ playfield 640×720 ][ right HUD 320 ]
+Screen 1280×720:  [ left console 320 ][ playfield 640×720 ][ right console 320 ]
 
 data/enemies.ts      ENEMIES: stats per kind (layer air|ground, hp, speed, radius, bounty, weapon)
 data/bosses.ts       BOSSES: ironclad | sandstorm | blackjack | typhoon | leviathan (parts, patterns)
@@ -77,13 +90,18 @@ game/combat.ts       pure helpers: circleHit, applyDamage (ground modifier, ECM)
                      pickTarget, scaleEnemy(difficulty), rollDrop
 game/objectives.ts   objectiveProgress / objectiveMet / isMissionOver (pure)
 scenes/mission/      world container + systems (player, enemy AI, projectiles, boss,
-                     pickups, HUD); mission-scene orchestrates update order and end state
+                     pickups); mission-scene orchestrates update order and end state
+game/cockpit.ts      radarContacts / buttonStates / warningLights (pure)
+scenes/mission/cockpit-view.ts   world + player → LeftConsoleView / RightConsoleView
+render/cockpit/      drawLeftConsole / drawRightConsole; layout.ts holds the button rects the
+                     scene hit-tests; static metal plates are cached offscreen per labels object
+                     (the scene keeps one labels object per language)
 render/              enemy / boss / terrain vector art, particle system
 ```
 
 Update order per tick: input → player → spawns (timeline) → enemies/boss AI → projectiles →
 collisions → pickups → particles → objective/end check. Render: terrain → ground units →
-shadows → air units → projectiles → particles → clouds → HUD.
+shadows → air units → projectiles → particles → clouds → cockpit consoles.
 
 ## Data Model
 
@@ -165,10 +183,27 @@ None.
   - Mission ends when the player dies (fail), the boss dies (evaluate), or `t ≥ length` and no
     enemies are on screen (max 8 s extra) → evaluate objective → success / failed.
 - **Pause** (P / Esc / button): overlay with Resume / Abort (abort = failed, salvage only).
-- **HUD** left: plane, hull bar, gun level (+ power timer), secondaries with ammo (active
-  highlighted), flares, special cooldown ring. Right: mission name, objective progress, cash
-  collected, kills, mission progress bar, boss HP bar when present. Touch buttons over the HUD
-  panels when a touch device is used.
+- **Cockpit** (replaces the flat HUD panels, 2026-10-25): both side panels are drawn as 80s
+  fighter consoles — dark riveted metal, analog gauges, green-phosphor screens, backlit push-buttons.
+  - **Left console**: name plate (jet + callsign) · **RADAR** scope (circular, sweeping beam) ·
+    **HULL** analog dial (green > 60 %, amber 30–60 %, red < 30 %) with digital readout · **CANNON**
+    level lamps 1–5 + power-up lamp/timer · **STORES** screen (mounted weapons, ammo, selected one
+    bracketed) · buttons **MISSILE** (Shift) and **SWITCH** (Q).
+  - **Right console**: mission screen (number, name, objective + progress, kills, cash, route, boss
+    hull when present) · **warning panel** (MISSILE, LOW HULL, BOSS, POWER, ECM, DMG CTRL lamps) ·
+    big buttons **FLARE** (F, with count) and **SPECIAL** (E, with recharge ring) · **PAUSE**.
+  - **Buttons light up only when usable** (`buttonStates`): missile `none | empty | cooldown | ready`;
+    switch `ready` only with ≥ 2 loaded weapons, else `none`; flare `none` (no dispenser) | `empty` |
+    `ready`; special `ready | cooldown (progress 0..1) | active`. Every button is clickable/tappable on
+    every device (keyboard keys still work); pressing a dark button plays the "denied" sound.
+  - **Warning lamps** (`warningLights`): MISSILE flashes when an enemy missile that is not chasing a
+    flare is within 260 px; LOW HULL when hull < 30 %; BOSS while a boss is on the field; POWER while
+    the gun power-up runs; ECM steady when the pod is fitted; DMG CTRL `armed` / `used` / off.
+  - **Radar** (`radarContacts`): a top-down plot centred on the player, range 720 px — only contacts
+    on the screen: air = dot, ground = square, boss = large diamond, enemy missile = flashing red dot.
+    With the **Early-Warning Radar** (doc 02) the range grows to 1100 px and spawns due in the next
+    4 s are plotted ahead at their entry point (`y = −60 − (t_spawn − now) × 140`) as hollow amber
+    blips. Contacts outside the range are not shown.
 
 - **Talking character (06):** wingman (radio calls on mission events). All visible text goes through i18n (07).
 

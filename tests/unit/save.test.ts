@@ -45,7 +45,7 @@ describe('Save', () => {
       const s = parseSave(raw);
       expect(s?.money).toBe(0);
       expect(s?.gunLevel).toBe(5);
-      expect(s?.equipment).toEqual({ armor: 3, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0 });
+      expect(s?.equipment).toEqual({ armor: 3, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0, radar: 0 });
       expect(s && 'settings' in s).toBe(false); // settings are device-wide now (doc 08)
     });
 

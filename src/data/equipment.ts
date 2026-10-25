@@ -33,6 +33,10 @@ export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.fre
     id: 'magnet', name: 'Cargo Magnet', description: 'Pickups drift towards you from much further away.',
     prices: [6000], levelText: ['Installed'],
   },
+  radar: {
+    id: 'radar', name: 'Early-Warning Radar', description: 'Longer radar range: see bandits on the scope up to 4 seconds before they arrive.',
+    prices: [8000], levelText: ['Installed'],
+  },
 });
 
 export const ARMOR_BONUS: readonly number[] = Object.freeze([0, 0.2, 0.4, 0.6]);

@@ -1,27 +1,19 @@
-import { puff, type ArtView } from '../pixel/bust';
-import { glow, rect, vgrad } from '../pixel/fx';
+import type { ArtView } from '../pixel/bust';
 import { hexOf, PAL, type Ramp } from '../pixel/palette';
 import { path } from '../pixel/path';
-import { bayer, type Pix } from '../pixel/raster';
+import { union, type Mask, type Pix } from '../pixel/raster';
 import { part } from '../portraits/hands';
 import { BASE, D1, D2, L1, neck, piece } from '../portraits/parts';
-import type { Frame, Mood, MoodShape, Rig } from '../portraits/types';
+import type { Mood, MoodShape, Rig } from '../portraits/types';
+import type { Sky } from './skies';
 
 /**
- * Shared pieces of the pixel-art player avatars (doc 08 / doc 20): a kid-proportioned mood table, the flight
- * suit with harness and a blank name tape, the carrier deck under a per-avatar sky, drifting clouds and the gold
- * "selected" frame. Same 100×120 frame as the portraits.
+ * Shared pieces of the pixel-art player avatars (doc 08 / doc 20 / doc 29): a kid-proportioned mood table, the
+ * flight suit with harness and a blank name tape, round chest patches and the gold "selected" frame. Same
+ * 100×120 frame as the portraits.
  */
 
-export interface Sky {
-  /** Gradient from the top of the sky down to the horizon (palette indices from `ramp`). */
-  grad: readonly number[];
-  ramp: Ramp;
-  sea: Ramp;
-  sun: number; cloud: number;
-  sunX: number; sunY: number; sunR: number;
-  island: -1 | 1; // which side the carrier island stands on
-}
+export type { Sky } from './skies';
 export interface Suit { ramp: Ramp; tee: number }
 export interface AvatarArt {
   sky: Sky;
@@ -30,7 +22,22 @@ export interface AvatarArt {
   head(p: Pix, r: Rig): void;
   /** Optional layer in front of the head, in body space. */
   front?(p: Pix, r: Rig): void;
+  /** Head tilt in radians about the neck (negative = towards the viewer's left), doc 29. */
+  tilt?: number;
 }
+
+/** A hair style in any colour ramp `h` over the skin ramp `s` (presets and the builder share them, doc 29). */
+export interface HairArt {
+  /** Behind the suit: long hair down the back. */
+  behind?(p: Pix, h: Ramp): void;
+  /** Behind the face. */
+  back?(p: Pix, h: Ramp, s: Ramp): void;
+  /** In front of the face: fringe, locks, buns, braids. */
+  front(p: Pix, h: Ramp, s: Ramp): void;
+}
+
+/** Where a tilted head turns: the top of the neck. */
+export const TILT_PIVOT = 72;
 
 const BASE_MOODS: Readonly<Record<Mood, MoodShape>> = {
   neutral: { browIn: 0, browOut: 0, arch: 0.8, lidTop: 0.08, lidLow: 0.05, pupil: 1, lift: 0.4, curv: 0.5, widen: 0, tilt: 0, nod: 0 },
@@ -39,43 +46,16 @@ const BASE_MOODS: Readonly<Record<Mood, MoodShape>> = {
   worried: { browIn: -2.4, browOut: 1.1, arch: 0.3, lidTop: 0, lidLow: 0, pupil: 0.75, lift: -1.4, curv: -0.7, widen: -0.8, tilt: -0.05, nod: 0.4 },
 };
 
+/** Resting eye shape: `squint` raises the lower lids (a smiling face), `hood` lowers the upper lids (relaxed). */
+export interface EyeRest { squint?: number; hood?: number }
+
 /** The kid mood table with a resting smile added to every mood (negative = straighter). Built once per avatar. */
-export function moods(smile: number): Readonly<Record<Mood, MoodShape>> {
-  const build = (m: MoodShape): MoodShape => ({ ...m, lift: m.lift + smile, curv: m.curv + smile * 0.8 });
+export function moods(smile: number, eyes: EyeRest = {}): Readonly<Record<Mood, MoodShape>> {
+  const lid = (v: number, add = 0): number => Math.max(0, Math.min(0.5, v + add));
+  const build = (m: MoodShape): MoodShape => ({
+    ...m, lift: m.lift + smile, curv: m.curv + smile * 0.8, lidLow: lid(m.lidLow, eyes.squint), lidTop: lid(m.lidTop, eyes.hood),
+  });
   return { neutral: build(BASE_MOODS.neutral), happy: build(BASE_MOODS.happy), stern: build(BASE_MOODS.stern), worried: build(BASE_MOODS.worried) };
-}
-
-/** Carrier deck at sea under the avatar's sky: dithered sky, sun with a dithered halo, horizon, island, deck. */
-export function deckBackdrop(p: Pix, f: Frame, k: Sky): void {
-  vgrad(p, k.grad, f.t, 78);
-  glow(p, k.sunX, k.sunY, k.sunR * 1.7, k.ramp, 2, 1);
-  p.paint(p.oval(k.sunX, k.sunY, k.sunR, k.sunR), k.sun);
-  const w = f.r - f.l;
-  rect(p, f.l, 78, w, 13, k.sea[BASE] ?? 0);
-  rect(p, f.l, 78, w, 1, k.sea[L1] ?? 0);
-  rect(p, f.l, 84, w, 7, k.sea[D1] ?? 0, undefined, bayer(0.5));
-  for (let i = 0; i < 4; i++) rect(p, k.sunX - 7 + i * 1.6, 80.4 + i * 2.6, 14 - i * 3.2, 0.9, k.sun);
-  const ix = k.island * 36;
-  const grey = PAL.steel;
-  rect(p, ix - 8, 74, 16, 17, grey[2] ?? 0);
-  rect(p, ix - 4.4, 67.6, 8.8, 6.6, grey[2] ?? 0);
-  rect(p, ix - 3.6, 69.2, 7.2, 1.6, grey[1] ?? 0);
-  p.line(ix, 67.6, ix, 60.6, grey[2] ?? 0);
-  p.line(ix - 2, 61.2, ix + 3, 60.4, grey[2] ?? 0);
-  rect(p, f.l, 90.5, w, f.b - 90.5, grey[2] ?? 0);
-  rect(p, f.l, 90.5, w, 1.2, grey[3] ?? 0);
-  p.paint(p.thick([f.l, 104, f.r, 95], 0.5), PAL.yellow[3] ?? 0);
-}
-
-/** Clouds drifting slowly across the sky (ambient layer). */
-export function skyClouds(g: CanvasRenderingContext2D, v: ArtView, k: Sky): void {
-  const l = -v.ox / v.k;
-  const span = 2 * -l + 50;
-  for (let i = 0; i < 3; i++) {
-    const x = l - 25 + ((((v.t * 2.2 + i * 47) % span) + span) % span);
-    puff(g, v, v.ox + x * v.k, v.oy + (14 + i * 17) * v.k, (12 + i * 3) * v.k, 2.6 * v.k, k.cloud);
-    puff(g, v, v.ox + (x + 5) * v.k, v.oy + (12.2 + i * 17) * v.k, 6.5 * v.k, 2.4 * v.k, k.cloud);
-  }
 }
 
 const STRAP = PAL.olive[1] ?? 0;
@@ -101,6 +81,28 @@ export function flightSuit(p: Pix, s: Suit, skin: Ramp): void {
   p.line(0, 93, 0, 126, r[D2] ?? 0);
   harness(p);
   part(p, p.shape(path().rect(19.6, 95.4, 11.6, 4.8)), PAL.leather, p.blank());
+}
+
+const speck = (c: number, r: number): number => {
+  const s = Math.sin(c * 12.9898 + r * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+/** Freckles over the nose bridge and both cheeks (`y` = their centre line): deterministic per pixel, never two
+ *  touching; `density` 0..1, `tones` alternate. Skipped below 0.6 art px per unit. */
+export function freckles(p: Pix, clip: Mask, tones: readonly number[], density: number, y = 58): void {
+  if (p.k < 0.6 || density <= 0) return;
+  const zone = union(union(p.oval(-10, y, 5.8, 3.2), p.oval(10, y, 5.8, 3.2)), p.oval(0, y - 2, 3.4, 1.8));
+  const placed = p.blank();
+  const w = p.w;
+  for (let i = w + 1; i < zone.length; i++) {
+    if (!zone[i] || !clip[i] || placed[i - 1] || placed[i - w] || placed[i - w - 1] || placed[i - w + 1]) continue;
+    const c = i % w;
+    const v = speck(c - Math.round(p.ox), (i - c) / w);
+    if (v >= density) continue;
+    placed[i] = 1;
+    p.data[i] = tones[Math.floor((v / density) * 7) % tones.length] ?? 0;
+  }
 }
 
 /** Round chest patch: a ring and an inner disc for an emblem. */

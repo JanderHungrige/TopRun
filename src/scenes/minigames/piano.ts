@@ -15,7 +15,8 @@ import { drawCrowd } from '../../render/minigames/piano-crowd';
 import { drawHighway, HWY } from '../../render/minigames/piano-highway';
 import { drawCombo, drawEndBanner, drawGroove, drawPops, drawSection, drawSparks, drawToast } from '../../render/minigames/piano-hud';
 import { drawPianoIcon } from '../../render/minigames/piano-icon';
-import { PIANO_PLAYER } from '../../render/minigames/piano-looks';
+import { faceOf, playerPerson } from '../../render/avatars/person';
+import { pianoPlayer } from '../../render/minigames/piano-looks';
 import { drawPianoPilot } from '../../render/minigames/piano-pilot';
 import { drawLampLight, drawPianoRoom } from '../../render/minigames/piano-room';
 import { drawStool, drawUprightBack, drawUprightFront } from '../../render/minigames/piano-upright';
@@ -70,7 +71,7 @@ class PianoRound implements MinigameRound {
     this.s = createPiano(this.chart);
     this.deck = new PianoDeck(game.audio, this.chart);
     this.banter = new PianoBanter(game.audio, game.profile?.callsign ?? tx('pilot'));
-    this.look = PIANO_PLAYER[game.profile?.avatar ?? 'pilot1'];
+    this.look = pianoPlayer(playerPerson(faceOf(game.profile)));
     game.music.stop();
   }
 

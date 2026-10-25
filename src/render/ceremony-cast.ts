@@ -1,8 +1,9 @@
 import { lerp, type Vec } from '../core/math';
 import type { MedalId } from '../data/medals';
 import type { Beat } from '../game/ceremony';
+import type { AvatarLook } from '../game/avatar-look';
 import type { AvatarId } from '../game/profiles';
-import { ADMIRAL_EXTRAS, ADMIRAL_LOOK, CREW, crewExtras, PILOT_LOOKS } from './ceremony-looks';
+import { ADMIRAL_EXTRAS, ADMIRAL_LOOK, CREW, crewExtras, pilotInWhites } from './ceremony-looks';
 import type { Grid } from './ceremony-set';
 import { drawMedal, drawRibbonBar } from './medals';
 import { SpriteCache } from './pixel/blit';
@@ -30,7 +31,8 @@ const ADMIRAL_RACK: readonly MedalId[] = ['leviathan', 'victory', 'topace', 'gia
 export interface CastView {
   beat: Beat;
   t: number;
-  avatar: AvatarId;
+  /** The pilot's preset or custom look (doc 29). */
+  avatar: AvatarId | AvatarLook;
   /** Medals earned before this ceremony (ribbon bars). */
   earlier: readonly MedalId[];
   /** Medals pinned on the chest so far in this ceremony. */
@@ -144,7 +146,7 @@ function pilot(ctx: CanvasRenderingContext2D, g: Grid, v: CastView): void {
     ...(s > 0.02 ? { reach: [mix(rest(PILOT_TURN), SALUTE, s), null] as const } : {}),
   };
   shadow(ctx, g, PILOT_X, FRONT_FOOT, 1);
-  figure(ctx, PILOT_LOOKS[v.avatar], PILOT_X, FRONT_FOOT, 1, pose, v.pinned.length > 0 ? 'grin' : 'calm', v.t, 2.1);
+  figure(ctx, pilotInWhites(v.avatar), PILOT_X, FRONT_FOOT, 1, pose, v.pinned.length > 0 ? 'grin' : 'calm', v.t, 2.1);
   chestMedals(ctx, g, PILOT_X, FRONT_FOOT, PILOT_TURN, v.earlier, v.pinned);
 }
 

@@ -2,6 +2,7 @@ import { UI_EN_ROOMS } from './ui-en-rooms';
 import { UI_EN_LADDER } from './ui-en-ladder';
 import { UI_EN_HONOURS } from './ui-en-honours';
 import { UI_EN_OFFDUTY } from './ui-en-offduty';
+import { UI_EN_AVATAR } from './ui-en-avatar';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
   // Title
@@ -45,7 +46,7 @@ export const UI_EN = {
   'pilots.deleteText': 'Money, jets and medals of this pilot will be lost.',
   'pilots.back': 'BACK',
   'pilots.newPilot': 'NEW PILOT',
-  'pilots.hint': '↑/↓ choose  ·  ENTER fly  ·  DEL delete  ·  ESC back',
+  'pilots.hint': '↑/↓ choose  ·  ENTER fly  ·  E look  ·  DEL delete  ·  ESC back',
   'newPilot.title': 'NEW PILOT',
   'newPilot.callsign': 'CALLSIGN',
   'newPilot.placeholder': 'YOUR CALLSIGN',
@@ -57,7 +58,7 @@ export const UI_EN = {
   'newPilot.invalid': 'Letters, digits, space and - only',
   'newPilot.taken': 'That callsign is already taken',
   'newPilot.full': 'Hangar full: delete a pilot first',
-  'newPilot.hint': 'Type a callsign, pick a pilot with ←/→, press ENTER',
+  'newPilot.hint': 'Type a callsign, pick a look with ←/→ (↓ builds your own), press ENTER',
   // Map
   'map.title': 'THEATER OF OPERATIONS',
   'map.progress': '{done}/30 MISSIONS  ·  ★ {stars}/90',
@@ -286,6 +287,7 @@ export const UI_EN = {
   ...UI_EN_LADDER,
   ...UI_EN_ROOMS,
   ...UI_EN_HONOURS,
+  ...UI_EN_AVATAR,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

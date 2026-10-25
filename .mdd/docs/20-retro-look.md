@@ -3,7 +3,7 @@ id: 20-retro-look
 title: Retro Look - Pixel-Art Characters, Typewriter Text, RPG Text Boxes
 edition: TopRun
 depends_on: [06-talking-characters, 08-pilot-profiles, 17-people-kit, 07-i18n]
-relates: [06-talking-characters, 08-pilot-profiles, 17-people-kit, 03-campaign-map]
+relates: [06-talking-characters, 08-pilot-profiles, 17-people-kit, 03-campaign-map, 29-avatar-builder]
 source_files:
   - src/render/pixel/palette.ts
   - src/render/pixel/path.ts
@@ -59,6 +59,15 @@ sister_projects: []
 ---
 
 # 20 — Retro Look
+
+> **Update 2026-10-25 (doc 29, avatar builder):** the pipeline gained a **head tilt** — `Pix.rot` with a pivot turns
+> shapes, ovals, strokes and lines (`Pix.at`), hand-placed features move whole to their turned anchor (`Pix.nudge`;
+> eyes, nose, mouth with its slope, each brow on its own line); `rot = 0` keeps the exact old mapping (all portrait
+> frames hash-identical). Features gained `Eyes.irisW` (bigger iris + 2-px catch-light) and `Mouth.lower` (tinted
+> lower lip); `BustArt.backgroundId` lets several arts share one cached background. New ramps (appended):
+> `skinBrown/Deep/Ebony`, `hairDarkBrown/Auburn/Strawberry/Platinum/Blue/Pink`, `irisDark/Hazel`, `khaki`, `seaNight`.
+> The three pilot avatars were redrawn closer to the reference photos (pilot 3 tilted); the avatar skies live in
+> `src/render/avatars/skies.ts`; custom looks are composed in `src/render/avatars/custom.ts` (doc 29).
 
 ## Purpose
 
@@ -127,8 +136,9 @@ laid out parametrically from each character's measurements, so they stay deliber
 ### Animation frames
 
 Mouth 3 frames (closed / half / open), blink 3 frames, glance ±1 px, a 2-frame idle phase (Duke's mask,
-pilot 1's fang, pilot 3's scarf), breathing = 1-px drop of the figure, mood nod = whole-pixel head drop; head
-roll is dropped (no rotation in pixel art). Backgrounds are static layers; clouds, steam and the canopy bow
+pilot 1's fang, pilot 3's scarf), breathing = 1-px drop of the figure, mood nod = whole-pixel head drop; the
+animated head roll is dropped (no rotation in pixel art) — a fixed pose tilt is laid out in the geometry instead
+(`Pix.rot`, pilot 3, doc 29). Backgrounds are static layers; clouds, steam and the canopy bow
 are ambient sprites moving in whole art pixels.
 
 ### Text

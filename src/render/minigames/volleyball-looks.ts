@@ -1,7 +1,9 @@
+import type { AvatarLook } from '../../game/avatar-look';
 import type { AthleteId } from '../../game/minigames/volleyball-athlete';
 import type { AvatarId } from '../../game/profiles';
+import { playerPerson, restyle } from '../avatars/person';
 import { SKIN, tone, type PersonLook } from '../people';
-import { PLAYER_LOOKS, RIVAL_LOOK } from './pushups-looks';
+import { RIVAL_LOOK } from './pushups-looks';
 
 // Beach Volleyball figures (doc 21, people kit doc 17). Owner decision: in sports scenes everyone is shirtless —
 // athletic, tasteful. On the sand they play barefoot in shorts. The player keeps the avatar's skin, hair, eyes
@@ -12,11 +14,8 @@ const beach = (look: PersonLook, shorts = look.bottom): PersonLook => ({
   ...look, legs: 'shorts', bottom: shorts, tied: false, feet: 'barefoot', tags: false,
 });
 
-const PLAYER: Readonly<Record<AvatarId, PersonLook>> = {
-  pilot1: beach(PLAYER_LOOKS.pilot1),
-  pilot2: beach(PLAYER_LOOKS.pilot2),
-  pilot3: beach(PLAYER_LOOKS.pilot3),
-};
+/** The player on the sand: their own look (preset or custom, doc 29) in shorts. */
+const player = (face: AvatarId | AvatarLook): PersonLook => restyle(playerPerson(face), 'beach', (b) => beach(b));
 
 const DUKE: PersonLook = beach(RIVAL_LOOK);
 
@@ -48,9 +47,9 @@ const RIPTIDE: PersonLook = {
   sole: '#6f7882',
 };
 
-export function athleteLook(id: AthleteId, avatar: AvatarId): PersonLook {
+export function athleteLook(id: AthleteId, avatar: AvatarId | AvatarLook): PersonLook {
   switch (id) {
-    case 'you': return PLAYER[avatar];
+    case 'you': return player(avatar);
     case 'duke': return DUKE;
     case 'breaker': return BREAKER;
     case 'riptide': return RIPTIDE;

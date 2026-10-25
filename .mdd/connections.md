@@ -1,7 +1,7 @@
 ---
 generated: 2026-10-25
-doc_count: 23
-connection_count: 22
+doc_count: 24
+connection_count: 25
 overlap_count: 0
 ---
 
@@ -42,6 +42,7 @@ Game
 ├── Mission      05-mission-combat      complete
 ├── PaintJobs    09-paint-jobs          complete
 ├── Pilots       08-pilot-profiles      complete
+│   └── Builder   29-avatar-builder      complete
 └── Takeoff      04-carrier-takeoff     complete
 Meta
 └── Schema       00-frontmatter-spec    complete
@@ -79,6 +80,10 @@ graph TD
   rating[26-pilot-rating]:::complete
   ladder[27-online-ladder]:::complete
   ladderui[28-ladder-screen]:::complete
+  builder[29-avatar-builder]:::complete
+  builder --> pilots
+  builder --> retro
+  builder --> i18n
   hangar --> core
   map --> core
   map --> hangar

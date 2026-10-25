@@ -9,10 +9,11 @@ import type { Rig } from './types';
  * a three-frame blink, brows that tilt per mood and a mouth with three talking frames.
  */
 
-export interface Eyes { x: number; y: number; rx: number; ry: number; iris: Ramp; lash?: boolean }
+/** `irisW` (0..1 of the eye width) draws a bigger iris than the default (the kids' big eyes, doc 29). */
+export interface Eyes { x: number; y: number; rx: number; ry: number; iris: Ramp; lash?: boolean; irisW?: number }
 export interface Brows { x0: number; x1: number; y: number; th: number; color: number; bias?: number }
-/** `lip` colours the closed line's lower lip; `full` paints full lips in that colour. */
-export interface Mouth { y: number; w: number; grin?: boolean; smirk?: number; full?: number }
+/** `full` paints full lips in that colour; `lower` tints only the lower lip. */
+export interface Mouth { y: number; w: number; grin?: boolean; smirk?: number; full?: number; lower?: number }
 
 const LID = PAL.ink[1] ?? 1;
 const EYE = PAL.eye;
@@ -27,19 +28,22 @@ function closedEye(p: Pix, s: EyeSpot): void {
 }
 
 function iris(p: Pix, s: EyeSpot, e: Eyes, r: Rig, rows: readonly [number, number]): void {
-  const iw = s.ew >= 7 ? 4 : s.ew >= 5 ? 3 : 2;
+  const big = e.irisW !== undefined;
+  const iw = big ? Math.max(2, Math.min(s.ew - 2, Math.round(s.ew * (e.irisW ?? 0.5)))) : s.ew >= 7 ? 4 : s.ew >= 5 ? 3 : 2;
   const i0 = Math.ceil((s.ew - iw) / 2);
   const col = (i: number): number => s.at(i0 + i) + s.look;
   for (let j = rows[0]; j <= rows[1]; j++) {
     const tone = j === rows[0] ? e.iris[D2] : j === s.eh - 1 && s.eh >= 4 ? e.iris[L1] : e.iris[BASE];
     for (let i = 0; i < iw; i++) p.set(col(i), s.r0 + j, tone ?? 0);
   }
-  const pupil = iw === 4 && r.m.pupil > 0.85 ? [1, 2] : [iw === 4 ? 2 : 1];
+  const pupil = big ? (iw % 2 === 1 ? [(iw - 1) / 2] : [iw / 2 - 1, iw / 2])
+    : iw === 4 && r.m.pupil > 0.85 ? [1, 2] : [iw === 4 ? 2 : 1];
   const pj1 = s.eh >= 4 ? s.eh - 2 : s.eh - 1;
   const pj0 = r.m.pupil < 0.8 && s.eh >= 4 ? 1 : 0;
   for (let j = Math.max(rows[0], pj0); j <= Math.min(rows[1], pj1); j++) for (const i of pupil) p.set(col(i), s.r0 + j, e.iris[0] ?? 0);
   const left = Math.min(col(0), col(iw - 1));
   if (s.ew >= 5 && s.eh >= 3 && rows[0] <= 1) p.set(left, s.r0 + Math.max(1, rows[0]), EYE[4] ?? 0);
+  if (big && iw >= 5 && s.eh >= 6 && rows[0] <= 1) p.set(left + 1, s.r0 + Math.max(1, rows[0]), EYE[4] ?? 0);
 }
 
 function openEye(p: Pix, s: EyeSpot, e: Eyes, r: Rig, skin: Ramp): void {
@@ -67,9 +71,11 @@ export function eyes(p: Pix, r: Rig, e: Eyes, skin: Ramp): void {
   const eh = Math.max(2, Math.round(2 * e.ry * p.k));
   const c0 = Math.round(p.X(-e.x) - ew / 2);
   const r0 = Math.round(p.Y(e.y) - eh / 2);
+  const [lc, lr] = p.nudge(-e.x, e.y); // a tilted head moves each eye whole (doc 29)
+  const [rc, rr] = p.nudge(e.x, e.y);
   const spots: EyeSpot[] = [
-    { at: (i) => c0 + i, r0, ew, eh, look: r.look },
-    { at: (i) => p.mirror(c0 + i), r0, ew, eh, look: r.look },
+    { at: (i) => c0 + i + lc, r0: r0 + lr, ew, eh, look: r.look },
+    { at: (i) => p.mirror(c0 + i) + rc, r0: r0 + rr, ew, eh, look: r.look },
   ];
   for (const s of spots) {
     if (r.blink === 2) closedEye(p, s);
@@ -88,18 +94,25 @@ function mirrored(p: Pix, m: Mask): Mask {
   return out;
 }
 
-/** Brows as pixel strokes: the inner end drops for stern, rises for worried; thick ones taper outwards. */
+/** One brow stroke (sd = -1 left, +1 right) through inner end, apex and outer end, thickened downwards. */
+function browSide(p: Pix, b: Brows, sd: number, iy: number, my: number, oy: number): Mask {
+  const mx = (b.x0 + b.x1) / 2;
+  const line = p.lineMask(p.lineMask(p.blank(), sd * b.x0, iy, sd * mx, my), sd * mx, my, sd * b.x1, oy);
+  const inner = p.lineMask(p.lineMask(p.blank(), sd * b.x0, iy, sd * mx, my), sd * mx, my, sd * (mx + (b.x1 - mx) * 0.55), (my + oy) / 2);
+  let m = line;
+  const th = Math.max(1, Math.round(b.th * p.k * 0.75));
+  for (let i = 1; i < th; i++) m = union(m, shifted(inner, p.w, 0, i));
+  return m;
+}
+
+/** Brows as pixel strokes: the inner end drops for stern, rises for worried; thick ones taper outwards.
+ *  Upright heads mirror the left brow; a tilted head (doc 29) draws each side along its own turned line. */
 export function brows(p: Pix, r: Rig, b: Brows): void {
   const iy = b.y + r.m.browIn + (b.bias ?? 0);
   const oy = b.y + r.m.browOut;
   const my = ((iy + oy) / 2 + ((iy + oy) / 2 - r.m.arch - 0.8)) / 2; // the quadratic brow's actual apex
-  const mx = (b.x0 + b.x1) / 2;
-  const line = p.lineMask(p.lineMask(p.blank(), -b.x0, iy, -mx, my), -mx, my, -b.x1, oy);
-  const inner = p.lineMask(p.lineMask(p.blank(), -b.x0, iy, -mx, my), -mx, my, -(mx + (b.x1 - mx) * 0.55), (my + oy) / 2);
-  let m = line;
-  const th = Math.max(1, Math.round(b.th * p.k * 0.75));
-  for (let i = 1; i < th; i++) m = union(m, shifted(inner, p.w, 0, i));
-  p.paint(union(m, mirrored(p, m)), b.color);
+  const m = browSide(p, b, -1, iy, my, oy);
+  p.paint(union(m, p.rot === 0 ? mirrored(p, m) : browSide(p, b, 1, iy, my, oy)), b.color);
 }
 
 interface MouthCol { c: number; top: number; gap: number; u: number }
@@ -115,13 +128,16 @@ function mouthCols(p: Pix, r: Rig, ms: Mouth): MouthCol[] {
   const smirk = Math.round((ms.smirk ?? 0) * k * 0.7);
   const gap = Math.max(Math.round(open * 3.6 * k), grin ? (k >= 0.8 ? 2 : 1) : 0);
   const cy = p.row(ms.y + open * 0.5);
+  const [dc, dr] = p.nudge(0, ms.y); // a tilted head moves the mouth and slants it (doc 29)
+  const slope = Math.sin(p.rot);
   const cols: MouthCol[] = [];
   for (let c = Math.floor(p.ox - reach); c <= Math.ceil(p.ox + reach); c++) {
     const off = c + 0.5 - p.ox;
     if (Math.abs(off) > reach + 1e-6) continue;
     const u = off / reach;
     const l = lift + (u > 0 ? smirk : 0);
-    cols.push({ c, u, top: cy - Math.round(l * Math.pow(Math.abs(u), 2.2)), gap: Math.round(gap * Math.sqrt(Math.max(0, 1 - u * u))) });
+    const top = cy - Math.round(l * Math.pow(Math.abs(u), 2.2)) + dr + Math.round(off * slope);
+    cols.push({ c: c + dc, u, top, gap: Math.round(gap * Math.sqrt(Math.max(0, 1 - u * u))) });
   }
   return cols;
 }
@@ -157,19 +173,27 @@ function lips(p: Pix, m: MouthCol, ms: Mouth, skin: Ramp): void {
     if (a < 0.4 && p.k >= 0.8) p.set(m.c, below + 1, ms.full);
     return;
   }
+  if (ms.lower !== undefined) { // a tinted lower lip only (the pilots' faces, doc 29)
+    if (a < 0.6) p.set(m.c, below, ms.lower);
+    if (a < 0.3 && p.k >= 0.8) p.set(m.c, below + 1, skin[D1] ?? 0);
+    return;
+  }
   if (p.k >= 0.75 && a < 0.4) p.set(m.c, below + (m.gap > 0 ? 0 : 1), skin[D1] ?? 0);
 }
 
 /** Nose: bridge shadow on the right (light from the left), the shadow under the tip, nostrils, a highlight. */
 export function nose(p: Pix, s: Ramp, y0: number, y1: number, w: number): void {
-  const tip = p.row(y1);
-  const right = p.col(w * 0.45);
-  if (p.k >= 0.6) for (let r = p.row(y0 + (y1 - y0) * 0.45); r < tip - 1; r++) p.set(right, r, s[D1] ?? 0);
+  const [dc, dr] = p.nudge(0, y1); // a tilted head moves the nose whole (doc 29)
+  const col = (x: number): number => p.col(x) + dc;
+  const row = (y: number): number => p.row(y) + dr;
+  const tip = row(y1);
+  const right = col(w * 0.45);
+  if (p.k >= 0.6) for (let r = row(y0 + (y1 - y0) * 0.45); r < tip - 1; r++) p.set(right, r, s[D1] ?? 0);
   p.set(right, tip - 1, s[D1] ?? 0);
-  p.hspan(p.col(-w * 0.4), right, tip, s[D1] ?? 0);
+  p.hspan(col(-w * 0.4), right, tip, s[D1] ?? 0);
   if (p.k >= 0.75) {
-    p.set(p.col(-w * 0.55), tip, s[D2] ?? 0);
+    p.set(col(-w * 0.55), tip, s[D2] ?? 0);
     p.set(right, tip, s[D2] ?? 0);
-    p.set(p.col(-w * 0.2), tip - 1, s[L1] ?? 0);
+    p.set(col(-w * 0.2), tip - 1, s[L1] ?? 0);
   }
 }

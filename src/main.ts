@@ -20,6 +20,7 @@ import { HangarScene } from './scenes/hangar';
 import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
+import { AvatarBuilderScene } from './scenes/avatar-builder';
 import { BaseHubScene } from './scenes/base-hub';
 import { CeremonyScene } from './scenes/ceremony';
 import { JoystickSetupScene } from './scenes/joystick-setup';
@@ -124,7 +125,8 @@ function createScene(game: GameContext, route: Route): Scene {
   switch (route.to) {
     case 'title': return new TitleScene(game);
     case 'pilots': return new PilotsScene(game);
-    case 'newPilot': return new NewPilotScene(game);
+    case 'newPilot': return new NewPilotScene(game, route.draft);
+    case 'avatarBuilder': return new AvatarBuilderScene(game, route.target);
     case 'joystick': return new JoystickSetupScene(game);
     case 'ladder': return new LadderScene(game);
     case 'map': return new MapScene(game, route.select);

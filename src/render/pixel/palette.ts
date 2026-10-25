@@ -59,6 +59,20 @@ const RAMPS = {
   seaDawn: ['#1e2848', '#34466e', '#46608c', '#5c7aa6', '#8aa4c8', '#c0d0e8'],
   seaDusk:['#141030', '#241c48', '#342a5e', '#4a3f74', '#6a5a94', '#9a84b8'],
   phosphor: ['#04140e', '#0b2c20', '#16523a', '#2a8a60', '#52c48c', '#9cf0c4', '#e0fff0'],
+  // avatar builder (doc 29): more skin tones, hair and eye colours, a khaki suit, a night sea
+  skinBrown: ['#2a120a', '#552a18', '#7c4a2e', '#a0693f', '#bd8659', '#d6a676'],
+  skinDeep: ['#1c0c06', '#3c1e10', '#5a321c', '#7a4a2c', '#98643e', '#b48056'],
+  skinEbony: ['#120804', '#28140a', '#3c2212', '#52321e', '#6c472d', '#8a6044'],
+  hairDarkBrown: ['#0c0705', '#1a100a', '#28180f', '#3a2416', '#563a24', '#765236'],
+  hairAuburn: ['#260a06', '#4e160c', '#742814', '#9a3c1e', '#bc5a30', '#d8804e'],
+  hairStrawberry: ['#341a0e', '#683c22', '#946036', '#bc8652', '#d8a872', '#eccb98'],
+  hairPlatinum: ['#4e4636', '#9a8e70', '#c6bc9c', '#e8e0c4', '#f8f3e2', '#fffdf6'],
+  hairBlue: ['#0a1230', '#1a2c6a', '#2a48a2', '#4470d0', '#74a0ea', '#aecdf8'],
+  hairPink: ['#360a22', '#701c4c', '#a43274', '#d25c9e', '#ec8ec0', '#fac2de'],
+  irisDark: ['#050303', '#0c0706', '#160e0a', '#22150e', '#3e2a1e', '#5e4432'],
+  irisHazel: ['#140e06', '#2c2010', '#4c3c1c', '#6e5c2e', '#928048', '#b8a672'],
+  khaki: ['#1c180c', '#3c321e', '#5a4c2e', '#7c6a42', '#9a885a', '#bca97a'],
+  seaNight: ['#03060c', '#060c18', '#0a1426', '#101e36', '#1a2c4c', '#283e64'],
 } as const satisfies Readonly<Record<string, readonly string[]>>;
 
 export type RampName = keyof typeof RAMPS;

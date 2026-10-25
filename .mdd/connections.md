@@ -1,6 +1,6 @@
 ---
 generated: 2026-10-25
-doc_count: 19
+doc_count: 23
 connection_count: 22
 overlap_count: 0
 ---
@@ -16,16 +16,21 @@ Game
 ├── Engine       01-game-core           complete
 ├── Hangar       02-hangar-economy      complete
 ├── Languages    07-i18n                complete
+├── Look
+│   └── Retro     20-retro-look          complete
 ├── Minigames
 │   ├── Core      10-minigames-core      complete
 │   ├── Evasion   16-missile-evasion     complete
 │   ├── Flyby     13-tower-flyby         complete
 │   ├── Formation 14-formation-flying    complete
 │   ├── Landing   18-carrier-landing     complete
+│   ├── Motorbike 22-motorbike-vs-jet    complete
+│   ├── Piano     23-piano-bar           complete
 │   ├── Hub       11-base-hub            complete
 │   ├── People    17-people-kit          complete
 │   ├── Pushups   12-pushup-challenge    complete
 │   ├── Refuel    15-air-refuelling      complete
+│   ├── Volleyball 21-beach-volleyball   complete
 │   └── Tactics   19-dogfight-tactics    complete
 ├── Mission      05-mission-combat      complete
 ├── PaintJobs    09-paint-jobs          complete
@@ -58,6 +63,10 @@ graph TD
   people[17-people-kit]:::complete
   landing[18-carrier-landing]:::complete
   tactics[19-dogfight-tactics]:::complete
+  retro[20-retro-look]:::complete
+  volley[21-beach-volleyball]:::complete
+  moto[22-motorbike-vs-jet]:::complete
+  piano[23-piano-bar]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -94,6 +103,16 @@ graph TD
   landing --> mgcore
   tactics --> mgcore
   tactics --> people
+  retro --> chars
+  retro --> pilots
+  retro --> people
+  retro --> i18n
+  volley --> mgcore
+  volley --> people
+  moto --> mgcore
+  moto --> people
+  piano --> mgcore
+  piano --> people
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

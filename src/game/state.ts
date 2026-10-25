@@ -2,6 +2,7 @@ import type { AudioEngine } from '../core/audio';
 import type { Viewport } from '../core/canvas';
 import type { Input } from '../core/input';
 import type { Music } from '../core/music';
+import type { MinigameId } from '../data/minigames';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarId, CreateResult, Profile } from './profiles';
 import type { SaveData } from './save';
@@ -14,6 +15,9 @@ export type Route =
   | { to: 'joystick' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
+  | { to: 'base' }
+  | { to: 'offer'; id: MinigameId; isNew: boolean }
+  | { to: 'minigame'; id: MinigameId; from: 'base' | 'offer' }
   | { to: 'takeoff'; mission: MissionDef }
   | { to: 'mission'; mission: MissionDef; takeoff: TakeoffRating }
   | { to: 'debrief'; mission: MissionDef; result: MissionResult };

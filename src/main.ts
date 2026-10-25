@@ -17,7 +17,11 @@ import { HangarScene } from './scenes/hangar';
 import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
+import { BaseHubScene } from './scenes/base-hub';
 import { JoystickSetupScene } from './scenes/joystick-setup';
+import { MinigameOfferScene } from './scenes/minigame-offer';
+import { moduleFor } from './scenes/minigames/registry';
+import { MinigameScene } from './scenes/minigames/shell';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -107,6 +111,12 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'joystick': return new JoystickSetupScene(game);
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
+    case 'base': return new BaseHubScene(game);
+    case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
+    case 'minigame': {
+      const mod = moduleFor(route.id);
+      return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);
+    }
     case 'takeoff': return new TakeoffScene(game, route.mission);
     case 'mission': return new MissionScene(game, route.mission, route.takeoff);
     case 'debrief': return new DebriefScene(game, route.mission, route.result);

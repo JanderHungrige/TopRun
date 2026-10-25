@@ -8,6 +8,7 @@ import {
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
 import { parseLiveries } from './liveries';
+import { parseMinigames, type MinigameRecords } from './minigames/core';
 
 /** Legacy single-save key (pre-profiles); read once for migration (doc 08). */
 export const SAVE_KEY = 'topgun.save.v1';
@@ -27,6 +28,8 @@ export interface SaveData {
   progress: Record<string, { stars: number }>;
   /** Paint job per jet (doc 09). */
   livery: Record<PlaneId, LiveryId>;
+  /** Off-duty minigame personal bests (doc 10). */
+  minigames: MinigameRecords;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -43,6 +46,7 @@ export function defaultSave(): SaveData {
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
     livery: { f16: 'standard', f14: 'standard', sr71: 'standard' },
+    minigames: {},
   };
 }
 
@@ -115,6 +119,7 @@ export function parseSave(raw: unknown): SaveData | null {
     equipment: parseEquipment(raw.equipment),
     progress,
     livery: parseLiveries(raw.livery, progress),
+    minigames: parseMinigames(raw.minigames),
   };
 }
 

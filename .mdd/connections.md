@@ -1,6 +1,6 @@
 ---
 generated: 2026-10-25
-doc_count: 9
+doc_count: 13
 connection_count: 22
 overlap_count: 0
 ---
@@ -16,6 +16,11 @@ Game
 ├── Engine       01-game-core           complete
 ├── Hangar       02-hangar-economy      complete
 ├── Languages    07-i18n                complete
+├── Minigames
+│   ├── Core      10-minigames-core      complete
+│   ├── Flyby     13-tower-flyby         complete
+│   ├── Hub       11-base-hub            complete
+│   └── Pushups   12-pushup-challenge    complete
 ├── Mission      05-mission-combat      complete
 ├── PaintJobs    09-paint-jobs          complete
 ├── Pilots       08-pilot-profiles      complete
@@ -37,6 +42,10 @@ graph TD
   i18n[07-i18n]:::complete
   pilots[08-pilot-profiles]:::complete
   paint[09-paint-jobs]:::complete
+  mgcore[10-minigames-core]:::complete
+  hub[11-base-hub]:::complete
+  pushups[12-pushup-challenge]:::complete
+  flyby[13-tower-flyby]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -57,6 +66,15 @@ graph TD
   paint --> map
   paint --> chars
   paint --> i18n
+  mgcore --> core
+  mgcore --> map
+  mgcore --> i18n
+  mgcore --> pilots
+  hub --> mgcore
+  hub --> map
+  hub --> chars
+  pushups --> mgcore
+  flyby --> mgcore
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

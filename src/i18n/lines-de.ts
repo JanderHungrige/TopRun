@@ -211,4 +211,20 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Yeehaw! So wird das gemacht, {callsign}!',
     'Klasse geflogen, {callsign}! Heute Abend gehen die Drinks auf mich.',
   ],
+  'wing.base': [
+    'Willkommen zurück auf der Basis, {callsign}. Lust auf ein bisschen Freizeit?',
+    'Dienstfrei, {callsign}! Worauf hast du Lust?',
+  ],
+  'wing.baseLocked': [
+    'Das gibt es erst nach Einsatz {n}. Flieg weiter!',
+    'Noch nicht. Schaff erst Einsatz {n}.',
+  ],
+  'wing.offer': [
+    'Gut geflogen! Lust auf eine Runde {game} vor dem nächsten Einsatz?',
+    'Hey, die Crew spielt {game}. Bist du dabei?',
+  ],
+  'wing.offerNew': [
+    'Neu auf der Basis: {game}! Willst du es ausprobieren?',
+    'Schau mal, {game} ist jetzt offen. Probierst du es?',
+  ],
 };

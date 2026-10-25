@@ -15,6 +15,7 @@ import { drawButton, drawPanel, hit, type Button } from '../ui/widgets';
 import { drawMapBase, drawNode, drawRoute } from './map-render';
 
 const PANEL = { x: 882, y: 76, w: 378, h: 628 };
+const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
 
 export class MapScene implements Scene {
   private t = 0;
@@ -48,11 +49,13 @@ export class MapScene implements Scene {
       const b = this.buttons.find((x) => x.enabled !== false && hit(tap, x));
       if (b) return this.activate(b.id);
       if (hit(tap, { x: 1150, y: 14, w: 110, h: 44 })) return this.activate('title');
+      if (hit(tap, BASE_BTN)) return this.activate('base');
       const node = MISSIONS.find((m) => Math.hypot(tap.x - m.map.x, tap.y - m.map.y) < 22);
       if (node) this.select(node);
     }
     if (input.pressed('confirm')) this.activate('launch');
     if (input.pressed('hangar')) this.activate('hangar');
+    if (input.pressed('base')) this.activate('base');
     if (input.pressed('back')) this.activate('title');
   }
 
@@ -79,6 +82,9 @@ export class MapScene implements Scene {
     } else if (id === 'hangar') {
       this.game.audio.play('uiSelect');
       this.game.go({ to: 'hangar' });
+    } else if (id === 'base') {
+      this.game.audio.play('uiSelect');
+      this.game.go({ to: 'base' });
     } else if (id === 'title') {
       this.game.audio.play('uiBack');
       this.game.go({ to: 'title' });
@@ -107,6 +113,7 @@ export class MapScene implements Scene {
     }
     text(ctx, formatMoney(s.money), 942, 60, { size: 20, display: true, color: COLORS.green });
     drawButton(ctx, { id: 'title', label: t('map.menu'), x: 1150, y: 14, w: 110, h: 44 }, false, this.t);
+    drawButton(ctx, { id: 'base', label: t('map.base'), ...BASE_BTN, hint: 'B' }, false, this.t);
     if (campaignComplete(s)) text(ctx, t('map.campaignComplete'), 690, 44, { size: 15, color: COLORS.gold });
   }
 

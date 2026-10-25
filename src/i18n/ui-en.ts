@@ -1,3 +1,4 @@
+import { UI_EN_OFFDUTY } from './ui-en-offduty';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
   // Title
@@ -276,6 +277,7 @@ export const UI_EN = {
   'hangar.painted': '{plane} painted: {livery}',
   'hangar.paintSide': 'ON THE CARRIER',
   'debrief.newPaint': 'NEW PAINT JOB: {livery}',
+  ...UI_EN_OFFDUTY,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

@@ -1,4 +1,5 @@
 import { isLang, type Lang } from '../i18n/i18n';
+import { parseJoyProfile, type JoyProfile } from './joystick';
 
 /** Device-wide settings (doc 08): shared by every pilot on this browser. */
 export interface Settings {
@@ -7,9 +8,11 @@ export interface Settings {
   autofire: boolean;
   muted: boolean;
   lang: Lang;
+  /** Joystick / HOTAS bindings from the JOYSTICK setup (doc 01), null = defaults. */
+  joystick: JoyProfile | null;
 }
 
-export const defaultSettings = (): Settings => ({ music: 0.6, sfx: 0.8, autofire: false, muted: false, lang: 'en' });
+export const defaultSettings = (): Settings => ({ music: 0.6, sfx: 0.8, autofire: false, muted: false, lang: 'en', joystick: null });
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -26,5 +29,6 @@ export function parseSettings(v: unknown): Settings {
     autofire: typeof v.autofire === 'boolean' ? v.autofire : d.autofire,
     muted: typeof v.muted === 'boolean' ? v.muted : d.muted,
     lang: isLang(v.lang) ? v.lang : d.lang,
+    joystick: parseJoyProfile(v.joystick),
   };
 }

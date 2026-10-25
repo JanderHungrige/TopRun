@@ -11,6 +11,7 @@ export type Route =
   | { to: 'title' }
   | { to: 'pilots' }
   | { to: 'newPilot' }
+  | { to: 'joystick' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
   | { to: 'takeoff'; mission: MissionDef }

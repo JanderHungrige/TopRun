@@ -11,6 +11,8 @@ export interface TakeoffInput {
   /** E / gamepad Y / LOCK-LAUNCH button — a fresh press this tick. */
   action: boolean;
   skip: boolean;
+  /** Joystick throttle axis, 0 idle … 1 full; null / absent without one (doc 01). */
+  lever?: number | null;
 }
 
 export interface TakeoffState {
@@ -28,6 +30,9 @@ export interface TakeoffState {
   overspeed: boolean;
   rejected: 'low' | 'high' | null;
   earlyPresses: number;
+  /** Where the joystick lever sat when first seen; it takes over once it moves away from there. */
+  leverStart: number | null;
+  leverEngaged: boolean;
 }
 
 export const GREEN_LO = 0.8;
@@ -42,11 +47,14 @@ export const GOOD_REACTION = 1.5;
 export const DECK_LENGTH = 560;
 export const STROKE_TIME = 1.4;
 export const CLIMB_TIME = 2.2;
+/** Lever travel from its resting place that hands the throttle over to it. */
+export const LEVER_ENGAGE = 0.05;
 
 export function createTakeoff(): TakeoffState {
   return {
     phase: 'spool', throttle: 0, rawThrottle: 0, t: 0, clock: 0, countdown: COUNTDOWN, deckPos: 0, speed: 0,
     altitude: 0, climbRate: 0, rating: null, overspeed: false, rejected: null, earlyPresses: 0,
+    leverStart: null, leverEngaged: false,
   };
 }
 
@@ -55,12 +63,20 @@ const jitter = (clock: number): number => Math.sin(clock * 9.1) * 0.008 + Math.s
 
 export const inGreen = (throttle: number): boolean => throttle >= GREEN_LO && throttle < GREEN_HI;
 
-function stepSpool(s: TakeoffState, input: TakeoffInput, dt: number): TakeoffState {
+function spoolThrottle(s: TakeoffState, input: TakeoffInput, dt: number, lever: number | null): number {
+  if (lever !== null) return Math.min(1, Math.max(0, lever));
   // Held: rises. Released: stays — except in the red, where it bleeds back into the green.
   const bleed = s.rawThrottle > BLEED_TO ? Math.max(BLEED_TO, s.rawThrottle - THROTTLE_BLEED * dt) : s.rawThrottle;
-  const rawThrottle = input.throttleHeld ? Math.min(1, s.rawThrottle + THROTTLE_UP * dt) : bleed;
+  return input.throttleHeld ? Math.min(1, s.rawThrottle + THROTTLE_UP * dt) : bleed;
+}
+
+function stepSpool(s: TakeoffState, input: TakeoffInput, dt: number): TakeoffState {
+  const raw = input.lever ?? null;
+  const leverStart = s.leverStart ?? raw;
+  const leverEngaged = s.leverEngaged || (raw !== null && leverStart !== null && Math.abs(raw - leverStart) > LEVER_ENGAGE);
+  const rawThrottle = spoolThrottle(s, input, dt, leverEngaged ? raw : null);
   const throttle = Math.min(1, Math.max(0, rawThrottle + (rawThrottle > 0.2 ? jitter(s.clock) : 0)));
-  const next = { ...s, rawThrottle, throttle, overspeed: throttle >= GREEN_HI };
+  const next = { ...s, rawThrottle, throttle, overspeed: throttle >= GREEN_HI, leverStart, leverEngaged };
   if (!input.action) return next;
   if (inGreen(throttle)) return { ...next, phase: 'locked', t: 0, countdown: COUNTDOWN, rejected: null };
   return { ...next, rejected: throttle >= GREEN_HI ? 'high' : 'low' };

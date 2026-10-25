@@ -42,6 +42,7 @@ export class TitleScene implements Scene {
       ...(this.game.profiles.length > 0 ? ([['continue', t('title.continue')]] as Array<[string, string]>) : []),
       ['new', t('title.newPilot')],
       ['controls', t('title.controls')],
+      ['joystick', t('title.joystick')],
       ['sound', t(st.muted ? 'title.soundOff' : 'title.soundOn')],
       ['autofire', t(st.autofire ? 'title.autofireOn' : 'title.autofireOff')],
       ['lang', t('title.language')],
@@ -96,6 +97,10 @@ export class TitleScene implements Scene {
         this.game.go({ to: 'newPilot' });
         return;
       case 'controls': return this.setMode('controls');
+      case 'joystick':
+        this.game.audio.play('uiSelect');
+        this.game.go({ to: 'joystick' });
+        return;
       case 'sound': return this.toggle('muted');
       case 'autofire': return this.toggle('autofire');
       case 'lang': return this.toggle('lang');
@@ -120,11 +125,12 @@ export class TitleScene implements Scene {
     text(ctx, t('controls.keyboard'), 590, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
     text(ctx, t('controls.gamepad'), 790, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
     CONTROLS.forEach(([what, keys, pad], i) => {
-      const y = 428 + i * 27;
+      const y = 426 + i * 25;
       text(ctx, t(what), 310, y, { size: 15, color: COLORS.ink });
       text(ctx, label(keys), 590, y, { size: 15, color: COLORS.cyan });
       text(ctx, label(pad), 790, y, { size: 15, color: COLORS.cyan, maxWidth: 200 });
     });
-    text(ctx, t('controls.touch'), 640, 668, { size: 12, align: 'center', color: COLORS.dim, maxWidth: 690 });
+    text(ctx, t('controls.touch'), 640, 654, { size: 12, align: 'center', color: COLORS.dim, maxWidth: 690 });
+    text(ctx, t('controls.joystick'), 640, 674, { size: 12, align: 'center', color: COLORS.dim, maxWidth: 690 });
   }
 }

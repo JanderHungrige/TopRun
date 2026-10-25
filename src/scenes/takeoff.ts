@@ -80,6 +80,7 @@ export class TakeoffScene implements Scene {
       throttleHeld: input.held('fire') || input.held('up') || touching,
       action,
       skip: input.pressed('skip') || input.taps.some((p) => hit(p, SKIP_BTN)),
+      lever: input.throttle,
     }, dt);
     this.react(before, action);
     this.shooter.update(dt, input);

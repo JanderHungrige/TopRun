@@ -9,6 +9,8 @@ export const UI_EN = {
   'title.joystick': 'JOYSTICK',
   'title.soundOn': 'SOUND: ON',
   'title.soundOff': 'SOUND: OFF',
+  'title.musicOn': 'MUSIC: ON',
+  'title.musicOff': 'MUSIC: OFF',
   'title.autofireOn': 'AUTOFIRE: ON',
   'title.autofireOff': 'AUTOFIRE: OFF',
   'title.language': 'LANGUAGE: ENGLISH',

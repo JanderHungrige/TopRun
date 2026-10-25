@@ -1,5 +1,6 @@
 import type { Scene } from '../core/scene';
 import { MAX_PROFILES } from '../game/profiles';
+import type { Settings } from '../game/settings';
 import type { GameContext } from '../game/state';
 import { getLang, t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
@@ -9,6 +10,12 @@ import { COLORS, text } from '../render/text';
 import { ButtonGroup, drawPanel, type Button } from '../ui/widgets';
 
 type Mode = 'menu' | 'controls';
+type Toggle = 'sfxOn' | 'musicOn' | 'autofire' | 'lang';
+
+/** Menu column, bottom-anchored above the hint line and never above `top` (just below the tagline). */
+const MENU = { top: 332, bottom: 686, gap: 6, maxRow: 46 } as const;
+/** Row pitch for `n` buttons: 46 px up to 7, then tighter (9 → 40 px rows, 34 px buttons). */
+const rowPitch = (n: number): number => Math.min(MENU.maxRow, Math.floor((MENU.bottom - MENU.top + MENU.gap) / n));
 
 const CONTROLS: ReadonlyArray<readonly [UiKey, UiKey | string, UiKey | string]> = [
   ['controls.move', 'controls.arrows', 'controls.stick'],
@@ -28,6 +35,8 @@ export class TitleScene implements Scene {
   private t = 0;
   private mode: Mode = 'menu';
   private menu = new ButtonGroup([]);
+  /** Settings the labels were built from: the M key changes them outside the menu. */
+  private shown: Settings | null = null;
 
   constructor(private readonly game: GameContext) {}
 
@@ -38,19 +47,22 @@ export class TitleScene implements Scene {
 
   private buildMenu(): void {
     const st = this.game.settings;
+    this.shown = st;
     const items: Array<[string, string]> = [
       ...(this.game.profiles.length > 0 ? ([['continue', t('title.continue')]] as Array<[string, string]>) : []),
       ['new', t('title.newPilot')],
       ['controls', t('title.controls')],
       ['joystick', t('title.joystick')],
-      ['sound', t(st.muted ? 'title.soundOff' : 'title.soundOn')],
+      ['sound', t(st.sfxOn ? 'title.soundOn' : 'title.soundOff')],
+      ['music', t(st.musicOn ? 'title.musicOn' : 'title.musicOff')],
       ['autofire', t(st.autofire ? 'title.autofireOn' : 'title.autofireOff')],
       ['lang', t('title.language')],
     ];
-    const top = 688 - items.length * 46;
+    const row = rowPitch(items.length);
+    const top = MENU.bottom - (items.length * row - MENU.gap);
     const full = this.game.profiles.length >= MAX_PROFILES;
     const buttons: Button[] = items.map(([id, text_], i) => ({
-      id, label: text_, x: 510, y: top + i * 46, w: 260, h: 38, primary: i === 0, enabled: !(id === 'new' && full),
+      id, label: text_, x: 510, y: top + i * row, w: 260, h: row - MENU.gap, primary: i === 0, enabled: !(id === 'new' && full),
     }));
     const focus = this.menu.focused?.id;
     this.menu.setButtons(buttons);
@@ -64,6 +76,7 @@ export class TitleScene implements Scene {
       if (input.pressed('back') || input.pressed('confirm') || input.taps.length > 0) this.setMode('menu');
       return;
     }
+    if (this.game.settings !== this.shown) this.buildMenu();
     const id = this.menu.update(input);
     if (input.pressed('up') || input.pressed('down')) this.game.audio.play('uiMove');
     if (id) this.activate(id);
@@ -75,14 +88,18 @@ export class TitleScene implements Scene {
     this.game.input.clearPressed();
   }
 
-  private toggle(change: 'muted' | 'autofire' | 'lang'): void {
+  private toggle(change: Toggle): void {
     const st = this.game.settings;
     const settings = { ...st };
-    if (change === 'muted') settings.muted = !st.muted;
-    if (change === 'autofire') settings.autofire = !st.autofire;
-    if (change === 'lang') settings.lang = getLang() === 'de' ? 'en' : 'de';
+    switch (change) {
+      case 'sfxOn': settings.sfxOn = !st.sfxOn; break;
+      case 'musicOn': settings.musicOn = !st.musicOn; break;
+      case 'autofire': settings.autofire = !st.autofire; break;
+      case 'lang': settings.lang = getLang() === 'de' ? 'en' : 'de'; break;
+      default: throw new Error(`unhandled: ${change satisfies never}`);
+    }
     this.game.setSettings(settings);
-    this.game.audio.play('uiSelect');
+    this.game.audio.play('uiSelect'); // silent when SOUND was just switched off
     this.buildMenu();
   }
 
@@ -101,7 +118,8 @@ export class TitleScene implements Scene {
         this.game.audio.play('uiSelect');
         this.game.go({ to: 'joystick' });
         return;
-      case 'sound': return this.toggle('muted');
+      case 'sound': return this.toggle('sfxOn');
+      case 'music': return this.toggle('musicOn');
       case 'autofire': return this.toggle('autofire');
       case 'lang': return this.toggle('lang');
       default: return;

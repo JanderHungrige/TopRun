@@ -37,7 +37,7 @@ export interface GameContext {
   readonly dom: { host: HTMLElement; viewport: () => Viewport };
   /** Replaces the active pilot's save and persists the profile store. */
   setSave(next: SaveData): void;
-  /** Replaces the device settings, applies them (mute, volumes, language) and persists. */
+  /** Replaces the device settings, applies them (sound / music switches, volumes, language) and persists. */
   setSettings(next: Settings): void;
   createProfile(callsign: string, avatar: AvatarId): CreateResult;
   selectProfile(id: string): void;

@@ -3,7 +3,9 @@
 export { BODY } from './anatomy';
 export { BALL } from './extremities';
 export type { FrontExtras, FrontPose } from './front-figure';
+export { frontChestPoint } from './front-figure';
 export { drawFrontFigure, drawSideFigure } from './pixel';
+export type { PixelOpts } from '../pixel/capture';
 export type { FrontTorso } from './front-body';
 export type { HeadMap } from './front-head';
 export { LINE, SKIN, tone } from './palette';
@@ -11,3 +13,4 @@ export { solveLimb, type ArmJoints, type LegJoints, type SideLimbs, type SidePos
 export type {
   Expression, FaceState, FootWear, HairLook, HairStyle, LegWear, PersonLook, SkinTone, Tone, TorsoWear,
 } from './types';
+export { longSleeved } from './types';

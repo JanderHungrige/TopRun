@@ -21,7 +21,12 @@ export interface HairLook extends Tone {
   brow: string;
 }
 
-export type TorsoWear = 'shirtless' | 'tank' | 'sportsTop' | 'tshirt';
+/** `dressWhites` and `flightSuit` are long-sleeved uniforms (doc 25): `top` colours the tunic or suit,
+ *  `trim` the shoulder boards and cuffs (dress whites) or the cuffs (flight suit). */
+export type TorsoWear = 'shirtless' | 'tank' | 'sportsTop' | 'tshirt' | 'dressWhites' | 'flightSuit';
+
+/** Long sleeves cover the whole arm down to the wrist. */
+export const longSleeved = (w: TorsoWear): boolean => w === 'dressWhites' || w === 'flightSuit';
 export type LegWear = 'shorts' | 'trousers';
 export type FootWear = 'sneakers' | 'barefoot';
 

@@ -1,3 +1,4 @@
+import { UI_DE_HONOURS } from './ui-de-honours';
 import { UI_DE_OFFDUTY } from './ui-de-offduty';
 import type { UiKey } from './ui-en';
 
@@ -280,4 +281,5 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.paintSide': 'AUF DEM TRÄGER',
   'debrief.newPaint': 'NEUE LACKIERUNG: {livery}',
   ...UI_DE_OFFDUTY,
+  ...UI_DE_HONOURS,
 };

@@ -8,7 +8,8 @@ import { earShows, frontHair, frontTail } from './hair';
 import { LINE } from './palette';
 import { enterBone, litOf, outline, paintPart, type Part } from './paths';
 import { solveLimb } from './side-figure';
-import type { FaceState, PersonLook, Tone } from './types';
+import { longSleeved, type FaceState, type PersonLook, type Tone } from './types';
+import { cuff, frontUniform } from './uniform';
 
 // People kit (doc 17): a standing three-quarter figure (spectators, crowds). Origin on the floor between
 // the feet, height ≈ 328 units; light from the upper left.
@@ -21,6 +22,9 @@ export interface FrontPose {
   /** Arms raised: 0 = hanging … 1 = over the head; [screen-left, screen-right]. */
   raise: readonly [number, number];
   hands: 'open' | 'fist';
+  /** Optional wrist targets in the hip frame (shoulders at y −94; units, y down), overriding `raise` for that
+   *  arm: salutes, pinning a medal. [screen-left, screen-right]; null = use `raise`. */
+  reach?: readonly [Vec | null, Vec | null];
 }
 
 export interface FrontExtras {
@@ -40,34 +44,47 @@ const ang = (a: Vec, b: Vec): number => Math.atan2(b.y - a.y, b.x - a.x);
 /** Front-view limbs are a little slimmer than the side-view parts they reuse. */
 const GIRTH = 0.86;
 
-function seg(ctx: CanvasRenderingContext2D, pass: Pass, p: Part, a: Vec, b: Vec, len: number, tone: Tone, flip: boolean): void {
+function seg(ctx: CanvasRenderingContext2D, pass: Pass, p: Part, a: Vec, b: Vec, len: number, tone: Tone, flip: boolean, detail?: () => void): void {
   const angle = ang(a, b);
   ctx.save();
   enterBone(ctx, a.x, a.y, angle, Math.hypot(b.x - a.x, b.y - a.y) / len, flip, GIRTH);
   if (pass === 'line') outline(ctx, p.body, LW);
   else paintPart(ctx, p, tone, litOf(angle, flip, LX, LY));
+  if (pass === 'fill' && detail) {
+    ctx.clip(p.body);
+    detail();
+  }
   ctx.restore();
+}
+
+function wrist(pose: FrontPose, side: 1 | -1): Vec {
+  const target = pose.reach?.[side < 0 ? 0 : 1];
+  if (target) return { x: target.x, y: target.y };
+  const k = Math.cos(pose.turn);
+  const u = side < 0 ? pose.raise[0] : pose.raise[1];
+  const wx = lerp(43, 42, u) + Math.sin(Math.PI * u) * 36;
+  return { x: side * wx * k, y: lerp(14, -190, u) };
 }
 
 function arm(ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, side: 1 | -1): void {
   const k = Math.cos(pose.turn);
-  const u = side < 0 ? pose.raise[0] : pose.raise[1];
   const sh = { x: side * 37 * k, y: -94 };
-  const wx = lerp(43, 42, u) + Math.sin(Math.PI * u) * 36;
-  const wr = { x: side * wx * k, y: lerp(14, -190, u) };
+  const wr = wrist(pose, side);
   const mid = { x: (sh.x + wr.x) / 2, y: (sh.y + wr.y) / 2 };
   const score = (e: Vec): number => (e.x - mid.x) * side + (e.y - mid.y) * 0.8; // elbows out and down
   const a = solveLimb(sh, wr, BODY.upperArm, BODY.forearm, 1);
   const b = solveLimb(sh, wr, BODY.upperArm, BODY.forearm, -1);
   const el = score(a) >= score(b) ? a : b;
   const flip = side < 0;
+  const sleeved = longSleeved(look.torso);
+  const cover = sleeved ? look.top : look.skin;
   for (const pass of ['line', 'fill'] as const) {
     ctx.save();
     enterBone(ctx, wr.x, wr.y, ang(el, wr), 1, flip);
     frontHand(ctx, pass, look.skin, pose.hands === 'open');
     ctx.restore();
-    seg(ctx, pass, PARTS.forearm(), el, wr, BODY.forearm, look.skin, flip);
-    seg(ctx, pass, PARTS.upperArm(), sh, el, BODY.upperArm, look.skin, flip);
+    seg(ctx, pass, PARTS.forearm(), el, wr, BODY.forearm, cover, flip, sleeved ? () => cuff(ctx, look) : undefined);
+    seg(ctx, pass, PARTS.upperArm(), sh, el, BODY.upperArm, cover, flip);
     if (look.torso === 'tshirt' && pass === 'fill') {
       seg(ctx, 'fill', PARTS.sleeve(), sh, el, BODY.upperArm, look.top, flip);
       seg(ctx, 'line', PARTS.sleeve(), sh, el, BODY.upperArm, look.top, flip);
@@ -156,8 +173,15 @@ export function drawFrontVector(ctx: CanvasRenderingContext2D, look: PersonLook,
   frontShorts(ctx, ft, look, 'line');
   frontShorts(ctx, ft, look, 'fill');
   neck(ctx, look, shift, 'fill');
+  frontUniform(ctx, ft, look, shift);
   extras?.chest?.(ctx, ft);
   head(ctx, look, pose, face, extras, shift);
   arm(ctx, look, pose, far === 1 ? -1 : 1);
   ctx.restore();
+}
+
+/** Where point (x, y) of the torso's front surface (hip frame, shoulders at y −94) lands for a body turn, in
+ *  the figure's floor coordinates (origin between the feet): for things worn on the chest, like medals. */
+export function frontChestPoint(turn: number, x: number, y: number): Vec {
+  return { x: frontTorso(turn).centre(x), y: HIP_Y + y };
 }

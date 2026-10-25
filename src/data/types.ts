@@ -66,6 +66,8 @@ export interface MissionResult {
   hullRatio: number;
   collected: number;
   bossKilled: boolean;
+  /** Fired any missile, rocket or bomb (doc 24, Gunslinger). Missing = true. */
+  usedSecondaries?: boolean;
 }
 
 export type GunLevel = 1 | 2 | 3 | 4 | 5;

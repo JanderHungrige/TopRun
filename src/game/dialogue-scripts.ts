@@ -1,7 +1,8 @@
 import { BOSSES } from '../data/bosses';
+import type { MedalId } from '../data/medals';
 import { MISSIONS } from '../data/missions';
 import type { MissionDef, MissionResult, Objective } from '../data/types';
-import { enemyName, theaterName } from '../i18n/content';
+import { enemyName, medalName, theaterName } from '../i18n/content';
 import type { Params } from '../i18n/i18n';
 import type { LineKey } from '../i18n/lines-en';
 import type { CharacterId, Gesture, Mood } from '../render/portraits';
@@ -68,6 +69,12 @@ export function debriefScript(d: DebriefInput): LineRef[] {
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
   }
   return lines;
+}
+
+/** The admiral at the medal ceremony (doc 25): presents the first medal, then "one more" for each further one. */
+export function medalLine(index: number, medal: MedalId): LineRef {
+  const params = { medal: medalName(medal) };
+  return index === 0 ? ref('admiral', 'adm.medal', 'happy', 'salute', params) : ref('admiral', 'adm.medalMore', 'happy', 'thumbsUp', params);
 }
 
 export type ChiefEvent =

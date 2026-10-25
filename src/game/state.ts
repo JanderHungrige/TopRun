@@ -2,6 +2,7 @@ import type { AudioEngine } from '../core/audio';
 import type { Viewport } from '../core/canvas';
 import type { Input } from '../core/input';
 import type { Music } from '../core/music';
+import type { MedalId } from '../data/medals';
 import type { MinigameId } from '../data/minigames';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarId, CreateResult, Profile } from './profiles';
@@ -18,6 +19,8 @@ export type Route =
   | { to: 'base' }
   | { to: 'offer'; id: MinigameId; isNew: boolean }
   | { to: 'minigame'; id: MinigameId; from: 'base' | 'offer' }
+  /** Medal ceremony (doc 25), then on to `then`. */
+  | { to: 'ceremony'; medals: MedalId[]; then: Route }
   | { to: 'takeoff'; mission: MissionDef }
   | { to: 'mission'; mission: MissionDef; takeoff: TakeoffRating }
   | { to: 'debrief'; mission: MissionDef; result: MissionResult };

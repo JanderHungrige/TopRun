@@ -36,6 +36,8 @@ function topRegion(w: TorsoWear): Path2D | null {
     case 'tank': return r.tank;
     case 'sportsTop': return r.sportsTop;
     case 'tshirt': return r.tshirt;
+    case 'dressWhites': return r.tshirt;
+    case 'flightSuit': return r.tshirt;
     default: throw new Error(`unhandled: ${w satisfies never}`);
   }
 }

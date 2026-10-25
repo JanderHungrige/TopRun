@@ -6,7 +6,7 @@ import { dogTags, shortsStripe, tiedSleeves, torsoGarments } from './garments';
 import { earShows, profileHair, profileTail } from './hair';
 import { ear, headLine, headPathFor, headSkin, neck, type NeckPoints } from './head-profile';
 import { enterBone, lazy, litOf, outline, paintPart, shapes, taper, type Part } from './paths';
-import type { FaceState, PersonLook, Tone } from './types';
+import { longSleeved, type FaceState, type PersonLook, type Tone } from './types';
 
 // People kit (doc 17): a side-view figure facing +x from world joint positions (world down = +y; mirror
 // with ctx.scale(-1, 1) first). Order: far arm, far leg, near leg, torso + neck + head, near arm.
@@ -51,8 +51,9 @@ function arm(ctx: CanvasRenderingContext2D, pass: Pass, look: PersonLook, a: Arm
   enterBone(ctx, a.wrist.x, a.wrist.y, a.hand);
   sideHand(ctx, pass, look.skin, litOf(a.hand, false), far);
   ctx.restore();
-  bone(ctx, pass, PARTS.forearm(), a.elbow, a.wrist, BODY.forearm, look.skin, far);
-  bone(ctx, pass, PARTS.upperArm(), a.shoulder, a.elbow, BODY.upperArm, look.skin, far);
+  const cover = longSleeved(look.torso) ? look.top : look.skin;
+  bone(ctx, pass, PARTS.forearm(), a.elbow, a.wrist, BODY.forearm, cover, far);
+  bone(ctx, pass, PARTS.upperArm(), a.shoulder, a.elbow, BODY.upperArm, cover, far);
   if (look.torso === 'tshirt') garmentBone(ctx, pass, PARTS.sleeve(), a.shoulder, a.elbow, BODY.upperArm, look.top, far);
 }
 

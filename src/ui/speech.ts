@@ -37,6 +37,8 @@ export interface SpeechLayout {
   style: 'comic' | 'radio';
   /** Keep the portrait on screen while silent (debrief, hangar). */
   persistent: boolean;
+  /** Keep the last line on screen (cursor blinking) until something new is said (ceremony, doc 25). */
+  holdLast?: boolean;
 }
 
 interface Current {
@@ -65,6 +67,18 @@ export class SpeechBox {
 
   get busy(): boolean {
     return this.current !== null || this.queue.length > 0;
+  }
+
+  /** A line is still being typed out (or queued). */
+  get typing(): boolean {
+    const c = this.current;
+    return this.queue.length > 0 || (c !== null && c.t < typingTime(c.text));
+  }
+
+  /** Completes the typing of the current line at once. */
+  finishLine(): void {
+    const c = this.current;
+    if (c) c.t = Math.max(c.t, typingTime(c.text));
   }
 
   /** Queue lines; `interrupt` drops whatever is being said. */
@@ -104,8 +118,9 @@ export class SpeechBox {
     if (input) this.handleTaps(input, c, typing);
     if (c.t < typing) this.blip(c);
     if (c.t >= typing + HOLD_AFTER_TYPING) {
-      if (VOICE[c.ref.speaker].radio && this.queue.length === 0) this.audio.play('radioClick', { volume: 0.4 });
       this.gesture = 'none';
+      if (this.layout.holdLast === true && this.queue.length === 0) return;
+      if (VOICE[c.ref.speaker].radio && this.queue.length === 0) this.audio.play('radioClick', { volume: 0.4 });
       this.next();
     }
   }

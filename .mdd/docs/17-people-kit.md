@@ -3,8 +3,9 @@ id: 17-people-kit
 title: People Kit - Reusable Semi-Realistic Human Figures for Sports Minigames
 edition: TopRun
 depends_on: []
-relates: [12-pushup-challenge]
+relates: [12-pushup-challenge, 25-medal-ceremony]
 source_files:
+  - src/render/people/uniform.ts
   - src/render/people/index.ts
   - src/render/people/types.ts
   - src/render/people/palette.ts
@@ -43,6 +44,16 @@ sister_projects: []
 ---
 
 # 17 — People Kit
+
+> **Uniforms and ceremony poses (2026-10-25, doc 25), all additive:** `TorsoWear` adds `dressWhites`
+> (standing collar, gold buttons, shoulder boards in `trim`, gold cuff stripes) and `flightSuit` (open collar,
+> zip, chest pockets, blank name tape, cuffs in `trim`); both are long-sleeved (`longSleeved(w)`): the whole arm
+> takes `top`, in the front and the side view (side view uses the T-shirt region for the body). Details live in
+> `uniform.ts`, drawn after the neck. `FrontPose.reach?: [Vec | null, Vec | null]` sets wrist targets in the hip
+> frame (shoulders at y −94) per arm, overriding `raise` (salutes, pinning a medal; quantised to 1.5 units in the
+> cache key). `drawFrontFigure(…, extras?, opts?: PixelOpts)` passes the art grid to the pixel capture — e.g.
+> `{ units: 3 / scale }` keeps a scaled-down figure on the same pixel size as full-size ones.
+> `frontChestPoint(turn, x, y)` maps a torso-front point to floor coordinates (for medals on the chest).
 
 ## Purpose
 

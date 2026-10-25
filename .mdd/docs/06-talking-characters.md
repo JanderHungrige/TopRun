@@ -3,7 +3,7 @@ id: 06-talking-characters
 title: Talking Characters - Admiral, Crew Chief, Deck Officer, Wingman
 edition: TopRun
 depends_on: [01-game-core, 07-i18n, 08-pilot-profiles]
-relates: [02-hangar-economy, 03-campaign-map, 04-carrier-takeoff, 05-mission-combat]
+relates: [02-hangar-economy, 03-campaign-map, 04-carrier-takeoff, 05-mission-combat, 25-medal-ceremony]
 source_files:
   - src/game/dialogue.ts
   - src/game/dialogue-scripts.ts
@@ -51,6 +51,11 @@ sister_projects: []
 
 > **2026-10-25 update (paint jobs, doc 09):** new lines `adm.livery`, `adm.liveryRare` (debrief) and
 > chief event `painted` / line `chief.painted` (hangar PAINT tab).
+
+> **2026-10-25 update (medal ceremony, doc 25):** new admiral lines `adm.medal` (first medal, salute) and
+> `adm.medalMore` (each further one, thumbs up), params `{callsign}`, `{medal}`, via `medalLine(index, medal)`
+> (no new event table). `SpeechBox` gains optional `layout.holdLast` (the last line stays with its blinking
+> cursor until the next `say`; `say([], true)` clears it), `finishLine()` and the `typing` getter.
 
 ## Purpose
 

@@ -3,7 +3,7 @@ id: off-duty-minigames
 title: Off-Duty Minigames
 status: active
 version: 1
-hash: 193d51e6
+hash: 8fefc800
 created: 2026-10-25
 ---
 
@@ -56,6 +56,6 @@ Shared rules (built in wave 1, used by every game):
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/off-duty-minigames-wave-1.md | From the map open BASE, play Push-ups and Tower Flyby with medals and personal bests; after mission 1 the debrief offers Push-ups. | complete |
-| Wave 2 | waves/off-duty-minigames-wave-2.md | Formation Flying, Air Refuelling and Missile Evasion are playable from BASE and offered after their unlock missions. | planned |
+| Wave 2 | waves/off-duty-minigames-wave-2.md | Formation Flying, Air Refuelling and Missile Evasion are playable from BASE and offered after their unlock missions. | complete |
 | Wave 3 | waves/off-duty-minigames-wave-3.md | Carrier Landing (cockpit view) and Dogfight Tactics are playable. | planned |
 | Wave 4 | waves/off-duty-minigames-wave-4.md | Beach Volleyball, Motorbike vs. Jet and Piano Bar are playable; all ten games done. | planned |

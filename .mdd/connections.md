@@ -1,6 +1,6 @@
 ---
 generated: 2026-10-25
-doc_count: 13
+doc_count: 17
 connection_count: 22
 overlap_count: 0
 ---
@@ -18,9 +18,13 @@ Game
 ├── Languages    07-i18n                complete
 ├── Minigames
 │   ├── Core      10-minigames-core      complete
+│   ├── Evasion   16-missile-evasion     complete
 │   ├── Flyby     13-tower-flyby         complete
+│   ├── Formation 14-formation-flying    complete
 │   ├── Hub       11-base-hub            complete
-│   └── Pushups   12-pushup-challenge    complete
+│   ├── People    17-people-kit          complete
+│   ├── Pushups   12-pushup-challenge    complete
+│   └── Refuel    15-air-refuelling      complete
 ├── Mission      05-mission-combat      complete
 ├── PaintJobs    09-paint-jobs          complete
 ├── Pilots       08-pilot-profiles      complete
@@ -46,6 +50,10 @@ graph TD
   hub[11-base-hub]:::complete
   pushups[12-pushup-challenge]:::complete
   flyby[13-tower-flyby]:::complete
+  formation[14-formation-flying]:::complete
+  refuel[15-air-refuelling]:::complete
+  evasion[16-missile-evasion]:::complete
+  people[17-people-kit]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -75,6 +83,10 @@ graph TD
   hub --> chars
   pushups --> mgcore
   flyby --> mgcore
+  formation --> mgcore
+  refuel --> mgcore
+  evasion --> mgcore
+  pushups --> people
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

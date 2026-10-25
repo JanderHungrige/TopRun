@@ -2,14 +2,13 @@
 id: 12-pushup-challenge
 title: Push-up Challenge - Rhythm Push-up Duel Against the Wingman
 edition: TopRun
-depends_on: [10-minigames-core]
-relates: [10-minigames-core, 11-base-hub]
+depends_on: [10-minigames-core, 17-people-kit]
+relates: [10-minigames-core, 11-base-hub, 17-people-kit]
 source_files:
   - src/game/minigames/pushups.ts
   - src/scenes/minigames/pushups.ts
   - src/scenes/minigames/registry.ts
   - src/render/minigames/pushups-pilot.ts
-  - src/render/minigames/pushups-head.ts
   - src/render/minigames/pushups-looks.ts
   - src/render/minigames/pushups-set.ts
   - src/render/minigames/pushups-crowd.ts
@@ -17,6 +16,20 @@ source_files:
   - src/render/minigames/pushups-hud.ts
   - src/render/minigames/pushups-icon.ts
   - src/i18n/minigames/pushups.ts
+  - src/render/people/index.ts
+  - src/render/people/types.ts
+  - src/render/people/palette.ts
+  - src/render/people/paths.ts
+  - src/render/people/anatomy.ts
+  - src/render/people/extremities.ts
+  - src/render/people/garments.ts
+  - src/render/people/head-profile.ts
+  - src/render/people/face-profile.ts
+  - src/render/people/hair.ts
+  - src/render/people/side-figure.ts
+  - src/render/people/front-body.ts
+  - src/render/people/front-head.ts
+  - src/render/people/front-figure.ts
 routes: []
 models: []
 test_files:
@@ -57,11 +70,11 @@ game/minigames/pushups.ts       PushupState + stepPushups (pure, seeded): stroke
 scenes/minigames/pushups.ts     PUSHUPS: MinigameModule; PushupRound maps input → strokes, animates
                                 the bodies, plays sounds, holds the result banner, returns the score
 render/minigames/pushups-set   gym and beach-at-sunset backdrops, mats / towels, scoreboard posts
-render/minigames/pushups-crowd three cheering spectators (coach with whistle, two crew members)
-render/minigames/pushups-pilot side-view push-up figure (T-shirt, flight-suit trousers, sneakers):
-                               pose from depth 0..1 and collapse 0..1, two-bone arm IK
-render/minigames/pushups-head  profile head, hair styles crew / bob / long / messy, strain + dizzy face
-render/minigames/pushups-looks colours per player avatar (pilot1-3) and for Duke
+render/minigames/pushups-crowd three cheering spectators (coach with cap + whistle, two crew members),
+                               three-quarter figures from the people kit (doc 17)
+render/minigames/pushups-pilot push-up pose → people-kit side figure (doc 17): joints from depth 0..1
+                               and collapse 0..1, two-bone arm IK, face from strain, dizzy stars
+render/minigames/pushups-looks people-kit looks per player avatar (pilot1-3, incl. `torso`) and for Duke
 render/minigames/pushups-board wall scoreboard: both counters around the round clock
 render/minigames/pushups-hud   tempo meter, stamina bar, DOWN / UP key hints, pop-ups, banners
 render/minigames/pushups-icon  hub / offer card icon (animated pilot + stopwatch)
@@ -129,11 +142,35 @@ for effects (rep made → pop-up + sound, burnout started → collapse sound).
 - HUD: tempo meter + stamina bar bottom left, DOWN / UP key caps bottom right (the next expected
   stroke glows; both dim during a burnout and after time is up); "+1" and the rating pop up over
   the player's head; "BURNOUT!" over the collapsed pilot with dizzy stars.
-- Low stamina (< 50) shows on the player: flushed cheek, squint, gritted teeth, sweat drops and a
-  sweat patch; Duke tires visibly over the round.
-- The player's figure uses the colours of the active pilot's avatar (hair, skin, flight-suit
-  trousers); the scoreboard shows the pilot's callsign ("YOU" / "DU" without a profile). All art is
-  original vector drawing.
+- Low stamina (< 50) shows on the player: the face goes from effort to strain (squeezed eyes,
+  gritted teeth), flushed cheek, sweat drops and a sweat sheen on the back; Duke tires visibly over
+  the round. The face is calm in the up position and shows effort on the way down. Collapsed
+  (burnout or the loser's flop): chin on the forearms, eyes shut, mouth open, dizzy stars. The winner
+  grins at the end.
+- The player's figure uses the colours of the active pilot's avatar (hair, skin, eye colour,
+  flight-suit trousers); the scoreboard shows the pilot's callsign ("YOU" / "DU" without a profile).
+  All art is original vector drawing.
+
+### Art (realistic sports style)
+- The people are drawn with the shared **people kit** (doc 17): semi-realistic illustrated figures
+  (about 7.8 heads tall, broad shoulders, natural athletic musculature shaded with a few soft
+  highlight / shadow paths instead of outlines), realistic profile heads (skull, jaw, nose, ear,
+  brow, lidded eyes) with the expressions effort, strain, grin and exhausted. Clean vector, no real
+  person or film character is depicted.
+- Top Gun's beach scenes made shirtless sports iconic, so the duel is **shirtless**: owner decision
+  (2026-10-25) — in sports scenes **all** pilots are shirtless, the three player avatars as well as
+  Duke and the male crowd. Outside sports (cockpit, portraits, avatars) everyone keeps the flight
+  outfit; nothing there changes.
+- The player's clothing comes from `PLAYER_LOOKS[avatar].torso` in `pushups-looks.ts`
+  (`'shirtless' | 'tank' | 'sportsTop' | 'tshirt'`, all three avatars currently `'shirtless'`),
+  with flight-suit trousers in the avatar's suit colour, the sleeves tied round the waist, sneakers
+  and blank dog tags. The other variants stay in the kit and render correctly when an avatar is
+  switched to them.
+- Duke: shirtless, navy sports shorts with a white stripe, white sneakers, blank dog tags.
+- Crowd (three-quarter view): the coach in a grey (gym) / coral (beach) tank top with his cap and
+  whistle, the towel crewman shirtless, the crewman with the shades in a tank top in the gym and
+  shirtless on the beach; shorts, sneakers in the gym, barefoot on the beach.
+- Tasteful and sporty, never sexualised.
 - Sounds (existing SFX only, panned to each side): clean rep `uiMove` (pitch rises with the clean
   streak), slow rep low `uiMove`, fast rep `hit`, burnout `playerHit`, Duke's reps a quiet low
   `uiMove`, last-5-seconds ticks high `uiMove`, end `powerup` (win) / `denied` (loss / tie).

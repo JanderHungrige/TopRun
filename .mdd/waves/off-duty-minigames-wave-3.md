@@ -3,11 +3,11 @@ id: off-duty-minigames-wave-3
 title: "Wave 3: Cockpit and tactics"
 initiative: off-duty-minigames
 initiative_version: 1
-status: planned
+status: complete
 depends_on: off-duty-minigames-wave-2
 demo_state: "Carrier Landing (cockpit view) and Dogfight Tactics are playable."
 created: 2026-10-25
-hash: 26634096
+hash: e81e8027
 ---
 
 # Wave 3: Cockpit and tactics
@@ -19,8 +19,8 @@ Carrier Landing (cockpit view) and Dogfight Tactics are playable.
 ## Features
 | # | Feature | Doc | Status | Depends on |
 |---|---------|-----|--------|------------|
-| 1 | carrier-landing | — | planned | — |
-| 2 | dogfight-tactics | — | planned | — |
+| 1 | carrier-landing | .mdd/docs/18-carrier-landing.md | complete | — |
+| 2 | dogfight-tactics | .mdd/docs/19-dogfight-tactics.md | complete | — |
 
 ## Open Research
 (none)

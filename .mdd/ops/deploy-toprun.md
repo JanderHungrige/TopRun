@@ -23,8 +23,8 @@ services:
     regions:
       prod:
         image: ghcr.io/janderhungrige/toprun:main
-        status: unknown
-        last_checked: ~
+        status: healthy
+        last_checked: 2026-10-25T07:58Z
 status: draft
 last_synced: 2026-10-25
 mdd_version: 11
@@ -32,6 +32,8 @@ tags: [deploy, docker-compose, github-actions, ghcr, cron, nginx-proxy-manager, 
 known_issues:
   - "Fully automatic prod deploy on every push to main that changes the image (no approval gate) — same as the other apps on this host."
   - "The root cron needs a one-time sudo step by the owner (sudo needs a password on the host)."
+  - "First rollout on 2026-10-25 was started by hand from ~/toprun-bootstrap (compose project toprun-prod); the /opt/toprun cron adopts the same project — the bootstrap checkout is removed in Step 1."
+  - "NPM proxy host 25 has a certificate but Force SSL is off, so plain http:// is served too — enable Force SSL (and HSTS) in NPM."
 ---
 
 # Deploy TopRun to toprun.questenterprise.de

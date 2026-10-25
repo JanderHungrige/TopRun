@@ -1,0 +1,5 @@
+# TopRun auto-deploy — poll GHCR every minute and roll new images. Install in ROOT's crontab
+# with `sudo /opt/toprun/deploy/install-cron.sh` (or paste the line with `sudo crontab -e`).
+# Offset :08 — taken: :00 battlefuel, :15 ninanatur, :30 funding-tender-tracker, :45 3dmap2.
+#
+# * * * * * sleep 8; cd /opt/toprun && /usr/bin/env bash deploy/roll-all.sh >> /var/log/toprun-deploy.log 2>&1

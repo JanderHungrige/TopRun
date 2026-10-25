@@ -1,0 +1,38 @@
+# The TopRun (TopGun game) production stack, deployed from a prebuilt GHCR image and kept
+# current by deploy/auto-deploy.sh (root cron via deploy/roll-all.sh):
+#
+#   docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml up -d   # 172.17.0.1:8081
+#
+# COMPOSE_PROJECT_NAME (set in the env-file) names the stack. The port is published on the
+# Docker bridge gateway 172.17.0.1 and nowhere else: Nginx Proxy Manager runs as a container
+# and reaches the app there (toprun.questenterprise.de -> http://172.17.0.1:8081). A bare
+# "8081:8080" would bind 0.0.0.0 and answer the whole internet in plaintext beside the proxy.
+services:
+  app:
+    image: ${REGISTRY:-ghcr.io}/${OWNER:-janderhungrige}/${IMAGE:-toprun}:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "172.17.0.1:${APP_PORT}:8080"
+    # Static files only: nginx writes nothing but its pid and temp files, all under /tmp.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    pids_limit: 64
+    # A weight, not a quota: under contention the other projects on this host come first.
+    cpu_shares: 256
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Same probe as the Dockerfile HEALTHCHECK; auto-deploy.sh waits for "healthy".
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

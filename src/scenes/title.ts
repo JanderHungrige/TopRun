@@ -13,8 +13,8 @@ type Mode = 'menu' | 'controls';
 const CONTROLS: ReadonlyArray<readonly [UiKey, UiKey | string, UiKey | string]> = [
   ['controls.move', 'controls.arrows', 'controls.stick'],
   ['controls.gun', 'controls.spaceJ', 'A'],
-  ['controls.missile', 'R / K', 'B'],
-  ['controls.switch', 'Q / L', 'LB / RB'],
+  ['controls.air', 'R / K', 'B'],
+  ['controls.ground', 'Q / L', 'LB / RB'],
   ['controls.flare', 'F', 'X'],
   ['controls.special', 'E', 'Y'],
   ['controls.pause', 'P / Esc', 'Start'],

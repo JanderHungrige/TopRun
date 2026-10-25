@@ -4,7 +4,7 @@ import type { Vec } from './math';
 import { pollGamepad } from './gamepad';
 
 export type Action =
-  | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'switchWeapon' | 'flare' | 'special'
+  | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'groundWeapon' | 'flare' | 'special'
   | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
@@ -13,8 +13,9 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   ArrowUp: ['up'], KeyW: ['up'], ArrowDown: ['down'], KeyS: ['down', 'skip'],
   ArrowLeft: ['left'], KeyA: ['left'], ArrowRight: ['right'], KeyD: ['right'],
   Space: ['fire', 'confirm'], KeyJ: ['fire'], Enter: ['confirm'], NumpadEnter: ['confirm'],
+  // 'secondary' = the AIR weapon key, 'groundWeapon' = the GROUND weapon key (doc 05).
   KeyR: ['secondary'], KeyK: ['secondary'], // never Shift: 5× Shift opens the Windows Sticky Keys prompt
-  KeyQ: ['switchWeapon'], KeyL: ['switchWeapon'], KeyF: ['flare'], KeyE: ['special'],
+  KeyQ: ['groundWeapon'], KeyL: ['groundWeapon'], KeyF: ['flare'], KeyE: ['special'],
   Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
 };
 

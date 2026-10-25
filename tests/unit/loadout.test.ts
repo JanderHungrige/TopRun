@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { derivePlayerStats } from '../../src/game/loadout';
+import { derivePlayerStats, slotFor } from '../../src/game/loadout';
+import { SECONDARIES, SECONDARY_ROLES } from '../../src/data/weapons';
 import { defaultSave, type SaveData } from '../../src/game/save';
 
 const tomcat = (): SaveData => {
@@ -60,6 +61,21 @@ describe('Loadout', () => {
       const st = derivePlayerStats(s);
       expect(st.secondaries).toEqual([{ id: 'mk82', ammo: 6 }]);
       expect(derivePlayerStats(defaultSave()).secondaries).toEqual([]);
+    });
+  });
+
+  describe('two weapon keys (doc 05)', () => {
+    it('gives every secondary an air or ground role', () => {
+      expect(SECONDARY_ROLES).toEqual({ aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground' });
+      for (const id of Object.keys(SECONDARY_ROLES) as Array<keyof typeof SECONDARIES>) expect(SECONDARIES[id].role).toBe(SECONDARY_ROLES[id]);
+    });
+
+    it('fires the first mounted weapon of the role that still has ammo', () => {
+      const secs = [{ id: 'mk82' as const, ammo: 0 }, { id: 'aim9' as const, ammo: 4 }, { id: 'agm65' as const, ammo: 2 }, { id: 'aim54' as const, ammo: 2 }];
+      expect(slotFor(secs, 'air')).toBe(1);
+      expect(slotFor(secs, 'ground')).toBe(2);
+      expect(slotFor([{ id: 'aim9', ammo: 0 }], 'air')).toBe(-1);
+      expect(slotFor([], 'ground')).toBe(-1);
     });
   });
 });

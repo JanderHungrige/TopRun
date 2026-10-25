@@ -1,6 +1,7 @@
 import type { AudioEngine } from '../../core/audio';
 import type { EnemyWeapon } from '../../data/types';
-import { SECONDARIES } from '../../data/weapons';
+import { SECONDARIES, type WeaponRole } from '../../data/weapons';
+import { slotFor } from '../../game/loadout';
 import { ECM_TURN_FACTOR, headingTo } from '../../game/combat';
 import type { Player } from './player';
 import type { Missile, World } from './world';
@@ -43,9 +44,9 @@ function playerMissile(p: Player, kind: Missile['kind'], dx: number, heading: nu
   };
 }
 
-/** Fires the selected secondary weapon. Returns false when nothing could be fired. */
-export function fireSecondary(world: World, p: Player, audio: AudioEngine): boolean {
-  const slot = p.currentSecondary;
+/** AIR or GROUND key: fires the first mounted weapon of that role with ammo (doc 05). False when nothing fired. */
+export function fireSecondary(world: World, p: Player, audio: AudioEngine, role: WeaponRole): boolean {
+  const slot = p.secondaries[slotFor(p.secondaries, role)];
   if (!slot || slot.ammo <= 0 || p.secCooldown > 0) return false;
   const def = SECONDARIES[slot.id];
   slot.ammo -= 1;
@@ -67,7 +68,6 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine): bool
     default:
       throw new Error(`unhandled: ${def.behavior satisfies never}`);
   }
-  if (slot.ammo <= 0) p.switchSecondary();
   return true;
 }
 

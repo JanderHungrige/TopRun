@@ -7,6 +7,8 @@ import { leadPose, ROUND_END, SHOW_END, SHOW_START, SMOKE_OFF, SMOKE_ON, smokeOn
 
 export const ACCEL = 400;
 export const DRAG = 1.6;
+/** Pushing forward is throttle: more thrust than sideways or back (owner feedback, doc 14). */
+export const FORWARD_BOOST = 1.3;
 export const INNER_R = 18;
 export const OUTER_R = 40;
 export const INNER_RATE = 100;
@@ -136,8 +138,9 @@ export function jetWash(t: number, slot: SlotId): Vec {
 function flyWing(w: WingState, stick: Stick, lead: LeadPose, wash: Vec, dt: number): WingState {
   const u = unitStick(stick);
   const decay = Math.exp(-DRAG * dt);
+  const ay = u.y * ACCEL * (u.y < 0 ? FORWARD_BOOST : 1);
   const vx = (u.x * ACCEL) / DRAG + (w.vx - (u.x * ACCEL) / DRAG) * decay;
-  const vy = (u.y * ACCEL) / DRAG + (w.vy - (u.y * ACCEL) / DRAG) * decay;
+  const vy = ay / DRAG + (w.vy - ay / DRAG) * decay;
   const rx = w.x - lead.x;
   const ry = w.y - lead.y;
   const x = w.x + ((w.vx + vx) / 2 + lead.turn * ry + wash.x) * dt;

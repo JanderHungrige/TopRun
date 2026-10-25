@@ -13,7 +13,7 @@ import { Boss } from './boss';
 import { spawnEnemy, updateEnemies } from './enemy-ai';
 import { drawLeftConsole, drawRightConsole } from '../../render/cockpit';
 import { LEFT, RIGHT, type Rect } from '../../render/cockpit/layout';
-import { cockpitButtons, cockpitLabels, leftView, rightView } from './cockpit-view';
+import { cockpitButtons, cockpitKeys, cockpitLabels, leftView, rightView } from './cockpit-view';
 import { clipPlayfield, renderWorld } from './mission-render';
 import { updatePickups } from './pickups';
 import { Player } from './player';
@@ -104,8 +104,8 @@ export class MissionScene implements Scene {
     p.move(input.moveVector(), input.dragDelta(PLAYFIELD), dt);
     const autofire = this.game.settings.autofire || (touch && input.touchingIn(PLAYFIELD));
     if (input.held('fire') || autofire) firePlayerGun(this.world, p, this.game.audio);
-    if (input.held('secondary')) fireSecondary(this.world, p, this.game.audio);
-    if (input.pressed('switchWeapon') && p.switchSecondary()) this.game.audio.play('uiMove');
+    if (input.held('secondary')) fireSecondary(this.world, p, this.game.audio, 'air');
+    if (input.held('groundWeapon')) fireSecondary(this.world, p, this.game.audio, 'ground');
     if (input.pressed('flare')) dropFlare(this.world, p, this.game.audio);
     if (input.pressed('special')) this.activateSpecial();
     this.cockpitClicks();
@@ -121,10 +121,8 @@ export class MissionScene implements Scene {
       if (ready) act();
       else a.play('denied');
     };
-    press(LEFT.missileBtn, b.missile === 'ready', () => fireSecondary(this.world, p, a));
-    press(LEFT.switchBtn, b.switch === 'ready', () => {
-      if (p.switchSecondary()) a.play('uiMove');
-    });
+    press(LEFT.airBtn, b.air === 'ready', () => fireSecondary(this.world, p, a, 'air'));
+    press(LEFT.groundBtn, b.ground === 'ready', () => fireSecondary(this.world, p, a, 'ground'));
     press(RIGHT.flareBtn, b.flare === 'ready', () => dropFlare(this.world, p, a));
     press(RIGHT.specialBtn, b.special.state === 'ready', () => this.activateSpecial());
   }
@@ -260,8 +258,9 @@ export class MissionScene implements Scene {
       this.labels = cockpitLabels();
       this.labelsLang = getLang();
     }
-    drawLeftConsole(ctx, leftView(w, this.player, this.game.profile?.callsign ?? 'PILOT', this.labels), this.t);
-    drawRightConsole(ctx, rightView(w, this.player, this.labels), this.t);
+    const keys = cockpitKeys(this.game.input.device, this.game.settings.joystick);
+    drawLeftConsole(ctx, leftView(w, this.player, this.game.profile?.callsign ?? 'PILOT', this.labels, keys), this.t);
+    drawRightConsole(ctx, rightView(w, this.player, this.labels, keys), this.t);
     if (this.paused) this.renderPause(ctx);
   }
 

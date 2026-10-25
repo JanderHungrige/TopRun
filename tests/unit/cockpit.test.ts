@@ -9,7 +9,7 @@ const radar = (over: Partial<RadarInput> = {}): RadarInput => ({
 });
 
 const buttons = (over: Partial<ButtonInput> = {}): ButtonInput => ({
-  secondaries: [{ ammo: 6 }, { ammo: 2 }], secIndex: 0, secCooldown: 0, flares: 2, flareCapacity: 2,
+  secondaries: [{ id: 'aim9', ammo: 6 }, { id: 'mk82', ammo: 2 }], secCooldown: 0, flares: 2, flareCapacity: 2,
   specialCooldown: 0, specialMax: 5, specialActive: 0, ...over,
 });
 
@@ -63,17 +63,14 @@ describe('Cockpit', () => {
   });
 
   describe('buttonStates', () => {
-    it('reports the missile button as none, empty, cooldown or ready', () => {
-      expect(buttonStates(buttons({ secondaries: [] })).missile).toBe('none');
-      expect(buttonStates(buttons({ secondaries: [{ ammo: 0 }] })).missile).toBe('empty');
-      expect(buttonStates(buttons({ secCooldown: 0.2 })).missile).toBe('cooldown');
-      expect(buttonStates(buttons()).missile).toBe('ready');
-    });
-
-    it('enables switch only with two loaded weapons', () => {
-      expect(buttonStates(buttons()).switch).toBe('ready');
-      expect(buttonStates(buttons({ secondaries: [{ ammo: 6 }, { ammo: 0 }] })).switch).toBe('none');
-      expect(buttonStates(buttons({ secondaries: [{ ammo: 6 }] })).switch).toBe('none');
+    it('lights AIR and GROUND by role: none, empty, cooldown or ready', () => {
+      expect(buttonStates(buttons()).air).toBe('ready');
+      expect(buttonStates(buttons()).ground).toBe('ready');
+      expect(buttonStates(buttons({ secondaries: [{ id: 'mk82', ammo: 2 }] })).air).toBe('none');
+      expect(buttonStates(buttons({ secondaries: [{ id: 'aim9', ammo: 0 }, { id: 'rockets', ammo: 3 }] })).air).toBe('empty');
+      expect(buttonStates(buttons({ secondaries: [{ id: 'aim9', ammo: 0 }, { id: 'rockets', ammo: 3 }] })).ground).toBe('ready');
+      expect(buttonStates(buttons({ secCooldown: 0.2 })).ground).toBe('cooldown');
+      expect(buttonStates(buttons({ secondaries: [] }))).toMatchObject({ air: 'none', ground: 'none' });
     });
 
     it('reports flare and special states including recharge progress', () => {

@@ -74,7 +74,7 @@ describe('Joystick', () => {
 
     it('falls back to the standard or default mapping for controllers the profile does not name', () => {
       expect(padInputs(frame('Xbox Controller', [0, 0], [1], true), profile()).buttons).toEqual([[1, ['secondary', 'back']]]);
-      expect(padInputs(frame('Other Stick', [0, 0], [4]), profile()).buttons).toEqual([[4, ['switchWeapon']]]);
+      expect(padInputs(frame('Other Stick', [0, 0], [4]), profile()).buttons).toEqual([[4, ['groundWeapon']]]);
     });
 
     it('normalises a throttle axis to 0 idle … 1 full', () => {

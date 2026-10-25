@@ -166,9 +166,12 @@ None.
   when moving sideways; the F-14 sweeps its wings back while moving forward. Shadow on terrain.
 - **Gun** fires while FIRE is held (or always, with autofire setting / touch). Pattern per gun level.
   Guns hit air and ground; ground takes 50 %.
-- **Secondary**: fires the selected mounted weapon if ammo > 0 and its cooldown is ready;
-  SWITCH cycles through mounted weapons with ammo. Homing weapons pick the nearest valid target
-  in a forward cone; with no target they fly straight.
+- **Weapons — two keys, no switching** (2026-10-25, owner: switching was too hectic): every
+  secondary has a **role** — *air*: AIM-9, AIM-54; *ground*: rockets, Mk 82, AGM-65. **AIR** (R / K,
+  gamepad B) fires the first mounted air weapon that has ammo, **GROUND** (Q / L, gamepad LB/RB) the
+  first mounted ground weapon with ammo (`slotFor(secondaries, role)`, mount order). One shared
+  cooldown. Homing weapons pick the nearest valid target in a forward cone; with no target they fly
+  straight.
 - **Flares**: FLARE drops a flare (if any left); every enemy missile within 260 px retargets
   to the flare. Enemy missiles otherwise home on the player (turn rate limited, 5 s life).
 - **Special** per plane (02): F-16 barrel roll, F-14 wingman, SR-71 Mach dash.
@@ -204,12 +207,16 @@ None.
   - **Left console**: name plate (jet + callsign) · **RADAR** scope (circular, sweeping beam) ·
     **HULL** analog dial (green > 60 %, amber 30–60 %, red < 30 %) with digital readout · **CANNON**
     level lamps 1–5 + power-up lamp/timer · **STORES** screen (mounted weapons, ammo, selected one
-    bracketed) · buttons **MISSILE** (R) and **SWITCH** (Q).
+    bracketed) · buttons **AIR** (R) and **GROUND** (Q). Stores rows are tagged A / G and the next
+    weapon of each role is bracketed.
   - **Right console**: mission screen (number, name, objective + progress, kills, cash, route, boss
     hull when present) · **warning panel** (MISSILE, LOW HULL, BOSS, POWER, ECM, DMG CTRL lamps) ·
     big buttons **FLARE** (F, with count) and **SPECIAL** (E, with recharge ring) · **PAUSE**.
-  - **Buttons light up only when usable** (`buttonStates`): missile `none | empty | cooldown | ready`;
-    switch `ready` only with ≥ 2 loaded weapons, else `none`; flare `none` (no dispenser) | `empty` |
+  - **Key caps** (2026-10-25, owner): every console button carries a clearly readable key cap with its
+    key — keyboard R / Q / F / E / P, gamepad B / RB / X / Y / ☰, joystick the bound button number
+    (BTN n); none on touch.
+  - **Buttons light up only when usable** (`buttonStates`): air and ground each `none` (no weapon
+    of that role mounted) | `empty` | `cooldown` | `ready`; flare `none` (no dispenser) | `empty` |
     `ready`; special `ready | cooldown (progress 0..1) | active`. Every button is clickable/tappable on
     every device (keyboard keys still work); pressing a dark button plays the "denied" sound.
   - **Warning lamps** (`warningLights`): MISSILE flashes when an enemy missile that is not chasing a

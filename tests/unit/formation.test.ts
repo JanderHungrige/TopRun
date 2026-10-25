@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { medalFor, type Medal } from '../../src/game/minigames/core';
 import {
-  ACCEL, createFormation, DRAG, finalScore, FORMATION_MEDALS, INNER_R, JOIN_FROM, MAX_POINTS, maxPointsUntil, OUTER_R,
+  ACCEL, createFormation, DRAG, finalScore, FORWARD_BOOST, FORMATION_MEDALS, INNER_R, JOIN_FROM, MAX_POINTS, maxPointsUntil, OUTER_R,
   pointRate, predict, rating, slotOffset, slotPoint, stepFormation, zoneFor, type FormationState,
 } from '../../src/game/minigames/formation';
 import {
@@ -267,5 +267,22 @@ describe('Formation Flying', () => {
     const keys = Object.keys(FORMATION_TEXT.en) as (keyof typeof FORMATION_TEXT.en)[];
     expect(Object.keys(FORMATION_TEXT.de).sort()).toEqual([...keys].sort());
     for (const k of keys) expect(placeholders(FORMATION_TEXT.de[k])).toEqual(placeholders(FORMATION_TEXT.en[k]));
+  });
+
+  describe('forward thrust (owner: "up does not speed you up")', () => {
+    it('pushing forward accelerates harder than sideways or back', () => {
+      expect(FORWARD_BOOST).toBeCloseTo(1.3, 6);
+      const go = (stick: { x: number; y: number }) => {
+        let s = createFormation([{ slot: 'right', plane: 'f16' }], 0);
+        for (let i = 0; i < 30; i++) s = stepFormation(s, [stick], 1 / 60);
+        const w = s.wings[0]!;
+        return { vx: w.vx, vy: w.vy };
+      };
+      const fwd = go({ x: 0, y: -1 });
+      const side = go({ x: 1, y: 0 });
+      const back = go({ x: 0, y: 1 });
+      expect(-fwd.vy).toBeGreaterThan(side.vx * 1.25);
+      expect(back.vy).toBeCloseTo(side.vx, 6);
+    });
   });
 });

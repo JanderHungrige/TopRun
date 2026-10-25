@@ -1,4 +1,5 @@
-import type { Layer } from '../data/types';
+import type { Layer, SecondaryId } from '../data/types';
+import { SECONDARIES, type WeaponRole } from '../data/weapons';
 
 // Cockpit logic (doc 05): what the radar shows, which buttons are lit, which warning lamps burn. Pure.
 
@@ -47,19 +48,18 @@ export function radarContacts(input: RadarInput, early: boolean): Contact[] {
   return out;
 }
 
-export type MissileButton = 'none' | 'empty' | 'cooldown' | 'ready';
+export type WeaponButton = 'none' | 'empty' | 'cooldown' | 'ready';
 export type FlareButton = 'none' | 'empty' | 'ready';
 
 export interface ButtonStates {
-  missile: MissileButton;
-  switch: 'ready' | 'none';
+  air: WeaponButton;
+  ground: WeaponButton;
   flare: FlareButton;
   special: { state: 'ready' | 'cooldown' | 'active'; progress: number };
 }
 
 export interface ButtonInput {
-  secondaries: ReadonlyArray<{ ammo: number }>;
-  secIndex: number;
+  secondaries: ReadonlyArray<{ id: SecondaryId; ammo: number }>;
   secCooldown: number;
   flares: number;
   /** Flares per mission from the dispenser (0 = none fitted). */
@@ -69,22 +69,22 @@ export interface ButtonInput {
   specialActive: number;
 }
 
-function missileButton(b: ButtonInput): MissileButton {
-  if (b.secondaries.length === 0) return 'none';
-  if ((b.secondaries[b.secIndex]?.ammo ?? 0) <= 0) return 'empty';
+function weaponButton(b: ButtonInput, role: WeaponRole): WeaponButton {
+  const mine = b.secondaries.filter((s) => SECONDARIES[s.id].role === role);
+  if (mine.length === 0) return 'none';
+  if (!mine.some((s) => s.ammo > 0)) return 'empty';
   return b.secCooldown > 0 ? 'cooldown' : 'ready';
 }
 
 export function buttonStates(b: ButtonInput): ButtonStates {
-  const loaded = b.secondaries.filter((s) => s.ammo > 0).length;
   const special: ButtonStates['special'] = b.specialActive > 0
     ? { state: 'active', progress: 1 }
     : b.specialCooldown > 0
       ? { state: 'cooldown', progress: Math.max(0, Math.min(1, 1 - b.specialCooldown / Math.max(0.001, b.specialMax))) }
       : { state: 'ready', progress: 1 };
   return {
-    missile: missileButton(b),
-    switch: loaded >= 2 ? 'ready' : 'none',
+    air: weaponButton(b, 'air'),
+    ground: weaponButton(b, 'ground'),
     flare: b.flareCapacity <= 0 ? 'none' : b.flares <= 0 ? 'empty' : 'ready',
     special,
   };

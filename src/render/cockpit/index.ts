@@ -1,4 +1,5 @@
-import { GREEN, RED, flareButton, pauseButton, pushButton, specialButton } from './buttons';
+import type { ButtonStates } from '../../game/cockpit';
+import { GREEN, RED, flareButton, keyCap, pauseButton, pushButton, specialButton } from './buttons';
 import { attitudeLive, cannonLive, hullLive } from './gauges';
 import { lampsLive } from './lamps';
 import { LEFT, RIGHT } from './layout';
@@ -59,17 +60,17 @@ export function drawLeftConsole(ctx: CanvasRenderingContext2D, v: LeftConsoleVie
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const key = `${v.plane}|${v.planeName}|${v.callsign}|${v.keys.missile}|${v.keys.switch}|${keyOfLabels(v.labels)}`;
+  const key = `${v.plane}|${v.planeName}|${v.callsign}|${keyOfLabels(v.labels)}`;
   blitPlate(ctx, leftCache, key, LEFT.panel.x, (o) => buildLeft(o, v));
   radarLive(ctx, LEFT.radar, v.radar.contacts, v.radar.early, v.labels.early, t);
   hullLive(ctx, LEFT.hull, v.hull);
   cannonLive(ctx, LEFT.cannon, v.cannon, t);
   storesLive(ctx, LEFT.stores, v.stores, v.labels.noStores);
-  const m = v.buttons.missile;
-  const mStatus = m === 'empty' ? v.labels.empty : m === 'none' ? v.labels.none : '';
-  pushButton(ctx, LEFT.missileBtn, m, RED, v.labels.missile, mStatus, t);
-  const sw = v.buttons.switch;
-  pushButton(ctx, LEFT.switchBtn, sw, GREEN, v.labels.switch, sw === 'none' ? v.labels.none : '', t);
+  const status = (st: ButtonStates['air']): string => (st === 'empty' ? v.labels.empty : st === 'none' ? v.labels.none : '');
+  pushButton(ctx, LEFT.airBtn, v.buttons.air, RED, v.labels.air, status(v.buttons.air), t);
+  pushButton(ctx, LEFT.groundBtn, v.buttons.ground, GREEN, v.labels.ground, status(v.buttons.ground), t);
+  keyCap(ctx, LEFT.airBtn, v.keys.air);
+  keyCap(ctx, LEFT.groundBtn, v.keys.ground);
   ctx.restore();
 }
 
@@ -77,7 +78,7 @@ export function drawRightConsole(ctx: CanvasRenderingContext2D, v: RightConsoleV
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const key = `${v.keys.flare}|${v.keys.special}|${v.keys.pause}|${keyOfLabels(v.labels)}`;
+  const key = keyOfLabels(v.labels);
   blitPlate(ctx, rightCache, key, RIGHT.panel.x, (o) => buildRight(o, v));
   missionLive(ctx, RIGHT.mission, v, t);
   lampsLive(ctx, RIGHT.warnings, v.warnings, v.labels, t);
@@ -87,6 +88,9 @@ export function drawRightConsole(ctx: CanvasRenderingContext2D, v: RightConsoleV
   specialButton(ctx, RIGHT.specialBtn, v.special.state, v.special.progress, v.special.name, v.labels.special, t);
   attitudeLive(ctx, RIGHT.attitude, v.attitude.bank, v.attitude.forward, t);
   pauseButton(ctx, RIGHT.pauseBtn, v.labels.pause, t);
+  keyCap(ctx, RIGHT.flareBtn, v.keys.flare);
+  keyCap(ctx, RIGHT.specialBtn, v.keys.special);
+  keyCap(ctx, RIGHT.pauseBtn, v.keys.pause);
   ctx.restore();
 }
 

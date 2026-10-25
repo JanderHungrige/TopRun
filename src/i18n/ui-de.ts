@@ -128,7 +128,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.notAllowed': 'Passt nicht an diesen Jet',
   'hangar.cannotBuy': 'Nicht kaufbar',
   'hangar.hintTouch': 'Station antippen: leeren oder die gewählte Waffe montieren',
-  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · SHIFT abbauen · ESC Karte',
+  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · R abbauen · ESC Karte',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'KATAPULTSTART',

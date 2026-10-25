@@ -59,7 +59,7 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
     cannon: { level: p.gunLevel, powered: p.powerTimer > 0, powerRatio: Math.min(1, p.powerTimer / 12) },
     stores: p.secondaries.map((s, i) => ({ id: s.id, short: SECONDARIES[s.id].short, ammo: s.ammo, selected: i === p.secIndex })),
     buttons: { missile: b.missile, switch: b.switch },
-    keys: { missile: 'SHIFT', switch: 'Q' },
+    keys: { missile: 'R', switch: 'Q' },
     labels,
   };
 }

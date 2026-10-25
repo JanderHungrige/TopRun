@@ -141,9 +141,13 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
 ## Business Rules
 
 - **Input actions**: `up, down, left, right, fire, secondary, switchWeapon, flare, special, confirm, back, pause, mute, skip, hangar`.
-  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); Shift/K secondary; Q/L switch; F flare;
+  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); R/K secondary; Q/L switch; F flare;
     E special; Enter confirm; Esc/Backspace back (Esc also pauses); P pause; M mute; S skip launch (also down);
     H hangar.
+    **No Shift key** (2026-10-25): Windows opens its Sticky Keys prompt ("Einrastfunktion") when Shift
+    is pressed five times in a row, and hectic players spam the missile key — a web page cannot
+    suppress that system dialog, so the missile moved from Shift to **R** (K stays). Ctrl is not used
+    either (Ctrl+W etc. would close the tab).
   - Gamepad (standard mapping): left stick/d-pad move; A fire+confirm; B secondary+back; X flare; Y special; LB/RB switch; Start pause.
   - Joystick / HOTAS: see **Joystick** below.
   - Touch: drag anywhere in the playfield moves the plane relatively; autofire on while touching;

@@ -100,7 +100,7 @@ field never rotates), so the jet stays near the centre (640, 388) of the field b
   flight stick, or touch / mouse drag on the left 1000 px (a virtual stick: the drag from where the
   touch started, 60 px = full deflection). Under 25 % deflection the jet holds its heading.
 - **Flares**: F or Space (also gamepad X / A — the `flare` and `fire` actions) or the FLARE button.
-- **High-G break**: E or Shift (also gamepad Y / B — `special` and `secondary`) or the BREAK button.
+- **High-G break**: E or R (also gamepad Y / B — `special` and `secondary`) or the BREAK button.
 - The buttons bottom right show the key letters for keyboard (F / E) and gamepad (X / Y).
 
 ### The jet (evasion-flight.ts)

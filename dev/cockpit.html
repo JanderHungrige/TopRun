@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>TopGun cockpit preview</title>
+  <style>
+    body{margin:0;background:#05080c;color:#cfd8e3;font:12px system-ui,sans-serif;overflow-x:hidden}
+    nav{display:flex;gap:10px;padding:6px 10px;flex-wrap:wrap}
+    nav a{color:#9fd0ff}
+    #strip{overflow:hidden}
+    canvas{display:block;transform-origin:0 0}
+  </style></head>
+  <body>
+    <nav>
+      <a href="?x=0">left</a><a href="?x=960">right</a><a href="?x=0&amp;lang=de">left DE</a><a href="?x=960&amp;lang=de">right DE</a>
+      <span>?x= pans (logical px) · ?zoom= scales · ?t= freezes time · ?phase=0..3 pins the state set · ?lang=en|de</span>
+    </nav>
+    <div id="strip"><canvas id="c"></canvas></div>
+    <script type="module" src="./cockpit.ts"></script>
+  </body>
+</html>

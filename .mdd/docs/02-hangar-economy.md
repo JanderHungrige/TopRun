@@ -25,9 +25,9 @@ test_files:
 data_flow: greenfield
 last_synced: 2026-10-25
 status: complete
-phase: all
+phase: 3
 mdd_version: 11
-tags: [shop, economy, planes, weapons, equipment, loadout, f-14, f-16, sr-71]
+tags: [shop, economy, planes, weapons, equipment, loadout, early-warning-radar, f-14, f-16, sr-71]
 path: Game/Hangar
 integration_contracts:
   - function: "derivePlayerStats(save)"
@@ -107,6 +107,7 @@ Guns deal **50 % damage to ground/sea targets**.
 | ecm | ECM Pod | 12,000 | enemy bullet dmg −25 %, enemy missile turn −30 % |
 | damageControl | Damage Control | 15,000 | once per mission at hull < 25 %: restore 40 % |
 | magnet | Cargo Magnet | 6,000 | pickups drift to you from 160 px |
+| radar | Early-Warning Radar | 8,000 | cockpit radar range 720 → 1100 px and shows spawns due in the next 4 s (doc 05) |
 
 ## API Endpoints
 
@@ -121,7 +122,7 @@ None.
   aim54 only on f14 (`restricted-plane`). Same weapon may occupy several slots (more ammo).
   `unmount` empties a slot. Loadout arrays are dense: `(SecondaryId | null)[]` of length = hardpoints.
 - `derivePlayerStats(save)` → `{ plane, maxHull, speed, gunLevel, gunDamageMul,
-  secondaries: [{id, ammo}] (in slot order, merged by id), flares, ecm, damageControl, magnet }`.
+  secondaries: [{id, ammo}] (in slot order, merged by id), flares, ecm, damageControl, magnet, earlyWarning }`.
 - **Payout** (`computePayout(mission, result, firstClear)`):
   - success: `base = mission.reward × (firstClear ? 1 : 0.5)`;
     `takeoffBonus = base × {perfect: 0.15, good: 0.05, early|late|skipped: 0}`;

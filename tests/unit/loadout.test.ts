@@ -47,6 +47,13 @@ describe('Loadout', () => {
       expect(st.magnet).toBe(true);
     });
 
+    it('maps the early-warning radar to earlyWarning', () => {
+      const s = tomcat();
+      expect(derivePlayerStats(s).earlyWarning).toBe(false);
+      s.equipment.radar = 1;
+      expect(derivePlayerStats(s).earlyWarning).toBe(true);
+    });
+
     it('ignores empty slots', () => {
       const s = tomcat();
       s.loadout.f14 = [null, 'mk82', null, null];

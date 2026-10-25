@@ -20,6 +20,8 @@ export interface PlayerStats {
   ecm: boolean;
   damageControl: boolean;
   magnet: boolean;
+  /** Early-Warning Radar fitted (doc 02/05). */
+  earlyWarning: boolean;
 }
 
 /** The single source of the player's combat stats for a mission. */
@@ -44,5 +46,6 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     ecm: eq.ecm > 0,
     damageControl: eq.damageControl > 0,
     magnet: eq.magnet > 0,
+    earlyWarning: eq.radar > 0,
   };
 }

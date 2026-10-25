@@ -36,7 +36,7 @@ export function defaultSave(): SaveData {
     gunLevel: 1,
     ownedSecondaries: [],
     loadout: { f16: emptyLoadout('f16'), f14: emptyLoadout('f14'), sr71: emptyLoadout('sr71') },
-    equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0 },
+    equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
   };
 }

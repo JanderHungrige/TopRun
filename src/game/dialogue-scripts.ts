@@ -90,19 +90,21 @@ export function chiefLine(ev: ChiefEvent, params?: Params): LineRef {
   return ref('chief', e.key, e.mood, e.gesture, params);
 }
 
-export type ShooterEvent = 'spool' | 'green' | 'overspeed' | 'launch' | 'edge' | 'perfect' | 'good' | 'early' | 'late' | 'ditched';
+export type ShooterEvent =
+  | 'spool' | 'green' | 'notYet' | 'overspeed' | 'locked' | 'waitForIt' | 'go' | 'launch' | 'perfect' | 'good' | 'late';
 
 export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   spool: { key: 'sh.spool', mood: 'neutral', gesture: 'point' },
-  green: { key: 'sh.green', mood: 'neutral', gesture: 'none' },
+  green: { key: 'sh.green', mood: 'happy', gesture: 'thumbsUp' },
+  notYet: { key: 'sh.notYet', mood: 'stern', gesture: 'none' },
   overspeed: { key: 'sh.overspeed', mood: 'worried', gesture: 'none' },
+  locked: { key: 'sh.locked', mood: 'neutral', gesture: 'salute' },
+  waitForIt: { key: 'sh.waitForIt', mood: 'stern', gesture: 'none' },
+  go: { key: 'sh.go', mood: 'happy', gesture: 'point' },
   launch: { key: 'sh.launch', mood: 'happy', gesture: 'point' },
-  edge: { key: 'sh.edge', mood: 'worried', gesture: 'none' },
   perfect: { key: 'sh.perfect', mood: 'happy', gesture: 'thumbsUp' },
   good: { key: 'sh.good', mood: 'happy', gesture: 'salute' },
-  early: { key: 'sh.early', mood: 'neutral', gesture: 'none' },
-  late: { key: 'sh.late', mood: 'worried', gesture: 'facepalm' },
-  ditched: { key: 'sh.ditched', mood: 'worried', gesture: 'facepalm' },
+  late: { key: 'sh.late', mood: 'neutral', gesture: 'none' },
 };
 
 export function shooterLine(ev: ShooterEvent): LineRef {

@@ -19,7 +19,7 @@ last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
-tags: [carrier, takeoff, catapult, side-view, timing, mini-game]
+tags: [carrier, takeoff, catapult, side-view, countdown, afterburner, mini-game]
 path: Game/Takeoff
 integration_contracts:
   - function: "TakeoffRating ('perfect'|'good'|'early'|'late'|'skipped')"
@@ -34,15 +34,18 @@ sister_projects: []
 
 ## Purpose
 
-Every mission starts on the deck of an aircraft carrier, seen **from the side**. The player
-spools the engines, gets shot off the catapult and must rotate (pull up) at the right moment.
-A good launch earns a cash bonus; a missed one ends in the sea and a retry.
+Every mission starts on the deck of an aircraft carrier, seen **from the side**. The launch is a
+short, readable ritual (simplified 2026-10-25 at the owner's request — the old rotation timing and
+ditching were "a bit complicated"): hold **Space** to spool the afterburner, press **E** to lock the
+throttle in the green, wait for the **3-second countdown**, press **E** again — the catapult fires and
+the jet lifts off by itself. Reacting fast after GO earns a cash bonus.
 
 ## Architecture
 
 ```
 game/takeoff-logic.ts  pure state machine: createTakeoff() / stepTakeoff(state, input, dt)
-scenes/takeoff.ts      drives the state machine, camera, particles, HUD prompts, audio
+scenes/takeoff.ts      drives the state machine, camera, particles, deck officer, audio
+scenes/takeoff-hud.ts  throttle gauge, countdown numbers, prompts, LOCK/LAUNCH touch button
 render/draw-carrier.ts sky, sun, clouds, sea with waves, carrier hull, island, deck crew, JBD, steam
 render/draw-planes-side.ts  side-view vector art: F-16, F-14, SR-71 (+ afterburner)
 ```
@@ -50,32 +53,37 @@ render/draw-planes-side.ts  side-view vector art: F-16, F-14, SR-71 (+ afterburn
 State machine:
 
 ```
-spool ──(needle in green ≥ 1.0 s)──▶ catapult ──(press ROTATE)──▶ climb ──▶ done(rating)
-                                       │
-                                       └─(deck end, no press)──▶ edge ──(press within 0.7 s)──▶ climb (late)
-                                                                   └──(no press)──▶ ditched ──(press)──▶ spool
-any state ──(SKIP key S)──▶ done('skipped')
+spool ──(E, needle in green)──▶ locked ──(3 s countdown)──▶ ready ──(E)──▶ catapult ──(1.4 s)──▶ climb ──(2.2 s)──▶ done(rating)
+  ▲  └─(E outside green: rejected low/high, stay in spool)
+any phase ──(S / SKIP)──▶ done('skipped')
 ```
 
 ## Data Model
 
 ```ts
 interface TakeoffState {
-  phase: 'spool' | 'catapult' | 'edge' | 'climb' | 'ditched' | 'done';
-  throttle: number;      // 0..1 actual needle incl. jitter
-  greenTime: number;     // seconds continuously in green zone
-  t: number;             // time in current phase
-  deckPos: number;       // 0..DECK_LENGTH px travelled along catapult
-  altitude: number;      // px above deck (negative = below deck level)
+  phase: 'spool' | 'locked' | 'ready' | 'catapult' | 'climb' | 'done';
+  throttle: number;        // 0..1 needle incl. jitter
+  rawThrottle: number;     // lever position
+  t: number;               // time in the current phase
+  clock: number;           // total time (needle jitter)
+  countdown: number;       // seconds left while locked (3 → 0)
+  deckPos: number;         // 0..DECK_LENGTH px travelled on the catapult
+  speed: number;
+  altitude: number;
+  climbRate: number;
   rating: TakeoffRating | null;
-  attempts: number;
+  overspeed: boolean;      // needle in the red
+  rejected: 'low' | 'high' | null;  // why the last lock attempt failed (cleared when locked)
+  earlyPresses: number;    // E presses during the countdown (feedback only, no penalty)
 }
 ```
 
-Constants: `GREEN = [0.86, 0.97]`, throttle up 0.55/s while held, down 0.45/s when released,
-needle jitter ±0.02 (deterministic sine noise), `DECK_LENGTH = 560`, catapult stroke 1.4 s with
-`deckPos = DECK_LENGTH × (t/1.4)²`, `PERFECT ≤ 50 px` remaining, `GOOD ≤ 150 px`, earlier = `early`,
-edge grace 0.7 s, climb 2.2 s.
+Constants: `GREEN = [0.80, 0.97)`, lever up 0.5/s while Space is held; when released it **stays put**,
+except in the red, where it bleeds back down at 0.25/s until it is safely inside the green (0.95, clear of the needle jitter)
+(playtest 2026-10-25: a drifting needle left the green before E could be pressed), needle jitter ±0.012, `COUNTDOWN = 3 s`, reaction `PERFECT ≤ 0.6 s`, `GOOD ≤ 1.5 s`,
+`DECK_LENGTH = 560`, catapult stroke 1.4 s (`deckPos = DECK_LENGTH × (t/1.4)²`), climb 2.2 s.
+`TakeoffRating` keeps the legacy value `early` for old saves/labels; it is no longer produced.
 
 ## API Endpoints
 
@@ -83,23 +91,26 @@ None.
 
 ## Business Rules
 
-- Input: THROTTLE = fire action held (Space / J / ↑ / touch hold / gamepad A).
-  ROTATE = a **fresh press** of the same action after the catapult fired (holding from spool
-  does not count). SKIP = `S` key or on-screen "SKIP" button → rating `skipped`, no bonus.
-  Esc leaves the deck and returns to the map (no penalty).
-- Spool: throttle in the red zone (≥ 0.97) shows "OVERSPEED — ease off" and resets the green
-  timer; the player has to feather the throttle to keep the needle in green for 1 s.
-- Rating by remaining deck distance at press: ≤ 50 px `perfect`, ≤ 150 px `good`, else `early`
-  (plane sags briefly, no bonus). After the deck end: altitude drops (gravity), a press within
-  0.7 s → `late` (dramatic recovery near the waves); otherwise → `ditched` (splash) and
-  "Press FIRE to retry" — attempts counter increments, no money penalty.
-- Bonus (applied in 02's payout): perfect +15 %, good +5 % of base reward.
-- Visuals: camera follows the plane horizontally; catapult steam; afterburner length tracks
-  throttle; deck crew "shooter" gives the launch signal; launch shakes the camera.
-- After `done` the scene fades to the mission (05) with the rating.
-- Plane art reflects the selected plane (F-16 / F-14 / SR-71).
-
-- **Talking character (06):** shooter (deck officer coaches the launch). All visible text goes through i18n (07).
+- **Inputs**: THROTTLE = fire action *held* (Space / J / ↑, gamepad A, touch: hold anywhere on the
+  sky/sea). LOCK/LAUNCH = **special** action *pressed* (E, gamepad Y, touch: the big LOCK / LAUNCH
+  button). SKIP = `S` or the SKIP button → `skipped`, no bonus. Esc leaves the deck for the map.
+- **Spool**: the lever rises while Space is held and stays where it is when released, so the player
+  can let go inside the green and press E calmly. Above 0.97 the needle is in the red (overspeed),
+  cannot be locked, and sinks back into the green on its own once Space is released.
+- **Lock**: E in the green → `locked`, the throttle freezes at its value, countdown starts at 3.
+  E below the green → rejected `low`; E in the red → rejected `high`; both stay in `spool`.
+- **Countdown**: 3 s, shown as big 3 · 2 · 1 with a beep per second; E during the countdown is
+  ignored (counted as `earlyPresses`, deck officer says "Wait for it!").
+- **Ready**: "GO!" — the next E launches. Rating by reaction time since GO:
+  ≤ 0.6 s `perfect` (+15 % in 02's payout), ≤ 1.5 s `good` (+5 %), later `late` (no bonus).
+  There is no time-out and no failure: the jet waits on the catapult.
+- **Catapult → climb**: automatic — the jet runs down the deck, gear retracts, nose rotates up and
+  it climbs away; the scene then fades to the mission (05) with the rating.
+- **Deck officer** (06) lines: spool · green (first time the needle enters the green) · notYet
+  (rejected low) · overspeed (rejected high / red) · locked (countdown) · waitForIt (early E) ·
+  go · launch · perfect / good / late.
+- Visuals: camera follows the plane horizontally; afterburner length tracks throttle; locked
+  throttle shows a padlock on the gauge; catapult steam and a camera shake on launch.
 
 ## Data Flow
 

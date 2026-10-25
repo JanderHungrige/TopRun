@@ -117,8 +117,8 @@ export const LINES_EN = {
     "Engines up, {callsign}! Show me full power, nice and steady.",
   ],
   'sh.green': [
-    "Hold it... hold it...",
-    "Steady... looking good...",
+    "That's it, right in the green! Lock it with E!",
+    "Green! Hit E to lock it in!",
   ],
   'sh.overspeed': [
     "Easy! You'll cook those engines!",
@@ -128,10 +128,6 @@ export const LINES_EN = {
     "Go, go, go!",
     "Launch!",
   ],
-  'sh.edge': [
-    "PULL UP! PULL UP!",
-    "Nose up, NOW!",
-  ],
   'sh.perfect': [
     "Textbook launch! Beautiful!",
     "Perfect shot! That's how it's done!",
@@ -140,17 +136,25 @@ export const LINES_EN = {
     "Good launch. Have a nice flight.",
     "Clean shot. You're airborne.",
   ],
-  'sh.early': [
-    "A bit early on the stick, but you're flying.",
-    "Rotated early. Smooth it out next time.",
-  ],
   'sh.late': [
-    "You kissed the waves! Don't do that to me again!",
-    "Whoa, that was close. My heart stopped.",
+    "A bit slow on the trigger, but you're flying.",
+    "Took your time, huh? You're airborne anyway.",
   ],
-  'sh.ditched': [
-    "Man overboard! Fish him out, we go again.",
-    "Into the drink... Shake it off, we try again.",
+  'sh.notYet': [
+    "Not yet! More throttle, get it into the green.",
+    "Too little! Push it up into the green.",
+  ],
+  'sh.locked': [
+    "Locked! Stand by... three, two, one...",
+    "Throttle locked. Hold tight... three, two, one...",
+  ],
+  'sh.waitForIt': [
+    "Wait for it!",
+    "Not yet, not yet!",
+  ],
+  'sh.go': [
+    "GO! Hit E!",
+    "Launch, launch, launch! Press E!",
   ],
   // Lt. "Duke" Carter — wingman on the radio
   'wing.startPatrol': [

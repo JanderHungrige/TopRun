@@ -20,6 +20,7 @@ source_files:
   - src/core/math.ts
   - src/core/rng.ts
   - src/core/audio.ts
+  - src/core/audio-mix.ts
   - src/core/music.ts
   - src/core/music-patterns.ts
   - src/core/audio-nodes.ts
@@ -46,12 +47,13 @@ test_files:
   - tests/unit/core.test.ts
   - tests/unit/save.test.ts
   - tests/unit/joystick.test.ts
+  - tests/unit/audio-mix.test.ts
 data_flow: greenfield
 last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
-tags: [canvas, game-loop, input, gamepad, joystick, hotas, flight-stick, touch, webaudio, save-game, scenes]
+tags: [canvas, game-loop, input, gamepad, joystick, hotas, flight-stick, touch, webaudio, sound-toggles, sfx-bass, save-game, scenes]
 path: Game/Engine
 integration_contracts:
   - function: "loadSave()/persistSave(save)"
@@ -62,7 +64,7 @@ satisfies_contracts: []
 known_issues:
   - "Joystick support verified with unit tests and a simulated controller (navigator.getGamepads stub) only; not yet tried with a physical flight stick / HOTAS"
   - "Phones held upright letterbox the 16:9 frame heavily; landscape is recommended (no portrait layout yet)"
-  - "Synthesized SFX/music mix has not been tuned by ear yet"
+  - "Synthesized SFX/music mix has not been tuned by ear yet — the 2026-10-25 bass pass was measured offline (OfflineAudioContext band energies and peaks), not listened to on real speakers"
   - "Docker image verified on 2026-10-25 with substitute base images (node:22-alpine, nginx:alpine) because Docker Desktop could not pull the pinned node:24.19.0-alpine / nginx-unprivileged:1.30.6-alpine locally; the first build on the server pulls the pinned images"
 security_read_sites:
   - src/game/save.ts (localStorage read → parseSave runtime validation)
@@ -71,6 +73,13 @@ sister_projects: []
 
 # 01 — Game Core
 
+> **Sound and music switches + more bass (2026-10-25, owner):** "Separate sound and music on/off in
+> the main menu. More bass to the sound effects." The title menu gets two independent toggles,
+> **SOUND** (effects) and **MUSIC**, replacing the single mute flag (`settings.sfxOn` / `settings.musicOn`,
+> migration below). Cannon, missile/rocket launches, explosions, hits and other impacts get a pitched-down
+> sine "thump" layer and run through a low-shelf impact bus; a soft safety ceiling after the master
+> compressor keeps big explosion stacks from clipping. See **Audio** under Business Rules.
+>
 > **Renamed back to TopGun (2026-10-25, owner):** a fun game for friends; the title, logo lettering,
 > page title and finale lines say TopGun again. The badge and music stay original designs. URL, repo,
 > container and save keys keep `toprun` so no pilot loses progress.
@@ -103,11 +112,13 @@ src/main.ts
   ├─ scenes/joystick-setup.ts JOYSTICK setup screen; render/joystick-panel.ts draws it
   ├─ core/loop.ts     fixed 60 Hz update with accumulator, render every rAF
   ├─ core/scene.ts    Scene interface + SceneManager (go(), fade in/out)
-  ├─ core/audio.ts    WebAudio SFX synthesized on the fly (no asset files)
+  ├─ core/audio.ts    WebAudio SFX synthesized on the fly (no asset files), bus graph
+  ├─ core/audio-mix.ts bus gains from the settings, impact shelf, master limiter + ceiling curve (pure)
+  ├─ core/sfx-recipes.ts layer table per SFX (tones, filtered noise, bass thumps)
   ├─ core/music.ts    procedural synth-rock loop per mood (menu / mission / boss)
   ├─ game/save.ts     SaveData type, defaults, parseSave (runtime validation), persist
   ├─ game/state.ts    GameContext passed to scenes: save, input, audio, manager
-  └─ scenes/title.ts  title screen: New Game / Continue / Controls / Sound
+  └─ scenes/title.ts  title screen: Continue / New Pilot / Controls / Joystick / Sound / Music / Autofire / Language
 ```
 
 Logical resolution is **1280×720**. All game code draws in logical units;
@@ -201,15 +212,55 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     without a saved profile and without the standard mapping takes the first values it reports
     (the stick at rest when it wakes up) as the centre of axes 0/1. Saved profiles may carry
     `center` (−1…1) and `span` (0.2…2) per axis; missing = 0 / 1 (old profiles keep working).
-- **Audio** starts only after the first user gesture (browser autoplay policy). Mute state and
-  volumes persist in `settings`.
+- **Audio** starts only after the first user gesture (browser autoplay policy). Volumes and the two
+  switches persist in the device settings (doc 08) and apply live through `setSettings()` — no reload.
+  - **Switches** (2026-10-25): `sfxOn` (title **SOUND: ON/OFF**, de **TON: AN/AUS**) and `musicOn`
+    (title **MUSIC: ON/OFF**, de **MUSIK: AN/AUS**), both default on. They replace the old single
+    `muted` flag. **Migration** in `parseSettings`: a stored boolean `sfxOn` / `musicOn` wins; a missing
+    or non-boolean one falls back to the legacy flag — `muted: true` → that switch off, anything else
+    (absent, `false`, garbage) → on. `muted` is never written again.
+  - **M key** (`mute` action, CONTROLS sheet "Mute"): `toggleAllSound()` — if either switch is on, both
+    go off; if both are off, both go on. The title menu rebuilds its labels whenever the settings
+    change, so pressing M there updates SOUND / MUSIC at once.
+  - **Buses**: `busGains(levels)` → sfx bus = `sfxOn ? sfx × 0.8 : 0`, music bus =
+    `musicOn ? music × 0.42 : 0` (non-finite volume → 0, clamped 0–1). The gains glide (time constant
+    40 ms) so switching never clicks. Sound off: `play()` drops new effects and the jet loop (sfx bus)
+    falls silent. Music off: only the music bus goes to 0; the music scheduler keeps its place in the
+    song but stops creating notes while off, so switching back on resumes the current song at the
+    current bar (no burst, no restart). The Piano Bar deck (doc 23) also plays on the music bus, so
+    MUSIC OFF silences that whole deck (band, piano, crowd); only its `audio.play()` effects remain.
+  - **Impact bass**: heavy effects (`gun, missile, rocket, bombDrop, explosionSmall, explosionLarge,
+    explosionHuge, hit, playerHit, catapult, special, splash, enemyMissile`) play into an **impact bus**
+    — a low shelf (+4 dB below ~160 Hz) feeding the sfx bus. Their recipes add a sine **thump** layer:
+    the pitch drops exponentially from ~110–240 Hz to ~36–80 Hz within 20–180 ms (`sw`, sweep time), then
+    the tail decays; the big blasts' pitch floors moved up from 20–28 Hz (inaudible, only eating
+    headroom) to 32–45 Hz. Thumps (from → to Hz, sweep s, decay s, level): gun 240→70/0.03/0.06/0.26 ·
+    hit 200→80/0.02/0.035/0.16 · rocket 170→65/0.04/0.07/0.22 · bombDrop 160→70/0.03/0.06/0.2 ·
+    missile 150→55/0.1/0.3/0.26 (+ low-pass noise body 500→140 Hz, 0.16) · enemyMissile 120→55/0.08/0.2/0.09 ·
+    explosionSmall 120→52/0.07/0.26/0.42 · explosionLarge 150→45/0.1/0.55/0.7 (+ triangle 100→48 and a
+    300→80 Hz noise rumble) · explosionHuge 130→36/0.18/1.2/0.9 and 110→40 at +0.35 s · playerHit
+    150→50/0.06/0.22/0.45 · catapult 130→42 launch and 140→55 shuttle clank · special 140→45 · splash 220→60.
+    Measured offline (pitch 1, incl. shelf) vs. before: 100–300 Hz energy gun +30 dB, hit +35, missile +15,
+    rocket +10, explosionSmall +4, explosionLarge +3, explosionHuge +4, playerHit +7; total energy rises
+    0.4–10 dB, almost all of it below 300 Hz. UI sounds (`uiMove, uiSelect, uiBack, pickup, cash, powerup, buy, radioClick`)
+    stay on the plain sfx bus and have no layer below 200 Hz (the lowest is `powerup`'s 200 → 1600 Hz
+    riser; clicks start at 440 Hz) — no boomy clicks.
+  - **Master chain**: both buses → master → compressor (threshold −8 dB, knee 6, ratio 12, attack 3 ms,
+    release 250 ms) → safety **ceiling** (wave shaper, 2× oversampled): transparent up to ±0.8, above it
+    a tanh knee that approaches ±1 for inputs up to 2× full scale, so stacked explosions saturate softly
+    instead of hard-clipping. Worst-case check (3 s: gun stream, 14 small + 4 large + 2 huge explosions,
+    40 hits, 2 missiles, player hit, special, loud music bed, full volume): compressor alone peaks at 1.03
+    (clips); with the ceiling the output peaks at 0.98 and spends ~10 ms above 0.8.
 - **Save**: every read from localStorage passes through `parseSave(raw: unknown)`, which never
   trusts the JSON shape. Corrupt / unparseable data → defaults + console warning, never a crash.
   `persistSave` swallows quota/privacy-mode errors (game keeps running with in-memory state).
 - **Scene transitions** fade to black over 0.25 s, swap scene, fade in; input pressed-state is
   cleared on swap so a key press can't leak into the next scene.
 - **Pause**: losing window focus or tab visibility pauses gameplay scenes.
-- Title menu: CONTINUE (→ pilot list) · NEW PILOT · CONTROLS · JOYSTICK · SOUND · AUTOFIRE · LANGUAGE (07, 08).
+- Title menu: CONTINUE (→ pilot list) · NEW PILOT · CONTROLS · JOYSTICK · SOUND · MUSIC · AUTOFIRE · LANGUAGE (07, 08).
+  The column is bottom-anchored at y 686 (above the hint line) and never starts above y 332 (below the
+  tagline): row pitch = `min(46, floor(360 / n))`, button height = pitch − 6 — 7 items keep the 46 px rows,
+  8 → 45 px, 9 (with a future LADDER item) → 40 px rows with 34 px buttons.
   The CONTROLS sheet gets a joystick line (stick moves, trigger fires, set buttons under JOYSTICK).
 - Title screen: "Continue" only shown when a save with progress or purchases exists; "New Game"
   with an existing save asks for confirmation before overwriting.

@@ -115,7 +115,10 @@ describe('Pilot profiles', () => {
       expect(s?.profiles).toHaveLength(1);
       expect(s?.profiles[0]).toMatchObject({ callsign: 'PILOT', avatar: 'pilot1', playedAt: 7 });
       expect(s?.profiles[0]?.save.money).toBe(54321);
-      expect(s?.settings).toEqual({ music: 0.2, sfx: 0.3, autofire: true, muted: true, lang: 'de', joystick: null, minigameOffers: true });
+      // the legacy single mute flag becomes both switches off (doc 01 Audio)
+      expect(s?.settings).toEqual({
+        music: 0.2, sfx: 0.3, autofire: true, sfxOn: false, musicOn: false, lang: 'de', joystick: null, minigameOffers: true,
+      });
       expect(migrateLegacy({ version: 3 }, 7)).toBeNull();
     });
   });

@@ -1,23 +1,53 @@
 import { clamp, filterNode, gainNode, noiseNode, oscNode, panTo, whiteNoise } from './audio-nodes';
-import { GAP, renderSfx, SPAM } from './sfx-recipes';
+import { busGains, CEILING_RANGE, ceilingCurve, IMPACT_SHELF, LIMITER } from './audio-mix';
+import type { BusGains, Levels } from './audio-mix';
+import { GAP, HEAVY, renderSfx, SPAM } from './sfx-recipes';
 import type { SfxName, SfxOptions } from './sfx-recipes';
 
+export type { Levels } from './audio-mix';
 export type { SfxName, SfxOptions } from './sfx-recipes';
 
 const MAX_VOICES = 24;
-const MUSIC_TRIM = 0.42;
-const SFX_TRIM = 0.8;
-const LIMITER = { threshold: -8, knee: 6, ratio: 12, attack: 0.003, release: 0.25 };
+/** Bus gain glide time constant: switching a bus on/off never clicks. */
+const GLIDE = 0.04;
 
 function audioCtor(): typeof AudioContext | undefined {
   const g = globalThis as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext };
   return g.AudioContext ?? g.webkitAudioContext;
 }
 
-interface Graph { master: GainNode; sfx: GainNode; music: GainNode; noise: AudioBuffer }
+/** `impact` is the low-shelf bus heavy effects play into; it feeds `sfx`. */
+interface Graph { sfx: GainNode; impact: AudioNode; music: GainNode; noise: AudioBuffer }
 interface Voice { end: number; out: GainNode }
 type JetParam = 'gain' | 'cutoff' | 'roar' | 'rumble' | 'whine' | 'whineGain';
 type Jet = Record<JetParam, AudioParam>;
+
+/** Master → compressor → safety ceiling → speakers; returns the master input. */
+function masterChain(ctx: BaseAudioContext): GainNode {
+  const master = gainNode(ctx, 1);
+  const limiter = ctx.createDynamicsCompressor();
+  for (const k of Object.keys(LIMITER) as (keyof typeof LIMITER)[]) limiter[k].value = LIMITER[k];
+  const ceiling = ctx.createWaveShaper();
+  ceiling.curve = ceilingCurve();
+  ceiling.oversample = '2x';
+  master.connect(limiter).connect(gainNode(ctx, 1 / CEILING_RANGE)).connect(ceiling).connect(ctx.destination);
+  return master;
+}
+
+/** Builds the bus graph (exported for offline measurement in dev tools). */
+export function buildGraph(ctx: BaseAudioContext, gains: BusGains): Graph {
+  const master = masterChain(ctx);
+  const sfx = gainNode(ctx, gains.sfx);
+  const music = gainNode(ctx, gains.music);
+  const impact = filterNode(ctx, 'lowshelf', IMPACT_SHELF.frequency, 0);
+  impact.gain.value = IMPACT_SHELF.gain;
+  impact.connect(sfx);
+  sfx.connect(master);
+  music.connect(master);
+  return { sfx, impact, music, noise: whiteNoise(ctx) };
+}
+
+const levelsOf = (l: Levels): Levels => ({ music: l.music, sfx: l.sfx, musicOn: l.musicOn, sfxOn: l.sfxOn });
 
 export class AudioEngine {
   private ctx: AudioContext | null = null;
@@ -26,11 +56,10 @@ export class AudioEngine {
   private jetLevel = 0;
   private voices: Voice[] = [];
   private last = new Map<SfxName, number>();
-  private vol: { music: number; sfx: number };
-  private isMuted = false;
+  private levels: Levels;
 
-  constructor(volumes: { music: number; sfx: number }) {
-    this.vol = { music: clamp(volumes.music, 0, 1), sfx: clamp(volumes.sfx, 0, 1) };
+  constructor(levels: Levels) {
+    this.levels = levelsOf(levels);
   }
 
   unlock(): void {
@@ -46,31 +75,33 @@ export class AudioEngine {
   get ready(): boolean { return this.ctx !== null && this.ctx.state === 'running'; }
   get context(): AudioContext | null { return this.ctx; }
   get musicOut(): GainNode | null { return this.graph ? this.graph.music : null; }
-  get muted(): boolean { return this.isMuted; }
+  /** Title MUSIC switch: the music scheduler skips notes while it is off. */
+  get musicOn(): boolean { return this.levels.musicOn; }
+  get sfxOn(): boolean { return this.levels.sfxOn; }
 
   play(name: SfxName, opts: SfxOptions = {}): void {
     const { ctx, graph } = this;
-    if (!ctx || !graph || ctx.state !== 'running' || this.isMuted) return;
+    if (!ctx || !graph || ctx.state !== 'running' || !this.levels.sfxOn) return;
     const now = ctx.currentTime;
     const spam = SPAM[name];
     if (now - (this.last.get(name) ?? -1) < (spam ?? GAP[name] ?? 0.02)) return;
     if (!this.claimVoice(now, spam !== undefined)) return;
     this.last.set(name, now);
     const out = gainNode(ctx, clamp(opts.volume ?? 1, 0, 2));
-    out.connect(panTo(ctx, graph.sfx, opts.pan ?? 0));
+    out.connect(panTo(ctx, HEAVY.has(name) ? graph.impact : graph.sfx, opts.pan ?? 0));
     const pitch = clamp(opts.pitch ?? 1, 0.1, 4) * (spam !== undefined ? 0.97 + Math.random() * 0.06 : 1);
     const end = renderSfx(name, { ctx, noise: graph.noise, out, now, pitch });
     this.voices.push({ end, out });
   }
 
-  setVolumes(music: number, sfx: number): void {
-    this.vol = { music: clamp(music, 0, 1), sfx: clamp(sfx, 0, 1) };
-    this.applyLevels();
-  }
-
-  setMuted(muted: boolean): void {
-    this.isMuted = muted;
-    this.applyLevels();
+  /** Applies volumes and the SOUND / MUSIC switches live (gains glide, nothing restarts). */
+  setLevels(levels: Levels): void {
+    this.levels = levelsOf(levels);
+    const { ctx, graph } = this;
+    if (!ctx || !graph) return;
+    const g = busGains(this.levels);
+    graph.sfx.gain.setTargetAtTime(g.sfx, ctx.currentTime, GLIDE);
+    graph.music.gain.setTargetAtTime(g.music, ctx.currentTime, GLIDE);
   }
 
   setJet(level: number): void {
@@ -92,25 +123,8 @@ export class AudioEngine {
     const Ctor = audioCtor();
     if (!Ctor) return;
     const ctx = new Ctor();
-    const master = gainNode(ctx, this.isMuted ? 0 : 1);
-    const limiter = ctx.createDynamicsCompressor();
-    for (const k of Object.keys(LIMITER) as (keyof typeof LIMITER)[]) limiter[k].value = LIMITER[k];
-    master.connect(limiter).connect(ctx.destination);
-    const sfx = gainNode(ctx, this.vol.sfx * SFX_TRIM);
-    const music = gainNode(ctx, this.vol.music * MUSIC_TRIM);
-    sfx.connect(master);
-    music.connect(master);
+    this.graph = buildGraph(ctx, busGains(this.levels));
     this.ctx = ctx;
-    this.graph = { master, sfx, music, noise: whiteNoise(ctx) };
-  }
-
-  private applyLevels(): void {
-    const { ctx, graph } = this;
-    if (!ctx || !graph) return;
-    const t = ctx.currentTime;
-    graph.master.gain.setTargetAtTime(this.isMuted ? 0 : 1, t, 0.04);
-    graph.sfx.gain.setTargetAtTime(this.vol.sfx * SFX_TRIM, t, 0.04);
-    graph.music.gain.setTargetAtTime(this.vol.music * MUSIC_TRIM, t, 0.04);
   }
 
   /** Drops finished voices; at the cap, spam is refused and anything else steals the oldest voice. */

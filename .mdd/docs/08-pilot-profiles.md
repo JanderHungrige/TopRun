@@ -22,6 +22,7 @@ models:
   - localStorage:topgun.save.v1 (legacy, read once for migration)
 test_files:
   - tests/unit/profiles.test.ts
+  - tests/unit/settings.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-25
 status: complete
@@ -33,7 +34,7 @@ integration_contracts:
   - function: "GameContext.save / setSave(save)"
     when: "always the ACTIVE pilot's progress; scenes keep using it unchanged"
   - function: "GameContext.settings / setSettings(settings)"
-    when: "device-wide settings (music, sfx, muted, autofire, lang, joystick) — not per pilot"
+    when: "device-wide settings (music, sfx, sfxOn, musicOn, autofire, lang, joystick, minigameOffers) — not per pilot"
 satisfies_contracts:
   - from: 01-game-core
     function: "persistSave(save)"
@@ -80,8 +81,9 @@ render/avatars/        drawAvatar(ctx, id, box, { t, mouth, mood })
 ```ts
 interface ProfileStore {
   version: 1;
-  settings: Settings;            // { music, sfx, autofire, muted, lang, joystick } — device-wide
-                                 // joystick: JoyProfile | null (doc 01)
+  settings: Settings;            // { music, sfx, autofire, sfxOn, musicOn, lang, joystick, minigameOffers }
+                                 // — device-wide; joystick: JoyProfile | null (doc 01)
+                                 // sfxOn/musicOn replaced `muted` (2026-10-25): legacy muted: true → both off
   activeId: string | null;
   profiles: Profile[];           // max 6
 }
@@ -118,8 +120,8 @@ None.
 - **Validation**: `parseStore(raw: unknown)` validates every profile through `parseSave` (01),
   drops malformed profiles, unknown avatars → `pilot1`, duplicate ids/callsigns → first wins,
   dangling `activeId` → null. Corrupt JSON → empty store, never a crash.
-- **Title menu**: CONTINUE (only if profiles exist) → pilot list · NEW PILOT · CONTROLS · SOUND ·
-  AUTOFIRE · LANGUAGE. The old "NEW GAME / start over" confirm is gone — deleting a pilot replaces it.
+- **Title menu**: CONTINUE (only if profiles exist) → pilot list · NEW PILOT · CONTROLS · JOYSTICK ·
+  SOUND · MUSIC · AUTOFIRE · LANGUAGE (SOUND and MUSIC are independent switches, doc 01 Audio). The old "NEW GAME / start over" confirm is gone — deleting a pilot replaces it.
 - **Callsign in dialogue** (06): every spoken line may use `{callsign}`; SpeechBox injects it.
 - The map top bar shows the active pilot's avatar and callsign; the mission HUD shows the callsign.
 

@@ -12,7 +12,7 @@ import {
 import type { Submission } from './game/ladder';
 import { withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
-import type { Settings } from './game/settings';
+import { toggleAllSound, type Settings } from './game/settings';
 import type { GameContext, Route } from './game/state';
 import { setLang } from './i18n/i18n';
 import { DebriefScene } from './scenes/debrief';
@@ -43,8 +43,7 @@ class Game implements GameContext {
 
   constructor(readonly input: Input, private readonly scenes: SceneManager, readonly dom: { host: HTMLElement; viewport: () => Viewport }) {
     const st = this.store.settings;
-    this.audio = new AudioEngine({ music: st.music, sfx: st.sfx });
-    this.audio.setMuted(st.muted);
+    this.audio = new AudioEngine(st);
     setLang(st.lang);
     input.joystick = st.joystick;
     this.music = new Music(this.audio);
@@ -90,8 +89,7 @@ class Game implements GameContext {
   }
 
   setSettings(next: Settings): void {
-    this.audio.setMuted(next.muted);
-    this.audio.setVolumes(next.music, next.sfx);
+    this.audio.setLevels(next);
     setLang(next.lang);
     this.input.joystick = next.joystick;
     this.commit(updateSettings(this.store, next));
@@ -116,7 +114,7 @@ class Game implements GameContext {
   }
 
   toggleMute(): void {
-    this.setSettings({ ...this.settings, muted: !this.settings.muted });
+    this.setSettings(toggleAllSound(this.settings));
   }
 }
 

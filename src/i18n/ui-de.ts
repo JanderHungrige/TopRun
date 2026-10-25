@@ -13,6 +13,8 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'title.joystick': 'JOYSTICK',
   'title.soundOn': 'TON: AN',
   'title.soundOff': 'TON: AUS',
+  'title.musicOn': 'MUSIK: AN',
+  'title.musicOff': 'MUSIK: AUS',
   'title.autofireOn': 'DAUERFEUER: AN',
   'title.autofireOff': 'DAUERFEUER: AUS',
   'title.language': 'SPRACHE: DEUTSCH',

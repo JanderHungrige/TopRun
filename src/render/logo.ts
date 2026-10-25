@@ -2,7 +2,7 @@ import { TAU } from '../core/math';
 import { FONT_DISPLAY } from './text';
 
 /**
- * The TopRun badge: an original emblem in the 80s naval-aviation style — gold wings,
+ * The TopGun badge: an original emblem in the 80s naval-aviation style — gold wings,
  * a star roundel, chrome italic lettering and a red "CARRIER STRIKE" ribbon.
  * (Deliberately not the film's logo, which is a third-party trademark.)
  */
@@ -91,12 +91,12 @@ function drawWordmark(ctx: CanvasRenderingContext2D, cx: number, y: number, t: n
   ctx.lineJoin = 'round';
   ctx.lineWidth = 14;
   ctx.strokeStyle = '#0d1a33';
-  ctx.strokeText('TOPRUN', cx, y);
+  ctx.strokeText('TOPGUN', cx, y);
   ctx.lineWidth = 5;
   ctx.strokeStyle = '#c8202f';
-  ctx.strokeText('TOPRUN', cx, y);
+  ctx.strokeText('TOPGUN', cx, y);
   ctx.fillStyle = g;
-  ctx.fillText('TOPRUN', cx, y);
+  ctx.fillText('TOPGUN', cx, y);
   // A glint sweeping across the chrome.
   const shine = cx - 520 + (((t * 0.35) % 1.6) / 1.6) * 1040;
   const glint = ctx.createLinearGradient(shine - 60, 0, shine + 60, 0);
@@ -104,7 +104,7 @@ function drawWordmark(ctx: CanvasRenderingContext2D, cx: number, y: number, t: n
   glint.addColorStop(0.5, 'rgba(255,255,255,0.6)');
   glint.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = glint;
-  ctx.fillText('TOPRUN', cx, y);
+  ctx.fillText('TOPGUN', cx, y);
   ctx.restore();
 }
 

@@ -221,7 +221,7 @@ export const UI_EN = {
   'debrief.account': 'Account: {money}',
   'debrief.starRules': '★ complete   ★ hull ≥ 70%   ★ 80% of contacts destroyed',
   'debrief.newBest': 'NEW BEST',
-  'debrief.finale': '🎖  CAMPAIGN COMPLETE — YOU ARE TOPRUN  🎖',
+  'debrief.finale': '🎖  CAMPAIGN COMPLETE — YOU ARE TOPGUN  🎖',
   'debrief.continue': 'CONTINUE',
   'debrief.flyAgain': 'FLY AGAIN',
   'debrief.hangar': 'HANGAR',

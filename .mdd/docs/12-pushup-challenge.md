@@ -30,7 +30,7 @@ tags: [minigames, off-duty, pushups, rhythm, stamina, rival, wingman]
 path: Game/Minigames/Pushups
 initiative: off-duty-minigames
 wave: off-duty-minigames-wave-1
-wave_status: active
+wave_status: complete
 integration_contracts:
   - function: "MinigameModule (src/scenes/minigames/contract.ts)"
     when: "PUSHUPS is listed in PLAYABLE; the shell runs rules → 3-2-1 → round → result and saves the best"

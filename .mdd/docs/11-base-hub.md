@@ -21,7 +21,7 @@ tags: [minigames, base, hub, rec-room, offers, wingman]
 path: Game/Minigames/Hub
 initiative: off-duty-minigames
 wave: off-duty-minigames-wave-1
-wave_status: active
+wave_status: complete
 integration_contracts: []
 satisfies_contracts: []
 known_issues: []

@@ -3,11 +3,11 @@ id: off-duty-minigames-wave-1
 title: "Wave 1: Framework, BASE hub, first two games"
 initiative: off-duty-minigames
 initiative_version: 1
-status: active
+status: complete
 depends_on: none
 demo_state: "From the map open BASE, play Push-ups and Tower Flyby with medals and personal bests; after mission 1 the debrief offers Push-ups."
 created: 2026-10-25
-hash: 3c45df6c
+hash: 10456e0f
 ---
 
 # Wave 1: Framework, BASE hub, first two games

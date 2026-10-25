@@ -27,7 +27,7 @@ tags: [minigames, off-duty, tower-flyby, flying, afterburner, scoring, medals]
 path: Game/Minigames/TowerFlyby
 initiative: off-duty-minigames
 wave: off-duty-minigames-wave-1
-wave_status: active
+wave_status: complete
 integration_contracts:
   - function: "MinigameModule (src/scenes/minigames/contract.ts)"
     when: "FLYBY is listed in PLAYABLE; the shell runs rules, 3-2-1, pause, result and saving"

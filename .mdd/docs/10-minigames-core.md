@@ -28,7 +28,7 @@ tags: [minigames, off-duty, unlocks, personal-best, medals, game-shell]
 path: Game/Minigames/Core
 initiative: off-duty-minigames
 wave: off-duty-minigames-wave-1
-wave_status: active
+wave_status: complete
 integration_contracts:
   - function: "MinigameModule (src/scenes/minigames/contract.ts)"
     when: "every minigame exports one module and is listed in registry.ts; the shell does rules, countdown, pause, result, saving"

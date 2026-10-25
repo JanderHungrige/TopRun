@@ -74,8 +74,11 @@ function sidePoints(p: SidePose): Vec[] {
   return [p.hip, p.shoulder, ...limbs];
 }
 
-/** Draws a side-view person in the current transform (pixel art, cached per frame). */
-export function drawSideFigure(ctx: CanvasRenderingContext2D, look: PersonLook, pose: SidePose, face: FaceState): void {
+/** Draws a side-view person in the current transform (pixel art, cached per frame). `opts` sets the art grid like
+ *  `drawFrontFigure`'s (e.g. `{ units: 3 / scale }` keeps a scaled figure on a 3-unit pixel grid, doc 30). */
+export function drawSideFigure(
+  ctx: CanvasRenderingContext2D, look: PersonLook, pose: SidePose, face: FaceState, opts?: PixelOpts,
+): void {
   const p = sideFrame(pose);
   const f = faceFrame(face, look, true);
   const pts = sidePoints(p);
@@ -83,5 +86,5 @@ export function drawSideFigure(ctx: CanvasRenderingContext2D, look: PersonLook, 
   const y0 = Math.min(...pts.map((v) => v.y)) - 80;
   const bounds = { x: x0, y: y0, w: Math.max(...pts.map((v) => v.x)) + 80 - x0, h: Math.max(...pts.map((v) => v.y)) + 80 - y0 };
   const key = `S|${idOf(look)}|${pts.map((v) => `${v.x},${v.y}`).join(';')}|${p.head}|${[p.near, p.far].map((s) => `${s.arm.hand},${s.leg.foot},${s.leg.toe}`).join(';')}|${faceKey(f)}`;
-  drawPixelated(ctx, key, bounds, (g) => drawSideVector(g, look, p, f));
+  drawPixelated(ctx, key, bounds, (g) => drawSideVector(g, look, p, f), opts);
 }

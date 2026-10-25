@@ -1,3 +1,4 @@
+import { UI_EN_HANGAR } from './ui-en-hangar';
 import { UI_EN_ROOMS } from './ui-en-rooms';
 import { UI_EN_LADDER } from './ui-en-ladder';
 import { UI_EN_HONOURS } from './ui-en-honours';
@@ -286,6 +287,7 @@ export const UI_EN = {
   ...UI_EN_LADDER,
   ...UI_EN_ROOMS,
   ...UI_EN_HONOURS,
+  ...UI_EN_HANGAR,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

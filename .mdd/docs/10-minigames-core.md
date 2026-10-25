@@ -61,7 +61,8 @@ scenes/minigames/shell.ts      MinigameScene: rules → 3-2-1 → play → (paus
 scenes/minigames/shell-render  rules card, top bar, pause overlay, result card
 ```
 
-Routes: `{ to: 'minigame', id, from: 'base' | 'offer' }` (leaving goes back to the hub or the map).
+Routes: `{ to: 'minigame', id, from: 'recRoom' | 'offer' }` (leaving goes back to the rec room — the hub, doc 11 —
+or the map; `'recRoom'` replaced `'base'` when BASE became the hangar, doc 30).
 
 ### Game contract
 

@@ -3,7 +3,7 @@ id: home-base-honours
 title: Home Base Honours
 status: active
 version: 1
-hash: af9380cc
+hash: 85bba9ce
 created: 2026-10-25
 ---
 
@@ -31,4 +31,4 @@ no real decorations' names or designs).
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/home-base-honours-wave-1.md | Clearing the Pacific boss shows a ceremony where the admiral pins the Pacific Campaign Ribbon; minigame golds and feats award medals too. | complete |
-| Wave 2 | waves/home-base-honours-wave-2.md | BASE is an animated pixel-art aircraft hangar with areas — Fun Missions (minigames), Ladder board, Locker, Picture Wall; the locker shows the dress whites with earned medals and rank, the wall a photo per cleared mission, the ladder board every pilot by name with your own row always highlighted. | planned |
+| Wave 2 | waves/home-base-honours-wave-2.md | BASE is an animated pixel-art aircraft hangar with areas — Fun Missions (minigames), Ladder board, Locker, Picture Wall; the locker shows the dress whites with earned medals and rank, the wall a photo per cleared mission, the ladder board every pilot by name with your own row always highlighted. | in_progress |

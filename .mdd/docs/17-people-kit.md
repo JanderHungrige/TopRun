@@ -3,7 +3,7 @@ id: 17-people-kit
 title: People Kit - Reusable Semi-Realistic Human Figures for Sports Minigames
 edition: TopRun
 depends_on: []
-relates: [12-pushup-challenge, 25-medal-ceremony]
+relates: [12-pushup-challenge, 25-medal-ceremony, 30-hangar-base]
 source_files:
   - src/render/people/uniform.ts
   - src/render/people/index.ts
@@ -54,6 +54,10 @@ sister_projects: []
 > cache key). `drawFrontFigure(…, extras?, opts?: PixelOpts)` passes the art grid to the pixel capture — e.g.
 > `{ units: 3 / scale }` keeps a scaled-down figure on the same pixel size as full-size ones.
 > `frontChestPoint(turn, x, y)` maps a torso-front point to floor coordinates (for medals on the chest).
+
+> **Side-view pixel grid (2026-10-25, doc 30), additive:** `drawSideFigure(…, face, opts?: PixelOpts)` takes the
+> same optional art-grid options as `drawFrontFigure`, so the hangar base's walking pilot (scale 0.5,
+> `{ units: 3 / scale }`) sits on the scene's 3-unit pixel grid.
 
 ## Purpose
 

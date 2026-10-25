@@ -22,6 +22,7 @@ import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
 import { BaseHubScene } from './scenes/base-hub';
 import { CeremonyScene } from './scenes/ceremony';
+import { HangarBaseScene } from './scenes/hangar-base';
 import { JoystickSetupScene } from './scenes/joystick-setup';
 import { LadderScene } from './scenes/ladder';
 import { LockerScene } from './scenes/locker';
@@ -129,7 +130,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'ladder': return new LadderScene(game);
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
-    case 'base': return new BaseHubScene(game);
+    case 'base': return new HangarBaseScene(game);
     case 'recRoom': return new BaseHubScene(game);
     case 'locker': return new LockerScene(game);
     case 'photoWall': return new PhotoWallScene(game);

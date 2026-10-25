@@ -1,7 +1,7 @@
 ---
 generated: 2026-10-25
-doc_count: 23
-connection_count: 22
+doc_count: 24
+connection_count: 23
 overlap_count: 0
 ---
 
@@ -16,6 +16,7 @@ Game
 ├── Engine       01-game-core           complete
 ├── Hangar       02-hangar-economy      complete
 ├── Honours
+│   ├── Base      30-hangar-base         complete
 │   ├── Medals    24-medals-core         complete
 │   └── Ceremony  25-medal-ceremony      complete
 ├── Ladder
@@ -79,6 +80,7 @@ graph TD
   rating[26-pilot-rating]:::complete
   ladder[27-online-ladder]:::complete
   ladderui[28-ladder-screen]:::complete
+  hbase[30-hangar-base]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -139,6 +141,12 @@ graph TD
   moto --> people
   piano --> mgcore
   piano --> people
+  hbase --> hub
+  hbase --> retro
+  hbase --> people
+  hbase --> paint
+  hbase --> chars
+  hbase --> i18n
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

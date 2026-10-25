@@ -27,6 +27,8 @@ export interface DebriefInput {
   /** Already formatted, e.g. "$1,800". */
   totalText: string;
   campaignDone: boolean;
+  /** Paint jobs this mission unlocked (doc 09), names already in the player's language. */
+  liveries?: ReadonlyArray<{ name: string; rare: boolean }>;
 }
 
 function opening(r: MissionResult, stars: number): LineRef {
@@ -56,6 +58,9 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   lines.push(r.success
     ? ref('admiral', 'adm.pay', 'happy', 'none', { total: d.totalText })
     : ref('admiral', 'adm.salvage', 'neutral', 'none', { total: d.totalText }));
+  for (const l of d.liveries ?? []) {
+    lines.push(ref('admiral', l.rare ? 'adm.liveryRare' : 'adm.livery', 'happy', l.rare ? 'thumbsUp' : 'point', { livery: l.name }));
+  }
   if (r.success && d.campaignDone && m.number === MISSIONS.length) {
     lines.push(ref('admiral', 'adm.finale', 'happy', 'salute'));
   } else if (r.success && m.objective.type === 'boss') {
@@ -67,7 +72,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
 
 export type ChiefEvent =
   | 'hello' | 'helloRich' | 'helloBroke' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
-  | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle';
+  | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   hello: { key: 'chief.hello', mood: 'neutral', gesture: 'none' },
@@ -83,6 +88,7 @@ export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Moo
   denied: { key: 'chief.denied', mood: 'stern', gesture: 'point' },
   restricted: { key: 'chief.restricted', mood: 'stern', gesture: 'point' },
   idle: { key: 'chief.idle', mood: 'neutral', gesture: 'none' },
+  painted: { key: 'chief.painted', mood: 'happy', gesture: 'thumbsUp' },
 };
 
 export function chiefLine(ev: ChiefEvent, params?: Params): LineRef {

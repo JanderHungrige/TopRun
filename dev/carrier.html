@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><title>TopRun carrier preview</title>
+  <style>
+    body{margin:0;background:#05080c;color:#cfd8e3;font:12px system-ui,sans-serif;overflow-x:hidden}
+    nav{display:flex;gap:10px;padding:6px 10px;flex-wrap:wrap}
+    nav a{color:#9fd0ff}
+    canvas{display:block}
+  </style></head>
+  <body>
+    <nav>
+      <a href="?">grid</a><a href="?view=start">start (JBD down)</a><a href="?view=up">start (JBD up)</a>
+      <a href="?view=launch">launch</a><a href="?view=bow">bow</a><a href="?view=aft">aft deck</a><a href="?view=stern">stern</a>
+      <a href="?view=pan">pan</a><a href="?view=up&amp;zoom=3&amp;x=0&amp;y=190">zoom island</a>
+      <a href="?view=up&amp;zoom=4&amp;x=340&amp;y=360">zoom JBD</a><a href="?view=up&amp;zoom=3&amp;x=800&amp;y=400">zoom bow</a>
+      <a href="?view=up&amp;theater=leviathan">storm</a><a href="?view=up&amp;theater=gulf">gulf</a>
+      <span>?view= · ?zoom= &amp; ?x= ?y= (logical top-left) · ?t= freezes time · ?theater= · ?plane=f16|f14|sr71|none</span>
+    </nav>
+    <canvas id="c"></canvas>
+    <script type="module" src="./carrier.ts"></script>
+  </body>
+</html>

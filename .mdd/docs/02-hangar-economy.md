@@ -15,6 +15,12 @@ source_files:
   - src/scenes/hangar-items.ts
   - src/scenes/hangar-panels.ts
   - src/render/draw-planes.ts
+  - src/render/planes/f16-top.ts
+  - src/render/planes/f14-top.ts
+  - src/render/planes/sr71-top.ts
+  - src/render/planes/parts.ts
+  - src/render/planes/geom.ts
+  - src/render/planes/surface.ts
   - src/render/icons.ts
 routes: []
 models:
@@ -46,6 +52,13 @@ sister_projects: []
 ---
 
 # 02 — Hangar & Economy
+
+> **2026-10-25 update (paint jobs, doc 09):** `SaveData` gains `livery: Record<PlaneId, LiveryId>`
+> (default all `standard`, validated against the unlock rules), `PlayerStats` gains `livery`, and the
+> hangar gets a 4th tab **PAINT** (apply unlocked liveries to the selected jet, free). **Art detail pass:**
+> the top-down jets (`draw-planes.ts`) are redrawn finer: panel lines, intakes, canopy frame and glare,
+> control surfaces, weapons pylons, nozzles; each livery's colours, camouflage and tail art are drawn on
+> top (`render/livery-art.ts`).
 
 ## Purpose
 

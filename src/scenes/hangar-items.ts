@@ -1,11 +1,17 @@
 import { formatMoney } from '../core/math';
+import { BOSSES } from '../data/bosses';
 import { maxEquipmentLevel } from '../data/equipment';
+import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
+import { MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
+import { isLiveryUnlocked } from '../game/liveries';
 import type { SaveData } from '../game/save';
-import { equipmentDescription, equipmentName, planeDescription, secondaryDescription, secondaryName } from '../i18n/content';
+import {
+  equipmentDescription, equipmentName, liveryName, planeDescription, secondaryDescription, secondaryName, theaterName,
+} from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 
@@ -18,9 +24,10 @@ export const TABS: readonly Tab[] = [
   { name: 'hangar.tabJets', items: PLANE_IDS.map((id) => ({ type: 'plane', id })) },
   { name: 'hangar.tabWeapons', items: [{ type: 'gun' }, ...SECONDARY_IDS.map((id) => ({ type: 'secondary' as const, id }))] },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
+  { name: 'hangar.tabPaint', items: LIVERY_IDS.map((id) => ({ type: 'livery', id })) },
 ];
 
-export type ActionKind = 'buy' | 'select' | 'mount' | 'none';
+export type ActionKind = 'buy' | 'select' | 'mount' | 'paint' | 'none';
 
 export interface ItemAction {
   kind: ActionKind;
@@ -38,6 +45,7 @@ export function itemName(item: ShopItem): string {
     case 'gun': return t('hangar.gunName');
     case 'secondary': return secondaryName(item.id);
     case 'equipment': return equipmentName(item.id);
+    case 'livery': return liveryName(item.id);
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }
@@ -48,6 +56,7 @@ export function itemDescription(item: ShopItem): string {
     case 'gun': return t('hangar.gunDesc');
     case 'secondary': return secondaryDescription(item.id);
     case 'equipment': return equipmentDescription(item.id);
+    case 'livery': return t('hangar.paintDesc');
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }
@@ -72,12 +81,16 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
       if (price === null) return max === 1 ? t('hangar.installed') : t('hangar.maxLevel', { level: lvl });
       return max > 1 ? t('hangar.levelPrice', { level: lvl, price: formatMoney(price) }) : formatMoney(price);
     }
+    case 'livery':
+      if (save.livery[save.selectedPlane] === item.id) return t('hangar.inUse');
+      return t(isLiveryUnlocked(save.progress, item.id) ? 'hangar.paintReady' : 'hangar.locked');
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }
 
 /** True when a status string means "owned / done" (drawn green). */
 export function statusIsOwned(save: SaveData, item: ShopItem): boolean {
+  if (item.type === 'livery') return isLiveryUnlocked(save.progress, item.id);
   return priceOf(save, item) === null || (item.type === 'secondary' && save.ownedSecondaries.includes(item.id));
 }
 
@@ -112,8 +125,22 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
     case 'equipment':
       if (priceOf(save, item) === null) return none(t('hangar.maxed'));
       return buyAction(save, item, t(save.equipment[item.id] > 0 ? 'hangar.upgrade' : 'hangar.buy', { price }));
+    case 'livery':
+      if (!isLiveryUnlocked(save.progress, item.id)) return none(t('hangar.locked'), unlockText(item.id));
+      if (save.livery[save.selectedPlane] === item.id) return none(t('hangar.inUse'));
+      return { kind: 'paint', label: t('hangar.applyPaint'), enabled: true, note: '', reason: null, shortfall: 0 };
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
+}
+
+/** How a paint job is earned: "Beat IRONCLAD — Pacific …" / "3★ on every … mission". */
+export function unlockText(id: LiveryId): string {
+  const u = LIVERIES[id].unlock;
+  if (!u) return '';
+  const theater = theaterName(u.theater);
+  if (u.kind === 'stars') return t('hangar.unlockStars', { theater });
+  const o = MISSIONS.find((m) => m.theater === u.theater && m.objective.type === 'boss')?.objective;
+  return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 
 /** Gun level line for the detail panel. */

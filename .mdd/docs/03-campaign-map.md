@@ -44,6 +44,10 @@ sister_projects: []
 
 # 03 — Campaign Map
 
+> **2026-10-25 update (paint jobs, doc 09):** the debrief computes the liveries this mission unlocked
+> (`newlyUnlocked(before, after)`); the admiral announces each one after the pay line and a gold banner
+> "NEW PAINT JOB: {livery}" is shown.
+
 ## Purpose
 
 The strategic layer: a stylised world map with **30 missions** in **5 theaters**. The player

@@ -201,7 +201,8 @@ export class TakeoffScene implements Scene {
     const pitch = flying ? Math.min(0.32, 0.1 + s.t * 0.2) : 0;
     const gear = flying ? Math.max(0, 1 - s.t * 1.2) : 1;
     const throttle = s.phase === 'catapult' || flying ? 1 : s.throttle;
-    drawPlaneSide(ctx, this.game.save.selectedPlane, this.planeX - this.camX, DECK_Y - s.altitude, PLANE_SCALE, { pitch, gear, throttle, t: this.t });
+    const id = this.game.save.selectedPlane;
+    drawPlaneSide(ctx, id, this.planeX - this.camX, DECK_Y - s.altitude, PLANE_SCALE, { pitch, gear, throttle, t: this.t, livery: this.game.save.livery[id] });
   }
 
   private renderHud(ctx: CanvasRenderingContext2D): void {

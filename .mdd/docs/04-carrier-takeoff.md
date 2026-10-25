@@ -9,7 +9,22 @@ source_files:
   - src/scenes/takeoff.ts
   - src/scenes/takeoff-hud.ts
   - src/render/draw-carrier.ts
+  - src/render/carrier/geometry.ts
+  - src/render/carrier/pen.ts
+  - src/render/carrier/hull.ts
+  - src/render/carrier/fittings.ts
+  - src/render/carrier/deck.ts
+  - src/render/carrier/island.ts
+  - src/render/carrier/mast.ts
+  - src/render/carrier/aircraft.ts
+  - src/render/carrier/crew.ts
+  - src/render/carrier/water.ts
+  - src/render/carrier/sky-sea.ts
   - src/render/draw-planes-side.ts
+  - src/render/planes/f16-side.ts
+  - src/render/planes/f14-side.ts
+  - src/render/planes/sr71-side.ts
+  - src/render/planes/side-kit.ts
 routes: []
 models: []
 test_files:
@@ -25,12 +40,19 @@ integration_contracts:
   - function: "TakeoffRating ('perfect'|'good'|'early'|'late'|'skipped')"
     when: "passed into the mission scene and on to computePayout"
 satisfies_contracts: []
-known_issues: []
+known_issues:
+  - "Catapult shuttle is hidden during the stroke instead of tracking the jet (CarrierView carries no shuttle position)"
 security_read_sites: []
 sister_projects: []
 ---
 
 # 04 — Carrier Takeoff
+
+> **2026-10-25 update (art detail pass):** the carrier is redrawn finer: island with bridge windows,
+> mast, radars and antennas; deck with markings, catapult track and blast deflector detail, parked
+> aircraft and deck crew; hull with sponsons, hangar-bay openings, hull number band and waterline. The
+> side-view jets are redrawn finer as well (panel lines, canopy frame, gear detail, nozzle) and wear the
+> pilot's livery (doc 09). `DECK_Y`, the shooter poses and the deflector/launch parameters are unchanged.
 
 ## Purpose
 

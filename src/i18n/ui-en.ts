@@ -265,6 +265,17 @@ export const UI_EN = {
   'joy.cleared': 'Saved setup deleted — the default mapping applies again.',
   'joy.hasProfile': 'A joystick setup is saved in this browser.',
   'joy.devices': 'CONTROLLERS',
+  'hangar.tabPaint': 'PAINT',
+  'hangar.paintDesc': 'Paint jobs are campaign rewards: beat a theater\'s boss, or earn 3 stars on all its missions. Applying one is free and paints only the jet you fly.',
+  'hangar.paintReady': 'UNLOCKED',
+  'hangar.locked': 'LOCKED',
+  'hangar.applyPaint': 'APPLY PAINT',
+  'hangar.paintFree': 'Free — paints your {plane}',
+  'hangar.unlockBoss': 'Beat {boss} — {theater}',
+  'hangar.unlockStars': '3★ on every mission — {theater}',
+  'hangar.painted': '{plane} painted: {livery}',
+  'hangar.paintSide': 'ON THE CARRIER',
+  'debrief.newPaint': 'NEW PAINT JOB: {livery}',
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

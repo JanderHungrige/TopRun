@@ -1,14 +1,17 @@
 import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { THEATERS } from '../data/theaters';
+import { LIVERIES, type LiveryId } from '../data/liveries';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import { debriefScript } from '../game/dialogue-scripts';
 import { applyResult, type Payout } from '../game/economy';
+import { newlyUnlocked } from '../game/liveries';
 import { campaignComplete } from '../game/progress';
 import type { GameContext } from '../game/state';
-import { missionName, objectiveText } from '../i18n/content';
+import { liveryName, missionName, objectiveText } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
+import { drawPlaneTop } from '../render/draw-planes';
 import { COLORS, text } from '../render/text';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
@@ -31,10 +34,13 @@ export class DebriefScene implements Scene {
   private readonly finale: boolean;
   private readonly buttons: ButtonGroup;
   private readonly admiral: SpeechBox;
+  /** Paint jobs this mission unlocked (doc 09). */
+  private readonly liveries: LiveryId[];
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
     const applied = applyResult(game.save, mission, result);
+    this.liveries = newlyUnlocked(game.save.progress, applied.save.progress);
     game.setSave(applied.save);
     this.payout = applied.payout;
     this.stars = applied.stars;
@@ -52,6 +58,7 @@ export class DebriefScene implements Scene {
     }, 'admiral', pilotContext(game));
     this.admiral.say(debriefScript({
       mission, result, stars: applied.stars, totalText: formatMoney(applied.payout.total), campaignDone: this.finale,
+      liveries: this.liveries.map((id) => ({ name: liveryName(id), rare: LIVERIES[id].unlock?.kind === 'stars' })),
     }));
   }
 
@@ -92,8 +99,19 @@ export class DebriefScene implements Scene {
     this.renderStats(ctx);
     this.renderPayout(ctx);
     this.renderStars(ctx);
+    this.renderPaint(ctx);
     if (this.finale) text(ctx, t('debrief.finale'), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
     this.buttons.render(ctx, this.time);
+  }
+
+  /** Gold banner with the new paint job(s), the selected jet shown wearing the first one. */
+  private renderPaint(ctx: CanvasRenderingContext2D): void {
+    const first = this.liveries[0];
+    if (!first || this.time < COUNT_UP) return;
+    const names = this.liveries.map((id) => liveryName(id)).join('  ·  ');
+    const pulse = 0.85 + Math.sin(this.time * 4) * 0.15;
+    drawPlaneTop(ctx, this.game.save.selectedPlane, 380, 600, 0.8, { t: this.time, throttle: 0.4, sweep: 0.3, livery: first });
+    text(ctx, t('debrief.newPaint', { livery: names }), 420, 606, { size: 20, display: true, color: COLORS.gold, alpha: pulse, maxWidth: 800 });
   }
 
   private renderStats(ctx: CanvasRenderingContext2D): void {

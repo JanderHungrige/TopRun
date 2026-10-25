@@ -33,6 +33,18 @@ source_files:
   - src/render/cockpit/lamps.ts
   - src/render/cockpit/buttons.ts
   - src/render/draw-enemies.ts
+  - src/render/enemies/air-units.ts
+  - src/render/enemies/kit.ts
+  - src/render/enemies/layer.ts
+  - src/render/enemies/parts.ts
+  - src/render/enemies/rotors.ts
+  - src/render/enemies/fx.ts
+  - src/render/enemies/drone.ts
+  - src/render/enemies/mig21.ts
+  - src/render/enemies/mig29.ts
+  - src/render/enemies/su27.ts
+  - src/render/enemies/hind.ts
+  - src/render/enemies/bear.ts
   - src/render/draw-ground-units.ts
   - src/render/draw-bosses.ts
   - src/render/draw-terrain.ts
@@ -71,6 +83,10 @@ sister_projects: []
 ---
 
 # 05 — Mission Combat
+
+> **2026-10-25 update (art detail pass):** enemy aircraft (drone, MiG-21, MiG-29, Su-27, Hind,
+> Tu-95) are redrawn finer: panel lines, canopies, intakes, markings-free camouflage, rotor blur. Their
+> sizes, hitboxes and the draw API are unchanged. The player jet is drawn in its livery (doc 09).
 
 ## Purpose
 

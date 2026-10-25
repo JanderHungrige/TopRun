@@ -1,4 +1,5 @@
 import { maxEquipmentLevel } from '../data/equipment';
+import type { LiveryId } from '../data/liveries';
 import { MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import {
@@ -6,6 +7,7 @@ import {
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
+import { parseLiveries } from './liveries';
 
 /** Legacy single-save key (pre-profiles); read once for migration (doc 08). */
 export const SAVE_KEY = 'topgun.save.v1';
@@ -23,6 +25,8 @@ export interface SaveData {
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
   progress: Record<string, { stars: number }>;
+  /** Paint job per jet (doc 09). */
+  livery: Record<PlaneId, LiveryId>;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -38,6 +42,7 @@ export function defaultSave(): SaveData {
     loadout: { f16: emptyLoadout('f16'), f14: emptyLoadout('f14'), sr71: emptyLoadout('sr71') },
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
+    livery: { f16: 'standard', f14: 'standard', sr71: 'standard' },
   };
 }
 
@@ -94,6 +99,7 @@ export function parseSave(raw: unknown): SaveData | null {
   const selected = ownedPlanes.find((p) => p === raw.selectedPlane) ?? 'f16';
   const ownedSecondaries = ids(raw.ownedSecondaries, SECONDARY_IDS);
   const rawLoadout = isRecord(raw.loadout) ? raw.loadout : {};
+  const progress = parseProgress(raw.progress);
   return {
     version: 1,
     money: int(raw.money, 0, 1e9, START_MONEY),
@@ -107,7 +113,8 @@ export function parseSave(raw: unknown): SaveData | null {
       sr71: parseLoadout(rawLoadout.sr71, 'sr71', ownedSecondaries),
     },
     equipment: parseEquipment(raw.equipment),
-    progress: parseProgress(raw.progress),
+    progress,
+    livery: parseLiveries(raw.livery, progress),
   };
 }
 

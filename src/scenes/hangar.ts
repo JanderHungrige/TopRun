@@ -1,9 +1,11 @@
 import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { PLANES } from '../data/planes';
+import { liveryName } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
+import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
 import { COLORS, text } from '../render/text';
@@ -49,7 +51,7 @@ export class HangarScene implements Scene {
   }
 
   private tabButtons(): Button[] {
-    return TABS.map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 182, y: 76, w: 172, h: 42, primary: i === this.tab }));
+    return TABS.map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 135, y: 76, w: 130, h: 42, primary: i === this.tab }));
   }
 
   update(dt: number): void {
@@ -139,6 +141,11 @@ export class HangarScene implements Scene {
         return;
       case 'mount':
         if (item.type === 'secondary') this.mountNext(item.id);
+        return;
+      case 'paint':
+        if (item.type !== 'livery') return;
+        this.commit(applyLivery(save, save.selectedPlane, item.id), t('hangar.painted', { plane: PLANES[save.selectedPlane].name, livery: liveryName(item.id) }));
+        this.chief.painted(liveryName(item.id));
         return;
       case 'none':
         return;

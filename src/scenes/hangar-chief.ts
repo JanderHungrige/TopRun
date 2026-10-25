@@ -42,12 +42,17 @@ export class HangarChief {
       case 'gun': return this.speak(chiefLine('buyGun'));
       case 'secondary': return this.speak(chiefLine('buySecondary', { item: secondaryName(item.id) }));
       case 'equipment': return this.speak(chiefLine('buyEquipment', { item: equipmentName(item.id) }));
+      case 'livery': return;
       default: throw new Error(`unhandled: ${item satisfies never}`);
     }
   }
 
   mounted(id: keyof typeof SECONDARIES): void {
     this.speak(chiefLine('mount', { item: SECONDARIES[id].short }));
+  }
+
+  painted(livery: string): void {
+    this.speak(chiefLine('painted', { livery }));
   }
 
   unmounted(): void {

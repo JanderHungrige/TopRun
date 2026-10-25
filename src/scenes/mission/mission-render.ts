@@ -70,7 +70,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: Player, t: number): void {
   const rolling = special === 'roll' && p.specialActive > 0;
   const bank = rolling ? Math.cos((1 - p.specialActive / 0.7) * TAU) : p.bank;
   const dash = special === 'dash' && p.specialActive > 0;
-  const opts = { bank, t, throttle: dash ? 1 : 0.4 + p.forward * 0.5, sweep: 0.2 + p.forward * 0.8 };
+  const opts = { bank, t, throttle: dash ? 1 : 0.4 + p.forward * 0.5, sweep: 0.2 + p.forward * 0.8, livery: p.stats.livery };
   drawPlaneTop(ctx, p.stats.plane.id, p.x + SHADOW_DX, p.y + SHADOW_DY, 1, { ...opts, shadow: true });
   if (p.wingman) {
     drawPlaneTop(ctx, 'f14', p.wingman.x + SHADOW_DX, p.wingman.y + SHADOW_DY, 0.9, { shadow: true });

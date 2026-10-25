@@ -59,6 +59,14 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.finale': [
     'Der Krieg ist vorbei, {callsign}. Du bist der Beste der Besten. Willkommen bei TopRun.',
   ],
+  'adm.livery': [
+    'Und die Lackiererei hat etwas für dich: {livery}. Trag sie mit Stolz.',
+    'Noch etwas. Die Crew hat dir eine neue Lackierung gemacht: {livery}. Sie wartet im Hangar.',
+  ],
+  'adm.liveryRare': [
+    'Drei Sterne bei jedem Einsatz da draußen. Dafür gibt es etwas Besonderes: {livery}.',
+    'Ein makelloser Einsatzraum, Pilot. Die Lackiererei hat das Beste rausgeholt: {livery}.',
+  ],
   // Chief "Wrench" Kowalski
   'chief.hello': [
     'Willkommen in meinem Hangar, {callsign}. Gucken ist erlaubt, anfassen nur, was du bezahlen kannst.',
@@ -112,6 +120,10 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Nicht den Lack anfassen.',
     'Lass dir Zeit. Ich hab den ganzen Tag. Na ja, eigentlich nicht.',
     'Zu meiner Zeit flog man mit einem Schraubenschlüssel und einem Stoßgebet.',
+  ],
+  'chief.painted': [
+    'Frische Farbe! In {livery} sieht sie richtig böse aus.',
+    '{livery}, fertig. Versuch, sie beim ersten Einsatz nicht zu zerkratzen.',
   ],
   // Lt. Sam "Shooter" Reyes
   'sh.spool': [

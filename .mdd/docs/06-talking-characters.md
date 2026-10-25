@@ -45,6 +45,9 @@ sister_projects: []
 
 # 06 — Talking Characters
 
+> **2026-10-25 update (paint jobs, doc 09):** new lines `adm.livery`, `adm.liveryRare` (debrief) and
+> chief event `painted` / line `chief.painted` (hangar PAINT tab).
+
 ## Purpose
 
 Four fictional characters talk to the player in comic-style speech bubbles while their vector

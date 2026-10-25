@@ -81,6 +81,22 @@ function zoomView(t: number): void {
   KINDS.filter((k) => !isAir(k)).forEach((k, i) => drawUnit(k, 110 + i * 196, 610, 2.5, 'normal', t, i));
 }
 
+// Aircraft detail sheet: each type large (fitted to its cell), then a mission-size (scale 1) strip:
+// normal + shadow, hit flash, banking turn — all animated.
+function airView(t: number): void {
+  KINDS.filter(isAir).forEach((k, i) => {
+    const cx = 233 + (i % 3) * 467;
+    const cy = 175 + Math.floor(i / 3) * 330;
+    drawUnit(k, cx, cy, 128 / (ENEMIES[k].radius * 1.15), 'normal', t, i);
+    label(ENEMIES[k].name, cx, cy - 150);
+    const mx = 120 + i * 215;
+    drawUnit(k, mx - 50, 800, 1, 'normal', t, i);
+    drawUnit(k, mx, 800, 1, 'flash', t, i);
+    drawUnit(k, mx + 50, 800, 1, 'turn', t, i);
+  });
+  label('mission size (scale 1): normal + shadow · hit flash · banking turn', W / 2, 735);
+}
+
 function overlay(id: BossId, x: number, y: number): void {
   ctx.save();
   ctx.lineWidth = 1;
@@ -132,6 +148,7 @@ function frame(): void {
   ctx.fillRect(0, 0, W, H);
   const view = location.hash.slice(1) || 'units';
   if (view === 'zoom') zoomView(t);
+  else if (view === 'air') airView(t);
   else if ((BOSS_IDS as readonly string[]).includes(view)) bossView(view as BossId, t);
   else unitsView(t);
   const p = target(t);

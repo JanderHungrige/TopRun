@@ -1,4 +1,5 @@
 import { EQUIPMENT, maxEquipmentLevel } from '../data/equipment';
+import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { EquipmentId, GunLevel, MissionDef, MissionResult, PlaneId, SecondaryId, TakeoffRating } from '../data/types';
 import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
@@ -8,7 +9,9 @@ export type ShopItem =
   | { type: 'plane'; id: PlaneId }
   | { type: 'gun' }
   | { type: 'secondary'; id: SecondaryId }
-  | { type: 'equipment'; id: EquipmentId };
+  | { type: 'equipment'; id: EquipmentId }
+  /** Paint jobs are unlocked by the campaign, never bought (doc 09). */
+  | { type: 'livery'; id: LiveryId };
 
 export type BuyFailure = 'insufficient-funds' | 'already-owned' | 'max-level' | 'unknown-item';
 export type MountFailure = 'not-owned' | 'bad-slot' | 'restricted-plane' | 'plane-not-owned';
@@ -22,6 +25,7 @@ export function priceOf(save: SaveData, item: ShopItem): number | null {
     case 'gun': return save.gunLevel >= MAX_GUN_LEVEL ? null : gunLevelDef(save.gunLevel + 1).price;
     case 'secondary': return save.ownedSecondaries.includes(item.id) ? null : SECONDARIES[item.id].price;
     case 'equipment': return EQUIPMENT[item.id].prices[save.equipment[item.id]] ?? null;
+    case 'livery': return null;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }
@@ -32,6 +36,7 @@ function knownItem(item: ShopItem): boolean {
     case 'gun': return true;
     case 'secondary': return item.id in SECONDARIES;
     case 'equipment': return item.id in EQUIPMENT;
+    case 'livery': return item.id in LIVERIES;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }
@@ -59,6 +64,7 @@ export function buy(save: SaveData, item: ShopItem): SaveData {
     case 'gun': next.gunLevel = (save.gunLevel + 1) as GunLevel; break;
     case 'secondary': next.ownedSecondaries.push(item.id); break;
     case 'equipment': next.equipment[item.id] = Math.min(maxEquipmentLevel(item.id), save.equipment[item.id] + 1); break;
+    case 'livery': break;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
   return next;

@@ -57,6 +57,14 @@ export const LINES_EN = {
   'adm.finale': [
     "That's the war, {callsign}. You're the best of the best. Welcome to TopRun.",
   ],
+  'adm.livery': [
+    "And the paint shop has something for you: {livery}. Wear it with pride.",
+    "One more thing. The crew painted up a new scheme for you: {livery}. It's waiting in the hangar.",
+  ],
+  'adm.liveryRare': [
+    "Three stars on every sortie out there. That earns you something special: {livery}.",
+    "A flawless theater, pilot. The paint shop broke out the good stuff: {livery}.",
+  ],
   // Chief "Wrench" Kowalski — hangar
   'chief.hello': [
     "Welcome to my hangar, {callsign}. Look all you want, touch nothing you can't pay for.",
@@ -110,6 +118,10 @@ export const LINES_EN = {
     "Don't touch the paint.",
     "Take your time. I've got all day. Actually, I don't.",
     "Back in my day we flew with a wrench and a prayer.",
+  ],
+  'chief.painted': [
+    "Fresh paint! She looks mean in {livery}.",
+    "{livery}, done. Try not to scratch it on the first sortie.",
   ],
   // Lt. Sam "Shooter" Reyes — carrier launch
   'sh.spool': [

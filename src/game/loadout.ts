@@ -1,4 +1,5 @@
 import { ARMOR_BONUS, ENGINE_BONUS, FLARE_COUNT } from '../data/equipment';
+import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
@@ -22,6 +23,8 @@ export interface PlayerStats {
   magnet: boolean;
   /** Early-Warning Radar fitted (doc 02/05). */
   earlyWarning: boolean;
+  /** Paint job of the selected jet (doc 09). */
+  livery: LiveryId;
 }
 
 /** The single source of the player's combat stats for a mission. */
@@ -47,5 +50,6 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     damageControl: eq.damageControl > 0,
     magnet: eq.magnet > 0,
     earlyWarning: eq.radar > 0,
+    livery: save.livery[plane.id],
   };
 }

@@ -1,7 +1,7 @@
 ---
 generated: 2026-10-25
-doc_count: 8
-connection_count: 18
+doc_count: 9
+connection_count: 22
 overlap_count: 0
 ---
 
@@ -17,6 +17,7 @@ Game
 ├── Hangar       02-hangar-economy      complete
 ├── Languages    07-i18n                complete
 ├── Mission      05-mission-combat      complete
+├── PaintJobs    09-paint-jobs          complete
 ├── Pilots       08-pilot-profiles      complete
 └── Takeoff      04-carrier-takeoff     complete
 Meta
@@ -35,6 +36,7 @@ graph TD
   chars[06-talking-characters]:::complete
   i18n[07-i18n]:::complete
   pilots[08-pilot-profiles]:::complete
+  paint[09-paint-jobs]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -51,6 +53,10 @@ graph TD
   i18n --> core
   pilots --> core
   pilots --> i18n
+  paint --> hangar
+  paint --> map
+  paint --> chars
+  paint --> i18n
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

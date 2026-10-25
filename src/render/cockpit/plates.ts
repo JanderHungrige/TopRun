@@ -46,8 +46,8 @@ export function buildLeft(ctx: CanvasRenderingContext2D, v: LeftConsoleView): vo
   hullStatic(ctx, LEFT.hull, v.labels.hull, 34);
   cannonStatic(ctx, LEFT.cannon, v.labels, 40);
   storesStatic(ctx, LEFT.stores, v.plane, v.labels.stores);
-  buttonHousing(ctx, LEFT.missileBtn, v.keys.missile, 50);
-  buttonHousing(ctx, LEFT.switchBtn, v.keys.switch, 60);
+  buttonHousing(ctx, LEFT.airBtn, '', 50);
+  buttonHousing(ctx, LEFT.groundBtn, '', 60);
 }
 
 /** A row of toggle switches; the middle one sits under a red flip guard. */
@@ -87,11 +87,11 @@ export function buildRight(ctx: CanvasRenderingContext2D, v: RightConsoleView): 
   backplate(ctx, RIGHT.panel.x, 9, RIGHT.panel.x);
   mfdStatic(ctx, RIGHT.mission);
   lampsStatic(ctx, RIGHT.warnings, v.labels);
-  buttonHousing(ctx, RIGHT.flareBtn, v.keys.flare, 70);
-  buttonHousing(ctx, RIGHT.specialBtn, v.keys.special, 80);
+  buttonHousing(ctx, RIGHT.flareBtn, '', 70);
+  buttonHousing(ctx, RIGHT.specialBtn, '', 80);
   subPlate(ctx, { x: 974, y: 548, w: 144, h: 160 }, 90);
   attitudeStatic(ctx, RIGHT.attitude, 94);
   toggles(ctx, RIGHT.pauseBtn.x, 548, RIGHT.pauseBtn.w);
-  buttonHousing(ctx, RIGHT.pauseBtn, v.keys.pause, 100);
+  buttonHousing(ctx, RIGHT.pauseBtn, '', 100);
   grille(ctx, RIGHT.pauseBtn.x + 10, 674, RIGHT.pauseBtn.w - 20);
 }

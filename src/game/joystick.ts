@@ -8,7 +8,7 @@ export const JOY_ACTIONS: readonly JoyAction[] = Object.freeze(['fire', 'missile
 
 export const JOY_ACTION_INPUTS: Readonly<Record<JoyAction, readonly Action[]>> = {
   fire: ['fire', 'confirm'], missile: ['secondary', 'back'], flare: ['flare'], special: ['special'],
-  switch: ['switchWeapon'], pause: ['pause'],
+  switch: ['groundWeapon'], pause: ['pause'],
 };
 
 /** A button on one controller, identified by the browser's `Gamepad.id`. */
@@ -58,7 +58,7 @@ export const MAX_INDEX = 63;
 // Standard gamepad mapping: 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 8 Back, 9 Start, 12–15 d-pad.
 const STANDARD_BUTTONS: Readonly<Record<number, readonly Action[]>> = {
   0: ['fire', 'confirm'], 1: ['secondary', 'back'], 2: ['flare'], 3: ['special'],
-  4: ['switchWeapon'], 5: ['switchWeapon'], 8: ['back'], 9: ['pause'],
+  4: ['groundWeapon'], 5: ['groundWeapon'], 8: ['back'], 9: ['pause'],
   12: ['up'], 13: ['down'], 14: ['left'], 15: ['right'],
 };
 

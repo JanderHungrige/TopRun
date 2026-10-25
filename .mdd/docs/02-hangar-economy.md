@@ -59,6 +59,8 @@ sister_projects: []
 > the top-down jets (`draw-planes.ts`) are redrawn finer: panel lines, intakes, canopy frame and glare,
 > control surfaces, weapons pylons, nozzles; each livery's colours, camouflage and tail art are drawn on
 > top (`render/livery-art.ts`).
+> **Weapon roles (2026-10-25):** every secondary has `role: 'air' | 'ground'` (AIM-9, AIM-54 air; rockets,
+> Mk 82, AGM-65 ground) — the mission fires them with two keys (doc 05). Loadout and shop unchanged.
 > **Accuracy fix (2026-10-25):** planforms follow the real aircraft's proportions (owner feedback with
 > reference pictures, used for proportions only): F-14 — long radome and tandem canopy, wide curved
 > wing glove from beside the cockpit to the pivot, long swept wings, large tailplanes behind the

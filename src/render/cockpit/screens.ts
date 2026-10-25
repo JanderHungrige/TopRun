@@ -65,12 +65,13 @@ export function storesLive(ctx: CanvasRenderingContext2D, r: Rect, stores: LeftC
   stores.forEach((st, i) => {
     const y = s.y + 31 + i * rowH;
     const ink = st.ammo > 0 ? PHOSPHOR : PHOSPHOR_DIM;
-    if (st.selected) {
+    if (st.next) {
       ctx.fillStyle = ink;
       ctx.fillRect(s.x + 6, y - rowH / 2 + 1, w, rowH - 2);
     }
-    const color = st.selected ? '#041409' : ink;
-    screenText(ctx, st.selected ? `[${st.short}]` : ` ${st.short} `, s.x + 9, y, { size: 11.5, maxW: w - 46, color, weight: 800 });
+    const color = st.next ? '#041409' : ink;
+    const tag = st.role === 'air' ? 'A' : 'G';
+    screenText(ctx, st.next ? `${tag}[${st.short}]` : `${tag} ${st.short} `, s.x + 9, y, { size: 11.5, maxW: w - 46, color, weight: 800 });
     screenText(ctx, `×${st.ammo}`, s.x + 6 + w - 4, y, { size: 11.5, align: 'right', maxW: 40, color: st.ammo > 0 ? color : '#ff5a48', weight: 800 });
   });
 }

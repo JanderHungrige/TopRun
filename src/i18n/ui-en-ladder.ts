@@ -1,6 +1,5 @@
 // Online ladder and naval ranks UI strings (docs 26, 28).
 export const UI_EN_LADDER = {
-  'title.ladder': 'LADDER',
   'ladder.title': 'ONLINE LADDER',
   'ladder.loading': 'RADIO CHECK…',
   'ladder.offline': 'LADDER OFFLINE — try again later',
@@ -17,7 +16,7 @@ export const UI_EN_LADDER = {
   'ladder.refresh': 'REFRESH',
   'ladder.shareOn': 'SHOW MY PILOT: ON',
   'ladder.shareOff': 'SHOW MY PILOT: OFF',
-  'ladder.public': 'Callsign, avatar and rating are visible to everyone with the game\'s link.',
+  'ladder.public': 'Callsign and rating are visible to everyone with the game\'s link.',
   'ladder.hint': '↑/↓ scroll  ·  ←/→ buttons  ·  ESC back',
   'ladder.page': '{from}–{to} of {total}',
   'rank.ensign': 'Ensign',

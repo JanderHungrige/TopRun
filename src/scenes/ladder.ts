@@ -5,7 +5,7 @@ import type { LadderLink, LadderView, PostReply } from '../game/ladder-stats';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { drawSunset } from '../render/backdrop';
-import { drawLadderMessage, drawLadderTable, ROWS_PER_PAGE, TABLE, type LadderRow } from '../render/ladder';
+import { drawLadderMessage, drawLadderTable, drawPinnedRow, ROWS_PER_PAGE, TABLE, type LadderRow } from '../render/ladder';
 import { RANK_KEY } from '../render/ranks';
 import { COLORS, text } from '../render/text';
 import { ButtonGroup, type Button } from '../ui/widgets';
@@ -15,7 +15,7 @@ type Phase = 'loading' | 'ready' | 'offline';
 
 const ARROW_X = TABLE.x + TABLE.w + 14;
 
-/** ONLINE LADDER (doc 28): every friend's pilot by rating, plus SHOW MY PILOT. */
+/** ONLINE LADDER (doc 28), the hangar base's ladder area: every pilot by name and rating, your own row always shown. */
 export class LadderScene implements Scene {
   private time = 0;
   private phase: Phase = 'loading';
@@ -102,11 +102,7 @@ export class LadderScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     const input = this.game.input;
-    if (input.pressed('back')) {
-      this.game.audio.play('uiBack');
-      this.game.go({ to: 'title' });
-      return;
-    }
+    if (input.pressed('back')) return this.leave();
     if (input.pressed('up')) this.scroll(-1);
     if (input.pressed('down')) this.scroll(1);
     if (input.pressed('left') || input.pressed('right')) this.game.audio.play('uiMove');
@@ -116,10 +112,7 @@ export class LadderScene implements Scene {
 
   private activate(id: string): void {
     switch (id) {
-      case 'back':
-        this.game.audio.play('uiBack');
-        this.game.go({ to: 'title' });
-        return;
+      case 'back': return this.leave();
       case 'refresh':
         if (this.busy || this.phase === 'loading') return;
         this.game.audio.play('uiSelect');
@@ -135,10 +128,34 @@ export class LadderScene implements Scene {
     }
   }
 
-  private rows(): LadderRow[] {
+  private leave(): void {
+    this.game.audio.play('uiBack');
+    this.game.go({ to: 'base' });
+  }
+
+  /** Index of the player's own entry: by the place from the last post, else by callsign; -1 if absent. */
+  private ownIndex(): number {
     const you = this.link?.share ? this.game.profile?.callsign : undefined;
+    const pilots = this.view?.pilots ?? [];
+    if (!you) return -1;
+    const byPlace = this.mine ? this.mine.place - 1 : -1;
+    return pilots[byPlace]?.callsign === you ? byPlace : pilots.findIndex((p) => p.callsign === you);
+  }
+
+  private rows(): LadderRow[] {
+    const own = this.ownIndex();
     return (this.view?.pilots ?? []).slice(this.top, this.top + ROWS_PER_PAGE)
-      .map((pilot, i) => ({ place: this.top + i + 1, pilot, you: pilot.callsign === you }));
+      .map((pilot, i) => ({ place: this.top + i + 1, pilot, you: this.top + i === own }));
+  }
+
+  /** The player's row when it is not on this page (or beyond the public list). */
+  private pinned(): LadderRow | null {
+    const own = this.ownIndex();
+    const pilot = this.view?.pilots[own];
+    if (pilot) return own >= this.top && own < this.top + ROWS_PER_PAGE ? null : { place: own + 1, pilot, you: true };
+    const p = this.game.profile;
+    if (!this.mine || !p || !this.link?.share) return null;
+    return { place: this.mine.place, pilot: { callsign: p.callsign, rating: this.mine.rating, rank: this.mine.rank, updatedAt: 0 }, you: true };
   }
 
   private statusLine(): string {
@@ -159,7 +176,9 @@ export class LadderScene implements Scene {
     ctx.fillRect(0, 0, 1280, 720);
     text(ctx, t('ladder.title'), 640, 78, { size: 42, display: true, italic: true, align: 'center', color: COLORS.gold, stroke: '#000', strokeWidth: 6 });
     this.renderBody(ctx);
-    text(ctx, this.statusLine(), 640, 586, { size: 17, type: true, align: 'center', color: COLORS.ink, maxWidth: TABLE.w });
+    const pinned = this.phase === 'ready' ? this.pinned() : null;
+    if (pinned) drawPinnedRow(ctx, pinned);
+    else text(ctx, this.statusLine(), 640, 584, { size: 17, type: true, align: 'center', color: COLORS.ink, maxWidth: TABLE.w });
     this.buttons.render(ctx, this.time);
     text(ctx, t('ladder.public'), 640, 678, { size: 12, align: 'center', color: COLORS.faint, maxWidth: 1000 });
     text(ctx, t('ladder.hint'), 640, 702, { size: 13, align: 'center', color: COLORS.faint });

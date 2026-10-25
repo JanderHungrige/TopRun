@@ -87,7 +87,7 @@ class Game implements GameContext {
     const p = activeProfile(this.store);
     const link = p?.save.ladder;
     if (!p || !link?.share) return null;
-    return { id: link.id, secret: link.secret, callsign: p.callsign, avatar: p.avatar, stats: pilotStats(p.save) };
+    return { id: link.id, secret: link.secret, callsign: p.callsign, stats: pilotStats(p.save) };
   }
 
   setSettings(next: Settings): void {

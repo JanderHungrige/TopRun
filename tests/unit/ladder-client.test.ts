@@ -27,7 +27,7 @@ describe('Ladder client side and write limit', () => {
     expect(who.secret).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(ladderIdentity(bytes)).toEqual(who);
     const stats = { stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 };
-    expect(parseSubmission({ ...who, callsign: 'ICE', avatar: 'pilot2', stats })).not.toBeNull();
+    expect(parseSubmission({ ...who, callsign: 'ICE', stats })).not.toBeNull();
     expect(() => ladderIdentity(new Uint8Array(10))).toThrow();
   });
 
@@ -65,7 +65,7 @@ describe('Ladder client side and write limit', () => {
   });
 
   it('reads the ladder from the network defensively', () => {
-    const ok = { callsign: 'GOOSE', avatar: 'pilot1', rating: 5000, rank: 'lcdr', updatedAt: 9 };
+    const ok = { callsign: 'GOOSE', rating: 5000, rank: 'lcdr', updatedAt: 9 };
     expect(parseLadderView({ pilots: [ok, { ...ok, callsign: '<b>x</b>' }, { ...ok, rank: 'pope' }, 7], updatedAt: 9 }))
       .toEqual({ pilots: [ok], updatedAt: 9 });
     expect(parseLadderView('<!doctype html>')).toBeNull();

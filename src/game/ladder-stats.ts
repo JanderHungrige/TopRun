@@ -1,6 +1,6 @@
 import { RANK_IDS, type RankId } from '../data/ranks';
 import { validateCallsign } from './callsign';
-import { LADDER_AVATARS, type LadderAvatar, type PublicPilot } from './ladder';
+import { PUBLIC_TOP, type PublicPilot } from './ladder';
 import type { Medal } from './minigames/core';
 import type { RatingStats } from './rating';
 import type { SaveData } from './save';
@@ -69,21 +69,20 @@ export interface PostReply {
 }
 
 const isRank = (v: unknown): v is RankId => RANK_IDS.some((r) => r === v);
-const isAvatar = (v: unknown): v is LadderAvatar => LADDER_AVATARS.some((a) => a === v);
 const isCount = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 0;
 
 function parsePilot(v: unknown): PublicPilot | null {
   if (!isRecord(v)) return null;
-  const { callsign, avatar, rating, rank, updatedAt } = v;
-  if (typeof callsign !== 'string' || validateCallsign(callsign, []) !== 'ok' || !isAvatar(avatar)) return null;
+  const { callsign, rating, rank, updatedAt } = v;
+  if (typeof callsign !== 'string' || validateCallsign(callsign, []) !== 'ok') return null;
   if (!isCount(rating) || !isRank(rank) || !isCount(updatedAt)) return null;
-  return { callsign, avatar, rating, rank, updatedAt };
+  return { callsign, rating, rank, updatedAt };
 }
 
 /** The service's GET answer (untrusted network JSON) → view; bad rows are dropped, a bad answer is null. */
 export function parseLadderView(v: unknown): LadderView | null {
   if (!isRecord(v) || !Array.isArray(v.pilots) || !isCount(v.updatedAt)) return null;
-  const pilots = v.pilots.slice(0, 200).map(parsePilot).filter((p): p is PublicPilot => p !== null);
+  const pilots = v.pilots.slice(0, PUBLIC_TOP).map(parsePilot).filter((p): p is PublicPilot => p !== null);
   return { pilots, updatedAt: v.updatedAt };
 }
 

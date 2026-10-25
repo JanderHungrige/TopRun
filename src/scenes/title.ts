@@ -50,7 +50,6 @@ export class TitleScene implements Scene {
     this.shown = st;
     const items: Array<[string, string]> = [
       ...(this.game.profiles.length > 0 ? ([['continue', t('title.continue')]] as Array<[string, string]>) : []),
-      ['ladder', t('title.ladder')],
       ['new', t('title.newPilot')],
       ['controls', t('title.controls')],
       ['joystick', t('title.joystick')],
@@ -118,10 +117,6 @@ export class TitleScene implements Scene {
       case 'joystick':
         this.game.audio.play('uiSelect');
         this.game.go({ to: 'joystick' });
-        return;
-      case 'ladder':
-        this.game.audio.play('uiSelect');
-        this.game.go({ to: 'ladder' });
         return;
       case 'sound': return this.toggle('sfxOn');
       case 'music': return this.toggle('musicOn');

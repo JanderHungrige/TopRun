@@ -4,7 +4,7 @@ import type { Submission } from '../../src/game/ladder';
 import type { PostReply } from '../../src/game/ladder-stats';
 
 const base: Submission = {
-  id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(43), callsign: 'ICE', avatar: 'pilot1',
+  id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(43), callsign: 'ICE',
   stats: { stars: 3, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 },
 };
 

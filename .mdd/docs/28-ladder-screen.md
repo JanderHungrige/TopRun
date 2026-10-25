@@ -13,7 +13,6 @@ source_files:
   - src/core/math.ts
   - src/render/ranks.ts
   - src/render/ladder.ts
-  - src/scenes/title.ts
   - src/scenes/pilots.ts
   - src/scenes/minigames/registry.ts
   - src/game/save.ts
@@ -48,7 +47,9 @@ sister_projects: []
 ## Purpose
 
 The game side of the online ladder (doc 27): every friend's pilot on one list with rating and naval
-rank (doc 26), reachable from the title menu, kept up to date without the player doing anything.
+rank (doc 26), as the LADDER area of the hangar base (doc 30), kept up to date without the player
+doing anything. Owner (2026-10-25): many people may join, so names only — no avatars — and your own
+pilot is always visible and highlighted.
 
 ## Ladder identity (per pilot)
 
@@ -62,7 +63,7 @@ rank (doc 26), reachable from the title menu, kept up to date without the player
 ## Posting (automatic)
 
 - After every `setSave()` the game pokes `LadderSync`; 2.5 s later (debounced) it posts the active
-  pilot's `{ id, secret, callsign, avatar, stats }` if `share` is on and the submission differs from
+  pilot's `{ id, secret, callsign, stats }` if `share` is on and the submission differs from
   the last one accepted this session. That covers debriefs, minigame bests and hangar purchases
   without touching those scenes.
 - Stats: `pilotStats(save)` = `ladderStats(save, tiers, medals, kills)` — stars summed over
@@ -73,18 +74,21 @@ rank (doc 26), reachable from the title menu, kept up to date without the player
 
 ## Screen (route `ladder`)
 
-- Title menu item **LADDER** (after CONTINUE); with eight or more items the menu rows tighten
-  so they stay below the tagline. Header "ONLINE LADDER", backdrop like the pilot list.
-- Table: place, rank board + rank name, callsign, rating; 10 rows per page, ↑/↓ scroll a row,
-  the ▲/▼ buttons right of the table a page (touch), the active pilot's row (same callsign)
-  highlighted. Footer: "YOUR PLACE #n · rating · rank" for the
-  active pilot after a post, otherwise the local rating.
+- Opened from the hangar base's LADDER area (route `ladder`); BACK / Esc returns to `base`. Not on
+  the title menu any more. Header "ONLINE LADDER", backdrop like the pilot list.
+- Table: place, rank board + rank name, callsign, rating — no avatars. 10 rows per page, ↑/↓ scroll
+  a row, the ▲/▼ buttons right of the table a page (mouse, touch, or focus + ENTER).
+- **Your row is always visible and highlighted:** the active pilot's row is found by the place from
+  the last post (`place − 1`, callsign must match; otherwise by callsign). When it is not on the
+  current page — or beyond the public list — it is pinned as an extra highlighted row under the
+  table with its place. Footer: "YOUR PLACE #n · rating · rank" after a post, otherwise the local
+  rating.
 - States: loading ("RADIO CHECK…"), offline ("LADDER OFFLINE — try again later"), empty. While
   offline the footer shows the local rating, never a stale place.
 - Buttons: BACK, REFRESH, SHOW MY PILOT: ON/OFF (active pilot only; OFF deletes the entry and
   stops posting, ON posts at once). While sharing is off, every visit retries the DELETE, so an
   opt-out that hit a network error still lands. Keyboard: ←/→ between buttons, ↑/↓ scroll, Esc back.
-- A small info line: "Callsign, avatar and rating are visible to everyone with the game's link."
+- A small info line: "Callsign and rating are visible to everyone with the game's link."
 
 ## Ranks elsewhere
 
@@ -109,7 +113,7 @@ Reads the save and the public ladder; writes `SaveData.ladder` and posts to `/ap
 
 ## Security
 
-The ladder JSON is untrusted: parsed field by field (callsign rules, known avatars, numbers);
+The ladder JSON is untrusted: parsed field by field (callsign rules, ranks, numbers);
 callsigns are drawn as canvas text only (no DOM). The secret never leaves the save except in the
 POST/DELETE body to the same origin.
 

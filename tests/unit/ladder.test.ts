@@ -1,15 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applySubmission, emptyTable, LADDER_AVATARS, MAX_ENTRIES, parseSubmission, parseTable, publicLadder, removeEntry,
+  applySubmission, emptyTable, MAX_ENTRIES, parseSubmission, parseTable, PUBLIC_TOP, publicLadder, removeEntry,
   type LadderTable, type Submission,
 } from '../../src/game/ladder';
-import { AVATAR_IDS } from '../../src/game/profiles';
 
 const ID = 'p_0123456789abcdefghijkl';
 const SECRET = 's'.repeat(40);
 const hash = (s: string): string => `h:${s}`;
 const sub = (over: Partial<Submission> = {}): Submission => ({
-  id: ID, secret: SECRET, callsign: 'MAVERICK', avatar: 'pilot1',
+  id: ID, secret: SECRET, callsign: 'MAVERICK',
   stats: { stars: 10, medals: 2, kills: 100, golds: 1, silvers: 0, bronzes: 0 }, ...over,
 });
 const post = (t: LadderTable, s: Submission, now = 1000) => applySubmission(t, s, hash(s.secret), now);
@@ -20,7 +19,7 @@ describe('Online ladder rules', () => {
     expect(parseSubmission({ ...sub(), id: 'x' })).toBeNull();
     expect(parseSubmission({ ...sub(), secret: 'short' })).toBeNull();
     expect(parseSubmission({ ...sub(), callsign: '<script>' })).toBeNull();
-    expect(parseSubmission({ ...sub(), avatar: 'pilot9' })).toBeNull();
+    expect(parseSubmission({ ...sub(), avatar: 'pilot1' })).toEqual(sub());
     expect(parseSubmission({ ...sub(), stats: { stars: 'many' } })).toBeNull();
     expect(parseSubmission(null)).toBeNull();
     expect(parseSubmission({ ...sub(), callsign: '  maverick ' })?.callsign).toBe('MAVERICK');
@@ -54,8 +53,8 @@ describe('Online ladder rules', () => {
     add('p_cccccccccccccccccccccc', 'VIPER', 30, 4);
     const pub = publicLadder(t);
     expect(pub.map((p) => p.callsign)).toEqual(['GOOSE', 'VIPER', 'ICE']);
-    expect(pub[0]).toEqual({ callsign: 'GOOSE', avatar: 'pilot1', rating: 5000, rank: 'lcdr', updatedAt: 6 });
-    expect(JSON.stringify(pub)).not.toMatch(/secret|p_aaaa|h:/);
+    expect(pub[0]).toEqual({ callsign: 'GOOSE', rating: 5000, rank: 'lcdr', updatedAt: 6 });
+    expect(JSON.stringify(pub)).not.toMatch(/secret|p_aaaa|h:|avatar/);
   });
 
   it('keeps at most MAX_ENTRIES, dropping the lowest-rated', () => {
@@ -66,6 +65,8 @@ describe('Online ladder rules', () => {
       if (r.ok) t = r.table;
     }
     expect(t.pilots).toHaveLength(MAX_ENTRIES);
+    expect(PUBLIC_TOP).toBe(MAX_ENTRIES);
+    expect(publicLadder(t)).toHaveLength(MAX_ENTRIES);
     expect(t.pilots.some((p) => p.rating === 0 && p.updatedAt < 90)).toBe(false);
   });
 
@@ -77,6 +78,7 @@ describe('Online ladder rules', () => {
     expect(parseTable(JSON.parse(JSON.stringify(r.table)))).toEqual(r.table);
     expect(parseTable({ version: 1, pilots: [{ id: 'bad' }, r.table.pilots[0]] }).pilots).toHaveLength(1);
     expect(parseTable('garbage')).toEqual(emptyTable());
-    expect([...LADDER_AVATARS]).toEqual([...AVATAR_IDS]);
+    const old = { ...r.table.pilots[0], avatar: 'pilot2' };
+    expect(parseTable({ version: 1, pilots: [old] }).pilots[0]).not.toHaveProperty('avatar');
   });
 });

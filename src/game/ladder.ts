@@ -5,12 +5,9 @@ import { clampStats, pilotRating, rankFor, type RatingStats } from './rating.ts'
 // Online ladder rules (doc 27): validate submissions, upsert, rank, prune. Pure; shared by the
 // ladder service (server/ladder) and the tests, so imports carry their `.ts` extension.
 
-/** Must equal AVATAR_IDS (profiles.ts pulls in the whole save, so it can't be imported here). */
-export const LADDER_AVATARS = Object.freeze(['pilot1', 'pilot2', 'pilot3'] as const);
-export type LadderAvatar = (typeof LADDER_AVATARS)[number];
-
 export const MAX_ENTRIES = 1000;
-export const PUBLIC_TOP = 200;
+/** Everyone: the ladder shows names only, so the whole table is public (owner, doc 28). */
+export const PUBLIC_TOP = MAX_ENTRIES;
 /** Largest accepted request body in bytes. */
 export const MAX_BODY = 2048;
 export const WRITES_PER_MIN = 30;
@@ -23,7 +20,6 @@ export interface Submission {
   id: string;
   secret: string;
   callsign: string;
-  avatar: LadderAvatar;
   stats: RatingStats;
 }
 
@@ -31,7 +27,6 @@ export interface LadderEntry {
   id: string;
   secretHash: string;
   callsign: string;
-  avatar: LadderAvatar;
   stats: RatingStats;
   rating: number;
   /** When the current rating was first reached (earlier wins a tie). */
@@ -46,7 +41,6 @@ export interface LadderTable {
 
 export interface PublicPilot {
   callsign: string;
-  avatar: LadderAvatar;
   rating: number;
   rank: RankId;
   updatedAt: number;
@@ -59,7 +53,6 @@ export type SubmitResult =
 export const emptyTable = (): LadderTable => ({ version: 1, pilots: [] });
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
-const isAvatar = (v: unknown): v is LadderAvatar => LADDER_AVATARS.some((a) => a === v);
 const isTime = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
 
 function parseStats(v: unknown): RatingStats | null {
@@ -92,9 +85,8 @@ export function parseSubmission(v: unknown): Submission | null {
   if (!who || !isRecord(v)) return null;
   const callsign = parseCallsign(v.callsign);
   const stats = parseStats(v.stats);
-  const { avatar } = v;
-  if (callsign === null || stats === null || !isAvatar(avatar)) return null;
-  return { ...who, callsign, avatar, stats };
+  if (callsign === null || stats === null) return null;
+  return { ...who, callsign, stats };
 }
 
 /** Compares two hashes without an early exit, so timing reveals nothing. */
@@ -129,7 +121,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
   const stats = clampStats(sub.stats);
   const rating = pilotRating(stats);
   const entry: LadderEntry = {
-    id: sub.id, secretHash, callsign: sub.callsign, avatar: sub.avatar, stats, rating,
+    id: sub.id, secretHash, callsign: sub.callsign, stats, rating,
     ratedAt: prev && prev.rating === rating ? prev.ratedAt : now,
     updatedAt: now,
   };
@@ -140,7 +132,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
 /** The top of the ladder without ids or secrets. */
 export function publicLadder(table: LadderTable): PublicPilot[] {
   return [...table.pilots].sort(byRank).slice(0, PUBLIC_TOP).map((p) => ({
-    callsign: p.callsign, avatar: p.avatar, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
+    callsign: p.callsign, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
   }));
 }
 
@@ -159,13 +151,13 @@ export function removeEntry(table: LadderTable, id: string, secretHash: string):
 
 function parseEntry(v: unknown): LadderEntry | null {
   if (!isRecord(v)) return null;
-  const { id, secretHash, avatar, ratedAt, updatedAt } = v;
+  const { id, secretHash, ratedAt, updatedAt } = v;
   const callsign = parseCallsign(v.callsign);
   const stats = parseStats(v.stats);
   if (typeof id !== 'string' || !ID.test(id) || typeof secretHash !== 'string' || secretHash.length === 0) return null;
-  if (callsign === null || stats === null || !isAvatar(avatar) || !isTime(ratedAt) || !isTime(updatedAt)) return null;
+  if (callsign === null || stats === null || !isTime(ratedAt) || !isTime(updatedAt)) return null;
   const clamped = clampStats(stats);
-  return { id, secretHash, callsign, avatar, stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
+  return { id, secretHash, callsign, stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
 }
 
 /** Stored ladder.json → table; malformed and duplicate entries are dropped. */

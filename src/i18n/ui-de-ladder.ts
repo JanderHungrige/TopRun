@@ -1,6 +1,5 @@
 // Online ladder and naval ranks UI strings (docs 26, 28) — German; keys must match ui-en-ladder.ts.
 export const UI_DE_LADDER = {
-  'title.ladder': 'RANGLISTE',
   'ladder.title': 'ONLINE-RANGLISTE',
   'ladder.loading': 'FUNKCHECK…',
   'ladder.offline': 'RANGLISTE OFFLINE — später noch einmal versuchen',
@@ -17,7 +16,7 @@ export const UI_DE_LADDER = {
   'ladder.refresh': 'AKTUALISIEREN',
   'ladder.shareOn': 'MEIN PILOT SICHTBAR: AN',
   'ladder.shareOff': 'MEIN PILOT SICHTBAR: AUS',
-  'ladder.public': 'Rufzeichen, Avatar und Wertung sieht jeder, der den Link zum Spiel hat.',
+  'ladder.public': 'Rufzeichen und Wertung sieht jeder, der den Link zum Spiel hat.',
   'ladder.hint': '↑/↓ blättern  ·  ←/→ Knöpfe  ·  ESC zurück',
   'ladder.page': '{from}–{to} von {total}',
   'rank.ensign': 'Leutnant zur See',

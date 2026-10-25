@@ -16,7 +16,12 @@ files from an nginx container behind the owner's reverse proxy.
   objectives) is a pure function in `src/game/` with a Vitest test in `tests/unit/`.
 - Scenes (`src/scenes/`) orchestrate; drawing lives in `src/render/`; static tables in `src/data/`.
 - All drawing is in logical 1280×720 units — never read `canvas.width` in game code.
-- Persist only through `persistSave()`; never touch `localStorage` elsewhere.
+- Persist only through `GameContext.setSave()` (active pilot) and `setSettings()` (device-wide) —
+  both write the profile store via `persistStore()`; never touch `localStorage` elsewhere.
+- Every player-visible string goes through `t()` / `line()` / `src/i18n/content.ts`. Add new UI keys
+  to `ui-en.ts` AND `ui-de.ts` (the compiler rejects a missing German key); same `{placeholders}`.
+- Characters talk only through `SpeechBox` + `src/game/dialogue-scripts.ts`; lines may use `{callsign}`.
+- Never ship real photos of people: avatars/portraits are original vector cartoons (repo and site are public).
 - No asset files needed: art is vector-drawn in code, audio is synthesized with WebAudio.
 
 ## Testing in the browser

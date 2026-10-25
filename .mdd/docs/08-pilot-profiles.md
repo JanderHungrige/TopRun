@@ -67,6 +67,8 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > NEW PILOT has a fourth card, CREATE YOUR OWN, which opens the pixel avatar builder (route `avatarBuilder`); the
 > pilot list gets EDIT LOOK (and E). A built look is stored per pilot as `SaveData.look` (null = the preset
 > `profile.avatar`), only via `setSave`. Every player bust goes through `drawPilotAvatar(ctx, pilotFace(profile), …)`.
+> **Style v2 (same day, owner feedback):** all avatars now have realistic head proportions and painterly VGA-portrait
+> shading (eyes at mid-head, a real jaw, a neck and shoulders that fit) — doc 29 "Art style v2", rules in doc 20.
 
 ## Architecture
 

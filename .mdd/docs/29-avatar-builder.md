@@ -14,6 +14,11 @@ source_files:
   - src/render/avatars/extras.ts
   - src/render/avatars/person.ts
   - src/render/avatars/skies.ts
+  - src/render/avatars/head.ts
+  - src/render/avatars/face.ts
+  - src/render/avatars/light.ts
+  - src/render/avatars/suit.ts
+  - src/render/avatars/hair-kit.ts
   - src/i18n/ui-en-avatar.ts
   - src/i18n/ui-de-avatar.ts
 routes: []
@@ -22,6 +27,7 @@ models:
 test_files:
   - tests/unit/avatar-look.test.ts
   - tests/unit/avatar-art.test.ts
+  - tests/unit/avatar-style.test.ts
   - tests/unit/save.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-25
@@ -60,7 +66,54 @@ Owner requests (2026-10-25):
    CREATE YOUR OWN from parts; an existing pilot can change the look later (EDIT LOOK on the pilot card) or go
    back to the hand-drawn preset (ORIGINAL).
 
-## Preset rework (`src/render/avatars/pilot1–3.ts`, doc 08)
+## Art style v2 — realistic proportions (owner feedback 2026-10-25, after the first deploy)
+
+> "The proportions look off. Way too long heads. How about using normal faces but pixel style. This is more … anime
+> like. They all look cute. But TopGun is a cool genre. Yes they are kids, and that can show, but less Pippi
+> Langstrumpf, more Monkey Island 1 (not literally that pixelated)."
+
+Rules (style section of doc 20; style inspiration only — every pixel is original, nothing from any game is reproduced):
+
+- **One shared head** for presets and custom looks (`head.ts`, frame units, k = 1 ≈ 1 art px): `KID_HEAD` = skull
+  top 17.5, temples ±14.4, cheekbones ±15.2 at y 45, jaw angle ±12.4 at y 56.8, chin ±5.8 at y 65.8, ears at y
+  ≈ 43–52; features: brows ≈ 38.5, **eyes ≈ 43.5** (between the middle and 0.6 of hair-top … chin), nose tip ≈ 52,
+  mouth ≈ 58.5. Head with hair ≈ 0.6–1 wide:tall (3:4 typical). Neck half-width 8 (`suit.ts`), shoulders to ±50
+  (≥ 2.4× the face with ears, ≥ 1.8× even the fullest hair). Each preset varies the `HeadSpec` (pilot 1 a narrower
+  chin, pilot 2 longer with a pointed chin, pilot 3 rounder). `drawFace(p, rig, FaceArt)` draws ears, the jaw's cast
+  shadow on the neck, the lit face, cheek warmth, freckles, form (sockets, brow-ridge / cheekbone / chin lights),
+  eyes, brows, nose and mouth; hair and glasses go on top.
+- **Features** (`face.ts`): eyes ≈ 6.6 × 2.5 units (lid line, whites shaded at the corners and under the lid, a 2–3 px
+  iris with a pupil, a crease and lower lid; no catch-light; the shadow-side eye's whites are darker), brows 1–2 px
+  rising from a slightly lowered inner end, nose with shadow-side bridge, broken highlight, tip, wings, nostrils and
+  cast shadow, lips as a line + darker upper lip + lit lower lip + the shadow below; talking frames drop the jaw and
+  open a dark mouth with a row of teeth; moods (kit.ts) move brows, lids and mouth corners — neutral is a steady gaze
+  (lids slightly lowered) with a half-smile, happy a closed-lip smile, stern lowered brows, worried raised ones.
+- **Shading** (`light.ts`): `litFill` shades a mask as a lit ellipsoid (`Dome`, optional flattened front) with the
+  key light from the upper left in up to five ramp tones (`FIVE` / `FOUR`) joined by ordered-dither seams (long on
+  hair and cloth, almost none on skin); `litPiece` adds a dark seam where parts overlap; `glaze` is a sparse
+  dither; after the figure is drawn `rimLight` lightens the silhouette pixels facing the sky's sun or moon by 1–2
+  steps of their own ramp (`palette.lighter`; `Sky.rim`: dawn and night from the left, day and sunset from the right,
+  day and night also from above). Cheek warmth (`warmth`) is a sparse dither of a slightly warmer skin tone on the
+  mid-tone pixels only — never a circle. `Pix.frame` (inverse of `Pix.at`) lets the lighting follow a tilted head.
+- **Hair** (`hair-kit.ts`): every hair mass is one lit volume (`HAIR_DOME`) with dark partings between clumps, light
+  strands and a dithered sheen band; the presets' bob / long / mop and the builder's crop / buzz / side part /
+  ponytail / bun / curls / braids are re-fitted to `KID_HEAD`. Glasses sit on the new eye line; scarf, pendant,
+  bandana and dog tags on the new neck and collar; the suit (`suit.ts`) is lit with seams, armpit folds, a lit collar.
+- Blink, breathing, moods, glances, the talking mouth, the head tilt and all caching are unchanged.
+
+### Presets v2 (same outfits, likeness kept, rendered realistically)
+
+| Avatar | Face and hair now |
+|--------|-------------------|
+| pilot1 | Round kid face with a slightly narrow chin; wide-set dark eyes (`irisDark`), lids fully open, a hint of shadow under them; faint thin blond brows; small nose; small serious mouth with full pink lips; faint warmth. Full golden bob parted on the left, heavy fringe swept over the right brow and the right eye's outer corner, ends flicking out below the jaw, sheen on the crown. Orange suit, fang on a cord + thin gold chain, dawn rim light from the left. |
+| pilot2 | Longer face with a slightly pointed chin; blue-grey eyes narrowed by a confident half-smile (raised lower lids, right corner up); subtle freckles; faint warmth. Long sun-bleached blond hair parted just left of centre, close round the face, wavy ends past the shoulders. Navy suit, guitar patch, helmet in hand (lit), day rim light from the upper right. |
+| pilot3 | Round face with full cheeks and a dithered rosy warmth; relaxed, slightly hooded hazel-brown eyes; small nose; a cheeky smirk lifting the right corner. Thick tousled honey-copper hair (`hairStrawberry`, darkened) with a heavy fringe over the brows swept right, cowlick and flyaways (lower crown than v1), left ear lobe showing; head tilted ≈ 11°. Sage suit, striped scarf, sunset rim light from the right. |
+
+Verified by `tests/unit/avatar-style.test.ts` (proportions of all presets and every hair style, shoulder ratio, face
+outline, lighting direction, rim light, `lighter`, `Pix.frame`, moods at the map-header size). Before/after renders
+of the presets were compared side by side in the browser.
+
+## Preset rework v1 (superseded by v2 above; kept for history)
 
 | Avatar | What changed |
 |--------|--------------|
@@ -120,9 +173,9 @@ Written only through `GameContext.setSave({ ...save, look })` for the **active**
   builder. `drawAvatar(ctx, id, …)` stays as a thin alias (dev page).
 - `custom.ts` composes an `AvatarArt` from the look: sky (`skies.ts`), flight suit in the suit ramp with a star patch,
   hair `behind`/`back`/`front` layers per style (`hair.ts`: crop, buzz, side part, ponytail on a shared `cap()`;
-  `hair-more.ts`: bun, curls, braids; bob/long/mop are the presets' own), face, cheeks (deeper rose on darker skin),
-  freckles, eyes, nose, mouth, glasses and brows (`features.ts`), accessory (`extras.ts`; helmet = front layer). Same
-  moods, blink, breathing, glance and talking mouth as the presets.
+  `hair-more.ts`: bun, curls, braids; bob/long/mop are the presets' own), the face (`drawFace`, head.ts + face.ts:
+  `KID_HEAD`, warmth tone per skin, freckles, eyes, brows, nose, mouth — style v2), glasses, accessory (`extras.ts`;
+  helmet = front layer). Same moods, blink, breathing, glance and talking mouth as the presets.
 - Built arts are memoised by `lookKey` (LRU 32); the bust id is `look:<key>` and the background is shared per sky
   (`BustArt.backgroundId = sky:<id>`, new in bust.ts), so each animation frame is rasterised once and cached by the
   bust pipeline like the presets.
@@ -183,6 +236,10 @@ type BuilderTarget = { kind: 'new'; draft: NewPilotDraft; start: AvatarLook } | 
   ORIGINAL, untouched DONE; an old store without `look` still loads; the medal ceremony shows the custom colours.
 - Frame cost (dev build, hidden tab): cached 400×480 bust 0.03 ms, NEW PILOT frame ≈ 0.43 ms, pilot list ≈ 0.3 ms;
   a new look's figure renders once in ≈ 3–10 ms (curls the most; the presets measure 4.5–5.7 ms in the same setup).
+- Style v2 (same day): proportion / lighting tests above; presets compared before/after side by side in the page;
+  NEW PILOT, the builder (k = 1 preview) and ~10 random looks at card size and at the map-header size (k = 0.5)
+  checked. Figure renders ≈ 4–10 ms once per frame state (presets 5.5–6.7 ms, braids/curls ≈ 10 ms); NEW PILOT
+  ≈ 0.63 ms per frame including the rotating teaser on card 4.
 
 ## Dependencies
 

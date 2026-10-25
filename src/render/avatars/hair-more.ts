@@ -1,32 +1,27 @@
 import type { Ramp } from '../pixel/palette';
 import { path } from '../pixel/path';
 import { union, type Mask, type Pix } from '../pixel/raster';
-import { part } from '../portraits/hands';
-import { D1, D2, L1, L2, piece, shaded, strand } from '../portraits/parts';
+import { D1, D2, L1, L2 } from '../portraits/parts';
 import { cap, capPiece } from './hair';
+import { clumps, hairPiece, sheen } from './hair-kit';
 import type { HairArt } from './kit';
+import { FOUR, litPiece } from './light';
 
-/** Fuller hair styles of the avatar builder (doc 29): top bun, curls, two braids — in any hair ramp. */
+/** Fuller hair styles of the avatar builder (doc 29): top bun, curls, two braids — fitted to the realistic head. */
 
-const PARTED: readonly number[] = [17.8, 44, 16.6, 37, 12, 33.4, 6, 32, 1, 33, -1, 33, -6, 32, -12, 33.4, -16.6, 37, -17.8, 44];
+const PARTED: readonly number[] = [15.2, 40, 14.2, 31, 10.4, 28, 5.2, 26.6, 0.8, 27.4, -0.8, 27.4, -5.2, 26.6, -10.4, 28, -14.2, 31, -15.2, 40];
 
 /** Pulled up into a round bun on the crown. */
 export const BUN: HairArt = {
   back: (p, h) => {
-    const bun = shaded(p, p.oval(0, 8.6, 8, 7.2), h, [6, 12, 5, 5], [-3, 5, 2.6, 1.6]);
-    if (p.k >= 0.6) {
-      strand(p, [-5.6, 8, -2, 3, 4, 4], h[D1] ?? 0, bun);
-      strand(p, [-4, 12, 1, 8, 6, 10], h[L1] ?? 0, bun);
-    }
+    const bun = hairPiece(p, p.oval(0, 12.2, 6.4, 5.4), h, { cx: -2, cy: 10.4, rx: 7.4, ry: 6.6 });
+    clumps(p, bun, h, [[-4.6, 11.4, -1.4, 7.6, 3.8, 8.4], [-3.4, 14.6, 1, 11.6, 5.2, 13.2]], [[-3.8, 13, 0, 9.6, 4.2, 10.4]]);
   },
   front: (p, h) => {
-    const m = capPiece(p, cap(12, 45, PARTED), h, false);
-    p.line(0, 12.6, 0, 32.6, h[D2] ?? 0, m);
-    if (p.k >= 0.6) {
-      strand(p, [-2, 15, -12, 19, -16.4, 34], h[L1] ?? 0, m);
-      strand(p, [2, 15, 12, 19, 16.4, 34], h[D1] ?? 0, m);
-    }
-    p.paint(p.thick([-5.4, 14.2, 0, 13.2, 5.4, 14.2], 0.9), h[D2] ?? 0); // the band round the bun
+    const m = capPiece(p, cap(13.6, 43, PARTED), h, false);
+    p.line(0, 14.2, 0, 27.2, h[D2] ?? 0, m);
+    clumps(p, m, h, [[2, 16, 10, 18, 14, 28]], [[-2, 16, -9, 18, -13, 28]]);
+    p.paint(p.thick([-5, 15.6, 0, 14.6, 5, 15.6], 0.8), h[D2] ?? 0); // the band round the bun
   },
 };
 
@@ -58,15 +53,15 @@ const CURL: readonly (readonly [number, number, boolean])[] = [[-1, 0, false], [
 function curlMarks(p: Pix, m: Mask, h: Ramp): void {
   if (p.k < 0.6) return;
   let n = 0;
-  for (let y = 7; y < 66; y += 5.6) {
-    for (let x = -27 + (y % 2) * 3; x < 28; x += 6.4) {
+  for (let y = 8; y < 58; y += 4.6) {
+    for (let x = -24 + (y % 2) * 2.6; x < 25; x += 5.2) {
       n++;
-      const [c, r] = p.cell(x + jitter(n) * 3.4, y + jitter(n + 50) * 2.6);
+      const [c, r] = p.cell(x + jitter(n) * 2.8, y + jitter(n + 50) * 2.2);
       const flip = jitter(n + 99) > 0 ? 1 : -1;
       for (const [dc, dr, light] of CURL) {
         const cc = c + dc;
         const rr = r + dr * flip;
-        if (p.inside(cc, rr) && m[rr * p.w + cc] && (!light || jitter(n + 7) > -0.1)) p.set(cc, rr, (light ? h[L1] : h[D1]) ?? 0);
+        if (p.inside(cc, rr) && m[rr * p.w + cc] && (!light || jitter(n + 7) > -0.1)) p.set(cc, rr, (light ? h[L1] : h[D2]) ?? 0);
       }
     }
   }
@@ -75,45 +70,45 @@ function curlMarks(p: Pix, m: Mask, h: Ramp): void {
 /** A round mass of curls framing the face; a curly fringe over the forehead. */
 export const CURLY: HairArt = {
   back: (p, h) => {
-    const m = union(p.oval(0, 38, 24.4, 26.6), curls(p, ring(0, 38, 25, 27.4, 16, Math.PI * 0.64, Math.PI * 2.36), 4.8));
-    shaded(p, m, h, [30, 46, 10, 34], [-14, 16, 6, 4]);
+    const m = union(p.oval(0, 36, 22.4, 22.6), curls(p, ring(0, 36, 23, 23.4, 15, Math.PI * 0.66, Math.PI * 2.34), 4.4));
+    hairPiece(p, m, h, { cx: -4, cy: 32, rx: 27, ry: 29, flat: 1.1 });
     curlMarks(p, m, h);
   },
   front: (p, h) => {
-    const top = p.shape(cap(10, 52, [18.2, 40, 0, 36, -18.2, 40], 21.4));
-    const fringe = curls(p, [-16.6, 38, -12, 36.4, -7.2, 37.6, -2.4, 36.2, 2.4, 37.6, 7.2, 36.4, 12, 37.6, 16.6, 36.6,
-      -19.6, 43.4, 19.6, 43, -20.2, 49, 20.2, 49.4], 3.4);
-    const m = piece(p, union(top, fringe), h, [22, 40, 7, 16], [-8, 18, 6, 3], D1); // a soft seam into the back curls
+    const top = p.shape(cap(10.8, 46, [15.2, 34, 0, 30.6, -15.2, 34], 18.8));
+    const fringe = curls(p, [-14, 31.6, -9.8, 30.2, -5.4, 31.2, -1, 30, 3.4, 31.2, 7.8, 30.2, 12, 31.2, 15, 30.4,
+      -17.2, 37, 17.2, 36.6, -17.8, 42, 17.8, 42.4], 3);
+    const m = hairPiece(p, union(top, fringe), h);
     curlMarks(p, m, h);
+    sheen(p, m, h, [-14, 20, -6, 13, 4, 13], 1);
   },
 };
 
 /** One plait from (x, y0) down to y1: stacked, alternating lobes, a tie and a small tuft. */
 function braid(p: Pix, x: number, y0: number, y1: number, dx: number, h: Ramp): void {
-  const n = Math.max(3, Math.round((y1 - y0) / 4.2));
+  const n = Math.max(3, Math.round((y1 - y0) / 4));
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1);
-    const cx = x + dx * t + (i % 2 === 0 ? -0.7 : 0.7);
+    const cx = x + dx * t + (i % 2 === 0 ? -0.6 : 0.6);
     const cy = y0 + (y1 - y0) * t;
-    const lobe = p.oval(cx, cy, 3 - t * 0.6, 2.6, i % 2 === 0 ? 0.5 : -0.5);
-    part(p, lobe, h, p.oval(cx + 2.2, cy + 1.2, 2.4, 2.2));
-    if (p.k >= 0.7) p.paint(p.oval(cx - 1, cy - 0.8, 0.8, 0.5), h[L2] ?? 0, lobe);
+    const lobe = p.oval(cx, cy, 2.8 - t * 0.5, 2.4, i % 2 === 0 ? 0.5 : -0.5);
+    litPiece(p, lobe, h, { cx: cx - 1.6, cy: cy - 1, rx: 3.4, ry: 3 }, { tones: FOUR });
+    if (p.k >= 0.7) p.paint(p.oval(cx - 0.9, cy - 0.8, 0.7, 0.4), h[L2] ?? 0, lobe);
   }
   const ex = x + dx;
-  p.paint(p.oval(ex, y1 + 3, 1.8, 1.1), h[D2] ?? 0);
-  piece(p, path().move(ex - 1.8, y1 + 3.6).line(ex + 1.8, y1 + 3.6).line(ex + 2.6, y1 + 8.4).line(ex, y1 + 7.2).line(ex - 2.6, y1 + 8.6).close(), h, [ex + 2, y1 + 8, 1.4, 3]);
+  p.paint(p.oval(ex, y1 + 2.8, 1.7, 1), h[D2] ?? 0);
+  hairPiece(p, path().move(ex - 1.7, y1 + 3.4).line(ex + 1.7, y1 + 3.4).line(ex + 2.4, y1 + 8).line(ex, y1 + 6.8).line(ex - 2.4, y1 + 8.2).close(), h,
+    { cx: ex - 1, cy: y1 + 4, rx: 3, ry: 5 });
 }
 
 /** Centre parting, hair close to the head, two braids over the shoulders. */
 export const BRAIDS: HairArt = {
   front: (p, h) => {
-    const m = capPiece(p, cap(11.6, 54, PARTED, 20.8), h, false);
-    p.line(0, 12.2, 0, 32.6, h[D2] ?? 0, m);
-    if (p.k >= 0.6) {
-      strand(p, [-2, 14, -14, 20, -18, 44], h[L1] ?? 0, m);
-      strand(p, [2, 14, 14, 20, 18, 44], h[D1] ?? 0, m);
-    }
-    braid(p, -19.6, 56, 94, -3, h);
-    braid(p, 19.6, 56, 90, 3.4, h);
+    const m = capPiece(p, cap(13.2, 50, PARTED, 17.8), h, false);
+    p.line(0, 13.8, 0, 27.2, h[D2] ?? 0, m);
+    clumps(p, m, h, [[2, 16, 12, 20, 16, 40]], [[-2, 16, -12, 20, -16, 40]]);
+    braid(p, -17, 52, 92, -2.4, h);
+    braid(p, 17, 52, 88, 2.8, h);
+    if (p.k >= 0.6) for (const sd of [-1, 1]) p.paint(p.thick([sd * 15.6, 44, sd * 16.6, 50], 0.6), h[D1] ?? 0);
   },
 };

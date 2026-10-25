@@ -5,6 +5,7 @@ import { hexOf } from '../pixel/palette';
 import { breath, hash, pixelRig, rigKey, type Box, type Mood, type Rig } from '../portraits';
 import { customArt, suitRamp } from './custom';
 import { selectionFrame, TILT_PIVOT, type AvatarArt } from './kit';
+import { rimLight } from './light';
 import { PILOT1 } from './pilot1';
 import { PILOT2 } from './pilot2';
 import { PILOT3 } from './pilot3';
@@ -44,6 +45,7 @@ function bust(id: string, art: AvatarArt, backgroundId?: string): BustArt<Rig> {
       p.rot = 0;
       p.oy = oy;
       art.front?.(p, r);
+      if (p.k >= 0.6) rimLight(p, art.sky.rim.side, art.sky.rim.top, art.sky.rim.steps);
     },
   };
 }
@@ -76,10 +78,10 @@ function resolve(face: PilotFace): Built {
   return typeof face === 'string' ? { art: ART[face], bust: BUSTS[face], seed: SEED[face] } : custom(face);
 }
 
-/** The pixel art of a preset or look and its mood table (tests render its frames directly). */
-export function avatarArt(face: PilotFace): { art: BustArt<Rig>; moods: AvatarArt['moods'] } {
+/** The pixel art of a preset or look, its mood table and face measurements (tests render its frames directly). */
+export function avatarArt(face: PilotFace): { art: BustArt<Rig>; moods: AvatarArt['moods']; face: AvatarArt['face'] } {
   const b = resolve(face);
-  return { art: b.bust, moods: b.art.moods };
+  return { art: b.bust, moods: b.art.moods, face: b.art.face };
 }
 
 /** The player's face for a profile: the custom look if one was built, else the preset. */

@@ -2,42 +2,45 @@ import type { Accessory, Glasses } from '../../game/avatar-look';
 import { PAL } from '../pixel/palette';
 import { path } from '../pixel/path';
 import { bayer, minus, union, type Pix } from '../pixel/raster';
-import { part } from '../portraits/hands';
-import { L1, piece, quadPts } from '../portraits/parts';
+import { L1, quadPts } from '../portraits/parts';
 import type { Rig } from '../portraits/types';
+import { FOUR, litPiece } from './light';
 import { pendant } from './pilot1';
 import { helmet } from './pilot2';
 import { scarf } from './pilot3';
 
-/** Glasses and neck accessories of the avatar builder (doc 29), in the 100×120 avatar frame. */
+/** Glasses and neck accessories of the avatar builder (doc 29), fitted to the realistic head and neck. */
 
 const GOLD_RIM = PAL.gold[3] ?? 0;
 const FRAME_INK = PAL.ink[2] ?? 0;
 
-/** Aviators: teardrop gold rims, a double bridge and a light dithered tint, so the eyes and blinks still read. */
+/** Aviators: teardrop lenses in thin gold rims, a double bridge, a light tint darker at the top so the eyes, the
+ *  blink and the mood still read. */
 function aviators(p: Pix, ex: number, ey: number): void {
   for (const sd of [-1, 1]) {
-    const lens = p.shape(path().move(sd * (ex - 4.6), ey - 3.2).line(sd * (ex + 4.4), ey - 3.4)
-      .cubic(sd * (ex + 5.4), ey + 1, sd * (ex + 3.4), ey + 4.6, sd * ex, ey + 4.4).cubic(sd * (ex - 3.6), ey + 4.2, sd * (ex - 5.2), ey, sd * (ex - 4.6), ey - 3.2).close());
-    p.paint(lens, PAL.lens[3] ?? 0, undefined, bayer(0.22));
+    const lens = p.shape(path().move(sd * (ex - 4.2), ey - 2.6).line(sd * (ex + 4.2), ey - 2.8)
+      .cubic(sd * (ex + 5), ey + 0.6, sd * (ex + 3.2), ey + 3.8, sd * (ex + 0.4), ey + 3.8)
+      .cubic(sd * (ex - 3), ey + 3.8, sd * (ex - 4.8), ey + 0.4, sd * (ex - 4.2), ey - 2.6).close());
+    p.paint(lens, PAL.glass[4] ?? 0, undefined, bayer(0.16));
+    p.paint(minus(lens, p.shape(path().rect(sd * ex - 6, ey - 1.2, 12, 6))), PAL.glass[3] ?? 0, undefined, bayer(0.35));
     p.paint(p.border(lens), GOLD_RIM);
-    p.line(sd * (ex + 4.6), ey - 2.6, sd * 18, ey - 1.6, GOLD_RIM);
+    p.line(sd * (ex + 4.4), ey - 2.4, sd * 15.4, ey - 1.2, GOLD_RIM);
   }
-  p.line(-ex + 4.6, ey - 3, ex - 4.6, ey - 3, GOLD_RIM);
-  if (p.k >= 0.8) p.line(-ex + 4.4, ey - 1.4, ex - 4.4, ey - 1.4, GOLD_RIM);
+  p.line(-ex + 4.2, ey - 2.6, ex - 4.2, ey - 2.6, GOLD_RIM);
+  if (p.k >= 0.8) p.line(-ex + 4, ey - 1, ex - 4, ey - 1, GOLD_RIM);
 }
 
-/** Clear, rounded rectangular frames with a glint. */
+/** Clear, rounded rectangular frames with a glint on the lit lens. */
 function clearFrames(p: Pix, ex: number, ey: number): void {
   for (const sd of [-1, 1]) {
-    const lens = p.shape(path().move(sd * (ex - 4.4), ey - 3).line(sd * (ex + 4.4), ey - 3).quad(sd * (ex + 5.4), ey - 3, sd * (ex + 5.2), ey)
-      .quad(sd * (ex + 5), ey + 3.8, sd * (ex + 2), ey + 3.8).line(sd * (ex - 2), ey + 3.8).quad(sd * (ex - 5), ey + 3.8, sd * (ex - 5.2), ey)
-      .quad(sd * (ex - 5.4), ey - 3, sd * (ex - 4.4), ey - 3).close());
+    const lens = p.shape(path().move(sd * (ex - 3.6), ey - 2.6).line(sd * (ex + 3.6), ey - 2.6).quad(sd * (ex + 4.6), ey - 2.6, sd * (ex + 4.4), ey)
+      .quad(sd * (ex + 4.2), ey + 2.8, sd * (ex + 1.6), ey + 2.8).line(sd * (ex - 1.6), ey + 2.8).quad(sd * (ex - 4.2), ey + 2.8, sd * (ex - 4.4), ey)
+      .quad(sd * (ex - 4.6), ey - 2.6, sd * (ex - 3.6), ey - 2.6).close());
     p.paint(p.border(lens), FRAME_INK);
-    if (p.k >= 0.7) p.paint(p.oval(sd * ex + 2.6, ey - 1.6, 0.7, 0.5), PAL.white[4] ?? 0, lens);
-    p.line(sd * (ex + 5.2), ey - 1.6, sd * 18, ey - 1.2, FRAME_INK);
+    if (p.k >= 0.7 && sd < 0) p.paint(p.oval(sd * ex - 2.4, ey - 1.4, 0.6, 0.5), PAL.white[4] ?? 0, lens);
+    p.line(sd * (ex + 4.4), ey - 1.4, sd * 15.4, ey - 0.8, FRAME_INK);
   }
-  p.line(-ex + 5, ey - 1.6, ex - 5, ey - 1.6, FRAME_INK);
+  p.line(-ex + 4.4, ey - 1.2, ex - 4.4, ey - 1.2, FRAME_INK);
 }
 
 /** Glasses over the eyes at (±ex, ey), in head space. */
@@ -53,28 +56,27 @@ export function glasses(p: Pix, g: Glasses, ex: number, ey: number): void {
 /** A triangular neckerchief knotted at the throat: red with white polka dots. */
 function bandana(p: Pix, phase: number): void {
   const RED = PAL.red;
-  const band = piece(p, path().move(-12.4, 77.6).quad(0, 85, 12.4, 77.6).line(13.2, 82.4).quad(0, 91, -13.2, 82.4).close(), RED, [15, 84, 5, 8]);
+  const band = litPiece(p, p.shape(path().move(-12.4, 74.8).quad(0, 82, 12.4, 74.8).line(13.2, 79.6).quad(0, 88, -13.2, 79.6).close()),
+    RED, { cx: -6, cy: 76, rx: 22, ry: 12 }, { tones: FOUR, lo: -0.4 });
   const tip = phase === 1 ? 0.6 : 0;
-  const flap = p.shape(path().move(-9, 84.6).line(9, 84.6).line(tip, 98.6).close());
-  part(p, flap, RED, p.shape(path().move(3, 84.6).line(9, 84.6).line(tip, 98.6).close()));
+  const flap = litPiece(p, p.shape(path().move(-9, 81.6).line(9, 81.6).line(tip, 95.6).close()), RED, { cx: -3, cy: 84, rx: 12, ry: 14 }, { tones: FOUR, lo: -0.4 });
   const dots = minus(flap, p.border(flap));
-  if (p.k >= 0.6) for (const [x, y] of [[-4.6, 87.4], [0, 89], [4.4, 87.6], [-1.6, 93], [2.2, 94.4], [-6, 82.6], [6, 82.4], [0, 82.2]] as const) {
+  if (p.k >= 0.6) for (const [x, y] of [[-4.6, 84.4], [0, 86], [4.4, 84.6], [-1.6, 90], [2.2, 91.4], [-6, 79.6], [6, 79.4], [0, 79.2]] as const) {
     p.paint(p.oval(x, y, 0.6, 0.6), PAL.white[3] ?? 0, union(dots, band));
   }
-  part(p, p.oval(0, 85.4, 2.6, 2), RED, p.oval(2, 86.4, 2, 2));
+  litPiece(p, p.oval(0, 82.4, 2.6, 2), RED, { cx: -1, cy: 81.6, rx: 3, ry: 2.6 }, { tones: FOUR });
 }
 
 /** A ball chain with two blank tags resting on the chest. */
 function dogtags(p: Pix, phase: number): void {
   const sway = phase === 1 ? 0.6 : 0;
-  const chain = quadPts([-7, 80.4, -2, 96, sway, 96.4], 6).concat(quadPts([sway, 96.4, 2, 96, 7, 80.4], 6).slice(2));
+  const chain = quadPts([-7.8, 75.4, -2, 94, sway, 94.4], 6).concat(quadPts([sway, 94.4, 2, 94, 7.8, 75.4], 6).slice(2));
   if (p.k >= 0.7) for (let i = 0; i + 1 < chain.length; i += 2) p.paint(p.oval(chain[i] ?? 0, chain[i + 1] ?? 0, 0.5, 0.5), PAL.steel[5] ?? 0);
   else p.paint(p.thick(chain, 0), PAL.steel[5] ?? 0);
   for (const [dx, a] of [[-1.2, -0.12], [1.6, 0.16]] as const) {
     const x = sway + dx;
-    const tag = p.shape(path().ellipse(x, 101, 2.2, 3.4, a));
-    part(p, tag, PAL.steel, p.oval(x + 1.6, 102, 1.2, 3.4, a));
-    if (p.k >= 0.8) p.line(x - 1, 100, x + 0.8, 100, PAL.steel[L1] ?? 0, tag);
+    const tag = litPiece(p, p.shape(path().ellipse(x, 99, 2.2, 3.4, a)), PAL.steel, { cx: x - 1.4, cy: 97.6, rx: 3, ry: 4.4 }, { tones: [2, 3, 4, 5] });
+    if (p.k >= 0.8) p.line(x - 1, 98, x + 0.8, 98, PAL.steel[L1] ?? 0, tag);
   }
 }
 

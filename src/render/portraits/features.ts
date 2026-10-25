@@ -9,11 +9,10 @@ import type { Rig } from './types';
  * a three-frame blink, brows that tilt per mood and a mouth with three talking frames.
  */
 
-/** `irisW` (0..1 of the eye width) draws a bigger iris than the default (the kids' big eyes, doc 29). */
-export interface Eyes { x: number; y: number; rx: number; ry: number; iris: Ramp; lash?: boolean; irisW?: number }
+export interface Eyes { x: number; y: number; rx: number; ry: number; iris: Ramp; lash?: boolean }
 export interface Brows { x0: number; x1: number; y: number; th: number; color: number; bias?: number }
-/** `full` paints full lips in that colour; `lower` tints only the lower lip. */
-export interface Mouth { y: number; w: number; grin?: boolean; smirk?: number; full?: number; lower?: number }
+/** `full` paints full lips in that colour. */
+export interface Mouth { y: number; w: number; grin?: boolean; smirk?: number; full?: number }
 
 const LID = PAL.ink[1] ?? 1;
 const EYE = PAL.eye;
@@ -28,22 +27,19 @@ function closedEye(p: Pix, s: EyeSpot): void {
 }
 
 function iris(p: Pix, s: EyeSpot, e: Eyes, r: Rig, rows: readonly [number, number]): void {
-  const big = e.irisW !== undefined;
-  const iw = big ? Math.max(2, Math.min(s.ew - 2, Math.round(s.ew * (e.irisW ?? 0.5)))) : s.ew >= 7 ? 4 : s.ew >= 5 ? 3 : 2;
+  const iw = s.ew >= 7 ? 4 : s.ew >= 5 ? 3 : 2;
   const i0 = Math.ceil((s.ew - iw) / 2);
   const col = (i: number): number => s.at(i0 + i) + s.look;
   for (let j = rows[0]; j <= rows[1]; j++) {
     const tone = j === rows[0] ? e.iris[D2] : j === s.eh - 1 && s.eh >= 4 ? e.iris[L1] : e.iris[BASE];
     for (let i = 0; i < iw; i++) p.set(col(i), s.r0 + j, tone ?? 0);
   }
-  const pupil = big ? (iw % 2 === 1 ? [(iw - 1) / 2] : [iw / 2 - 1, iw / 2])
-    : iw === 4 && r.m.pupil > 0.85 ? [1, 2] : [iw === 4 ? 2 : 1];
+  const pupil = iw === 4 && r.m.pupil > 0.85 ? [1, 2] : [iw === 4 ? 2 : 1];
   const pj1 = s.eh >= 4 ? s.eh - 2 : s.eh - 1;
   const pj0 = r.m.pupil < 0.8 && s.eh >= 4 ? 1 : 0;
   for (let j = Math.max(rows[0], pj0); j <= Math.min(rows[1], pj1); j++) for (const i of pupil) p.set(col(i), s.r0 + j, e.iris[0] ?? 0);
   const left = Math.min(col(0), col(iw - 1));
   if (s.ew >= 5 && s.eh >= 3 && rows[0] <= 1) p.set(left, s.r0 + Math.max(1, rows[0]), EYE[4] ?? 0);
-  if (big && iw >= 5 && s.eh >= 6 && rows[0] <= 1) p.set(left + 1, s.r0 + Math.max(1, rows[0]), EYE[4] ?? 0);
 }
 
 function openEye(p: Pix, s: EyeSpot, e: Eyes, r: Rig, skin: Ramp): void {
@@ -171,11 +167,6 @@ function lips(p: Pix, m: MouthCol, ms: Mouth, skin: Ramp): void {
     if (a < 0.75) p.set(m.c, m.top - 1, ms.full);
     if (a < 0.65) p.set(m.c, below, ms.full);
     if (a < 0.4 && p.k >= 0.8) p.set(m.c, below + 1, ms.full);
-    return;
-  }
-  if (ms.lower !== undefined) { // a tinted lower lip only (the pilots' faces, doc 29)
-    if (a < 0.6) p.set(m.c, below, ms.lower);
-    if (a < 0.3 && p.k >= 0.8) p.set(m.c, below + 1, skin[D1] ?? 0);
     return;
   }
   if (p.k >= 0.75 && a < 0.4) p.set(m.c, below + (m.gap > 0 ? 0 : 1), skin[D1] ?? 0);

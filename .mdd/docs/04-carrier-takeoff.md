@@ -19,7 +19,7 @@ last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
-tags: [carrier, takeoff, catapult, side-view, countdown, afterburner, mini-game]
+tags: [carrier, takeoff, catapult, side-view, countdown, afterburner, joystick-throttle, mini-game]
 path: Game/Takeoff
 integration_contracts:
   - function: "TakeoffRating ('perfect'|'good'|'early'|'late'|'skipped')"
@@ -97,6 +97,10 @@ None.
 - **Spool**: the lever rises while Space is held and stays where it is when released, so the player
   can let go inside the green and press E calmly. Above 0.97 the needle is in the red (overspeed),
   cannot be locked, and sinks back into the green on its own once Space is released.
+- **Joystick throttle** (doc 01): with a throttle axis bound, the lever position *is* the throttle
+  (0 idle … 1 full, no rise rate, no bleed) — but only once it has moved more than 0.05 from where it
+  sat when the deck scene started, so a lever parked at full doesn't put the jet in the red and the
+  trigger / Space still work. Joystick players lock and launch with their SPECIAL button.
 - **Lock**: E in the green → `locked`, the throttle freezes at its value, countdown starts at 3.
   E below the green → rejected `low`; E in the red → rejected `high`; both stay in `spool`.
 - **Countdown**: 3 s, shown as big 3 · 2 · 1 with a beep per second; E during the countdown is

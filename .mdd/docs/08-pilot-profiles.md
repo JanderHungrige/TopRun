@@ -33,7 +33,7 @@ integration_contracts:
   - function: "GameContext.save / setSave(save)"
     when: "always the ACTIVE pilot's progress; scenes keep using it unchanged"
   - function: "GameContext.settings / setSettings(settings)"
-    when: "device-wide settings (music, sfx, muted, autofire, lang) — not per pilot"
+    when: "device-wide settings (music, sfx, muted, autofire, lang, joystick) — not per pilot"
 satisfies_contracts:
   - from: 01-game-core
     function: "persistSave(save)"
@@ -74,7 +74,8 @@ render/avatars/        drawAvatar(ctx, id, box, { t, mouth, mood })
 ```ts
 interface ProfileStore {
   version: 1;
-  settings: Settings;            // { music, sfx, autofire, muted, lang } — device-wide
+  settings: Settings;            // { music, sfx, autofire, muted, lang, joystick } — device-wide
+                                 // joystick: JoyProfile | null (doc 01)
   activeId: string | null;
   profiles: Profile[];           // max 6
 }

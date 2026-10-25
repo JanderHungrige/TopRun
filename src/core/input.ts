@@ -1,3 +1,4 @@
+import type { JoyProfile } from '../game/joystick';
 import { toLogical, type Viewport } from './canvas';
 import type { Vec } from './math';
 import { pollGamepad } from './gamepad';
@@ -6,7 +7,7 @@ export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'switchWeapon' | 'flare' | 'special'
   | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'delete';
 
-export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad';
+export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
 
 const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   ArrowUp: ['up'], KeyW: ['up'], ArrowDown: ['down'], KeyS: ['down', 'skip'],
@@ -71,6 +72,12 @@ export class Input {
   stick: Vec = { x: 0, y: 0 };
   taps: Vec[] = [];
   device: Device = 'keyboard';
+  /** Joystick throttle axis, 0 idle … 1 full; null without a bound throttle (doc 01). */
+  throttle: number | null = null;
+  /** Saved JOYSTICK setup, applied to the controllers it names. */
+  joystick: JoyProfile | null = null;
+  /** True while the JOYSTICK setup screen reads controllers raw. */
+  padSuspended = false;
   private pendingTaps: Vec[] = [];
   private tracks = new Map<number, PointerTrack>();
   private dragAcc = new Map<number, Vec>();
@@ -102,11 +109,12 @@ export class Input {
 
   /** Call once at the start of every fixed update. */
   tick(): void {
-    const pad = pollGamepad();
-    if (pad.active) this.device = 'gamepad';
+    const pad = pollGamepad(this.joystick, this.padSuspended);
+    if (pad.active) this.device = pad.kind;
     for (const [source, acts] of pad.down) this.actions.press(source, acts);
     for (const source of pad.up) this.actions.release(source);
     this.stick = pad.stick;
+    this.throttle = pad.throttle;
     this.actions.tick();
     this.taps = this.pendingTaps;
     this.pendingTaps = [];

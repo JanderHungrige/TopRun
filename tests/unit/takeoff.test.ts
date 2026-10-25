@@ -120,4 +120,31 @@ describe('Carrier Takeoff', () => {
       expect(stepTakeoff(s, e, DT)).toBe(s);
     });
   });
+
+  describe('joystick throttle lever', () => {
+    const lever = (v: number, extra: Partial<TakeoffInput> = {}): TakeoffInput => ({ ...idle, lever: v, ...extra });
+
+    it('ignores a lever that has not moved since the deck scene started', () => {
+      const parked = run(createTakeoff(), lever(1), 1);
+      expect(parked.rawThrottle).toBe(0);
+      expect(parked.overspeed).toBe(false);
+      const spooled = run(parked, lever(1, { throttleHeld: true }), 1);
+      expect(spooled.rawThrottle).toBeCloseTo(0.5, 2);
+    });
+
+    it('sets the throttle directly once moved, without rise rate or bleed', () => {
+      const s = run(run(createTakeoff(), lever(0), 0.2), lever(0.88), 1 / 60);
+      expect(s.rawThrottle).toBe(0.88);
+      const red = run(s, lever(0.99), 2);
+      expect(red.rawThrottle).toBe(0.99);
+      expect(red.overspeed).toBe(true);
+      expect(stepTakeoff(s, lever(0.88, { action: true }), DT).phase).toBe('locked');
+    });
+
+    it('freezes the throttle after the lock whatever the lever does', () => {
+      const locked = stepTakeoff(run(run(createTakeoff(), lever(0), 0.2), lever(0.88), 0.1), lever(0.88, { action: true }), DT);
+      expect(locked.phase).toBe('locked');
+      expect(run(locked, lever(0.1), 1).throttle).toBe(locked.throttle);
+    });
+  });
 });

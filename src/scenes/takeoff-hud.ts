@@ -60,12 +60,15 @@ export function drawThrottle(ctx: CanvasRenderingContext2D, s: TakeoffState, tim
 /** The key/button name the player should press for E on this device. */
 export function actionKey(device: string, phase: TakeoffState['phase']): string {
   if (device === 'gamepad') return 'Y';
+  if (device === 'joystick') return t('takeoff.joySpecial');
   if (device === 'touch') return t(phase === 'ready' ? 'takeoff.btnLaunch' : 'takeoff.btnLock');
   return 'E';
 }
 
-function spoolPrompt(ctx: CanvasRenderingContext2D, s: TakeoffState, touch: boolean, key: string): void {
-  text(ctx, t(touch ? 'takeoff.holdTouch' : 'takeoff.holdKeys'), 640, 96, { size: 26, display: true, align: 'center', shadow: true });
+const HOLD_TEXT: Readonly<Record<string, UiKey>> = { touch: 'takeoff.holdTouch', joystick: 'takeoff.holdJoy' };
+
+function spoolPrompt(ctx: CanvasRenderingContext2D, s: TakeoffState, device: string, key: string): void {
+  text(ctx, t(HOLD_TEXT[device] ?? 'takeoff.holdKeys'), 640, 96, { size: 26, display: true, align: 'center', shadow: true });
   const hint = s.overspeed ? t('takeoff.overspeed') : s.rejected === 'low' ? t('takeoff.notYet') : t('takeoff.green', { key });
   const warn = s.overspeed || s.rejected === 'low';
   text(ctx, hint, 640, 128, { size: 18, align: 'center', color: warn ? COLORS.red : COLORS.ink, shadow: true });
@@ -75,7 +78,7 @@ export function drawPrompt(ctx: CanvasRenderingContext2D, s: TakeoffState, devic
   const key = actionKey(device, s.phase);
   switch (s.phase) {
     case 'spool':
-      spoolPrompt(ctx, s, device === 'touch', key);
+      spoolPrompt(ctx, s, device, key);
       return;
     case 'locked': {
       const n = Math.max(1, Math.ceil(s.countdown));

@@ -17,6 +17,7 @@ import { HangarScene } from './scenes/hangar';
 import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
+import { JoystickSetupScene } from './scenes/joystick-setup';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -34,6 +35,7 @@ class Game implements GameContext {
     this.audio = new AudioEngine({ music: st.music, sfx: st.sfx });
     this.audio.setMuted(st.muted);
     setLang(st.lang);
+    input.joystick = st.joystick;
     this.music = new Music(this.audio);
   }
 
@@ -70,6 +72,7 @@ class Game implements GameContext {
     this.audio.setMuted(next.muted);
     this.audio.setVolumes(next.music, next.sfx);
     setLang(next.lang);
+    this.input.joystick = next.joystick;
     this.commit(updateSettings(this.store, next));
   }
 
@@ -101,6 +104,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'title': return new TitleScene(game);
     case 'pilots': return new PilotsScene(game);
     case 'newPilot': return new NewPilotScene(game);
+    case 'joystick': return new JoystickSetupScene(game);
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
     case 'takeoff': return new TakeoffScene(game, route.mission);

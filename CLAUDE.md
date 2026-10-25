@@ -31,3 +31,8 @@ files from an nginx container behind the owner's reverse proxy.
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run build` — typecheck + production build to `dist/`
 - `docker compose up --build` — production container on http://localhost:8080
+
+## Deployment
+- Live: https://toprun.questenterprise.de/ — push to `main` → GHCR image → host cron rolls it
+  (runbook: `.mdd/ops/deploy-toprun.md`). Merging to `main` IS a production deploy.
+- On the server the app is bound to `172.17.0.1:8081` only (Nginx Proxy Manager in front).

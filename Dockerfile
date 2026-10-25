@@ -12,6 +12,8 @@ COPY tests ./tests
 RUN npm test && npm run build
 
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runtime
+LABEL org.opencontainers.image.source="https://github.com/JanderHungrige/TopRun" \
+      org.opencontainers.image.description="TopGun — carrier launch and top-down arcade shooter (static web game)"
 COPY deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 8080

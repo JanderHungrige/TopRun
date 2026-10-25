@@ -26,36 +26,23 @@ npm run build      # production build into dist/
 
 Dev-only art previews: `http://localhost:5173/dev/art.html` and `/dev/art-enemies.html`.
 
-## Deploy (Docker)
+## Deploy
 
-The image builds the game, runs the tests and serves `dist/` from an unprivileged nginx on port
-**8080**. TLS and HSTS are left to your reverse proxy.
+Live at **https://toprun.questenterprise.de/**. Every push to `main` that changes the game is
+built and tested by GitHub Actions, pushed to `ghcr.io/janderhungrige/toprun`, and rolled out
+by a cron job on the server within about a minute (health-checked, with automatic rollback).
+The full procedure, one-time host setup and rollback steps are in
+[`.mdd/ops/deploy-toprun.md`](.mdd/ops/deploy-toprun.md).
+
+The image serves `dist/` from an unprivileged nginx on container port 8080; on the server it is
+published only on the Docker bridge (`172.17.0.1:8081`) where Nginx Proxy Manager picks it up and
+terminates TLS.
+
+Run the production image locally:
 
 ```bash
-docker compose up -d --build
+docker compose up -d --build     # http://127.0.0.1:8080
 ```
-
-By default the container is published on `127.0.0.1:8080`, which suits a proxy running on the
-same host. Override with `TOPGUN_BIND` / `TOPGUN_PORT` (e.g. in a `.env` file next to
-`docker-compose.yml`).
-
-Point your reverse proxy at `http://127.0.0.1:8080`. Example nginx location for a sub-path or a
-dedicated host:
-
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:8080;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
-
-The build uses relative asset paths, so the game also works when served under a sub-path
-(e.g. `https://example.com/topgun/`).
-
-Health check: the container answers `GET /health` on port 8081 (internal networks only); Docker's
-`HEALTHCHECK` uses it.
 
 ## Project layout
 

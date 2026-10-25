@@ -53,12 +53,15 @@ function blockWall(ctx: CanvasRenderingContext2D): void {
   ctx.fillRect(0, WALL_Y - 10, 1280, 10);
 }
 
-/** Original squadron patch: gold ring, navy disc, white star with red wings. */
+/** Original squadron patch: gold wings swept up behind a gold-ringed navy disc with a gold star (no national roundel). */
 function emblem(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  for (const s of [-1, 1]) {
+    for (let f = 0; f < 3; f++) {
+      fillPoly(ctx, [x + s * 30, y - 4 + f * 9, x + s * (92 - f * 12), y - 40 + f * 13, x + s * (86 - f * 12), y - 28 + f * 13, x + s * 30, y + 6 + f * 9], f % 2 ? '#a8862c' : '#c9a23a');
+    }
+  }
   circle(ctx, x, y, 54, '#c9a23a');
   circle(ctx, x, y, 47, '#16234a');
-  fillPoly(ctx, [x - 64, y + 6, x - 20, y - 6, x - 20, y + 8], '#c2342c');
-  fillPoly(ctx, [x + 64, y + 6, x + 20, y - 6, x + 20, y + 8], '#c2342c');
   ctx.beginPath();
   for (let i = 0; i < 10; i++) {
     const a = -Math.PI / 2 + (i * Math.PI) / 5;
@@ -66,7 +69,7 @@ function emblem(ctx: CanvasRenderingContext2D, x: number, y: number): void {
     ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
   }
   ctx.closePath();
-  ctx.fillStyle = '#f2efe6';
+  ctx.fillStyle = '#e8c35a';
   ctx.fill();
 }
 

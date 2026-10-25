@@ -135,8 +135,13 @@ class PushupRound implements MinigameRound {
       you: this.you, reps: s.reps, rival: tx('rival'), rivalReps: rivalReps(s), left: R.roundTime - s.time, roundTime: R.roundTime, t: this.t,
     });
     const rivalD = s.over ? 0 : rivalDepth(rivalPhase(s));
-    drawPushupPilot(ctx, this.look, { depth: this.depth, collapse: this.collapse, strain: clamp(1 - s.stamina / 50, 0, 1), t: this.t }, PLAYER_X, FLOOR_Y, 1);
-    drawPushupPilot(ctx, RIVAL_LOOK, { depth: rivalD, collapse: this.rivalCollapse, strain: (s.time / R.roundTime) * 0.75, t: this.t + 1.3 }, RIVAL_X, FLOOR_Y, -1);
+    const w = s.over ? winner(s) : null;
+    drawPushupPilot(ctx, this.look, {
+      depth: this.depth, collapse: this.collapse, strain: clamp(1 - s.stamina / 50, 0, 1), t: this.t, grin: w === 'player',
+    }, PLAYER_X, FLOOR_Y, 1);
+    drawPushupPilot(ctx, RIVAL_LOOK, {
+      depth: rivalD, collapse: this.rivalCollapse, strain: (s.time / R.roundTime) * 0.75, t: this.t + 1.3, grin: w === 'rival',
+    }, RIVAL_X, FLOOR_Y, -1);
     if (s.burnout > 0) drawBurnoutLabel(ctx, tx('burnout'), 300, 500, this.t);
     this.renderHud(ctx);
     drawPopups(ctx, this.popups);

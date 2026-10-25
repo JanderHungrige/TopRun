@@ -1,0 +1,101 @@
+import { getLang } from '../i18n';
+import { gameText } from '../minigame-text';
+
+/** Air Refuelling texts (doc 15). */
+export const REFUEL_TEXT = gameText({
+  rule1: 'One minute behind the tanker. Score: fuel received.',
+  rule2: 'Fly the basket onto your probe: gently, centred.',
+  rule3: 'Plugged in: hold position, hose pushed 1–3 m in.',
+  rule4: 'Pod lights: amber ready · green fuel · red back off',
+  ctrlKeys: 'Keyboard: arrows / WASD steer, hold Space / J for more power',
+  ctrlPad: 'Gamepad / stick: steer, hold A (fire) or use the throttle lever',
+  ctrlTouch: 'Touch / mouse: drag on the left to steer, hold on the right for power',
+  score: '{lbs} lbs',
+  live: '{lbs} LBS   {time}',
+  closure: 'CLOSURE',
+  kt: '{kt} KT',
+  fast: 'FAST',
+  fuel: 'FUEL RECEIVED',
+  lbsUnit: 'LBS',
+  range: 'RANGE {m} M',
+  hold: 'POSITION',
+  hose: 'HOSE',
+  flowBand: 'FLOW',
+  slackBand: 'SLACK',
+  power: 'POWER',
+  cleared: 'CLEARED TO CONTACT',
+  pushIn: 'CONTACT — PUSH IN',
+  flowing: 'FUEL FLOWING',
+  tooFar: 'TOO FAR — EASE BACK',
+  backOff: 'BACK OFF',
+  contact: 'CONTACT!',
+  miss: 'MISSED THE BASKET',
+  missSub: '{cm} cm off-centre',
+  tooFast: 'TOO FAST!',
+  tooFastSub: '{kt} kt — the basket bounced off',
+  tooSoft: 'TOO SOFT',
+  tooSoftSub: 'no latch — push in a bit firmer',
+  droppedOff: 'DROPPED OFF',
+  droppedOffSub: 'fell back out — fuel stopped',
+  slack: 'HOSE SLACK!',
+  slackSub: 'pushed in too far — disconnect',
+  brokeOff: 'BROKE CONTACT',
+  brokeOffSub: 'stay inside the position box',
+  milestone: '+{lbs} LBS',
+  time: 'TIME!',
+  onBoard: '{lbs} LBS ON BOARD',
+}, {
+  rule1: 'Eine Minute hinter dem Tanker. Punkte: getankte lbs.',
+  rule2: 'Fliege den Korb auf deine Sonde: sanft und mittig.',
+  rule3: 'Angedockt: Position halten, 1–3 m einschieben.',
+  rule4: 'Lichter: gelb bereit · grün Kraftstoff · rot zurück',
+  ctrlKeys: 'Tastatur: Pfeile / WASD steuern, Leertaste / J halten für mehr Schub',
+  ctrlPad: 'Gamepad / Stick: steuern, A (Feuer) halten oder Schubhebel',
+  ctrlTouch: 'Touch / Maus: links ziehen zum Steuern, rechts halten für Schub',
+  score: '{lbs} lbs',
+  live: '{lbs} LBS   {time}',
+  closure: 'ANNÄHERUNG',
+  kt: '{kt} KT',
+  fast: 'ZU SCHNELL',
+  fuel: 'GETANKT',
+  lbsUnit: 'LBS',
+  range: 'ABSTAND {m} M',
+  hold: 'POSITION',
+  hose: 'SCHLAUCH',
+  flowBand: 'FLUSS',
+  slackBand: 'LOSE',
+  power: 'SCHUB',
+  cleared: 'FREI ZUM ANDOCKEN',
+  pushIn: 'KONTAKT — EINSCHIEBEN',
+  flowing: 'KRAFTSTOFF FLIESST',
+  tooFar: 'ZU WEIT — ZURÜCKNEHMEN',
+  backOff: 'ZURÜCKFALLEN',
+  contact: 'KONTAKT!',
+  miss: 'KORB VERFEHLT',
+  missSub: '{cm} cm neben der Mitte',
+  tooFast: 'ZU SCHNELL!',
+  tooFastSub: '{kt} kt — der Korb ist abgeprallt',
+  tooSoft: 'ZU SANFT',
+  tooSoftSub: 'nicht eingerastet — etwas fester schieben',
+  droppedOff: 'ABGEFALLEN',
+  droppedOffSub: 'herausgerutscht — kein Kraftstoff mehr',
+  slack: 'SCHLAUCH LOSE!',
+  slackSub: 'zu weit eingeschoben — getrennt',
+  brokeOff: 'KONTAKT ABGERISSEN',
+  brokeOffSub: 'bleib im Positionskasten',
+  milestone: '+{lbs} LBS',
+  time: 'ZEIT!',
+  onBoard: '{lbs} LBS AN BORD',
+});
+
+export type RefuelKey = keyof typeof REFUEL_TEXT.en;
+
+/** A number in the current language's format, e.g. 7,450 / 7.450 or 1.6 / 1,6. */
+export const refuelNum = (n: number, digits = 0): string =>
+  n.toLocaleString(getLang() === 'de' ? 'de-DE' : 'en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+/** Seconds left as m:ss. */
+export const clockText = (seconds: number): string => {
+  const s = Math.max(0, Math.ceil(seconds - 1e-6));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};

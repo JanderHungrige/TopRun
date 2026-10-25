@@ -37,6 +37,7 @@ integration_contracts: []
 satisfies_contracts: []
 known_issues:
   - "Medals and kills count 0 until Home Base Honours wave 1 (doc 24) is merged; then medals = earnedMedals().length, kills = save.record.kills."
+  - "Resolved 2026-10-25: merged with doc 24 — pilotStats now counts earnedMedals() and save.record.kills."
 security_read_sites:
   - src/core/ladder-api.ts (ladder JSON from the network)
 sister_projects: []
@@ -64,9 +65,10 @@ rank (doc 26), reachable from the title menu, kept up to date without the player
   pilot's `{ id, secret, callsign, avatar, stats }` if `share` is on and the submission differs from
   the last one accepted this session. That covers debriefs, minigame bests and hangar purchases
   without touching those scenes.
-- Stats: `ladderStats(save, tiers, medals, kills)` — stars summed over progress, minigame tiers from
-  the registry (`minigameTiers(save)`: each built game's personal-best medal), medals/kills see
-  known issues.
+- Stats: `pilotStats(save)` = `ladderStats(save, tiers, medals, kills)` — stars summed over
+  progress, minigame tiers from the registry (`minigameTiers(save)`: each built game's
+  personal-best medal), medals = `earnedMedals(save, goldCount(save)).length` (doc 24), kills =
+  `save.record.kills`.
 - Network errors and non-200 answers are silent (the game never blocks on the ladder).
 
 ## Screen (route `ladder`)
@@ -113,7 +115,7 @@ POST/DELETE body to the same origin.
 
 ## Known Issues
 
-- Medals/kills count 0 before doc 24 merges (see frontmatter).
+- Medals/kills counted 0 before doc 24 merged (resolved, see frontmatter).
 
 ## Bugs
 

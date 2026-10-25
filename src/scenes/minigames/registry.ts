@@ -36,3 +36,6 @@ export const minigameTiers = (save: SaveData): Array<Medal | null> =>
     const r = save.minigames[m.id];
     return r ? medalFor(r.best, m.medals, m.higherIsBetter) : null;
   });
+
+/** How many built minigames have a gold personal best (medals Off-Duty Star / Base Legend, doc 24). */
+export const goldCount = (save: SaveData): number => minigameTiers(save).filter((tier) => tier === 'gold').length;

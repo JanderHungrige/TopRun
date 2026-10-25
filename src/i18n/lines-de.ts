@@ -67,6 +67,17 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Drei Sterne bei jedem Einsatz da draußen. Dafür gibt es etwas Besonderes: {livery}.',
     'Ein makelloser Einsatzraum, Pilot. Die Lackiererei hat das Beste rausgeholt: {livery}.',
   ],
+  // Admiral — Ordensverleihung (Doc 25)
+  'adm.medal': [
+    'Achtung an Deck! {callsign}, es ist mir eine Ehre, dir diese Auszeichnung zu überreichen: {medal}.',
+    '{callsign}, die ganze Flotte hat gesehen, was du da draußen geleistet hast. Dafür bekommst du diese Auszeichnung: {medal}. Trag sie mit Stolz.',
+    'Steh gerade, {callsign}. Im Namen der ganzen Besatzung: {medal}. Das hast du dir verdient.',
+  ],
+  'adm.medalMore': [
+    'Und noch eine, {callsign}: {medal}.',
+    'Stillhalten, {callsign}, ich bin noch nicht fertig. Auch das noch: {medal}.',
+    'Besorgt {callsign} mal eine breitere Brust. Hier kommt: {medal}.',
+  ],
   // Chief "Wrench" Kowalski
   'chief.hello': [
     'Willkommen in meinem Hangar, {callsign}. Gucken ist erlaubt, anfassen nur, was du bezahlen kannst.',

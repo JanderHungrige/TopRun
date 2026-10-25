@@ -15,6 +15,9 @@ Game
 ├── Characters   06-talking-characters  complete
 ├── Engine       01-game-core           complete
 ├── Hangar       02-hangar-economy      complete
+├── Honours
+│   ├── Medals    24-medals-core         complete
+│   └── Ceremony  25-medal-ceremony      complete
 ├── Ladder
 │   ├── Rating    26-pilot-rating        complete
 │   ├── Service   27-online-ladder       complete
@@ -71,6 +74,8 @@ graph TD
   volley[21-beach-volleyball]:::complete
   moto[22-motorbike-vs-jet]:::complete
   piano[23-piano-bar]:::complete
+  medals[24-medals-core]:::complete
+  ceremony[25-medal-ceremony]:::complete
   rating[26-pilot-rating]:::complete
   ladder[27-online-ladder]:::complete
   ladderui[28-ladder-screen]:::complete
@@ -95,6 +100,13 @@ graph TD
   paint --> chars
   paint --> i18n
   mgcore --> core
+  medals --> pilots
+  medals --> map
+  medals --> mgcore
+  ceremony --> medals
+  ceremony --> chars
+  ceremony --> people
+  ceremony --> retro
   rating --> map
   rating --> mgcore
   ladder --> rating

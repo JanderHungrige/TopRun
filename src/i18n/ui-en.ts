@@ -1,4 +1,5 @@
 import { UI_EN_LADDER } from './ui-en-ladder';
+import { UI_EN_HONOURS } from './ui-en-honours';
 import { UI_EN_OFFDUTY } from './ui-en-offduty';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
@@ -280,6 +281,7 @@ export const UI_EN = {
   'debrief.newPaint': 'NEW PAINT JOB: {livery}',
   ...UI_EN_OFFDUTY,
   ...UI_EN_LADDER,
+  ...UI_EN_HONOURS,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

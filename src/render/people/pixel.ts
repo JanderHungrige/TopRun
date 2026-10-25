@@ -1,6 +1,6 @@
 import type { Vec } from '../../core/math';
 import type { Rect } from '../pixel/blit';
-import { drawPixelated } from '../pixel/capture';
+import { drawPixelated, type PixelOpts } from '../pixel/capture';
 import { drawFrontVector, type FrontExtras, type FrontPose } from './front-figure';
 import { drawSideVector, type ArmJoints, type LegJoints, type SidePose } from './side-figure';
 import type { FaceState, PersonLook } from './types';
@@ -38,16 +38,24 @@ const faceKey = (f: FaceState): string => `${f.expression}|${f.strain}|${f.blink
 /** Front figure reach around its floor origin (arms raised over the head included). */
 const FRONT_BOUNDS: Rect = { x: -135, y: -415, w: 270, h: 432 };
 
-/** Draws a standing three-quarter person in the current transform (pixel art, cached per frame). */
-export function drawFrontFigure(ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, face: FaceState, extras?: FrontExtras): void {
+const qReach = (v: Vec | null | undefined): Vec | null => (v ? qv(v) : null);
+const reachKey = (r: FrontPose['reach']): string => (r ? r.map((v) => (v ? `${v.x},${v.y}` : '-')).join(';') : '');
+
+/** Draws a standing three-quarter person in the current transform (pixel art, cached per frame). `opts` sets the
+ *  art grid (drawing units per art pixel, smallest device pixel size) — e.g. to keep small figures on the same
+ *  pixel size as big ones. */
+export function drawFrontFigure(
+  ctx: CanvasRenderingContext2D, look: PersonLook, pose: FrontPose, face: FaceState, extras?: FrontExtras, opts?: PixelOpts,
+): void {
   const p: FrontPose = {
     turn: q(pose.turn, 0.02), headTurn: q(pose.headTurn ?? 0, 0.02),
     raise: [q(pose.raise[0], 0.125), q(pose.raise[1], 0.125)], hands: pose.hands,
+    ...(pose.reach ? { reach: [qReach(pose.reach[0]), qReach(pose.reach[1])] as const } : {}),
   };
   const f = faceFrame(face, look, false);
   const ex = extras ? extras.key ?? `${idOf(extras.head)}.${idOf(extras.chest)}` : '';
-  const key = `F|${idOf(look)}|${p.turn}|${p.headTurn}|${p.raise[0]}|${p.raise[1]}|${p.hands}|${faceKey(f)}|${ex}`;
-  drawPixelated(ctx, key, FRONT_BOUNDS, (g) => drawFrontVector(g, look, p, f, extras));
+  const key = `F|${idOf(look)}|${p.turn}|${p.headTurn}|${p.raise[0]}|${p.raise[1]}|${p.hands}|${reachKey(p.reach)}|${faceKey(f)}|${ex}`;
+  drawPixelated(ctx, key, FRONT_BOUNDS, (g) => drawFrontVector(g, look, p, f, extras), opts);
 }
 
 const qv = (v: Vec): Vec => ({ x: q(v.x, 1.5), y: q(v.y, 1.5) });

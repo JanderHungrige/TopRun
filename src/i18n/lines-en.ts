@@ -65,6 +65,17 @@ export const LINES_EN = {
     "Three stars on every sortie out there. That earns you something special: {livery}.",
     "A flawless theater, pilot. The paint shop broke out the good stuff: {livery}.",
   ],
+  // Admiral — medal ceremony (doc 25)
+  'adm.medal': [
+    "Attention on deck! {callsign}, it is my honour to present you with this award: {medal}.",
+    "{callsign}, the whole fleet saw what you did out there. For that: {medal}. Wear it with pride.",
+    "Stand tall, {callsign}. On behalf of every sailor on this ship: {medal}. You earned it.",
+  ],
+  'adm.medalMore': [
+    "And one more, {callsign}: {medal}.",
+    "Hold still, {callsign}, I'm not done yet. {medal}, too.",
+    "Somebody find {callsign} a bigger chest. Here comes {medal}.",
+  ],
   // Chief "Wrench" Kowalski — hangar
   'chief.hello': [
     "Welcome to my hangar, {callsign}. Look all you want, touch nothing you can't pay for.",

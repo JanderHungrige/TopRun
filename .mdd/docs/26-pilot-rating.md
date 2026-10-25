@@ -73,7 +73,7 @@ Reads the save (stars, record kills, minigame bests) and the earned medals; writ
 
 ## Dependencies
 
-03 (stars), 10 (minigame medals), 24 (medals, when merged — until then medals = 0).
+03 (stars), 10 (minigame medals), 24 (medals and the service record's kills).
 
 ## Security
 

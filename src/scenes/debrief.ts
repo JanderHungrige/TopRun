@@ -7,6 +7,9 @@ import { debriefScript } from '../game/dialogue-scripts';
 import { applyResult, type Payout } from '../game/economy';
 import { newlyUnlocked } from '../game/liveries';
 import { offerAfterMission } from '../game/minigames/core';
+import { earnedMedals, newMedals } from '../game/medals';
+import type { MedalId } from '../data/medals';
+import type { Route } from '../game/state';
 import { campaignComplete } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { liveryName, missionName, objectiveText } from '../i18n/content';
@@ -15,7 +18,7 @@ import type { UiKey } from '../i18n/ui-en';
 import { drawPlaneTop } from '../render/draw-planes';
 import { COLORS, text } from '../render/text';
 import { pilotContext, SpeechBox } from '../ui/speech';
-import { playableIds } from './minigames/registry';
+import { goldCount, playableIds } from './minigames/registry';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
@@ -40,10 +43,15 @@ export class DebriefScene implements Scene {
   private readonly liveries: LiveryId[];
   /** Off-duty minigame offered on CONTINUE (doc 11). */
   private readonly offer: ReturnType<typeof offerAfterMission>;
+  /** Medals this mission earned: the ceremony plays before the next screen (doc 24). */
+  private readonly medals: MedalId[];
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
-    const applied = applyResult(game.save, mission, result);
+    const golds = goldCount(game.save);
+    const medalsBefore = earnedMedals(game.save, golds);
+    const applied = applyResult(game.save, mission, result, Date.now());
+    this.medals = newMedals(medalsBefore, earnedMedals(applied.save, golds));
     this.liveries = newlyUnlocked(game.save.progress, applied.save.progress);
     this.offer = result.success ? offerAfterMission({
       missionNumber: mission.number, before: game.save.progress, after: applied.save.progress,
@@ -87,10 +95,11 @@ export class DebriefScene implements Scene {
 
   private leave(to: 'map' | 'retry' | 'hangar'): void {
     this.game.audio.play('uiSelect');
-    if (to === 'retry') this.game.go({ to: 'takeoff', mission: this.mission });
-    else if (to === 'hangar') this.game.go({ to: 'hangar' });
-    else if (this.offer) this.game.go({ to: 'offer', id: this.offer.id, isNew: this.offer.isNew });
-    else this.game.go({ to: 'map', select: this.result.success ? undefined : this.mission.id });
+    const next: Route = to === 'retry' ? { to: 'takeoff', mission: this.mission }
+      : to === 'hangar' ? { to: 'hangar' }
+        : this.offer ? { to: 'offer', id: this.offer.id, isNew: this.offer.isNew }
+          : { to: 'map', select: this.result.success ? undefined : this.mission.id };
+    this.game.go(this.medals.length > 0 ? { to: 'ceremony', medals: this.medals, then: next } : next);
   }
 
   render(ctx: CanvasRenderingContext2D): void {

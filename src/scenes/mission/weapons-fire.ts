@@ -50,6 +50,7 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
   if (!slot || slot.ammo <= 0 || p.secCooldown > 0) return false;
   const def = SECONDARIES[slot.id];
   slot.ammo -= 1;
+  p.firedSecondary = true;
   p.secCooldown = def.cooldown;
   p.sideToggle *= -1;
   switch (def.behavior) {

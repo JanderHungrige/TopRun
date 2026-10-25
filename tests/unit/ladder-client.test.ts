@@ -5,7 +5,10 @@ import {
 } from '../../src/game/ladder-stats';
 import { parseSubmission, takeWrite, WRITES_PER_MIN } from '../../src/game/ladder';
 import { RATING } from '../../src/game/rating';
+import { MEDAL_IDS } from '../../src/data/medals';
+import { emptyRecord } from '../../src/game/service-record';
 import { minigameTiers, PLAYABLE } from '../../src/scenes/minigames/registry';
+import { pilotStats } from '../../src/scenes/pilot-rating';
 
 const BYTES = Uint8Array.from({ length: 48 }, (_, i) => (i * 37 + 11) & 255);
 
@@ -70,5 +73,12 @@ describe('Ladder client side and write limit', () => {
     expect(parsePostReply({ place: 2, rating: 1690, rank: 'ltjg' })).toEqual({ place: 2, rating: 1690, rank: 'ltjg' });
     expect(parsePostReply({ place: 0, rating: 1, rank: 'ltjg' })).toBeNull();
     expect(parsePostReply({ error: 'secret' })).toBeNull();
+  });
+
+  it('counts the earned medals and the service-record kills (doc 24)', () => {
+    expect(MEDAL_IDS).toHaveLength(RATING.maxMedals);
+    const save = { ...defaultSave(), record: { ...emptyRecord(), kills: 60, sorties: 25 } };
+    expect(pilotStats(save)).toMatchObject({ kills: 60, medals: 2 });
+    expect(pilotStats(defaultSave())).toMatchObject({ kills: 0, medals: 0 });
   });
 });

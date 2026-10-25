@@ -1,5 +1,5 @@
 import { maxEquipmentLevel } from '../data/equipment';
-import type { LiveryId } from '../data/liveries';
+import { LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import {
@@ -8,8 +8,9 @@ import {
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
-import { parseLiveries } from './liveries';
+import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
+import { emptyRecord, parseRecord, type ServiceRecord } from './service-record';
 
 /** Legacy single-save key (pre-profiles); read once for migration (doc 08). */
 export const SAVE_KEY = 'topgun.save.v1';
@@ -26,13 +27,23 @@ export interface SaveData {
   ownedSecondaries: SecondaryId[];
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
-  progress: Record<string, { stars: number }>;
+  progress: Record<string, ProgressEntry>;
   /** Paint job per jet (doc 09). */
   livery: Record<PlaneId, LiveryId>;
   /** Off-duty minigame personal bests (doc 10). */
   minigames: MinigameRecords;
   /** This pilot's online ladder entry (doc 28); null until the first save. */
   ladder: LadderLink | null;
+  /** Service record for the medals (doc 24). */
+  record: ServiceRecord;
+}
+
+/** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
+export interface ProgressEntry {
+  stars: number;
+  at?: number;
+  plane?: PlaneId;
+  livery?: LiveryId;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -51,6 +62,7 @@ export function defaultSave(): SaveData {
     livery: { f16: 'standard', f14: 'standard', sr71: 'standard' },
     minigames: {},
     ladder: null,
+    record: emptyRecord(),
   };
 }
 
@@ -82,13 +94,25 @@ function parseLoadout(v: unknown, plane: PlaneId, owned: readonly SecondaryId[])
   });
 }
 
-function parseProgress(v: unknown): Record<string, { stars: number }> {
-  const out: Record<string, { stars: number }> = {};
+function parseEntry(e: Record<string, unknown>): ProgressEntry {
+  const out: ProgressEntry = { stars: int(e.stars, 0, 3, 1) };
+  if (typeof e.at === 'number' && Number.isFinite(e.at) && e.at > 0) out.at = e.at;
+  const plane = PLANE_IDS.find((p) => p === e.plane);
+  if (plane) out.plane = plane;
+  const livery = LIVERY_IDS.find((l) => l === e.livery);
+  if (livery) out.livery = livery;
+  return out;
+}
+
+function parseProgress(v: unknown): Record<string, ProgressEntry> {
+  const out: Record<string, ProgressEntry> = {};
   if (!isRecord(v)) return out;
   for (const m of MISSIONS) {
     const entry = v[m.id];
-    if (isRecord(entry)) out[m.id] = { stars: int(entry.stars, 0, 3, 1) };
+    if (isRecord(entry)) out[m.id] = parseEntry(entry);
   }
+  // A photo's paint job must have been earned by the parsed progress (doc 09).
+  for (const e of Object.values(out)) if (e.livery && !isLiveryUnlocked(out, e.livery)) e.livery = 'standard';
   return out;
 }
 
@@ -125,6 +149,7 @@ export function parseSave(raw: unknown): SaveData | null {
     livery: parseLiveries(raw.livery, progress),
     minigames: parseMinigames(raw.minigames),
     ladder: parseLadderLink(raw.ladder),
+    record: parseRecord(raw.record),
   };
 }
 

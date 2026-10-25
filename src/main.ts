@@ -21,6 +21,7 @@ import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
 import { BaseHubScene } from './scenes/base-hub';
+import { CeremonyScene } from './scenes/ceremony';
 import { JoystickSetupScene } from './scenes/joystick-setup';
 import { LadderScene } from './scenes/ladder';
 import { MinigameOfferScene } from './scenes/minigame-offer';
@@ -130,6 +131,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'hangar': return new HangarScene(game);
     case 'base': return new BaseHubScene(game);
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
+    case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
     case 'minigame': {
       const mod = moduleFor(route.id);
       return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);

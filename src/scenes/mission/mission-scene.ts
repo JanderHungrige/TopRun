@@ -240,6 +240,7 @@ export class MissionScene implements Scene {
       missionId: this.mission.id, success, aborted, takeoff: this.takeoff, kills: w.tally.kills,
       spawned: w.spawned + (w.boss ? 1 : 0), objectiveDone: objectiveMet(this.mission.objective, w.tally, this.player.alive),
       hullRatio: this.player.hullRatio, collected: w.collected, bossKilled: w.tally.bossKilled,
+      usedSecondaries: this.player.firedSecondary,
     };
     this.game.go({ to: 'debrief', mission: this.mission, result });
   }

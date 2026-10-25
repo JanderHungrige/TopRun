@@ -1,4 +1,4 @@
-# The TopRun (the TopRun game) production stack, deployed from a prebuilt GHCR image and kept
+# The TopGun game production stack, deployed from a prebuilt GHCR image and kept
 # current by deploy/auto-deploy.sh (root cron via deploy/roll-all.sh):
 #
 #   docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml up -d   # 172.17.0.1:8081
@@ -36,3 +36,36 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+
+  ladder:
+    image: ${REGISTRY:-ghcr.io}/${OWNER:-janderhungrige}/${LADDER_IMAGE:-toprun-ladder}:${IMAGE_TAG}
+    restart: unless-stopped
+    init: true
+    volumes:
+      - ladder-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=8m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    pids_limit: 32
+    cpu_shares: 256
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=64"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Same probe as server/Dockerfile's HEALTHCHECK; auto-deploy.sh waits for "healthy".
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8090/api/ladder/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  ladder-data:

@@ -40,6 +40,7 @@ export class TitleScene implements Scene {
     const st = this.game.settings;
     const items: Array<[string, string]> = [
       ...(this.game.profiles.length > 0 ? ([['continue', t('title.continue')]] as Array<[string, string]>) : []),
+      ['ladder', t('title.ladder')],
       ['new', t('title.newPilot')],
       ['controls', t('title.controls')],
       ['joystick', t('title.joystick')],
@@ -47,10 +48,12 @@ export class TitleScene implements Scene {
       ['autofire', t(st.autofire ? 'title.autofireOn' : 'title.autofireOff')],
       ['lang', t('title.language')],
     ];
-    const top = 688 - items.length * 46;
+    // Eight items no longer fit under the tagline at 46 px a row.
+    const step = items.length > 7 ? 40 : 46;
+    const top = 688 - items.length * step;
     const full = this.game.profiles.length >= MAX_PROFILES;
     const buttons: Button[] = items.map(([id, text_], i) => ({
-      id, label: text_, x: 510, y: top + i * 46, w: 260, h: 38, primary: i === 0, enabled: !(id === 'new' && full),
+      id, label: text_, x: 510, y: top + i * step, w: 260, h: step - 8, primary: i === 0, enabled: !(id === 'new' && full),
     }));
     const focus = this.menu.focused?.id;
     this.menu.setButtons(buttons);
@@ -100,6 +103,10 @@ export class TitleScene implements Scene {
       case 'joystick':
         this.game.audio.play('uiSelect');
         this.game.go({ to: 'joystick' });
+        return;
+      case 'ladder':
+        this.game.audio.play('uiSelect');
+        this.game.go({ to: 'ladder' });
         return;
       case 'sound': return this.toggle('muted');
       case 'autofire': return this.toggle('autofire');

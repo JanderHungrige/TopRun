@@ -1,6 +1,7 @@
 import type { AudioEngine } from '../core/audio';
 import type { Viewport } from '../core/canvas';
 import type { Input } from '../core/input';
+import type { LadderSync } from '../core/ladder-sync';
 import type { Music } from '../core/music';
 import type { MinigameId } from '../data/minigames';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
@@ -13,6 +14,7 @@ export type Route =
   | { to: 'pilots' }
   | { to: 'newPilot' }
   | { to: 'joystick' }
+  | { to: 'ladder' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
   | { to: 'base' }
@@ -33,6 +35,8 @@ export interface GameContext {
   readonly input: Input;
   readonly audio: AudioEngine;
   readonly music: Music;
+  /** Keeps the active pilot's online ladder entry current (doc 28). */
+  readonly ladder: LadderSync;
   /** Where DOM overlays (the callsign field) are placed over the canvas. */
   readonly dom: { host: HTMLElement; viewport: () => Viewport };
   /** Replaces the active pilot's save and persists the profile store. */

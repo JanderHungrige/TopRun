@@ -7,6 +7,7 @@ import {
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
+import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
 
@@ -30,6 +31,8 @@ export interface SaveData {
   livery: Record<PlaneId, LiveryId>;
   /** Off-duty minigame personal bests (doc 10). */
   minigames: MinigameRecords;
+  /** This pilot's online ladder entry (doc 28); null until the first save. */
+  ladder: LadderLink | null;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -47,6 +50,7 @@ export function defaultSave(): SaveData {
     progress: {},
     livery: { f16: 'standard', f14: 'standard', sr71: 'standard' },
     minigames: {},
+    ladder: null,
   };
 }
 
@@ -120,6 +124,7 @@ export function parseSave(raw: unknown): SaveData | null {
     progress,
     livery: parseLiveries(raw.livery, progress),
     minigames: parseMinigames(raw.minigames),
+    ladder: parseLadderLink(raw.ladder),
   };
 }
 

@@ -1,6 +1,7 @@
 import { AudioEngine } from './core/audio';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
+import { LadderSync } from './core/ladder-sync';
 import { startLoop } from './core/loop';
 import { Music } from './core/music';
 import { SceneManager, type Scene } from './core/scene';
@@ -8,6 +9,8 @@ import {
   activeProfile, createProfile, deleteProfile, loadStore, newProfileId, persistStore, selectProfile,
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type Profile, type ProfileStore,
 } from './game/profiles';
+import type { Submission } from './game/ladder';
+import { withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
 import type { Settings } from './game/settings';
 import type { GameContext, Route } from './game/state';
@@ -19,9 +22,11 @@ import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
 import { BaseHubScene } from './scenes/base-hub';
 import { JoystickSetupScene } from './scenes/joystick-setup';
+import { LadderScene } from './scenes/ladder';
 import { MinigameOfferScene } from './scenes/minigame-offer';
 import { moduleFor } from './scenes/minigames/registry';
 import { MinigameScene } from './scenes/minigames/shell';
+import { pilotStats } from './scenes/pilot-rating';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -33,6 +38,7 @@ class Game implements GameContext {
   time = 0;
   readonly audio: AudioEngine;
   readonly music: Music;
+  readonly ladder = new LadderSync(() => this.ladderSubmission());
 
   constructor(readonly input: Input, private readonly scenes: SceneManager, readonly dom: { host: HTMLElement; viewport: () => Viewport }) {
     const st = this.store.settings;
@@ -69,7 +75,17 @@ class Game implements GameContext {
       this.scratch = next;
       return;
     }
-    this.commit(updateActiveSave(this.store, next));
+    const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
+    this.commit(updateActiveSave(this.store, linked));
+    this.ladder.poke();
+  }
+
+  /** What the active pilot reports to the online ladder; null while not shared (doc 28). */
+  private ladderSubmission(): Submission | null {
+    const p = activeProfile(this.store);
+    const link = p?.save.ladder;
+    if (!p || !link?.share) return null;
+    return { id: link.id, secret: link.secret, callsign: p.callsign, avatar: p.avatar, stats: pilotStats(p.save) };
   }
 
   setSettings(next: Settings): void {
@@ -109,6 +125,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'pilots': return new PilotsScene(game);
     case 'newPilot': return new NewPilotScene(game);
     case 'joystick': return new JoystickSetupScene(game);
+    case 'ladder': return new LadderScene(game);
     case 'map': return new MapScene(game, route.select);
     case 'hangar': return new HangarScene(game);
     case 'base': return new BaseHubScene(game);

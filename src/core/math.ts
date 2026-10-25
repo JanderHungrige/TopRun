@@ -35,3 +35,6 @@ export const easeInOutQuad = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (
 export function formatMoney(v: number): string {
   return `$${Math.round(v).toLocaleString('en-US')}`;
 }
+
+/** Rating points: 12345 → "12,345" (same grouping as money). */
+export const formatPoints = (v: number): string => Math.round(v).toLocaleString('en-US');

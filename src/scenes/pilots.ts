@@ -5,8 +5,10 @@ import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { AVATAR_COLORS, drawAvatar } from '../render/avatars';
 import { drawSunset } from '../render/backdrop';
+import { drawRankBoard, RANK_KEY } from '../render/ranks';
 import { COLORS, text } from '../render/text';
 import { drawButton, drawPanel, hit, type Button, type Rect } from '../ui/widgets';
+import { pilotStanding } from './pilot-rating';
 
 const CARD_W = 380;
 const CARD_H = 230;
@@ -117,9 +119,12 @@ export class PilotsScene implements Scene {
     drawPanel(ctx, r, { fill: focused ? 'rgba(30,52,80,0.95)' : 'rgba(10,18,30,0.9)', edge: focused ? COLORS.gold : AVATAR_COLORS[p.avatar], radius: 12 });
     drawAvatar(ctx, p.avatar, { x: r.x + 14, y: r.y + 16, w: 160, h: 198 }, { t: this.time + i * 1.3, mood: focused ? 'happy' : 'neutral' });
     const s = profileSummary(p);
-    text(ctx, p.callsign, r.x + 188, r.y + 52, { size: 26, display: true, italic: true, color: focused ? COLORS.gold : COLORS.ink, maxWidth: CARD_W - 200 });
-    text(ctx, t('map.progress', { done: s.cleared, stars: s.stars }), r.x + 188, r.y + 82, { size: 12, color: COLORS.dim, maxWidth: CARD_W - 200 });
-    text(ctx, formatMoney(s.money), r.x + 188, r.y + 112, { size: 20, display: true, color: COLORS.green });
+    text(ctx, p.callsign, r.x + 188, r.y + 48, { size: 26, display: true, italic: true, color: focused ? COLORS.gold : COLORS.ink, maxWidth: CARD_W - 200 });
+    text(ctx, t('map.progress', { done: s.cleared, stars: s.stars }), r.x + 188, r.y + 72, { size: 12, color: COLORS.dim, maxWidth: CARD_W - 200 });
+    const rank = pilotStanding(p.save).rank;
+    drawRankBoard(ctx, rank, r.x + 188, r.y + 82, 0.75);
+    text(ctx, t(RANK_KEY[rank]), r.x + 214, r.y + 97, { size: 13, color: COLORS.gold, maxWidth: CARD_W - 230 });
+    text(ctx, formatMoney(s.money), r.x + 188, r.y + 124, { size: 18, display: true, color: COLORS.green });
     drawButton(ctx, { id: 'fly', label: t('pilots.fly'), ...flyRect(r), primary: true }, focused, this.time);
     drawButton(ctx, { id: 'del', label: t('pilots.delete'), ...delRect(r) }, false, this.time);
   }

@@ -139,7 +139,7 @@ function readJson(storage: ReadStore | null, key: string): unknown {
     const text = storage?.getItem(key);
     return text ? JSON.parse(text) : undefined;
   } catch {
-    console.warn(`TopRun: ${key} is corrupt, ignoring it`);
+    console.warn(`TopGun: ${key} is corrupt, ignoring it`);
     return undefined;
   }
 }

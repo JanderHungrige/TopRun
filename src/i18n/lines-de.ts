@@ -57,7 +57,7 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Deine neuen Befehle schicken dich nach {theater}. Viel Glück, Pilot.',
   ],
   'adm.finale': [
-    'Der Krieg ist vorbei, {callsign}. Du bist der Beste der Besten. Willkommen bei TopRun.',
+    'Der Krieg ist vorbei, {callsign}. Du bist der Beste der Besten. Willkommen bei TopGun.',
   ],
   'adm.livery': [
     'Und die Lackiererei hat etwas für dich: {livery}. Trag sie mit Stolz.',

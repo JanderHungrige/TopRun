@@ -1,4 +1,4 @@
-# TopRun — Project Rules
+# TopGun — Project Rules
 
 Browser arcade game: carrier takeoff (side view) → top-down vertical shooter, 30-mission
 campaign map, hangar shop. TypeScript + Vite + Canvas 2D, no game engine. Served as static

@@ -71,6 +71,10 @@ sister_projects: []
 
 # 01 — Game Core
 
+> **Renamed back to TopGun (2026-10-25, owner):** a fun game for friends; the title, logo lettering,
+> page title and finale lines say TopGun again. The badge and music stay original designs. URL, repo,
+> container and save keys keep `toprun` so no pilot loses progress.
+>
 > **2026-10-25 update:** the game is renamed **TopRun** (was "TopGun"). The title shows an
 > original winged TopRun badge (chrome lettering, gold wings, star, "CARRIER STRIKE" ribbon) —
 > deliberately not the film's logo, which is a third-party trademark and the site is public.

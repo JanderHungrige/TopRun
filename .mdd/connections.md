@@ -18,7 +18,9 @@ Game
 ├── Honours
 │   ├── Base      30-hangar-base         complete
 │   ├── Medals    24-medals-core         complete
-│   └── Ceremony  25-medal-ceremony      complete
+│   ├── Ceremony  25-medal-ceremony      complete
+│   ├── Locker    31-locker-uniform      complete
+│   └── PictureWall 32-picture-wall      complete
 ├── Ladder
 │   ├── Rating    26-pilot-rating        complete
 │   ├── Service   27-online-ladder       complete
@@ -81,6 +83,19 @@ graph TD
   ladder[27-online-ladder]:::complete
   ladderui[28-ladder-screen]:::complete
   hbase[30-hangar-base]:::complete
+  locker[31-locker-uniform]:::complete
+  wall[32-picture-wall]:::complete
+  locker --> medals
+  locker --> ceremony
+  locker --> rating
+  locker --> retro
+  locker --> i18n
+  wall --> medals
+  wall --> map
+  wall --> paint
+  wall --> retro
+  wall --> i18n
+  wall --> locker
   hangar --> core
   map --> core
   map --> hangar

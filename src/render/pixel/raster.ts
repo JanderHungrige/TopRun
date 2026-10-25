@@ -29,12 +29,38 @@ export class Pix {
   /** Palette index per pixel (the master palette has more than 256 entries). */
   readonly data: Uint16Array;
 
+  /** Head tilt (doc 29): shapes, ovals, strokes and lines turn by `rot` radians about the frame point
+   *  (pivotX, pivotY). 0 = upright, exactly the plain mapping. */
+  rot = 0;
+  pivotX = 0;
+  pivotY = 0;
+
   constructor(readonly w: number, readonly h: number, public k = 1, public ox = 0, public oy = 0) {
     this.data = new Uint16Array(w * h);
   }
 
   X(x: number): number { return this.ox + x * this.k; }
   Y(y: number): number { return this.oy + y * this.k; }
+  /** Art position of a frame point under the tilt. */
+  at(x: number, y: number): [number, number] {
+    if (this.rot === 0) return [this.X(x), this.Y(y)];
+    const c = Math.cos(this.rot);
+    const s = Math.sin(this.rot);
+    const dx = x - this.pivotX;
+    const dy = y - this.pivotY;
+    return [this.X(this.pivotX + dx * c - dy * s), this.Y(this.pivotY + dx * s + dy * c)];
+  }
+  /** Pixel containing a frame point under the tilt. */
+  cell(x: number, y: number): [number, number] {
+    const [ax, ay] = this.at(x, y);
+    return [Math.floor(ax), Math.floor(ay)];
+  }
+  /** Whole art pixels a hand-placed feature anchored at (x, y) moves under the tilt ([0, 0] when upright). */
+  nudge(x: number, y: number): [number, number] {
+    if (this.rot === 0) return [0, 0];
+    const [ax, ay] = this.at(x, y);
+    return [Math.round(ax - this.X(x)), Math.round(ay - this.Y(y))];
+  }
   /** Pixel column / row containing a frame point. */
   col(x: number): number { return Math.floor(this.X(x)); }
   row(y: number): number { return Math.floor(this.Y(y)); }
@@ -67,7 +93,9 @@ export class Pix {
       if (n < 3) continue;
       for (let i = 0; i < n; i++) {
         const j = (i + 1) % n;
-        const e = { x0: this.X(poly[2 * i] ?? 0), y0: this.Y(poly[2 * i + 1] ?? 0), x1: this.X(poly[2 * j] ?? 0), y1: this.Y(poly[2 * j + 1] ?? 0) };
+        const [x0, y0] = this.at(poly[2 * i] ?? 0, poly[2 * i + 1] ?? 0);
+        const [x1, y1] = this.at(poly[2 * j] ?? 0, poly[2 * j + 1] ?? 0);
+        const e = { x0, y0, x1, y1 };
         if (e.y0 === e.y1) continue;
         edges.push(e);
         top = Math.min(top, e.y0, e.y1);
@@ -102,13 +130,12 @@ export class Pix {
   /** Filled ellipse (radii in frame units, optional rotation); never smaller than one pixel. */
   oval(cx: number, cy: number, rx: number, ry: number, rot = 0): Mask {
     const m = this.blank();
-    const x = this.X(cx);
-    const y = this.Y(cy);
+    const [x, y] = this.at(cx, cy);
     const ax = Math.max(0.5, rx * this.k);
     const ay = Math.max(0.5, ry * this.k);
     const reach = Math.max(ax, ay) + 1;
-    const c = Math.cos(rot);
-    const s = Math.sin(rot);
+    const c = Math.cos(rot + this.rot);
+    const s = Math.sin(rot + this.rot);
     for (let r = Math.max(0, Math.floor(y - reach)); r <= Math.min(this.h - 1, Math.ceil(y + reach)); r++) {
       for (let col = Math.max(0, Math.floor(x - reach)); col <= Math.min(this.w - 1, Math.ceil(x + reach)); col++) {
         const dx = col + 0.5 - x;
@@ -133,8 +160,9 @@ export class Pix {
     const xs: number[] = [];
     const ys: number[] = [];
     for (let i = 0; i + 1 < pts.length; i += 2) {
-      xs.push(this.X(pts[i] ?? 0));
-      ys.push(this.Y(pts[i + 1] ?? 0));
+      const [ax, ay] = this.at(pts[i] ?? 0, pts[i + 1] ?? 0);
+      xs.push(ax);
+      ys.push(ay);
     }
     const r2 = rp * rp;
     const c0 = Math.max(0, Math.floor(Math.min(...xs) - rp));
@@ -158,10 +186,8 @@ export class Pix {
 
   /** Bresenham line between two frame points into a mask. */
   lineMask(m: Mask, x0: number, y0: number, x1: number, y1: number): Mask {
-    let c = this.col(x0);
-    let r = this.row(y0);
-    const c1 = this.col(x1);
-    const r1 = this.row(y1);
+    let [c, r] = this.cell(x0, y0);
+    const [c1, r1] = this.cell(x1, y1);
     const dc = Math.abs(c1 - c);
     const dr = -Math.abs(r1 - r);
     const sc = c < c1 ? 1 : -1;

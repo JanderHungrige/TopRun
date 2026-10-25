@@ -1,4 +1,6 @@
+import type { AvatarLook } from '../game/avatar-look';
 import type { AvatarId } from '../game/profiles';
+import { playerPerson, restyle } from './avatars/person';
 import { PLAYER_LOOKS } from './minigames/pushups-looks';
 import { LINE, SKIN, tone, type FrontExtras, type HeadMap, type PersonLook, type Tone } from './people';
 
@@ -25,6 +27,11 @@ export const PILOT_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freeze
   pilot2: inWhites(PLAYER_LOOKS.pilot2, NAVY_BOARD),
   pilot3: inWhites(PLAYER_LOOKS.pilot3, NAVY_BOARD),
 });
+
+/** The pilot in dress whites: a preset's table entry, or a custom look's (doc 29), built once per look. */
+export function pilotInWhites(face: AvatarId | AvatarLook): PersonLook {
+  return typeof face === 'string' ? PILOT_LOOKS[face] : restyle(playerPerson(face), 'whites', (b) => inWhites(b, NAVY_BOARD));
+}
 
 const hair = (style: PersonLook['hair']['style'], base: string, light: string, shadow: string): PersonLook['hair'] =>
   ({ style, ...tone(base, light, shadow), brow: shadow });

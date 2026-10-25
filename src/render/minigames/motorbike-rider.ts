@@ -1,10 +1,11 @@
 import { lerp, wrapAngle, type Vec } from '../../core/math';
+import { lookKey, type AvatarLook } from '../../game/avatar-look';
 import type { AvatarId } from '../../game/profiles';
+import { playerPerson } from '../avatars/person';
 import { BODY, solveLimb, tone, type PersonLook, type SidePose, type Tone } from '../people';
 import { drawSideVector } from '../people/side-figure';
 import { drawPixelated } from '../pixel/capture';
 import { BIKE } from './motorbike-bike';
-import { PLAYER_LOOKS } from './pushups-looks';
 
 // Motorbike vs. Jet (doc 22): the rider — a seated people-kit side figure (doc 17) in a flight jacket and a
 // helmet, rendered through the pixel pipeline (doc 20) and cached per pose frame. Joints are posed on the bike
@@ -16,20 +17,22 @@ const JACKET = { base: '#6e4a2c', light: '#93683f', shadow: '#4a301c', collar: '
 const GLOVE = '#1f1c1e';
 
 export interface RiderLook {
-  id: AvatarId;
+  /** Pixel-cache namespace: the preset id or `look:<key>` of a custom look (doc 29). */
+  id: string;
   person: PersonLook;
   /** White shell with a stripe in the avatar's flight-suit colour. */
   helmet: Tone;
   stripe: string;
 }
 
-/** The avatar's skin and suit colour (doc 08 / 12) with riding gear. */
-export function riderLook(id: AvatarId): RiderLook {
-  const base = PLAYER_LOOKS[id];
+/** The avatar's skin and suit colour (doc 08 / 12 / 29) with riding gear. */
+export function riderLook(face: AvatarId | AvatarLook): RiderLook {
+  const base = playerPerson(face);
   const person: PersonLook = {
     ...base, torso: 'tshirt', top: tone(JACKET.base, JACKET.light, JACKET.shadow), legs: 'trousers', tied: false, tags: false,
     shoe: tone('#2a2522', '#4a403a', '#171412'), sole: '#141112',
   };
+  const id = typeof face === 'string' ? face : `look:${lookKey(face)}`;
   return { id, person, helmet: tone('#ece8df', '#ffffff', '#a9a49c'), stripe: base.bottom.base };
 }
 

@@ -1,6 +1,6 @@
-import type { AvatarId } from '../../game/profiles';
+import { restyle } from '../avatars/person';
 import { SKIN, tone, type PersonLook, type SkinTone, type Tone } from '../people';
-import { PLAYER_LOOKS, RIVAL_LOOK } from './pushups-looks';
+import { RIVAL_LOOK } from './pushups-looks';
 
 // Piano Bar (doc 23): people-kit looks (doc 17). The player keeps the avatar's colours (skin, hair, eyes,
 // flight-suit trousers) in an off-duty white T-shirt; the squadmates are original characters in T-shirts and
@@ -11,11 +11,9 @@ const SNEAKER = tone('#3a3f4a', '#5d6574', '#22262d');
 const JEANS = tone('#3b4f78', '#5670a0', '#283654');
 const KHAKI = tone('#9a8a62', '#b8a87e', '#776842');
 
-export const PIANO_PLAYER: Readonly<Record<AvatarId, PersonLook>> = Object.freeze({
-  pilot1: { ...PLAYER_LOOKS.pilot1, torso: 'tshirt', top: WHITE_TEE, tied: false, tags: false },
-  pilot2: { ...PLAYER_LOOKS.pilot2, torso: 'tshirt', top: WHITE_TEE, tied: false, tags: false },
-  pilot3: { ...PLAYER_LOOKS.pilot3, torso: 'tshirt', top: WHITE_TEE, tied: false, tags: false },
-});
+/** The player at the piano: their own look (preset or custom, doc 29) in a white T-shirt. */
+export const pianoPlayer = (base: PersonLook): PersonLook =>
+  restyle(base, 'piano', (b) => ({ ...b, torso: 'tshirt', top: WHITE_TEE, tied: false, tags: false }));
 
 interface Who { skin: SkinTone; hair: PersonLook['hair']; eyes: string }
 

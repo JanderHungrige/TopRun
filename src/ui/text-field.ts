@@ -11,6 +11,8 @@ export interface TextFieldOptions {
   onEscape: () => void;
   /** ←/→ while typing (the field is short, so caret movement is not needed). */
   onArrow: (dir: -1 | 1) => void;
+  /** ↑/↓ while typing (e.g. open the avatar builder, doc 29); unset = the browser default. */
+  onUpDown?: (dir: -1 | 1) => void;
 }
 
 /**
@@ -45,6 +47,9 @@ export class TextField {
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
         opts.onArrow(e.key === 'ArrowLeft' ? -1 : 1);
+      } else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && opts.onUpDown) {
+        e.preventDefault();
+        opts.onUpDown(e.key === 'ArrowUp' ? -1 : 1);
       }
     });
     this.el = el;
@@ -52,6 +57,11 @@ export class TextField {
 
   get value(): string {
     return this.el.value;
+  }
+
+  /** Refills the field (e.g. the callsign typed before the avatar builder opened). */
+  set value(v: string) {
+    this.el.value = v;
   }
 
   set placeholder(v: string) {

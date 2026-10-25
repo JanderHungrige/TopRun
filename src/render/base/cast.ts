@@ -1,9 +1,9 @@
 import type { Vec } from '../../core/math';
 import { PILOT_FLOOR_Y, WALK_FRAMES } from '../../data/base-areas';
 import { walkFrame, type Walker } from '../../game/base-hangar';
-import type { AvatarId } from '../../game/profiles';
+import type { PilotFace } from '../avatars';
+import { playerPerson, restyle } from '../avatars/person';
 import { CREW, crewExtras } from '../ceremony-looks';
-import { PLAYER_LOOKS } from '../minigames/pushups-looks';
 import {
   BODY, drawFrontFigure, drawSideFigure, solveLimb, type ArmJoints, type FaceState, type FrontPose, type LegJoints,
   type PersonLook, type SidePose,
@@ -12,28 +12,18 @@ import { hexOf, PAL } from '../pixel/palette';
 import { MECH, PILOT_SCALE } from './layout';
 import { col } from './paint';
 
-// Hangar base (doc 30): the people — the active pilot in a flight suit (the avatar's skin, hair and eyes, the
-// suit in the avatar's colour) walking the floor in an 8-frame side-view cycle or standing three-quarter and
+// Hangar base (doc 30): the people — the active pilot in a flight suit (the avatar's or custom look's skin, hair
+// and eyes, the suit in its colour, doc 29) walking the floor in an 8-frame side-view cycle or standing three-quarter and
 // blinking, and the plane captain in a brown jersey polishing the jet's nose. People-kit figures (doc 17) on
 // the scene's art grid; their floor shadows go onto the art layer before it is blitted.
 
 const v = (x: number, y: number): Vec => ({ x, y });
 const ang = (a: Vec, b: Vec): number => Math.atan2(b.y - a.y, b.x - a.x);
 
-const suits = new Map<AvatarId, PersonLook>();
-
-/** The pilot in a flight suit (built once per avatar so the pixel cache keys stay put). */
-function pilotLook(avatar: AvatarId): PersonLook {
-  let look = suits.get(avatar);
-  if (!look) {
-    const base = PLAYER_LOOKS[avatar];
-    look = Object.freeze<PersonLook>({
-      ...base, torso: 'flightSuit', top: base.bottom, trim: base.bottom.shadow, legs: 'trousers', tied: false, tags: false,
-    });
-    suits.set(avatar, look);
-  }
-  return look;
-}
+/** The pilot in a flight suit (built once per look, so the pixel cache keys stay put). */
+const pilotLook = (face: PilotFace): PersonLook => restyle(playerPerson(face), 'hangarSuit', (base) => Object.freeze<PersonLook>({
+  ...base, torso: 'flightSuit', top: base.bottom, trim: base.bottom.shadow, legs: 'trousers', tied: false, tags: false,
+}));
 
 function leg(hip: Vec, foot: Vec, lift: number): LegJoints {
   const ankle = v(foot.x, foot.y - BODY.ankle);
@@ -80,11 +70,11 @@ const face = (t: number, phase: number): FaceState => ({ expression: 'calm', str
 /** Floor x snapped to the art grid, so a walking figure moves in whole art pixels. */
 const snap = (x: number, G: number): number => Math.round(x / G) * G;
 
-export interface CastView { t: number; walker: Walker; avatar: AvatarId }
+export interface CastView { t: number; walker: Walker; face: PilotFace }
 
 function drawPilot(ctx: CanvasRenderingContext2D, G: number, view: CastView): void {
   const w = view.walker;
-  const look = pilotLook(view.avatar);
+  const look = pilotLook(view.face);
   const opts = { units: 3 / PILOT_SCALE };
   ctx.save();
   ctx.translate(snap(w.x, G), PILOT_FLOOR_Y);

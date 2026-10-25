@@ -99,8 +99,8 @@ plane × livery × grid; yellow wheel chocks at the main gear, a dithered floor 
 
 ## The pilot (the animated heart)
 
-A people-kit figure (doc 17) of the active pilot — the avatar's skin, hair and eyes from the push-up looks, in a
-flight suit in the avatar's suit colour — walks along the floor (feet at y 640) to the highlighted area's stand
+A people-kit figure (doc 17) of the active pilot — the preset avatar's or the custom look's skin, hair and eyes
+(`playerPerson(faceOf(profile))`, doc 29), in a flight suit in its suit colour — walks along the floor (feet at y 640) to the highlighted area's stand
 point. Pure walker (`stepWalker`): moves towards the target at 300 logical px/s (opening: 900 px/s), faces the way
 it walks, counts the distance for the walk cycle (8 key frames per 120 px, side view, mirrored for walking left),
 stops exactly on the target. Standing, the pilot turns to the front (three-quarter figure, slight turn towards the

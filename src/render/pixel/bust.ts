@@ -22,6 +22,8 @@ export interface ArtView { k: number; ox: number; oy: number; W: number; H: numb
 export interface BustArt<R> {
   /** Cache namespace (one per character). */
   id: string;
+  /** Background cache namespace when several arts share one background (the builder's looks, doc 29); default `id`. */
+  backgroundId?: string;
   background(p: Pix, f: Frame): void;
   /** The figure for one animation state on a transparent buffer; outlined afterwards. */
   figure(p: Pix, rig: R): void;
@@ -68,7 +70,7 @@ export function drawBust<R>(ctx: CanvasRenderingContext2D, box: Rect, art: BustA
   const radio = s.radio === true;
   const dy = f.H - Math.round(FRAME_H * f.k);
   const tag = radio ? 'r' : 'n';
-  const bg = backgrounds.get(`${art.id}|${f.k}|${f.W}x${f.H}|${tag}`, () => renderBackground(art, f, dy, radio));
+  const bg = backgrounds.get(`${art.backgroundId ?? art.id}|${f.k}|${f.W}x${f.H}|${tag}`, () => renderBackground(art, f, dy, radio));
   const fig = figures.get(`${art.id}|${f.k}|${s.key}|${tag}`, () => renderFigure(art, s.rig, f.k, radio));
   const sc = scratch(f.W, f.H);
   if (!sc) return;

@@ -2,7 +2,7 @@ import { BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
 import type { LiveryId } from '../../data/liveries';
 import type { PlaneId } from '../../data/types';
 import type { Walker } from '../../game/base-hangar';
-import type { AvatarId } from '../../game/profiles';
+import type { PilotFace } from '../avatars';
 import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
 import { hexOf, PAL } from '../pixel/palette';
@@ -33,7 +33,7 @@ export interface HangarView {
   focus: BaseAreaId;
   plane: PlaneId;
   livery: LiveryId;
-  avatar: AvatarId;
+  face: PilotFace;
   walker: Walker;
   /** The flip board's three rows. */
   board: readonly string[];
@@ -102,6 +102,6 @@ export function drawHangar(ctx: CanvasRenderingContext2D, v: HangarView): void {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(sc.canvas, m.a ? (Math.round(m.e) - m.e) / m.a : 0, m.d ? (Math.round(m.f) - m.f) / m.d : 0, gr.W * gr.G, gr.H * gr.G);
   ctx.restore();
-  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, avatar: v.avatar });
+  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face });
   drawLabels(ctx, v.focus, v.text);
 }

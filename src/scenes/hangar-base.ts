@@ -7,6 +7,7 @@ import { baseLine } from '../game/dialogue-scripts';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
+import { faceOf } from '../render/avatars/person';
 import { drawHangar, type HangarText } from '../render/base';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { pilotStanding } from './pilot-rating';
@@ -126,7 +127,7 @@ export class HangarBaseScene implements Scene {
     const save = this.game.save;
     drawHangar(ctx, {
       t: this.time, focus: this.focus, plane: save.selectedPlane, livery: save.livery[save.selectedPlane],
-      avatar: this.game.profile?.avatar ?? 'pilot1', walker: this.walker, board: this.board, text: this.text(),
+      face: faceOf(this.game.profile), walker: this.walker, board: this.board, text: this.text(),
     });
     this.wingman.render(ctx);
   }

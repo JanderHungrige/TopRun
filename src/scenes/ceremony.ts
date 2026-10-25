@@ -6,6 +6,7 @@ import { medalLine } from '../game/dialogue-scripts';
 import { earnedMedals } from '../game/medals';
 import type { GameContext, Route } from '../game/state';
 import { medalCitation } from '../i18n/content';
+import { faceOf } from '../render/avatars/person';
 import { drawSet } from '../render/ceremony-ambient';
 import { drawCard, drawLetterbox, twinkle, type CardView } from '../render/ceremony-card';
 import { drawCast, pinPoint } from '../render/ceremony-cast';
@@ -118,7 +119,7 @@ export class CeremonyScene implements Scene {
     const g = drawSet(ctx, this.clock);
     const beat = beatAt(st.index, st.stage === 'scene' ? st.t : sceneLength(st.index));
     const pinned = this.medals.slice(0, Math.min(this.medals.length, st.index + (beat.pinned ? 1 : 0)));
-    drawCast(ctx, g, { beat, t: this.clock, avatar: this.game.profile?.avatar ?? 'pilot1', earlier: this.earlier, pinned });
+    drawCast(ctx, g, { beat, t: this.clock, avatar: faceOf(this.game.profile), earlier: this.earlier, pinned });
     if (this.pinAge >= 0) this.sparkle(ctx, g, pinned.length);
     this.renderCard(ctx, g);
     this.speech.render(ctx);

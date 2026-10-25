@@ -15,6 +15,7 @@ import {
   drawBanner, drawBoard, drawHint, drawPopups, drawTouchStrip, drawYouMarker, STRIP_Y, TEAM_COLOR,
 } from '../../render/minigames/volleyball-hud';
 import { drawVolleyballIcon } from '../../render/minigames/volleyball-icon';
+import { faceOf } from '../../render/avatars/person';
 import { athleteLook } from '../../render/minigames/volleyball-looks';
 import { drawAthlete, drawAthleteShadow, drawCrowd } from '../../render/minigames/volleyball-players';
 import { drawBeach } from '../../render/minigames/volleyball-set';
@@ -46,7 +47,7 @@ class VolleyballRound implements MinigameRound {
 
   constructor(private readonly game: GameContext, seed: number) {
     this.s = createVolleyball(seed);
-    const avatar = game.profile?.avatar ?? 'pilot1';
+    const avatar = faceOf(game.profile);
     const look = (id: AthleteId): PersonLook => athleteLook(id, avatar);
     this.looks = { you: look('you'), duke: look('duke'), breaker: look('breaker'), riptide: look('riptide') };
     this.you = game.profile?.callsign ?? tx('you');

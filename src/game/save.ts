@@ -7,6 +7,7 @@ import {
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
+import { parseLook, type AvatarLook } from './avatar-look';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
@@ -36,6 +37,8 @@ export interface SaveData {
   ladder: LadderLink | null;
   /** Service record for the medals (doc 24). */
   record: ServiceRecord;
+  /** Own avatar from the builder (doc 29); null = the preset profile.avatar. */
+  look: AvatarLook | null;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -63,6 +66,7 @@ export function defaultSave(): SaveData {
     minigames: {},
     ladder: null,
     record: emptyRecord(),
+    look: null,
   };
 }
 
@@ -150,6 +154,7 @@ export function parseSave(raw: unknown): SaveData | null {
     minigames: parseMinigames(raw.minigames),
     ladder: parseLadderLink(raw.ladder),
     record: parseRecord(raw.record),
+    look: isRecord(raw.look) ? parseLook(raw.look) : null,
   };
 }
 

@@ -1,36 +1,38 @@
-import type { Box, Frame, Mood, MoodShape, Rig } from '../portraits';
-import { LINE, neck, paint, poly, shaded, stroke, type Skin } from '../portraits/parts';
-import { circle, ellipse, fillPair, fillPoly } from '../shapes';
+import { puff, type ArtView } from '../pixel/bust';
+import { glow, rect, vgrad } from '../pixel/fx';
+import { hexOf, PAL, type Ramp } from '../pixel/palette';
+import { path } from '../pixel/path';
+import { bayer, type Pix } from '../pixel/raster';
+import { part } from '../portraits/hands';
+import { BASE, D1, D2, L1, neck, piece } from '../portraits/parts';
+import type { Frame, Mood, MoodShape, Rig } from '../portraits/types';
 
 /**
- * Shared pieces of the player avatars: a kid-proportioned mood table and rig, the flight suit with harness and a
- * blank name tape, the carrier-deck sky, and the gold "selected" glow. Same logical 100×120 frame as the portraits.
+ * Shared pieces of the pixel-art player avatars (doc 08 / doc 20): a kid-proportioned mood table, the flight
+ * suit with harness and a blank name tape, the carrier deck under a per-avatar sky, drifting clouds and the gold
+ * "selected" frame. Same 100×120 frame as the portraits.
  */
 
-export const FRAME_W = 100;
-export const FRAME_H = 120;
-/** Pivot for head tilt / nod (base of the neck). */
-export const NECK_Y = 81;
-const TAU = Math.PI * 2;
-const STRAP = '#2c3029';
-
 export interface Sky {
-  top: string; mid: string; low: string; sea: string; cloud: string;
-  sun: string; glow: string; sunX: number; sunY: number; sunR: number; // glow = "r,g,b" of the sun's halo
+  /** Gradient from the top of the sky down to the horizon (palette indices from `ramp`). */
+  grad: readonly number[];
+  ramp: Ramp;
+  sea: Ramp;
+  sun: number; cloud: number;
+  sunX: number; sunY: number; sunR: number;
   island: -1 | 1; // which side the carrier island stands on
 }
-export interface Suit { base: string; dark: string; light: string; tee: string }
+export interface Suit { ramp: Ramp; tee: number }
 export interface AvatarArt {
   sky: Sky;
   moods: Readonly<Record<Mood, MoodShape>>;
-  tilt: number; // resting head tilt (rad)
-  body(ctx: CanvasRenderingContext2D, r: Rig): void;
-  head(ctx: CanvasRenderingContext2D, r: Rig): void;
+  body(p: Pix, r: Rig): void;
+  head(p: Pix, r: Rig): void;
   /** Optional layer in front of the head, in body space. */
-  front?(ctx: CanvasRenderingContext2D, r: Rig): void;
+  front?(p: Pix, r: Rig): void;
 }
 
-const BASE: Readonly<Record<Mood, MoodShape>> = {
+const BASE_MOODS: Readonly<Record<Mood, MoodShape>> = {
   neutral: { browIn: 0, browOut: 0, arch: 0.8, lidTop: 0.08, lidLow: 0.05, pupil: 1, lift: 0.4, curv: 0.5, widen: 0, tilt: 0, nod: 0 },
   happy: { browIn: -1.2, browOut: -0.6, arch: 1.4, lidTop: 0.04, lidLow: 0.34, pupil: 1, lift: 2.1, curv: 1.6, widen: 1.2, tilt: 0.04, nod: -0.6 },
   stern: { browIn: 2.2, browOut: -0.8, arch: 0.1, lidTop: 0.26, lidLow: 0.12, pupil: 0.95, lift: -0.5, curv: -0.1, widen: -1, tilt: 0, nod: 0.8 },
@@ -40,168 +42,98 @@ const BASE: Readonly<Record<Mood, MoodShape>> = {
 /** The kid mood table with a resting smile added to every mood (negative = straighter). Built once per avatar. */
 export function moods(smile: number): Readonly<Record<Mood, MoodShape>> {
   const build = (m: MoodShape): MoodShape => ({ ...m, lift: m.lift + smile, curv: m.curv + smile * 0.8 });
-  return { neutral: build(BASE.neutral), happy: build(BASE.happy), stern: build(BASE.stern), worried: build(BASE.worried) };
+  return { neutral: build(BASE_MOODS.neutral), happy: build(BASE_MOODS.happy), stern: build(BASE_MOODS.stern), worried: build(BASE_MOODS.worried) };
 }
 
-export function hash(n: number): number {
-  const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
-  return s - Math.floor(s);
-}
-
-/** 0 = open .. 1 = shut: one 0.16 s blink every 3–5 s, deterministic from t. */
-function blinkAt(t: number, seed: number): number {
-  const k = Math.floor(t / 4);
-  const d = (t - k * 4 - hash(k + seed * 31)) / 0.16;
-  return d < 0 || d > 1 ? 0 : 1 - Math.abs(d * 2 - 1);
-}
-
-export function avatarRig(t: number, mouth: number, mood: Mood, seed: number, table: Readonly<Record<Mood, MoodShape>>): Rig {
-  const glance = hash(Math.floor(t / 2.6 + seed * 7));
-  return {
-    t,
-    mouth: Math.min(1, Math.max(0, mouth)),
-    mood,
-    m: table[mood],
-    gesture: 'none',
-    blink: blinkAt(t, seed),
-    look: glance > 0.75 ? (glance - 0.875) * 4 : 0,
-  };
-}
-
-/** Carrier deck at sea under a per-avatar sky: sun + halo, drifting clouds, horizon, island, deck. */
-export function deckBackdrop(ctx: CanvasRenderingContext2D, f: Frame, t: number, k: Sky): void {
+/** Carrier deck at sea under the avatar's sky: dithered sky, sun with a dithered halo, horizon, island, deck. */
+export function deckBackdrop(p: Pix, f: Frame, k: Sky): void {
+  vgrad(p, k.grad, f.t, 78);
+  glow(p, k.sunX, k.sunY, k.sunR * 1.7, k.ramp, 2, 1);
+  p.paint(p.oval(k.sunX, k.sunY, k.sunR, k.sunR), k.sun);
   const w = f.r - f.l;
-  const g = ctx.createLinearGradient(0, f.t, 0, 78);
-  g.addColorStop(0, k.top);
-  g.addColorStop(0.6, k.mid);
-  g.addColorStop(1, k.low);
-  ctx.fillStyle = g;
-  ctx.fillRect(f.l, f.t, w, 78 - f.t);
-  const halo = ctx.createRadialGradient(k.sunX, k.sunY, k.sunR * 0.6, k.sunX, k.sunY, k.sunR * 5);
-  halo.addColorStop(0, `rgba(${k.glow},0.6)`);
-  halo.addColorStop(1, `rgba(${k.glow},0)`);
-  ctx.fillStyle = halo;
-  ctx.fillRect(f.l, f.t, w, 78 - f.t);
-  circle(ctx, k.sunX, k.sunY, k.sunR, k.sun);
-  const span = w + 50;
+  rect(p, f.l, 78, w, 13, k.sea[BASE] ?? 0);
+  rect(p, f.l, 78, w, 1, k.sea[L1] ?? 0);
+  rect(p, f.l, 84, w, 7, k.sea[D1] ?? 0, undefined, bayer(0.5));
+  for (let i = 0; i < 4; i++) rect(p, k.sunX - 7 + i * 1.6, 80.4 + i * 2.6, 14 - i * 3.2, 0.9, k.sun);
+  const ix = k.island * 36;
+  const grey = PAL.steel;
+  rect(p, ix - 8, 74, 16, 17, grey[2] ?? 0);
+  rect(p, ix - 4.4, 67.6, 8.8, 6.6, grey[2] ?? 0);
+  rect(p, ix - 3.6, 69.2, 7.2, 1.6, grey[1] ?? 0);
+  p.line(ix, 67.6, ix, 60.6, grey[2] ?? 0);
+  p.line(ix - 2, 61.2, ix + 3, 60.4, grey[2] ?? 0);
+  rect(p, f.l, 90.5, w, f.b - 90.5, grey[2] ?? 0);
+  rect(p, f.l, 90.5, w, 1.2, grey[3] ?? 0);
+  p.paint(p.thick([f.l, 104, f.r, 95], 0.5), PAL.yellow[3] ?? 0);
+}
+
+/** Clouds drifting slowly across the sky (ambient layer). */
+export function skyClouds(g: CanvasRenderingContext2D, v: ArtView, k: Sky): void {
+  const l = -v.ox / v.k;
+  const span = 2 * -l + 50;
   for (let i = 0; i < 3; i++) {
-    const x = f.l - 25 + ((((t * 2.2 + i * 47) % span) + span) % span);
-    ellipse(ctx, x, 14 + i * 17, 12 + i * 3, 2.6, k.cloud);
-    ellipse(ctx, x + 5, 12.4 + i * 17, 6.5, 2.4, k.cloud);
+    const x = l - 25 + ((((v.t * 2.2 + i * 47) % span) + span) % span);
+    puff(g, v, v.ox + x * v.k, v.oy + (14 + i * 17) * v.k, (12 + i * 3) * v.k, 2.6 * v.k, k.cloud);
+    puff(g, v, v.ox + (x + 5) * v.k, v.oy + (12.2 + i * 17) * v.k, 6.5 * v.k, 2.4 * v.k, k.cloud);
   }
-  ctx.fillStyle = k.sea;
-  ctx.fillRect(f.l, 78, w, 13);
-  poly(ctx, [f.l, 78.3, f.r, 78.3], 'rgba(255,255,255,0.4)', 0.6);
-  for (let i = 0; i < 4; i++) poly(ctx, [k.sunX - 7 + i * 1.5, 80.4 + i * 2.6, k.sunX + 7 - i * 1.5, 80.4 + i * 2.6], k.sun, 0.8);
-  const ix = k.island * 36; // the carrier's island: hull block, bridge with windows, mast
-  ctx.fillStyle = '#56616e';
-  ctx.fillRect(ix - 8, 74, 16, 17);
-  ctx.fillRect(ix - 4.4, 67.6, 8.8, 6.6);
-  ctx.fillStyle = 'rgba(16,26,36,0.65)';
-  ctx.fillRect(ix - 3.6, 69.2, 7.2, 1.6);
-  poly(ctx, [ix, 67.6, ix, 60.4], '#56616e', 0.8);
-  ellipse(ctx, ix + 0.6, 61.2, 2.6, 0.9, '#56616e', -0.35); // radar
-  ctx.fillStyle = '#474c52';
-  ctx.fillRect(f.l, 90.5, w, f.b - 90.5);
-  ctx.fillStyle = '#6b7178';
-  ctx.fillRect(f.l, 90.5, w, 1.2);
-  poly(ctx, [f.l, 104, f.r, 95], '#e8c01c', 1);
 }
 
-function suitPath(ctx: CanvasRenderingContext2D): void {
-  ctx.beginPath();
-  ctx.moveTo(-8, 80);
-  ctx.bezierCurveTo(-18, 82.6, -32, 84, -38.5, 93);
-  ctx.lineTo(-52, 126);
-  ctx.lineTo(52, 126);
-  ctx.lineTo(38.5, 93);
-  ctx.bezierCurveTo(32, 84, 18, 82.6, 8, 80);
-  ctx.closePath();
-}
+const STRAP = PAL.olive[1] ?? 0;
 
-function harness(ctx: CanvasRenderingContext2D): void {
-  for (const sd of [-1, 1]) poly(ctx, [sd * 18.5, 84.5, sd * 14.6, 104, sd * 12.6, 126], STRAP, 3.8);
-  poly(ctx, [-14.6, 108.6, 14.6, 108.6], STRAP, 3);
-  for (const sd of [-1, 1]) {
-    ctx.beginPath();
-    ctx.roundRect(sd * 14.2 - 2.7, 106.3, 5.4, 4.8, 1);
-    paint(ctx, '#c3c8cb', LINE, 0.6);
-  }
+function harness(p: Pix): void {
+  for (const sd of [-1, 1]) p.paint(p.thick([sd * 18.5, 84.5, sd * 14.6, 104, sd * 12.6, 126], 1.9), STRAP);
+  p.paint(p.thick([-14.6, 108.6, 14.6, 108.6], 1.5), STRAP);
+  for (const sd of [-1, 1]) part(p, p.shape(path().rect(sd * 14.2 - 2.7, 106.3, 5.4, 4.8)), PAL.steel, p.oval(sd * 14.2 + 2.7, 111, 2.6, 2));
 }
 
 /** Neck, flight suit with open collar, zip, harness and a blank name tape (the game prints the callsign elsewhere). */
-export function flightSuit(ctx: CanvasRenderingContext2D, s: Suit, skin: Skin): void {
-  neck(ctx, skin, 6.6);
-  shaded(ctx, suitPath, s.base, s.dark, 46, 114, 22, 34);
-  fillPoly(ctx, [-6.6, 80.6, 6.6, 80.6, 0, 91.6], s.tee);
-  fillPoly(ctx, [-6.6, 80.6, 6.6, 80.6, 0, 86.4], skin.dark);
-  fillPair(ctx, [6.2, 80, 14, 82.2, 10.6, 92, 1.4, 92.4], s.light, LINE);
-  poly(ctx, [0, 92.4, 0, 126], 'rgba(0,0,0,0.35)', 0.7);
-  harness(ctx);
-  ctx.beginPath();
-  ctx.roundRect(19.6, 95.4, 11.6, 4.8, 0.8);
-  paint(ctx, '#6a4a30', LINE, 0.5);
-  ctx.beginPath();
-  ctx.roundRect(20.4, 96.1, 10, 3.4, 0.5);
-  stroke(ctx, 'rgba(255,236,200,0.4)', 0.35);
+export function flightSuit(p: Pix, s: Suit, skin: Ramp): void {
+  neck(p, skin, 6.6, 74);
+  const r = s.ramp;
+  piece(p, path().move(-8, 80).cubic(-18, 82.6, -32, 84, -38.5, 93).line(-52, 128).line(52, 128).line(38.5, 93)
+    .cubic(32, 84, 18, 82.6, 8, 80).close(), r, [46, 114, 22, 34], [-30, 98, 5, 4]);
+  p.fill(path().move(-6.6, 80.6).line(6.6, 80.6).line(0, 91.6).close(), s.tee);
+  p.fill(path().move(-6.6, 80.6).line(6.6, 80.6).line(0, 86.4).close(), skin[D1] ?? 0);
+  const collar = p.shape(path().pair([6.2, 80, 14, 82.2, 10.6, 92, 1.4, 92.4]));
+  const seam = p.seam(collar);
+  p.paint(collar, r[L1] ?? 0);
+  p.paint(seam, r[D2] ?? 0);
+  p.line(0, 93, 0, 126, r[D2] ?? 0);
+  harness(p);
+  part(p, p.shape(path().rect(19.6, 95.4, 11.6, 4.8)), PAL.leather, p.blank());
 }
 
-/** Continues the path through the points with rounded corners (quadratic curves through the midpoints). */
-export function smooth(ctx: CanvasRenderingContext2D, pts: readonly (readonly [number, number])[]): void {
-  let px = NaN;
-  let py = NaN;
-  for (const [x, y] of pts) {
-    if (Number.isNaN(px)) ctx.lineTo(x, y);
-    else ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
-    px = x;
-    py = y;
+/** Round chest patch: a ring and an inner disc for an emblem. */
+export function roundPatch(p: Pix, x: number, y: number, r: number, ring: number, inner: number): void {
+  p.paint(p.oval(x, y, r, r), ring);
+  p.paint(p.oval(x, y, r * 0.72, r * 0.72), inner);
+}
+
+const GOLD = PAL.gold;
+
+/** Pulsing gold pixel frame with a dithered inner glow and a twinkling corner star, in compose pixels. */
+export function selectionFrame(g: CanvasRenderingContext2D, v: ArtView): void {
+  const pulse = Math.sin(v.t * 4.2) > 0;
+  g.fillStyle = hexOf(GOLD[BASE] ?? 0);
+  const glow = Math.max(2, Math.round(v.W * 0.05));
+  for (let i = 0; i < glow; i++) {
+    for (let x = i % 2; x < v.W; x += pulse ? 2 : 3) {
+      g.fillRect(x, 2 + i, 1, 1);
+      g.fillRect(x, v.H - 3 - i, 1, 1);
+    }
+    for (let y = i % 2; y < v.H; y += pulse ? 2 : 3) {
+      g.fillRect(2 + i, y, 1, 1);
+      g.fillRect(v.W - 3 - i, y, 1, 1);
+    }
   }
-  ctx.lineTo(px, py);
-}
-
-/** Round shoulder/chest patch: a ring and an inner disc for an emblem. */
-export function roundPatch(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, ring: string, inner: string): void {
-  circle(ctx, x, y, r, ring);
-  circle(ctx, x, y, r * 0.76, inner);
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, TAU);
-  stroke(ctx, LINE, 0.5);
-}
-
-function sparkle(ctx: CanvasRenderingContext2D, x: number, y: number, r: number): void {
-  ctx.beginPath();
-  for (let i = 0; i < 8; i++) {
-    const a = (i * Math.PI) / 4;
-    const d = i % 2 === 0 ? r : r * 0.28;
-    ctx.lineTo(x + Math.cos(a) * d, y + Math.sin(a) * d);
-  }
-  ctx.closePath();
-  paint(ctx, '#fff6c8');
-}
-
-/** A gold glow fading inwards from one edge: the gradient runs from (x0, y0) to (x1, y1) over the given rect. */
-function edgeGlow(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number, rect: readonly number[], a: number): void {
-  const g = ctx.createLinearGradient(x0, y0, x1, y1);
-  g.addColorStop(0, `rgba(255,205,70,${a.toFixed(3)})`);
-  g.addColorStop(1, 'rgba(255,205,70,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(rect[0] ?? 0, rect[1] ?? 0, rect[2] ?? 0, rect[3] ?? 0);
-}
-
-/** Pulsing gold frame with an inner glow and a twinkle, in box pixels (the caller has clipped to the box). */
-export function selectionFrame(ctx: CanvasRenderingContext2D, b: Box, t: number): void {
-  const lw = Math.max(1.5, Math.min(b.w, b.h) * 0.03);
-  const d = Math.min(b.w, b.h) * 0.16;
-  const a = 0.5 + Math.sin(t * 4.2) * 0.12;
-  edgeGlow(ctx, 0, b.y, 0, b.y + d, [b.x, b.y, b.w, d], a);
-  edgeGlow(ctx, 0, b.y + b.h, 0, b.y + b.h - d, [b.x, b.y + b.h - d, b.w, d], a);
-  edgeGlow(ctx, b.x, 0, b.x + d, 0, [b.x, b.y, d, b.h], a);
-  edgeGlow(ctx, b.x + b.w, 0, b.x + b.w - d, 0, [b.x + b.w - d, b.y, d, b.h], a);
-  ctx.strokeStyle = '#ffcf3f';
-  ctx.lineWidth = lw;
-  ctx.strokeRect(b.x + lw / 2, b.y + lw / 2, b.w - lw, b.h - lw);
-  ctx.strokeStyle = 'rgba(255,248,205,0.9)';
-  ctx.lineWidth = Math.max(0.75, lw * 0.3);
-  ctx.strokeRect(b.x + lw * 1.4, b.y + lw * 1.4, b.w - lw * 2.8, b.h - lw * 2.8);
-  sparkle(ctx, b.x + b.w - lw * 3.4, b.y + lw * 3.4, lw * (1.7 + Math.sin(t * 6) * 0.6));
+  g.fillStyle = hexOf(GOLD[D1] ?? 0);
+  g.fillRect(0, 0, v.W, 1); g.fillRect(0, v.H - 1, v.W, 1); g.fillRect(0, 0, 1, v.H); g.fillRect(v.W - 1, 0, 1, v.H);
+  g.fillStyle = hexOf((pulse ? GOLD[5] : GOLD[L1]) ?? 0);
+  g.fillRect(1, 1, v.W - 2, 1); g.fillRect(1, v.H - 2, v.W - 2, 1); g.fillRect(1, 1, 1, v.H - 2); g.fillRect(v.W - 2, 1, 1, v.H - 2);
+  const s = Math.floor(v.t * 3) % 3;
+  const cx = v.W - 7;
+  const cy = 6;
+  g.fillStyle = hexOf(GOLD[5] ?? 0);
+  g.fillRect(cx - 1 - s, cy, 3 + s * 2, 1);
+  g.fillRect(cx, cy - 1 - s, 1, 3 + s * 2);
 }

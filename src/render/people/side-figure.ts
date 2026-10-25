@@ -163,8 +163,8 @@ function core(ctx: CanvasRenderingContext2D, look: PersonLook, p: SidePose, face
   inHead(ctx, f, () => head(ctx, look, f, face, path));
 }
 
-/** Draws a side-view person in the current transform. */
-export function drawSideFigure(ctx: CanvasRenderingContext2D, look: PersonLook, pose: SidePose, face: FaceState): void {
+/** Draws a side-view person in the current transform as vector art (pixel.ts pixelates it). */
+export function drawSideVector(ctx: CanvasRenderingContext2D, look: PersonLook, pose: SidePose, face: FaceState): void {
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';

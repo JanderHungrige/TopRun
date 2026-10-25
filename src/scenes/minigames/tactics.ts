@@ -241,7 +241,7 @@ class TacticsRound implements MinigameRound {
     const drawing = this.phase === 'resolve' && this.age < AT.talk;
     const point = drawing ? 0.58 + 0.06 * Math.sin(this.age * 10) : 0.32 + 0.03 * Math.sin(this.t * 1.3);
     drawInstructor(ctx, { mood: this.moodAge < 2.8 ? this.mood : 'calm', point, moodAge: this.moodAge, facing: !drawing, t: this.t });
-    drawSpeech(ctx, tx('instructor'), this.line, Math.floor(this.lineAge * 34), 1);
+    drawSpeech(ctx, tx('instructor'), this.line, Math.floor(this.lineAge * 34), 1, this.lineAge);
     const waiting = (this.phase === 'resolve' && this.age >= READY) || (this.phase === 'summary' && this.age >= 1.8 && !this.done);
     if (waiting) drawPrompt(ctx, tx('next'), 606, this.t, true);
   }

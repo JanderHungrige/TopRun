@@ -19,6 +19,7 @@ source_files:
   - src/render/people/front-body.ts
   - src/render/people/front-head.ts
   - src/render/people/front-figure.ts
+  - src/render/people/pixel.ts
 routes: []
 models: []
 test_files: []
@@ -49,6 +50,14 @@ One shared, reusable way to draw people in the sports minigames: semi-realistic 
 figures (clean vector, consistent with the game's portraits) instead of per-game stick figures.
 Pure drawing code in `src/render/people/` — no game rules, no assets, no real person or film
 character likeness (repo and site are public).
+
+> **Pixel look (2026-10-25, doc 20):** `drawFrontFigure` / `drawSideFigure` keep their signatures but now
+> draw through `people/pixel.ts`: the pose and face are quantised to animation frames (joints 1.5 units,
+> angles 0.02–0.04 rad, raised arms 1/8, strain 1/4, blink 3 levels, time only for a ponytail or sweat), the
+> vector figure (`drawFrontVector` / `drawSideVector`) is rendered at about 3 units per art pixel (a whole
+> number of device pixels), cleaned up by `pixel/quantize.ts` (hard alpha, 18 dominant flat colours, outline)
+> and cached per frame (LRU 700); mirroring and the caller's bounce stay transforms. `FrontExtras.key` (new,
+> optional) names what `head` / `chest` draw when they are closures over changing state (the crowd's whistle).
 
 ## Style
 

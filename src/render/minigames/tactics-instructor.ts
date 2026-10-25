@@ -1,7 +1,9 @@
 import { lerp, type Vec } from '../../core/math';
 import { BODY, drawFrontFigure, LINE, SKIN, solveLimb, tone, type Expression, type FrontTorso, type HeadMap, type PersonLook } from '../people';
-import { text } from '../text';
-import { INK, stroke, wrapWritten, write } from './tactics-marker';
+import { NAME_PLATE, pixelFrame, RPG_BOX } from '../pixel/frame';
+import { setFont, text, wrap } from '../text';
+import { typedLines } from '../typed-text';
+import { INK } from './tactics-marker';
 
 // Dogfight Tactics (doc 19): Commander Hal "Inkwell" Okafor (original character) beside the whiteboard — a
 // three-quarter people-kit figure (doc 17) in a khaki uniform shirt with reading glasses and a marker — and
@@ -148,38 +150,23 @@ export function drawInstructor(ctx: CanvasRenderingContext2D, v: InstructorView)
   ctx.restore();
 }
 
-export const SPEECH = { x: 944, y: 60, w: 324, h: 124 } as const;
+export const SPEECH = { x: 944, y: 76, w: 324, h: 112 } as const;
 
-/** The handwritten debrief box above the instructor; `shown` characters of `full` are written so far. */
-export function drawSpeech(ctx: CanvasRenderingContext2D, label: string, full: string, shown: number, alpha: number): void {
+/** His debrief line in the retro RPG text box (doc 20): name plate, typewriter text, blinking block cursor. */
+export function drawSpeech(ctx: CanvasRenderingContext2D, label: string, full: string, shown: number, alpha: number, t = 0): void {
   if (alpha <= 0 || !full) return;
   const b = SPEECH;
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.fillRect(b.x + 5, b.y + 6, b.w, b.h);
-  ctx.fillStyle = '#fdfbf3';
-  ctx.beginPath();
-  ctx.moveTo(b.x, b.y);
-  ctx.lineTo(b.x + b.w, b.y);
-  ctx.lineTo(b.x + b.w, b.y + b.h);
-  ctx.lineTo(1124, b.y + b.h);
-  ctx.lineTo(1112, b.y + b.h + 18);
-  ctx.lineTo(1100, b.y + b.h);
-  ctx.lineTo(b.x, b.y + b.h);
-  ctx.closePath();
-  ctx.fill();
-  const edge = [
-    { x: b.x + 2, y: b.y + 2 }, { x: b.x + b.w - 2, y: b.y + 1 }, { x: b.x + b.w - 1, y: b.y + b.h - 2 },
-    { x: 1124, y: b.y + b.h - 1 }, { x: 1112, y: b.y + b.h + 16 }, { x: 1100, y: b.y + b.h - 1 }, { x: b.x + 1, y: b.y + b.h - 1 }, { x: b.x + 2, y: b.y + 2 },
-  ];
-  stroke(ctx, edge, INK.black, 2.4, 19);
-  text(ctx, label, b.x + 14, b.y + 20, { size: 11, color: '#6b7380', letterSpacing: 1.5, weight: 700 });
-  let left = shown;
-  wrapWritten(ctx, full, b.w - 28, 18).slice(0, 5).forEach((ln, i) => {
-    const part = ln.slice(0, Math.max(0, left));
-    left -= ln.length + 1;
-    if (part) write(ctx, part, b.x + 14, b.y + 44 + i * 21, { size: 18, color: '#20242b' });
+  pixelFrame(ctx, b, RPG_BOX, 2);
+  setFont(ctx, 12, false, 700, false, true);
+  const plate = { x: b.x + 12, y: b.y - 12, w: ctx.measureText(label).width + 28, h: 24 };
+  pixelFrame(ctx, plate, NAME_PLATE, 2);
+  text(ctx, label, plate.x + 14, plate.y + 16.5, { size: 12, type: true, weight: 700, color: '#ffd76a' });
+  const lines = wrap(ctx, full, b.w - 34, 16, true).slice(0, 4);
+  const typing = shown < full.length;
+  typedLines(ctx, lines, shown, b.x + 16, b.y + 36, {
+    size: 16, color: '#f3ead2', lineHeight: 21, cursor: typing || Math.floor(t * 2.5) % 2 === 0 ? '#ffd76a' : null,
   });
   ctx.restore();
 }

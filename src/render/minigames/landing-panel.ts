@@ -3,7 +3,9 @@ import type { PassResult } from '../../game/minigames/landing';
 import type { Grade } from '../../game/minigames/landing-grade';
 import { mt } from '../../i18n/minigame-text';
 import { GRADE_KEY, LANDING_TEXT, type LandingKey } from '../../i18n/minigames/landing';
+import { RADIO_BOX, pixelFrame } from '../pixel/frame';
 import { COLORS, measure, text } from '../text';
+import { typedLines } from '../typed-text';
 
 // Carrier Landing panels (doc 18): Paddles' radio strip, the LSO board (greenie board) with one cell per pass,
 // the grade card after each pass, event popups, the pass banner, the end banner and the fade between passes.
@@ -60,18 +62,15 @@ export function drawRadio(ctx: CanvasRenderingContext2D, v: RadioView): void {
   if (a <= 0) return;
   ctx.save();
   ctx.globalAlpha = a;
-  ctx.beginPath();
-  ctx.roundRect(STRIP.x, STRIP.y, STRIP.w, STRIP.h, 8);
-  ctx.fillStyle = 'rgba(6,10,16,0.86)';
-  ctx.fill();
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = v.urgent ? 'rgba(255,79,79,0.8)' : 'rgba(255,210,122,0.45)';
-  ctx.stroke();
+  pixelFrame(ctx, STRIP, RADIO_BOX, 1);
   drawHeadset(ctx, STRIP.x + 34, STRIP.y + 33, v.shown.length < v.full.length && Math.sin(v.t * 20) > 0);
-  text(ctx, v.label, STRIP.x + 70, STRIP.y + 22, { size: 11, display: true, color: '#ffd27a', letterSpacing: 1.2 });
-  let size = 21;
-  while (size > 13 && measure(ctx, v.full, size) > STRIP.w - 90) size--;
-  text(ctx, v.shown, STRIP.x + 70, STRIP.y + 50, { size, weight: 700, color: v.urgent ? '#ff8a7a' : COLORS.ink, maxWidth: STRIP.w - 86 });
+  text(ctx, v.label, STRIP.x + 70, STRIP.y + 22, { size: 11, type: true, weight: 700, color: '#7dffc8', letterSpacing: 1.2 });
+  let size = 19;
+  while (size > 12 && measure(ctx, v.full, size, false, true) > STRIP.w - 96) size--;
+  const typing = v.shown.length < v.full.length;
+  typedLines(ctx, [v.full], v.shown.length, STRIP.x + 70, STRIP.y + 50, {
+    size, color: v.urgent ? '#ff8a7a' : '#c9ffe6', lineHeight: size + 4, cursor: typing || Math.floor(v.t * 2.5) % 2 === 0 ? '#7dffc8' : null,
+  });
   ctx.restore();
 }
 

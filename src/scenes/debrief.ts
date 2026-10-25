@@ -135,8 +135,8 @@ export class DebriefScene implements Scene {
     ];
     text(ctx, t('debrief.debrief'), STATS.x + 22, STATS.y + 34, { size: 13, color: COLORS.dim, letterSpacing: 2 });
     rows.forEach(([k, v, c], i) => {
-      text(ctx, t(k), STATS.x + 22, STATS.y + 74 + i * 36, { size: 14, color: COLORS.dim, maxWidth: 130 });
-      text(ctx, v, STATS.x + 160, STATS.y + 74 + i * 36, { size: 14, color: c, maxWidth: STATS.w - 180 });
+      text(ctx, t(k), STATS.x + 22, STATS.y + 74 + i * 36, { size: 14, color: COLORS.dim, maxWidth: 130, type: true });
+      text(ctx, v, STATS.x + 160, STATS.y + 74 + i * 36, { size: 14, color: c, maxWidth: STATS.w - 180, type: true });
     });
   }
 

@@ -1,3 +1,4 @@
+import { UI_DE_HANGAR } from './ui-de-hangar';
 import { UI_DE_ROOMS } from './ui-de-rooms';
 import { UI_DE_LADDER } from './ui-de-ladder';
 import { UI_DE_HONOURS } from './ui-de-honours';
@@ -288,4 +289,5 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   ...UI_DE_LADDER,
   ...UI_DE_ROOMS,
   ...UI_DE_HONOURS,
+  ...UI_DE_HANGAR,
 };

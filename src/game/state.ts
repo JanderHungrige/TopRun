@@ -18,12 +18,14 @@ export type Route =
   | { to: 'ladder' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
+  /** The home-base hangar (doc 30). */
   | { to: 'base' }
+  /** The rec room: the off-duty minigame list behind the hangar's FUN MISSIONS area (doc 11). */
   | { to: 'recRoom' }
   | { to: 'locker' }
   | { to: 'photoWall' }
   | { to: 'offer'; id: MinigameId; isNew: boolean }
-  | { to: 'minigame'; id: MinigameId; from: 'base' | 'offer' }
+  | { to: 'minigame'; id: MinigameId; from: 'recRoom' | 'offer' }
   /** Medal ceremony (doc 25), then on to `then`. */
   | { to: 'ceremony'; medals: MedalId[]; then: Route }
   | { to: 'takeoff'; mission: MissionDef }

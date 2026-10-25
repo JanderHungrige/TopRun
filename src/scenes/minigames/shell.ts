@@ -33,7 +33,7 @@ export class MinigameScene implements Scene {
   /** Medals earned by rounds here; the ceremony plays when the player moves on (doc 24). */
   private medals: MedalId[] = [];
 
-  constructor(private readonly game: GameContext, private readonly mod: MinigameModule, private readonly from: 'base' | 'offer') {
+  constructor(private readonly game: GameContext, private readonly mod: MinigameModule, private readonly from: 'recRoom' | 'offer') {
     this.setPhase('rules');
   }
 
@@ -132,7 +132,7 @@ export class MinigameScene implements Scene {
     this.leaving = true;
     this.round?.dispose?.();
     this.game.audio.play('uiBack');
-    this.go(this.from === 'base' ? { to: 'base' } : { to: 'map' });
+    this.go(this.from === 'recRoom' ? { to: 'recRoom' } : { to: 'map' });
   }
 
   /** Leaves for `next`, through the medal ceremony when rounds here earned medals. */

@@ -3,7 +3,7 @@ id: 11-base-hub
 title: BASE Hub - Off-Duty Menu and After-Mission Offers
 edition: TopRun
 depends_on: [10-minigames-core, 03-campaign-map, 06-talking-characters]
-relates: [10-minigames-core]
+relates: [10-minigames-core, 30-hangar-base]
 source_files:
   - src/scenes/base-hub.ts
   - src/scenes/base-hub-render.ts
@@ -31,6 +31,13 @@ sister_projects: []
 
 # 11 — BASE Hub
 
+> **Update (2026-10-25, doc 30 — hangar base):** BASE (`{ to: 'base' }`) is now the animated pixel-art hangar
+> (`HangarBaseScene`, doc 30). The hub below became the **rec room** behind the hangar's FUN MISSIONS area:
+> route `{ to: 'recRoom' }` → `BaseHubScene`. Its MAP button is now **BASE** (`hbase.back`), and ESC / Backspace /
+> **B** go back to `{ to: 'base' }` (the pilot stands at FUN MISSIONS again). Games started here use
+> `{ to: 'minigame', id, from: 'recRoom' }` and return to the rec room; the shell's `from` is
+> `'recRoom' | 'offer'`. The wingman still greets on entry. Everything else below is unchanged.
+
 ## Purpose
 
 Where the off-duty minigames live: a BASE screen reached from the campaign map, plus the card that
@@ -57,7 +64,7 @@ Routes: `{ to: 'base' }`, `{ to: 'offer', id, isNew }`, `{ to: 'minigame', id, f
   - unlocked, never played: "Not played yet";
   - played: "Best: {score}" with the medal for that best.
   Arrows move the focus (left/right within a row, up/down between rows), ENTER / click plays an
-  unlocked game (`from: 'base'`). A locked or unbuilt card plays the "denied" sound.
+  unlocked game (`from: 'recRoom'`, was `'base'` before doc 30). A locked or unbuilt card plays the "denied" sound.
 - **Offers toggle**: "OFFERS AFTER MISSIONS: ON/OFF" flips `settings.minigameOffers`.
 - **Wingman** greets on entry (and says when a game is still locked).
 - **After-mission offer**: the debrief computes `offerAfterMission` from the progress before and

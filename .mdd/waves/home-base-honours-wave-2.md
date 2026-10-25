@@ -3,11 +3,11 @@ id: home-base-honours-wave-2
 title: "Wave 2: Hangar base, ladder, locker and picture wall"
 initiative: home-base-honours
 initiative_version: 1
-status: planned
+status: in_progress
 depends_on: home-base-honours-wave-1
 demo_state: "BASE is an animated pixel-art aircraft hangar with areas — Fun Missions (minigames), Ladder board, Locker, Picture Wall; the locker shows the dress whites with earned medals and rank, the wall a photo per cleared mission, the ladder board every pilot by name with your own row always highlighted."
 created: 2026-10-25
-hash: 5bcf9090
+hash: 4ae42476
 ---
 
 # Wave 2: Hangar base, ladder, locker and picture wall
@@ -19,7 +19,7 @@ BASE is an animated pixel-art aircraft hangar with areas — Fun Missions (minig
 ## Features
 | # | Feature | Doc | Status | Depends on |
 |---|---------|-----|--------|------------|
-| 1 | hangar-base | 30-hangar-base | planned | — |
+| 1 | hangar-base | 30-hangar-base | complete | — |
 | 2 | ladder-area | 28-ladder-screen (update) | planned | hangar-base |
 | 3 | locker-uniform | 31-locker-uniform | planned | hangar-base |
 | 4 | picture-wall | 32-picture-wall | planned | hangar-base |

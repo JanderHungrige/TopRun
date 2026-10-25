@@ -1,4 +1,4 @@
-# TopGun — Project Rules
+# TopRun — Project Rules
 
 Browser arcade game: carrier takeoff (side view) → top-down vertical shooter, 30-mission
 campaign map, hangar shop. TypeScript + Vite + Canvas 2D, no game engine. Served as static
@@ -20,7 +20,7 @@ files from an nginx container behind the owner's reverse proxy.
 - No asset files needed: art is vector-drawn in code, audio is synthesized with WebAudio.
 
 ## Testing in the browser
-- `npm run dev` exposes `window.__topgun` (dev only, stripped from builds): `step(frames)`, `go(route)`,
+- `npm run dev` exposes `window.__toprun` (dev only, stripped from builds): `step(frames)`, `go(route)`,
   `scene()`, `game`. Use it to drive scenes and bot playtests when the browser tab is in the background
   (rAF is throttled there). Simulate keys with `KeyboardEvent` on `window` using `code` values.
 - Balance changes must be justified by a playtest and recorded in the relevant `.mdd/docs` doc first.

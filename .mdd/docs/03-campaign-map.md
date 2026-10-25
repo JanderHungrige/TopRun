@@ -1,9 +1,9 @@
 ---
 id: 03-campaign-map
 title: Campaign Map - 30 Missions, Theaters, Briefing, Debrief
-edition: TopGun
+edition: TopRun
 depends_on: [01-game-core, 02-hangar-economy]
-relates: [05-mission-combat]
+relates: [05-mission-combat, 06-talking-characters, 07-i18n]
 source_files:
   - src/data/theaters.ts
   - src/data/missions.ts
@@ -17,7 +17,7 @@ models:
 test_files:
   - tests/unit/missions-data.test.ts
 data_flow: greenfield
-last_synced: 2026-10-24
+last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
@@ -118,6 +118,8 @@ None.
   payout lines (base, takeoff bonus, hull bonus, collected or salvage), stars earned
   (best kept), new money total. Updates `progress[id].stars = max(old, new)` on success.
 - After clearing mission 30: debrief shows "CAMPAIGN COMPLETE" and the map shows a medal.
+
+- **Talking character (06):** admiral (debrief speech while the pay counts up). All visible text goes through i18n (07).
 
 ## Data Flow
 

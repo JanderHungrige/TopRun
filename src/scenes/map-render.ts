@@ -5,6 +5,7 @@ import { THEATER_IDS, type MissionDef, type TheaterId } from '../data/types';
 import { isCleared, isUnlocked } from '../game/progress';
 import type { SaveData } from '../game/save';
 import { makeBlob } from '../render/terrain-art';
+import { theaterName } from '../i18n/content';
 import { COLORS, text } from '../render/text';
 
 export const MAP_RECT = { x: 20, y: 76, w: 846, h: 628 };
@@ -114,7 +115,7 @@ export function drawMapBase(ctx: CanvasRenderingContext2D): void {
   ctx.strokeRect(x, y, w, h);
   for (const id of THEATER_IDS) {
     const l = LABELS[id];
-    text(ctx, THEATERS[id].name.toUpperCase(), l.x, l.y, {
+    text(ctx, theaterName(id).toUpperCase(), l.x, l.y, {
       size: 12, display: true, align: 'center', color: 'rgba(255,255,255,0.7)', letterSpacing: 2, stroke: 'rgba(0,0,0,0.45)', strokeWidth: 3,
     });
   }

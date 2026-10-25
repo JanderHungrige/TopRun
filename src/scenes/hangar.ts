@@ -1,13 +1,16 @@
 import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { PLANES } from '../data/planes';
+import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
 import { COLORS, text } from '../render/text';
+import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
+import { HangarChief } from './hangar-chief';
 import { itemAction, itemName, TABS } from './hangar-items';
 
 const BACK_BTN = { x: 1150, y: 14, w: 110, h: 44 };
@@ -19,11 +22,15 @@ export class HangarScene implements Scene {
   private toast = '';
   private toastTime = 0;
   private slotCursor = 0;
+  private readonly chief: HangarChief;
 
-  constructor(private readonly game: GameContext) {}
+  constructor(private readonly game: GameContext) {
+    this.chief = new HangarChief(game.audio, pilotContext(game));
+  }
 
   enter(): void {
     this.game.music.play('menu');
+    this.chief.greet(this.game.save);
   }
 
   private get items(): readonly ShopItem[] {
@@ -38,17 +45,19 @@ export class HangarScene implements Scene {
     const item = this.item;
     if (!item) return null;
     const a = itemAction(this.game.save, item);
-    return { id: 'action', label: a.label, enabled: a.enabled, primary: true, x: DETAIL.x + DETAIL.w - 274, y: DETAIL.y + DETAIL.h - 66, w: 250, h: 48, hint: 'ENTER' };
+    return { id: 'action', label: a.label, enabled: a.enabled, primary: true, x: DETAIL.x + DETAIL.w - 294, y: DETAIL.y + DETAIL.h - 66, w: 270, h: 48, hint: 'ENTER' };
   }
 
   private tabButtons(): Button[] {
-    return TABS.map((tab, i) => ({ id: `tab${i}`, label: tab.name, x: 24 + i * 182, y: 76, w: 172, h: 42, primary: i === this.tab }));
+    return TABS.map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 182, y: 76, w: 172, h: 42, primary: i === this.tab }));
   }
 
   update(dt: number): void {
     this.t += dt;
     this.toastTime = Math.max(0, this.toastTime - dt);
     const input = this.game.input;
+    this.chief.update(dt, input);
+    if (input.taps.length > 0 || input.pressed('confirm') || input.pressed('up') || input.pressed('down')) this.chief.poke();
     if (input.pressed('back')) return this.leave();
     if (input.pressed('left')) this.setTab(this.tab - 1);
     if (input.pressed('right')) this.setTab(this.tab + 1);
@@ -111,16 +120,22 @@ export class HangarScene implements Scene {
     if (!item) return;
     const save = this.game.save;
     const a = itemAction(save, item);
-    if (!a.enabled) return this.say(a.note || `${a.label}`, false);
+    if (!a.enabled) {
+      this.chief.refused(a);
+      return this.say(a.note || `${a.label}`, false);
+    }
     switch (a.kind) {
       case 'buy': {
         const check = canBuy(save, item);
-        if (!check.ok) return this.say(a.note || 'Cannot buy', false);
-        this.commit(buy(save, item), `${itemName(item)} acquired!`);
+        if (!check.ok) return this.say(a.note || t('hangar.cannotBuy'), false);
+        this.commit(buy(save, item), t('hangar.acquired', { item: itemName(item) }));
+        this.chief.bought(item);
         return;
       }
       case 'select':
-        if (item.type === 'plane') this.commit(selectPlane(save, item.id), `${PLANES[item.id].name} ready on the catapult`);
+        if (item.type !== 'plane') return;
+        this.commit(selectPlane(save, item.id), t('hangar.readyOnCat', { plane: PLANES[item.id].name }));
+        this.chief.selected(item.id);
         return;
       case 'mount':
         if (item.type === 'secondary') this.mountNext(item.id);
@@ -141,8 +156,9 @@ export class HangarScene implements Scene {
       slot = this.slotCursor % slots.length;
       this.slotCursor++;
     }
-    if (!canMount(save, plane, id, slot).ok) return this.say('Cannot mount here', false);
-    this.commit(mount(save, plane, id, slot), `Mounted on hardpoint ${slot + 1}`);
+    if (!canMount(save, plane, id, slot).ok) return this.say(t('hangar.cannotMount'), false);
+    this.commit(mount(save, plane, id, slot), t('hangar.mountedOn', { n: slot + 1 }));
+    this.chief.mounted(id);
   }
 
   private unmountFocused(): void {
@@ -150,18 +166,24 @@ export class HangarScene implements Scene {
     if (item?.type !== 'secondary') return;
     const slots = this.game.save.loadout[this.game.save.selectedPlane];
     const slot = slots.lastIndexOf(item.id);
-    if (slot >= 0) this.commit(unmount(this.game.save, this.game.save.selectedPlane, slot), `Removed from hardpoint ${slot + 1}`);
+    if (slot < 0) return;
+    this.commit(unmount(this.game.save, this.game.save.selectedPlane, slot), t('hangar.removedFrom', { n: slot + 1 }));
+    this.chief.unmounted();
   }
 
   private clickSlot(i: number): void {
     const save = this.game.save;
     const plane = save.selectedPlane;
-    if (save.loadout[plane][i]) return this.commit(unmount(save, plane, i), `Hardpoint ${i + 1} cleared`);
+    if (save.loadout[plane][i]) {
+      this.commit(unmount(save, plane, i), t('hangar.cleared', { n: i + 1 }));
+      return this.chief.unmounted();
+    }
     const item = this.item;
     if (item?.type !== 'secondary') return;
     const check = canMount(save, plane, item.id, i);
-    if (!check.ok) return this.say(check.reason === 'not-owned' ? 'Buy it first' : 'Not allowed on this jet', false);
-    this.commit(mount(save, plane, item.id, i), `Mounted on hardpoint ${i + 1}`);
+    if (!check.ok) return this.say(t(check.reason === 'not-owned' ? 'hangar.buyFirst' : 'hangar.notAllowed'), false);
+    this.commit(mount(save, plane, item.id, i), t('hangar.mountedOn', { n: i + 1 }));
+    this.chief.mounted(item.id);
   }
 
   render(ctx: CanvasRenderingContext2D): void {
@@ -171,19 +193,20 @@ export class HangarScene implements Scene {
     bg.addColorStop(1, '#05090f');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1280, 720);
-    text(ctx, 'HANGAR', 24, 50, { size: 30, display: true, italic: true });
+    text(ctx, t('hangar.title'), 24, 50, { size: 30, display: true, italic: true });
     text(ctx, formatMoney(save.money), 1130, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
-    drawButton(ctx, { id: 'back', label: 'MAP', ...BACK_BTN, hint: 'ESC' }, false, this.t);
+    drawButton(ctx, { id: 'back', label: t('hangar.map'), ...BACK_BTN, hint: 'ESC' }, false, this.t);
     this.tabButtons().forEach((b) => drawButton(ctx, b, false, this.t));
     drawList(ctx, save, this.items, this.focus[this.tab] ?? 0, this.t);
     const item = this.item;
     if (item) drawDetail(ctx, save, item, this.t);
     if (this.tab === 1) drawLoadout(ctx, save, item?.type === 'secondary' ? item.id : null);
     this.renderAction(ctx);
-    const hintText = this.game.input.device === 'touch' ? 'Tap a hardpoint to clear it or to mount the selected weapon' : '←/→ tabs · ↑/↓ items · ENTER buy/mount · SHIFT unmount · ESC map';
-    text(ctx, hintText, 24, 700, { size: 12, color: COLORS.faint });
+    const hintText = t(this.game.input.device === 'touch' ? 'hangar.hintTouch' : 'hangar.hintKeys');
+    text(ctx, hintText, 220, 48, { size: 12, color: COLORS.faint, maxWidth: 640 });
+    this.chief.render(ctx);
     if (this.toastTime > 0) {
-      text(ctx, this.toast, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 16, color: COLORS.gold, alpha: Math.min(1, this.toastTime * 2), maxWidth: DETAIL.w - 320 });
+      text(ctx, this.toast, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 16, color: COLORS.gold, alpha: Math.min(1, this.toastTime * 2), maxWidth: DETAIL.w - 340 });
     }
   }
 
@@ -193,6 +216,6 @@ export class HangarScene implements Scene {
     if (!b || !item) return;
     drawButton(ctx, b, b.enabled !== false, this.t);
     const note = itemAction(this.game.save, item).note;
-    if (note && this.toastTime <= 0) text(ctx, note, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 14, color: COLORS.red });
+    if (note && this.toastTime <= 0) text(ctx, note, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 14, color: COLORS.red, maxWidth: DETAIL.w - 340 });
   }
 }

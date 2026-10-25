@@ -1,7 +1,7 @@
 ---
-generated: 2026-10-24
-doc_count: 5
-connection_count: 10
+generated: 2026-10-25
+doc_count: 8
+connection_count: 18
 overlap_count: 0
 ---
 
@@ -11,13 +11,16 @@ overlap_count: 0
 
 ```
 Game
-├── Campaign   03-campaign-map     complete
-├── Engine     01-game-core        complete
-├── Hangar     02-hangar-economy   complete
-├── Mission    05-mission-combat   complete
-└── Takeoff    04-carrier-takeoff  complete
+├── Campaign     03-campaign-map        complete
+├── Characters   06-talking-characters  complete
+├── Engine       01-game-core           complete
+├── Hangar       02-hangar-economy      complete
+├── Languages    07-i18n                complete
+├── Mission      05-mission-combat      complete
+├── Pilots       08-pilot-profiles      complete
+└── Takeoff      04-carrier-takeoff     complete
 Meta
-└── Schema     00-frontmatter-spec complete
+└── Schema       00-frontmatter-spec    complete
 ```
 
 ## Dependency Graph
@@ -29,6 +32,9 @@ graph TD
   map[03-campaign-map]:::complete
   takeoff[04-carrier-takeoff]:::complete
   mission[05-mission-combat]:::complete
+  chars[06-talking-characters]:::complete
+  i18n[07-i18n]:::complete
+  pilots[08-pilot-profiles]:::complete
   hangar --> core
   map --> core
   map --> hangar
@@ -39,6 +45,12 @@ graph TD
   mission --> hangar
   mission --> map
   mission --> takeoff
+  chars --> core
+  chars --> i18n
+  chars --> pilots
+  i18n --> core
+  pilots --> core
+  pilots --> i18n
   classDef complete fill:#2f9e5a,color:#fff
   classDef in_progress fill:#d39b1f,color:#000
   classDef draft fill:#5c6f82,color:#fff

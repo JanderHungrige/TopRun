@@ -1,11 +1,13 @@
 import { approach } from '../../core/math';
 import type { Scene } from '../../core/scene';
-import { objectiveText } from '../../data/missions';
 import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types';
 import { derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
+import { bossTitle, missionName, objectiveText } from '../../i18n/content';
+import { t } from '../../i18n/i18n';
 import { COLORS, text } from '../../render/text';
+import { pilotContext } from '../../ui/speech';
 import { ButtonGroup, drawPanel, hit } from '../../ui/widgets';
 import { Boss } from './boss';
 import { spawnEnemy, updateEnemies } from './enemy-ai';
@@ -13,6 +15,7 @@ import { drawLeftHud, drawRightHud, TOUCH_BUTTONS, type TouchAction } from './hu
 import { clipPlayfield, renderWorld } from './mission-render';
 import { updatePickups } from './pickups';
 import { Player } from './player';
+import { WingmanRadio } from './radio';
 import { updateCombat } from './projectiles';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
 import { PF_H, PF_W, PF_X, World } from './world';
@@ -32,9 +35,10 @@ export class MissionScene implements Scene {
   private t = 0;
   private paused = false;
   private pauseMenu = new ButtonGroup([
-    { id: 'resume', label: 'RESUME', x: 540, y: 330, w: 200, h: 48, primary: true },
-    { id: 'abort', label: 'ABORT MISSION', x: 540, y: 392, w: 200, h: 48 },
+    { id: 'resume', label: t('mission.resume'), x: 520, y: 330, w: 240, h: 48, primary: true },
+    { id: 'abort', label: t('mission.abort'), x: 520, y: 392, w: 240, h: 48 },
   ]);
+  private readonly radio: WingmanRadio;
   private banner: Banner | null = null;
   private ending: { success: boolean; timer: number } | null = null;
   private left = false;
@@ -42,7 +46,8 @@ export class MissionScene implements Scene {
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly takeoff: TakeoffRating) {
     this.world = new World(mission);
     this.player = new Player(derivePlayerStats(game.save));
-    this.banner = { title: mission.name.toUpperCase(), sub: objectiveText(mission.objective), color: COLORS.ink, time: 3 };
+    this.banner = { title: missionName(mission).toUpperCase(), sub: objectiveText(mission.objective), color: COLORS.ink, time: 3 };
+    this.radio = new WingmanRadio(game.audio, pilotContext(game));
   }
 
   enter(): void {
@@ -92,7 +97,7 @@ export class MissionScene implements Scene {
     if (!p.alive) return;
     const touch = input.device === 'touch';
     p.move(input.moveVector(), input.dragDelta(PLAYFIELD), dt);
-    const autofire = this.game.save.settings.autofire || (touch && input.touchingIn(PLAYFIELD));
+    const autofire = this.game.settings.autofire || (touch && input.touchingIn(PLAYFIELD));
     if (input.held('fire') || autofire) firePlayerGun(this.world, p, this.game.audio);
     if (input.held('secondary') || this.touched('secondary')) fireSecondary(this.world, p, this.game.audio);
     if ((input.pressed('switchWeapon') || this.touched('switchWeapon')) && p.switchSecondary()) this.game.audio.play('uiMove');
@@ -108,7 +113,10 @@ export class MissionScene implements Scene {
     p.specialActive = plane.specialDuration;
     this.game.audio.play('special');
     if (plane.special === 'roll') p.dashVX = (p.bank >= 0 ? 1 : -1) * 620;
-    if (plane.special === 'wingman') p.wingman = { x: p.x + 90, y: PF_H + 40, fireT: 0.5 };
+    if (plane.special === 'wingman') {
+      p.wingman = { x: p.x + 90, y: PF_H + 40, fireT: 0.5 };
+      this.radio.special();
+    }
     if (plane.special === 'dash') this.world.addShake(6);
   }
 
@@ -132,6 +140,7 @@ export class MissionScene implements Scene {
     w.particles.update(dt, w.scrollSpeed);
     w.shake = Math.max(0, w.shake - dt * 25);
     w.sweep();
+    this.radio.update(dt, w, p, this.game.input);
   }
 
   private spawnEvents(): void {
@@ -140,7 +149,8 @@ export class MissionScene implements Scene {
       if (ev.type === 'enemy') spawnEnemy(w, ev.kind, ev.x, ev.behavior);
       else {
         w.boss = new Boss(ev.boss, this.mission.difficulty);
-        this.banner = { title: 'WARNING', sub: `${w.boss.def.name} — ${w.boss.def.title} approaching`, color: COLORS.red, time: 3 };
+        this.banner = { title: t('mission.warning'), sub: t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), color: COLORS.red, time: 3 };
+        this.radio.bossWarning(w.boss.def.name);
         this.game.audio.play('warning');
         this.game.music.play('boss');
       }
@@ -182,10 +192,11 @@ export class MissionScene implements Scene {
     this.ending = { success, timer: 0 };
     p.invuln = 99;
     this.game.music.play(success ? 'victory' : 'defeat');
-    const reason = !p.alive ? 'You were shot down' : 'Objective not completed';
+    const reason = t(!p.alive ? 'mission.shotDown' : 'mission.objectiveMissed');
     this.banner = success
-      ? { title: 'MISSION COMPLETE', sub: 'Return to the carrier', color: COLORS.gold, time: 99 }
-      : { title: 'MISSION FAILED', sub: reason, color: COLORS.red, time: 99 };
+      ? { title: t('mission.complete'), sub: t('mission.returnToCarrier'), color: COLORS.gold, time: 99 }
+      : { title: t('mission.failed'), sub: reason, color: COLORS.red, time: 99 };
+    if (success) this.radio.victory();
   }
 
   private updateEnding(dt: number): void {
@@ -220,8 +231,9 @@ export class MissionScene implements Scene {
     renderWorld(ctx, w, this.player, this.t);
     ctx.restore();
     this.renderBanner(ctx);
+    this.radio.render(ctx);
     const touch = this.game.input.device === 'touch';
-    drawLeftHud(ctx, this.player, this.t, touch);
+    drawLeftHud(ctx, this.player, this.t, touch, this.game.profile?.callsign ?? 'PILOT');
     drawRightHud(ctx, w, this.t, touch);
     if (this.paused) this.renderPause(ctx);
   }
@@ -230,7 +242,7 @@ export class MissionScene implements Scene {
     const b = this.banner;
     if (!b || b.time <= 0) return;
     const alpha = Math.min(1, b.time * 2);
-    if (b.title === 'WARNING' && Math.sin(this.t * 14) < 0) return;
+    if (b.color === COLORS.red && b.time > 0 && b.title === t('mission.warning') && Math.sin(this.t * 14) < 0) return;
     text(ctx, b.title, 640, 300, { size: 46, display: true, italic: true, align: 'center', color: b.color, stroke: '#000', strokeWidth: 7, alpha });
     text(ctx, b.sub, 640, 336, { size: 18, align: 'center', color: COLORS.ink, stroke: '#000', strokeWidth: 4, alpha });
   }
@@ -239,8 +251,8 @@ export class MissionScene implements Scene {
     ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, 1280, 720);
     drawPanel(ctx, { x: 500, y: 230, w: 280, h: 240 });
-    text(ctx, 'PAUSED', 640, 290, { size: 34, display: true, italic: true, align: 'center', color: COLORS.gold });
+    text(ctx, t('mission.paused'), 640, 290, { size: 34, display: true, italic: true, align: 'center', color: COLORS.gold });
     this.pauseMenu.render(ctx, this.t);
-    text(ctx, 'Aborting keeps 50% of the cash earned', 640, 462, { size: 12, align: 'center', color: COLORS.dim });
+    text(ctx, t('mission.abortNote'), 640, 462, { size: 12, align: 'center', color: COLORS.dim });
   }
 }

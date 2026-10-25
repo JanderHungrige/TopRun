@@ -34,3 +34,24 @@ canvas#game {
   text-align: center;
   padding: 2rem;
 }
+
+/* Callsign field laid over the canvas (src/ui/text-field.ts). */
+.canvas-text-field {
+  position: fixed;
+  margin: 0;
+  padding: 0 0.6em;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffc83d;
+  caret-color: #ffc83d;
+  font-family: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  z-index: 10;
+}
+
+.canvas-text-field::placeholder {
+  color: rgba(233, 239, 245, 0.35);
+}

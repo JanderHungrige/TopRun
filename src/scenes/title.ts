@@ -1,28 +1,32 @@
 import type { Scene } from '../core/scene';
-import { defaultSave, hasProgress } from '../game/save';
+import { MAX_PROFILES } from '../game/profiles';
 import type { GameContext } from '../game/state';
-import { drawFlyby, drawLogo, drawSunset } from '../render/backdrop';
+import { getLang, t } from '../i18n/i18n';
+import type { UiKey } from '../i18n/ui-en';
+import { drawFlyby, drawSunset } from '../render/backdrop';
+import { drawLogo } from '../render/logo';
 import { COLORS, text } from '../render/text';
 import { ButtonGroup, drawPanel, type Button } from '../ui/widgets';
 
-type Mode = 'menu' | 'confirm' | 'controls';
+type Mode = 'menu' | 'controls';
 
-const CONTROLS: ReadonlyArray<readonly [string, string, string]> = [
-  ['Move', 'Arrows / WASD', 'Left stick / D-pad'],
-  ['Gun (hold)', 'Space / J', 'A'],
-  ['Missile / bomb', 'Shift / K', 'B'],
-  ['Switch weapon', 'Q / L', 'LB / RB'],
-  ['Flare', 'F', 'X'],
-  ['Special move', 'E', 'Y'],
-  ['Pause', 'P / Esc', 'Start'],
-  ['Mute', 'M', '—'],
+const CONTROLS: ReadonlyArray<readonly [UiKey, UiKey | string, UiKey | string]> = [
+  ['controls.move', 'controls.arrows', 'controls.stick'],
+  ['controls.gun', 'controls.spaceJ', 'A'],
+  ['controls.missile', 'Shift / K', 'B'],
+  ['controls.switch', 'Q / L', 'LB / RB'],
+  ['controls.flare', 'F', 'X'],
+  ['controls.special', 'E', 'Y'],
+  ['controls.pause', 'P / Esc', 'Start'],
+  ['controls.mute', 'M', '—'],
 ];
+
+const label = (s: string): string => (s.startsWith('controls.') ? t(s as UiKey) : s);
 
 export class TitleScene implements Scene {
   private t = 0;
   private mode: Mode = 'menu';
   private menu = new ButtonGroup([]);
-  private confirm = new ButtonGroup([], 'horizontal');
 
   constructor(private readonly game: GameContext) {}
 
@@ -32,24 +36,23 @@ export class TitleScene implements Scene {
   }
 
   private buildMenu(): void {
-    const cont = hasProgress(this.game.save);
-    const labels: Array<[string, string]> = [
-      ...(cont ? ([['continue', 'CONTINUE']] as Array<[string, string]>) : []),
-      ['new', 'NEW GAME'],
-      ['controls', 'CONTROLS'],
-      ['sound', this.game.save.settings.muted ? 'SOUND: OFF' : 'SOUND: ON'],
-      ['autofire', this.game.save.settings.autofire ? 'AUTOFIRE: ON' : 'AUTOFIRE: OFF'],
+    const st = this.game.settings;
+    const items: Array<[string, string]> = [
+      ...(this.game.profiles.length > 0 ? ([['continue', t('title.continue')]] as Array<[string, string]>) : []),
+      ['new', t('title.newPilot')],
+      ['controls', t('title.controls')],
+      ['sound', t(st.muted ? 'title.soundOff' : 'title.soundOn')],
+      ['autofire', t(st.autofire ? 'title.autofireOn' : 'title.autofireOff')],
+      ['lang', t('title.language')],
     ];
-    const top = 680 - labels.length * 50;
-    const buttons: Button[] = labels.map(([id, label], i) => ({ id, label, x: 520, y: top + i * 50, w: 240, h: 42, primary: i === 0 }));
+    const top = 688 - items.length * 46;
+    const full = this.game.profiles.length >= MAX_PROFILES;
+    const buttons: Button[] = items.map(([id, text_], i) => ({
+      id, label: text_, x: 510, y: top + i * 46, w: 260, h: 38, primary: i === 0, enabled: !(id === 'new' && full),
+    }));
     const focus = this.menu.focused?.id;
     this.menu.setButtons(buttons);
     if (focus) this.menu.focusId(focus);
-    this.confirm.setButtons([
-      { id: 'yes', label: 'START OVER', x: 470, y: 420, w: 160, h: 44, primary: true },
-      { id: 'no', label: 'CANCEL', x: 650, y: 420, w: 160, h: 44 },
-    ]);
-    this.confirm.focus = 1;
   }
 
   update(dt: number): void {
@@ -57,12 +60,6 @@ export class TitleScene implements Scene {
     const input = this.game.input;
     if (this.mode === 'controls') {
       if (input.pressed('back') || input.pressed('confirm') || input.taps.length > 0) this.setMode('menu');
-      return;
-    }
-    if (this.mode === 'confirm') {
-      const id = this.confirm.update(input);
-      if (id === 'yes') this.startNew();
-      if (id === 'no' || input.pressed('back')) this.setMode('menu');
       return;
     }
     const id = this.menu.update(input);
@@ -76,77 +73,57 @@ export class TitleScene implements Scene {
     this.game.input.clearPressed();
   }
 
+  private toggle(change: 'muted' | 'autofire' | 'lang'): void {
+    const st = this.game.settings;
+    const settings = { ...st };
+    if (change === 'muted') settings.muted = !st.muted;
+    if (change === 'autofire') settings.autofire = !st.autofire;
+    if (change === 'lang') settings.lang = getLang() === 'de' ? 'en' : 'de';
+    this.game.setSettings(settings);
+    this.game.audio.play('uiSelect');
+    this.buildMenu();
+  }
+
   private activate(id: string): void {
     switch (id) {
       case 'continue':
         this.game.audio.play('uiSelect');
-        this.game.go({ to: 'map' });
+        this.game.go({ to: 'pilots' });
         return;
       case 'new':
-        if (hasProgress(this.game.save)) this.setMode('confirm');
-        else this.startNew();
-        return;
-      case 'controls':
-        this.setMode('controls');
-        return;
-      case 'sound': {
-        const muted = !this.game.save.settings.muted;
-        this.game.audio.setMuted(muted);
-        this.game.setSave({ ...this.game.save, settings: { ...this.game.save.settings, muted } });
         this.game.audio.play('uiSelect');
-        this.buildMenu();
+        this.game.go({ to: 'newPilot' });
         return;
-      }
-      case 'autofire': {
-        const autofire = !this.game.save.settings.autofire;
-        this.game.setSave({ ...this.game.save, settings: { ...this.game.save.settings, autofire } });
-        this.game.audio.play('uiSelect');
-        this.buildMenu();
-        return;
-      }
-      default:
-        return;
+      case 'controls': return this.setMode('controls');
+      case 'sound': return this.toggle('muted');
+      case 'autofire': return this.toggle('autofire');
+      case 'lang': return this.toggle('lang');
+      default: return;
     }
-  }
-
-  private startNew(): void {
-    const fresh = defaultSave();
-    fresh.settings = { ...this.game.save.settings };
-    this.game.setSave(fresh);
-    this.game.audio.play('uiSelect');
-    this.game.go({ to: 'map' });
   }
 
   render(ctx: CanvasRenderingContext2D): void {
     drawSunset(ctx, this.t);
     drawFlyby(ctx, this.t);
-    drawLogo(ctx, 640, 210, this.t);
-    text(ctx, '30 MISSIONS  ·  3 LEGENDARY JETS  ·  1 CARRIER', 640, 300, { size: 15, align: 'center', color: '#ffd9c2', letterSpacing: 2, shadow: true });
+    drawLogo(ctx, 640, 200, this.t);
+    text(ctx, t('title.tagline'), 640, 318, { size: 15, align: 'center', color: '#ffd9c2', letterSpacing: 2, shadow: true });
     if (this.mode === 'menu') this.menu.render(ctx, this.t);
-    if (this.mode === 'confirm') this.renderConfirm(ctx);
     if (this.mode === 'controls') this.renderControls(ctx);
-    const hint = this.game.input.device === 'touch' ? 'Tap to select' : 'Arrows + Enter to select  ·  M to mute';
-    text(ctx, hint, 640, 700, { size: 13, align: 'center', color: COLORS.dim });
-  }
-
-  private renderConfirm(ctx: CanvasRenderingContext2D): void {
-    drawPanel(ctx, { x: 430, y: 330, w: 420, h: 160 });
-    text(ctx, 'Start a new career?', 640, 372, { size: 22, display: true, align: 'center', color: COLORS.gold });
-    text(ctx, 'Your money, jets and medals will be lost.', 640, 400, { size: 15, align: 'center', color: COLORS.dim });
-    this.confirm.render(ctx, this.t);
+    const hint = this.game.input.device === 'touch' ? t('title.hintTouch') : t('title.hintKeys');
+    text(ctx, hint, 640, 708, { size: 13, align: 'center', color: COLORS.dim });
   }
 
   private renderControls(ctx: CanvasRenderingContext2D): void {
-    drawPanel(ctx, { x: 300, y: 330, w: 680, h: 350 });
-    text(ctx, 'CONTROLS', 640, 368, { size: 24, display: true, align: 'center', color: COLORS.gold });
-    text(ctx, 'KEYBOARD', 600, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
-    text(ctx, 'GAMEPAD', 800, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
+    drawPanel(ctx, { x: 280, y: 330, w: 720, h: 360 });
+    text(ctx, t('controls.title'), 640, 368, { size: 24, display: true, align: 'center', color: COLORS.gold });
+    text(ctx, t('controls.keyboard'), 590, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
+    text(ctx, t('controls.gamepad'), 790, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
     CONTROLS.forEach(([what, keys, pad], i) => {
       const y = 428 + i * 27;
-      text(ctx, what, 340, y, { size: 15, color: COLORS.ink });
-      text(ctx, keys, 600, y, { size: 15, color: COLORS.cyan });
-      text(ctx, pad, 800, y, { size: 15, color: COLORS.cyan });
+      text(ctx, t(what), 310, y, { size: 15, color: COLORS.ink });
+      text(ctx, label(keys), 590, y, { size: 15, color: COLORS.cyan });
+      text(ctx, label(pad), 790, y, { size: 15, color: COLORS.cyan, maxWidth: 200 });
     });
-    text(ctx, 'Touch: drag to fly, auto-fire, buttons on the side panels.  Carrier: hold FIRE to throttle up, tap FIRE to rotate.', 640, 660, { size: 12, align: 'center', color: COLORS.dim });
+    text(ctx, t('controls.touch'), 640, 668, { size: 12, align: 'center', color: COLORS.dim, maxWidth: 690 });
   }
 }

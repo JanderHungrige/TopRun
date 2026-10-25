@@ -1,7 +1,6 @@
 import { TAU } from '../core/math';
 import { drawPlaneSide } from './draw-planes-side';
 import { fillPoly } from './shapes';
-import { FONT_DISPLAY, text } from './text';
 
 /** Retro sunset over the sea — used behind the title screen. */
 export function drawSunset(ctx: CanvasRenderingContext2D, t: number): void {
@@ -80,33 +79,4 @@ export function drawFlyby(ctx: CanvasRenderingContext2D, t: number): void {
     ctx.stroke();
     drawPlaneSide(ctx, p.id, x + p.dx, y + p.dy, 0.75, { gear: 0, throttle: 0.8, t, pitch: 0.06 });
   }
-}
-
-export function drawLogo(ctx: CanvasRenderingContext2D, cx: number, y: number, t: number): void {
-  ctx.save();
-  ctx.font = `italic 900 132px ${FONT_DISPLAY}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'alphabetic';
-  const g = ctx.createLinearGradient(0, y - 110, 0, y + 10);
-  g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.45, '#d9e3ee');
-  g.addColorStop(0.5, '#8ea3b8');
-  g.addColorStop(0.75, '#ffd36b');
-  g.addColorStop(1, '#ff8a3d');
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = 12;
-  ctx.strokeStyle = '#3a0d1f';
-  ctx.strokeText('TOPGUN', cx, y);
-  ctx.fillStyle = g;
-  ctx.fillText('TOPGUN', cx, y);
-  // Moving glint: a narrow bright gradient band clipped by drawing the text again.
-  const shine = cx - 520 + (((t * 0.35) % 1.6) / 1.6) * 1040;
-  const glint = ctx.createLinearGradient(shine - 60, 0, shine + 60, 0);
-  glint.addColorStop(0, 'rgba(255,255,255,0)');
-  glint.addColorStop(0.5, 'rgba(255,255,255,0.55)');
-  glint.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = glint;
-  ctx.fillText('TOPGUN', cx, y);
-  ctx.restore();
-  text(ctx, 'C A R R I E R   S T R I K E', cx, y + 42, { size: 24, display: true, align: 'center', color: '#ffd36b', stroke: '#3a0d1f', strokeWidth: 5 });
 }

@@ -1,128 +1,59 @@
 import type { MusicMood } from './music';
+import { SONGS } from './music-songs';
 
-export type Inst = 'kick' | 'snare' | 'hat' | 'ohat' | 'crash' | 'bass' | 'pad' | 'arp' | 'lead';
-/** One note: instrument, MIDI pitches, length in 16th steps, velocity. */
-export interface NoteEvent { i: Inst; m: number[]; d: number; v: number }
-/** bars[bar][16th step] → notes starting on that step. `bright` scales synth filter cutoffs. */
-export interface CompiledSong { bpm: number; loop: boolean; bright: number; bars: NoteEvent[][][] }
+export type Inst =
+  | 'kick' | 'snare' | 'hat' | 'ohat' | 'crash' | 'tom' | 'gong' | 'swell'
+  | 'bass' | 'drone' | 'brass' | 'stab' | 'power' | 'chug' | 'arp' | 'lead';
+/** Pitch slide into a note: start pitch (MIDI) and slide time (s). */
+export interface Bend { from: number; time: number }
+/** One note: instrument, MIDI pitches, length in 16th steps, velocity, optional slide-in. */
+export interface NoteEvent { i: Inst; m: number[]; d: number; v: number; bend?: Bend }
+/** bars[bar][16th step] → notes starting there. A looping song restarts at bar `loopFrom`. */
+export interface CompiledSong { bpm: number; loop: boolean; loopFrom: number; bright: number; bars: NoteEvent[][][] }
 
-interface Drums { k: string; s: string; h: string }
+export type Track = 'bass' | 'drone' | 'brass' | 'stab' | 'gtr' | 'arp' | 'lead' | 'k' | 's' | 'h' | 't' | 'fx';
 /**
- * Grids are 16 sixteenth-steps per bar: '-' holds the previous note, '.' rests. Per-bar arrays cycle.
- * chords: one per bar ('Dm' minor, 'F' major, 'F/G' = two halves); its length is the song length.
- * bass: r root, t third, f fifth, s flat 7th, o octave.  pad: x power chord (X accent).
- * arp: digit = chord tone (root, 3rd, 5th, oct, oct+3rd, oct+5th), '' = silent bar.
- * lead: 4, 8 or 16 space-separated tokens per bar ('A4', 'Bb5', '-', '.'), '' = silent bar.
- * drums: k kick, s snare (X accent, g ghost), h hat (x closed, o open, c crash).
+ * A run of bars. `chords` has one entry per bar (so its length is the section length): 1, 2 or 4
+ * space-separated symbols splitting the bar evenly — 'D', 'F#m', 'Asus A', 'G/B', 'E5', 'Dsus2'.
+ * Each track is a list of bars cycling over the section. A bar is a 16-char grid (one char per 16th)
+ * or 1/2/4/8/16 space-separated tokens. '-' holds (also across bar lines), '.' rests, '' = silent bar.
+ *   bass, drone: r root, t third, f fifth, o octave, s flat 7th — or a note such as 'E1'.
+ *   brass, stab: x chord voiced around middle C (X accent).  arp: digit = chord tone 0–5.
+ *   gtr: x power chord (X accent), m palm-muted chug — or a note: 'E2' power chord, '_E2' muted.
+ *   lead: notes; '^A4' bends up a whole step into A4, '~A4' glides from the previous note.
+ *   k: x kick (X accent).  s: x snare (X accent, g ghost).  h: x hat, o open hat, c crash (C accent).
+ *   t: tom 1 (high) … 4 (floor).  fx: w cymbal swell (its length = holds), g gong (G big).
+ * `mix` scales the velocity of whole tracks within the section.
  */
-interface Song {
-  bpm: number; loop: boolean; bright?: number;
-  chords: string[]; bass: string[]; pad: string[]; arp: string[]; lead: string[]; drums: Drums[];
-}
+export type Section = Partial<Record<Track, string[]>> & { chords: string[]; mix?: Partial<Record<Track, number>> };
+export interface Song { bpm: number; loop: boolean; loopFrom?: number; bright?: number; sections: Section[] }
 
-const rep = (n: number, ...bars: string[]): string[] => Array.from({ length: n }, () => bars).flat();
-const dr = (k: string, s: string, h: string): Drums => ({ k, s, h });
+/** Chord as pitch classes: root, intervals above it, bass note (slash chords). */
+interface Chord { root: number; tones: number[]; bass: number }
+type Hit = Omit<NoteEvent, 'd'>;
 
-const BACKBEAT = '....x.......x...';
-const EIGHTHS = 'x.x.x.x.x.x.x.x.';
-const SIXTEENTHS = 'xxxxxxxxxxxxxxxx';
-
-const MENU: Song = {
-  bpm: 112,
-  loop: true,
-  chords: ['Dm', 'Bb', 'F', 'C', 'Dm', 'Bb', 'C', 'A', 'Dm', 'Bb', 'F', 'C', 'Gm', 'Bb', 'C', 'A'],
-  bass: ['r-r-r-r-r-r-o-r-', 'r-r-r-r-o-r-f-r-'],
-  pad: [...rep(8, 'x-------x-------'), ...rep(8, 'x-----------x---')],
-  arp: [...rep(8, ''), ...rep(8, '0234023402340234')],
-  lead: [
-    'A4 - - D5 - - E5 -', 'F5 - - - - - E5 D5', 'C5 - - A4 - - C5 -', 'E5 - - - D5 - C5 -',
-    'A4 - - D5 - - E5 -', 'F5 - - - D5 - F5 -', 'G5 - - - - - F5 -', 'E5 - - - - - - .',
-    'D5 - - - F5 - A5 -', 'Bb5 - - - A5 - F5 -', 'A5 - - - - - G5 F5', 'G5 - - - E5 - C5 -',
-    'D5 - - Bb4 - - D5 -', 'F5 - - - - - D5 F5', 'G5 - - - E5 - G5 -', 'A5 - - - - - - .',
-  ],
-  drums: [
-    dr('x.......x.......', BACKBEAT, 'c.x.x.x.x.x.x.x.'),
-    dr('x.......x.......', BACKBEAT, EIGHTHS),
-    dr('x.....x.x.......', BACKBEAT, 'x.x.x.x.x.x.x.o.'),
-    dr('x.......x.......', '....x.......XgXX', 'x.x.x.x.x.x.....'),
-  ],
-};
-
-const MISSION_A = dr('x.....x.x.......', BACKBEAT, EIGHTHS);
-const MISSION_B = dr('x.......x.x.....', '....x.......x..g', 'x.x.x.x.x.x.x.o.');
-const MISSION: Song = {
-  bpm: 132,
-  loop: true,
-  chords: ['Em', 'Em', 'C', 'D', 'Em', 'Em', 'C', 'B', 'C', 'D', 'Em', 'Em', 'C', 'D', 'B', 'B'],
-  bass: ['r.r.r.r.r.r.r.o.', 'r.r.r.r.o.r.f.o.'],
-  pad: [...rep(8, 'x-----x-----x---'), ...rep(8, 'x-------x-------')],
-  arp: [...rep(8, '0232023202320232'), ...rep(8, '')],
-  lead: [
-    ...rep(8, ''),
-    'G5 - - - E5 - G5 -', 'A5 - - - F#5 - D5 -', 'B5 - - - - - A5 G5', 'G5 - E5 - - - B4 -',
-    'C6 - - - B5 - G5 -', 'A5 - - - F#5 - A5 -', 'B5 - - - F#5 - D#5 -', 'F#5 - - - - - - .',
-  ],
-  drums: [
-    dr('x.....x.x.......', BACKBEAT, 'c.x.x.x.x.x.x.x.'), MISSION_A, MISSION_B, MISSION_A,
-    MISSION_A, MISSION_B, MISSION_A, dr('x.....x.x.......', '....x...g.x.XXXX', 'x.x.x.x.x.x.....'),
-  ],
-};
-
-const BOSS_A = dr('x.x...x.x.x...x.', BACKBEAT, SIXTEENTHS);
-const BOSS_B = dr('x.x...x.x.x.x.x.', '....x.......x..g', SIXTEENTHS);
-const BOSS: Song = {
-  bpm: 150,
-  loop: true,
-  bright: 0.7,
-  chords: ['Cm', 'Cm', 'Ab', 'Bb', 'Cm', 'Cm', 'Db', 'G', 'Cm', 'Cm', 'Ab', 'Bb', 'Fm', 'Ab', 'Db', 'G'],
-  bass: ['r-rrr-rrr-rrr-rr', 'r-rrr-rrr-rro-o-'],
-  pad: [...rep(8, 'x---------------'), ...rep(8, 'x-----x-----x---')],
-  arp: [...rep(8, '0123012301230123'), ...rep(8, '0.3.1.3.0.3.2.3.')],
-  lead: [
-    ...rep(8, ''),
-    'C5 - - - - - Eb5 -', 'D5 - - - C5 - G4 -', 'Ab4 - - - C5 - Eb5 -', 'F5 - - - D5 - Bb4 -',
-    'F5 - - - Ab5 - G5 F5', 'Eb5 - - - C5 - Eb5 -', 'Db5 - - - F5 - Ab5 -', 'G5 - - - - - B4 D5',
-  ],
-  drums: [
-    dr('x.x...x.x.x...x.', BACKBEAT, 'c.xxxxxxxxxxxxxx'), BOSS_A, BOSS_B, BOSS_A,
-    BOSS_A, BOSS_B, BOSS_A, dr('x.x...x.x.......', '....x...g.g.XXXX', 'xxxxxxxxxxxx....'),
-  ],
-};
-
-const VICTORY: Song = {
-  bpm: 140,
-  loop: false,
-  bright: 1.2,
-  chords: ['F/G', 'A'],
-  bass: ['r-r-r-r-r-r-r-r-', 'r-----------....'],
-  pad: ['x-------x-------', 'X-----------....'],
-  arp: ['0234023402340234', '012345------....'],
-  lead: ['A4 . A4 C5 F5 - - - B4 . B4 D5 G5 - - -', 'C#5 - E5 - A5 - - - - - - - . . . .'],
-  drums: [
-    dr('x...x...x...x...', '........x.x.XXXX', 'c.x.x.x.x.x.x.x.'),
-    dr('x...............', 'X...............', 'c...............'),
-  ],
-};
-
-const DEFEAT: Song = {
-  bpm: 120,
-  loop: false,
-  bright: 0.6,
-  chords: ['Dm/Bb', 'Gm/Dm'],
-  bass: ['r-------r-------', 'r-------r-----..'],
-  pad: ['x-------x-------', 'x-------x-----..'],
-  arp: [''],
-  lead: ['A4 - - - - - G4 F4', 'E4 - - - D4 - - .'],
-  drums: [dr('x.......x.......', '', '')],
-};
-
-const SONGS: Record<MusicMood, Song> = { menu: MENU, mission: MISSION, boss: BOSS, victory: VICTORY, defeat: DEFEAT };
-
-interface Chord { root: number /* pitch class */; minor: boolean }
-type Add = (step: number, i: Inst, m: number[], d?: number, v?: number) => void;
-
+const TRACKS: readonly Track[] = ['bass', 'drone', 'brass', 'stab', 'gtr', 'arp', 'lead', 'k', 's', 'h', 't', 'fx'];
+const HOLD = '-';
+const REST = '.';
 const LETTER: Partial<Record<string, number>> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-const BASS_OFFSET: Partial<Record<string, number>> = { r: 0, f: 7, s: 10, o: 12 };
+const QUALITY: Partial<Record<string, number[]>> = { '': [0, 4, 7], m: [0, 3, 7], sus: [0, 5, 7], sus2: [0, 2, 7], 5: [0, 7] };
+const CHORD = /^([A-G][#b]?)(m|sus2|sus|5)?(?:\/([A-G][#b]?))?$/;
+const NOTE = /^([_^~]?)([A-G][#b]?)(\d)$/;
+const BASS_STEP: Partial<Record<string, number>> = { r: 0, f: 7, o: 12, s: 10 };
+const BEND = 0.15;
+const GLIDE = 0.09;
+
+type DrumTrack = 'k' | 's' | 'h' | 't' | 'fx';
+type PitchTrack = Exclude<Track, DrumTrack>;
+const hit = (i: Inst, v = 1, m: number[] = []): Hit => ({ i, m, v });
+const DRUMS: Record<DrumTrack, Partial<Record<string, Hit>>> = {
+  k: { x: hit('kick'), X: hit('kick', 1.25) },
+  s: { x: hit('snare'), X: hit('snare', 1.3), g: hit('snare', 0.35) },
+  h: { x: hit('hat'), o: hit('ohat'), c: hit('crash'), C: hit('crash', 1.3) },
+  t: { 1: hit('tom', 1, [57]), 2: hit('tom', 1, [52]), 3: hit('tom', 1, [47]), 4: hit('tom', 1, [42]) },
+  fx: { w: hit('swell'), g: hit('gong', 0.6), G: hit('gong') },
+};
+const isDrum = (t: Track): t is DrumTrack => t in DRUMS;
 
 function pitchClass(name: string): number | null {
   const base = LETTER[name.charAt(0)];
@@ -131,74 +62,131 @@ function pitchClass(name: string): number | null {
   return (base + acc + 12) % 12;
 }
 
-function midi(token: string): number | null {
-  const m = /^([A-G][#b]?)(\d)$/.exec(token);
-  const pc = m ? pitchClass(token) : null;
-  return m && pc !== null ? 12 * (Number(m[2]) + 1) + pc : null;
+function parseChord(sym: string): Chord {
+  const r = CHORD.exec(sym);
+  const root = r ? pitchClass(r[1] ?? '') : null;
+  const tones = QUALITY[r?.[2] ?? ''];
+  if (!r || root === null || !tones) throw new Error(`bad chord: ${sym}`);
+  return { root, tones, bass: pitchClass(r[3] ?? '') ?? root };
 }
 
-const chord = (token: string): Chord => ({ root: pitchClass(token) ?? 9, minor: token.endsWith('m') });
-const third = (c: Chord): number => (c.minor ? 3 : 4);
-const cycle = (bars: string[], b: number): string => bars[b % bars.length] ?? '';
+function parseNote(token: string): { mark: string; m: number } | null {
+  const r = NOTE.exec(token);
+  const pc = r ? pitchClass(r[2] ?? '') : null;
+  return r && pc !== null ? { mark: r[1] ?? '', m: 12 * (Number(r[3]) + 1) + pc } : null;
+}
 
-/** Calls `fn` for every note start in a 16-step grid with its length (1 + following '-'). */
-function hits(grid: string, fn: (ch: string, step: number, len: number) => void): void {
-  for (let i = 0; i < Math.min(16, grid.length); i++) {
-    const ch = grid.charAt(i);
-    if (ch === '.' || ch === '-') continue;
+/** Lowest MIDI note >= `low` with pitch class `pc`. */
+const reg = (pc: number, low: number): number => low + ((((pc - low) % 12) + 12) % 12);
+const bassRoot = (c: Chord): number => reg(c.bass, 28); // E1..D#2
+const gtrRoot = (c: Chord): number => reg(c.root, 40); // E2..D#3
+const power = (root: number): number[] => [root, root + 7, root + 12];
+/** Chord tones packed into G3..F#4 (smooth voice leading for free) plus the root on top. */
+const voicing = (c: Chord): number[] =>
+  [...c.tones.map((i) => reg((c.root + i) % 12, 55)).sort((a, b) => a - b), reg(c.root, 55) + 12];
+
+function bar16(bar: string): string[] {
+  if (bar === '') return Array<string>(16).fill(REST);
+  if (!bar.includes(' ') && bar.length === 16) return [...bar];
+  const tokens = bar.split(' ').filter((t) => t !== '');
+  const span = 16 / tokens.length;
+  if (!Number.isInteger(span)) throw new Error(`bad bar: ${bar}`);
+  return tokens.flatMap((t) => [t, ...Array<string>(span - 1).fill(t === REST ? REST : HOLD)]);
+}
+
+function trackCells(song: Song, track: Track): string[] {
+  return song.sections.flatMap((sec) => sec.chords.flatMap((_, b) => {
+    const bars = sec[track] ?? [];
+    return bar16(bars.length > 0 ? (bars[b % bars.length] ?? '') : '');
+  }));
+}
+
+function chordCells(song: Song): Chord[] {
+  return song.sections.flatMap((sec) => sec.chords.flatMap((bar) => {
+    const syms = bar.split(' ').filter((t) => t !== '');
+    const span = 16 / syms.length;
+    if (!Number.isInteger(span)) throw new Error(`bad chord bar: ${bar}`);
+    return syms.flatMap((sym) => Array<Chord>(span).fill(parseChord(sym)));
+  }));
+}
+
+/** Calls `fn` for every note start with its length in steps (1 + following holds). */
+function scan(cells: string[], fn: (token: string, pos: number, len: number) => void): void {
+  cells.forEach((cell, pos) => {
+    if (cell === HOLD || cell === REST) return;
     let len = 1;
-    while (grid.charAt(i + len) === '-') len++;
-    fn(ch, i, len);
+    while (cells[pos + len] === HOLD) len++;
+    fn(cell, pos, len);
+  });
+}
+
+const accent = (token: string): number => (token === 'X' ? 1.3 : 1);
+const isChord = (token: string): boolean => token === 'x' || token === 'X';
+
+/** Chord-relative token ('r', 'x', 'm', '3', …) → hit, or null if the token means nothing on this track. */
+function relative(track: PitchTrack, token: string, c: Chord): Hit | null {
+  switch (track) {
+    case 'bass': case 'drone': {
+      const off = token === 't' ? (c.tones[1] ?? 7) : BASS_STEP[token];
+      return off === undefined ? null : hit(track, 1, [bassRoot(c) + off]);
+    }
+    case 'brass': case 'stab': return isChord(token) ? hit(track, accent(token), voicing(c)) : null;
+    case 'gtr':
+      if (token === 'm') return hit('chug', 1, power(gtrRoot(c)));
+      return isChord(token) ? hit('power', accent(token), power(gtrRoot(c))) : null;
+    case 'arp': {
+      const t3 = c.tones[1] ?? 7;
+      const off = [0, t3, 7, 12, 12 + t3, 19][Number(token)];
+      return off === undefined ? null : hit('arp', 1, [gtrRoot(c) + 24 + off]);
+    }
+    case 'lead': return null;
+    default: throw new Error(`unhandled: ${track satisfies never}`);
   }
 }
 
-function leadBar(bar: string, add: Add): void {
-  const tokens = bar.split(' ').filter((t) => t !== '');
-  const len = 16 / Math.max(1, tokens.length);
-  tokens.forEach((token, i) => {
-    const m = midi(token);
-    if (m === null) return;
-    let n = 1;
-    while (tokens[i + n] === '-') n++;
-    add(Math.floor(i * len), 'lead', [m], n * len);
-  });
+/** Absolute note token ('E2', '_E2', '^A4', '~A4') → hit. */
+function absolute(track: PitchTrack, n: { mark: string; m: number }, prev: number | null): Hit {
+  if (track === 'gtr') return hit(n.mark === '_' ? 'chug' : 'power', 1, power(n.m));
+  if (track !== 'lead') return hit(track, 1, [n.m]);
+  const h = hit('lead', 1, [n.m]);
+  if (n.mark === '^') h.bend = { from: n.m - 2, time: BEND };
+  if (n.mark === '~' && prev !== null) h.bend = { from: prev, time: GLIDE };
+  return h;
 }
 
-function drumBar(d: Drums | undefined, add: Add): void {
-  if (!d) return;
-  hits(d.k, (_, s) => add(s, 'kick', []));
-  hits(d.s, (ch, s) => add(s, 'snare', [], 1, ch === 'X' ? 1.3 : ch === 'g' ? 0.35 : 1));
-  hits(d.h, (ch, s) => add(s, ch === 'c' ? 'crash' : ch === 'o' ? 'ohat' : 'hat', []));
-}
-
-function compileBar(song: Song, b: number): NoteEvent[][] {
-  const steps: NoteEvent[][] = Array.from({ length: 16 }, () => []);
-  const add: Add = (step, i, m, d = 1, v = 1) => { steps[step]?.push({ i, m, d, v }); };
-  const halves = (song.chords[b] ?? '').split('/').map(chord);
-  const at = (s: number): Chord => halves[s < 8 ? 0 : halves.length - 1] ?? { root: 9, minor: true };
-  const root = (s: number): number => 40 + ((at(s).root + 8) % 12); // E2..D#3
-  hits(cycle(song.bass, b), (ch, s, d) => {
-    const off = ch === 't' ? third(at(s)) : BASS_OFFSET[ch];
-    if (off !== undefined) add(s, 'bass', [root(s) + off], d);
-  });
-  hits(cycle(song.pad, b), (ch, s, d) => add(s, 'pad', [12, 19, 24].map((o) => root(s) + o), d, ch === 'X' ? 1.3 : 1));
-  hits(cycle(song.arp, b), (ch, s, d) => {
-    const tone = [0, third(at(s)), 7, 12, 12 + third(at(s)), 19][Number(ch)];
-    if (tone !== undefined) add(s, 'arp', [root(s) + 24 + tone], d);
-  });
-  leadBar(cycle(song.lead, b), add);
-  drumBar(song.drums[b % song.drums.length], add);
-  return steps;
+function toHit(track: Track, token: string, c: Chord, prev: number | null): Hit {
+  let h: Hit | null | undefined;
+  if (isDrum(track)) h = DRUMS[track][token];
+  else {
+    const n = parseNote(token);
+    h = n ? absolute(track, n, prev) : relative(track, token, c);
+  }
+  if (!h) throw new Error(`bad ${track} token: ${token}`);
+  return h;
 }
 
 const cache = new Map<MusicMood, CompiledSong>();
 
+/** Expands a mood's song into per-step note lists (cached; throws on malformed pattern data). */
 export function compileSong(mood: MusicMood): CompiledSong {
-  const hit = cache.get(mood);
-  if (hit) return hit;
+  const cached = cache.get(mood);
+  if (cached) return cached;
   const song = SONGS[mood];
-  const bars = song.chords.map((_, b) => compileBar(song, b));
-  const compiled: CompiledSong = { bpm: song.bpm, loop: song.loop, bright: song.bright ?? 1, bars };
+  const chords = chordCells(song);
+  const mixes = song.sections.flatMap((sec) => sec.chords.map(() => sec.mix ?? {}));
+  const bars: NoteEvent[][][] = mixes.map(() => Array.from({ length: 16 }, () => []));
+  for (const track of TRACKS) {
+    let prev: number | null = null;
+    scan(trackCells(song, track), (token, pos, len) => {
+      const chord = chords[pos];
+      if (!chord) throw new Error(`no chord at step ${pos}`);
+      const h = toHit(track, token, chord, prev);
+      if (track === 'lead') prev = h.m[0] ?? prev;
+      const bar = Math.floor(pos / 16);
+      bars[bar]?.[pos % 16]?.push({ ...h, d: len, v: h.v * (mixes[bar]?.[track] ?? 1) });
+    });
+  }
+  const compiled = { bpm: song.bpm, loop: song.loop, loopFrom: song.loopFrom ?? 0, bright: song.bright ?? 1, bars };
   cache.set(mood, compiled);
   return compiled;
 }

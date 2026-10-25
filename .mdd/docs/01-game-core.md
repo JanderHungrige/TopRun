@@ -1,9 +1,9 @@
 ---
 id: 01-game-core
-title: Game Core - Engine, Input, Scenes, Audio, Save
-edition: TopGun
+title: Game Core - Engine, Input, Scenes, Audio, Save, Branding
+edition: TopRun
 depends_on: []
-relates: [02-hangar-economy]
+relates: [02-hangar-economy, 07-i18n, 06-talking-characters]
 source_files:
   - index.html
   - src/main.ts
@@ -18,7 +18,16 @@ source_files:
   - src/core/audio.ts
   - src/core/music.ts
   - src/core/music-patterns.ts
+  - src/core/audio-nodes.ts
+  - src/core/sfx-voice.ts
+  - src/core/music-songs.ts
+  - src/core/music-synth.ts
+  - src/core/music-drums.ts
+  - src/core/music-voices.ts
+  - src/core/music-rig.ts
+  - src/core/sfx-recipes.ts
   - src/game/save.ts
+  - src/render/logo.ts
   - src/game/state.ts
   - src/render/text.ts
   - src/render/shapes.ts
@@ -33,7 +42,7 @@ test_files:
   - tests/unit/core.test.ts
   - tests/unit/save.test.ts
 data_flow: greenfield
-last_synced: 2026-10-24
+last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
@@ -55,6 +64,14 @@ sister_projects: []
 ---
 
 # 01 — Game Core
+
+> **2026-10-25 update:** the game is renamed **TopRun** (was "TopGun"). The title shows an
+> original winged TopRun badge (chrome lettering, gold wings, star, "CARRIER STRIKE" ribbon) —
+> deliberately not the film's logo, which is a third-party trademark and the site is public.
+> Music is replaced by original 80s aviation-anthem style tracks (menu anthem, driving mission
+> rock, boss, fanfares) — style only, no quoted melodies. New SFX `voice`, `radioVoice`,
+> `radioClick` drive the talking characters (06). The start menu gains a language button (07).
+> The save key stays `topgun.save.v1` so existing progress survives the rename.
 
 ## Purpose
 
@@ -89,7 +106,8 @@ hidden the loop pauses and the accumulator resets.
 
 ## Data Model
 
-`localStorage["topgun.save.v1"]` — JSON:
+Per-pilot progress (`SaveData`), stored inside the profile store `toprun.profiles.v1` (doc 08).
+The pre-profiles single save `localStorage["topgun.save.v1"]` is only read once for migration:
 
 | Field | Type | Rule |
 |-------|------|------|
@@ -102,7 +120,7 @@ hidden the loop pauses and the accumulator resets.
 | loadout | Record<PlaneId, SecondaryId[]> | only owned secondaries, length ≤ plane hardpoints, plane restrictions honoured |
 | equipment | {armor,engine,flares: 0–3, ecm,damageControl,magnet: 0–1} | clamped |
 | progress | Record<missionId, {stars: 0–3}> | presence = cleared; unknown ids dropped |
-| settings | {music: 0–1, sfx: 0–1, autofire: boolean, muted: boolean} | clamped; muted/autofire toggled on the title screen |
+| ~~settings~~ | moved | since 2026-10-25 settings are device-wide in the profile store (doc 08, `src/game/settings.ts`) |
 
 Defaults: money 2,000, F-16 owned and selected, gun level 1, nothing else.
 
@@ -128,10 +146,11 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
 - **Scene transitions** fade to black over 0.25 s, swap scene, fade in; input pressed-state is
   cleared on swap so a key press can't leak into the next scene.
 - **Pause**: losing window focus or tab visibility pauses gameplay scenes.
+- Title menu: CONTINUE (→ pilot list) · NEW PILOT · CONTROLS · SOUND · AUTOFIRE · LANGUAGE (07, 08).
 - Title screen: "Continue" only shown when a save with progress or purchases exists; "New Game"
   with an existing save asks for confirmation before overwriting.
 
-- **Dev test hook**: in `npm run dev` only, `window.__topgun` exposes `step(frames)`, `go(route)`,
+- **Dev test hook**: in `npm run dev` only, `window.__toprun` exposes `step(frames)`, `go(route)`,
   `scene()` and `game` so the game can be driven from the browser console or automation while the tab is
   in the background. `import.meta.env.DEV` strips it from production builds.
 

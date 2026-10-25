@@ -7,17 +7,11 @@ import {
 } from '../data/types';
 import { secondaryAllowedOn } from '../data/weapons';
 
+/** Legacy single-save key (pre-profiles); read once for migration (doc 08). */
 export const SAVE_KEY = 'topgun.save.v1';
 export const START_MONEY = 2000;
 
 export type Loadout = Array<SecondaryId | null>;
-
-export interface Settings {
-  music: number;
-  sfx: number;
-  autofire: boolean;
-  muted: boolean;
-}
 
 export interface SaveData {
   version: 1;
@@ -29,7 +23,6 @@ export interface SaveData {
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
   progress: Record<string, { stars: number }>;
-  settings: Settings;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -45,7 +38,6 @@ export function defaultSave(): SaveData {
     loadout: { f16: emptyLoadout('f16'), f14: emptyLoadout('f14'), sr71: emptyLoadout('sr71') },
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0 },
     progress: {},
-    settings: { music: 0.6, sfx: 0.8, autofire: false, muted: false },
   };
 }
 
@@ -87,17 +79,6 @@ function parseProgress(v: unknown): Record<string, { stars: number }> {
   return out;
 }
 
-function parseSettings(v: unknown): Settings {
-  const d = defaultSave().settings;
-  if (!isRecord(v)) return d;
-  return {
-    music: num(v.music, 0, 1, d.music),
-    sfx: num(v.sfx, 0, 1, d.sfx),
-    autofire: typeof v.autofire === 'boolean' ? v.autofire : d.autofire,
-    muted: typeof v.muted === 'boolean' ? v.muted : d.muted,
-  };
-}
-
 function parseEquipment(v: unknown): Record<EquipmentId, number> {
   const out = defaultSave().equipment;
   if (!isRecord(v)) return out;
@@ -127,41 +108,7 @@ export function parseSave(raw: unknown): SaveData | null {
     },
     equipment: parseEquipment(raw.equipment),
     progress: parseProgress(raw.progress),
-    settings: parseSettings(raw.settings),
   };
-}
-
-type ReadStore = Pick<Storage, 'getItem'>;
-type WriteStore = Pick<Storage, 'setItem'>;
-
-function browserStorage(): Storage | null {
-  try {
-    return typeof localStorage === 'undefined' ? null : localStorage;
-  } catch {
-    return null;
-  }
-}
-
-export function loadSave(storage: ReadStore | null = browserStorage()): SaveData {
-  try {
-    const text = storage?.getItem(SAVE_KEY);
-    if (!text) return defaultSave();
-    const parsed = parseSave(JSON.parse(text));
-    if (!parsed) console.warn('TopGun: save data unreadable, starting fresh');
-    return parsed ?? defaultSave();
-  } catch {
-    console.warn('TopGun: save data corrupt, starting fresh');
-    return defaultSave();
-  }
-}
-
-export function persistSave(save: SaveData, storage: WriteStore | null = browserStorage()): boolean {
-  try {
-    storage?.setItem(SAVE_KEY, JSON.stringify(save));
-    return storage !== null;
-  } catch {
-    return false;
-  }
 }
 
 /** A save worth "continuing": any cleared mission or purchase. */

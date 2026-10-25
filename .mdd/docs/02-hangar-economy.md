@@ -1,9 +1,9 @@
 ---
 id: 02-hangar-economy
 title: Hangar & Economy - Planes, Weapons, Equipment, Shop, Payouts
-edition: TopGun
+edition: TopRun
 depends_on: [01-game-core]
-relates: [01-game-core, 05-mission-combat]
+relates: [01-game-core, 05-mission-combat, 06-talking-characters, 07-i18n]
 source_files:
   - src/data/types.ts
   - src/data/planes.ts
@@ -23,7 +23,7 @@ test_files:
   - tests/unit/economy.test.ts
   - tests/unit/loadout.test.ts
 data_flow: greenfield
-last_synced: 2026-10-24
+last_synced: 2026-10-25
 status: complete
 phase: all
 mdd_version: 11
@@ -131,6 +131,8 @@ None.
 - **Stars**: 0 on failure; else 1 + (hullRatio ≥ 0.7) + (killRatio ≥ 0.8). Progress keeps the best.
 - Starting money 2,000; economy is tuned so the whole shop (~250k) costs about one full
   campaign plus some replays.
+
+- **Talking character (06):** chief (crew chief comments on browsing and purchases). All visible text goes through i18n (07).
 
 ## Data Flow
 

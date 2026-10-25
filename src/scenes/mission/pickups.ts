@@ -1,6 +1,7 @@
 import type { AudioEngine } from '../../core/audio';
 import { TAU } from '../../core/math';
 import type { DropKind } from '../../game/combat';
+import { t } from '../../i18n/i18n';
 import { text } from '../../render/text';
 import type { Player } from './player';
 import { PF_H, type World } from './world';
@@ -44,17 +45,17 @@ function collect(world: World, p: Player, kind: DropKind, value: number, audio: 
       return;
     case 'repair':
       p.repair(0.25);
-      world.particles.popup(x, y - 14, 'REPAIR', '#ff8080');
+      world.particles.popup(x, y - 14, t('mission.repair'), '#ff8080');
       audio.play('pickup');
       return;
     case 'power':
       p.powerTimer = 12;
-      world.particles.popup(x, y - 14, 'GUN UP!', '#ffc83d');
+      world.particles.popup(x, y - 14, t('mission.gunUp'), '#ffc83d');
       audio.play('powerup');
       return;
     case 'ammo':
       p.reloadAmmo();
-      world.particles.popup(x, y - 14, 'RELOAD', '#5fd4ff');
+      world.particles.popup(x, y - 14, t('mission.reload'), '#5fd4ff');
       audio.play('pickup');
       return;
     default:

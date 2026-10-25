@@ -4,7 +4,7 @@ import { pollGamepad } from './gamepad';
 
 export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'switchWeapon' | 'flare' | 'special'
-  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar';
+  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'delete';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad';
 
@@ -14,7 +14,7 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   Space: ['fire', 'confirm'], KeyJ: ['fire'], Enter: ['confirm'], NumpadEnter: ['confirm'],
   ShiftLeft: ['secondary'], ShiftRight: ['secondary'], KeyK: ['secondary'],
   KeyQ: ['switchWeapon'], KeyL: ['switchWeapon'], KeyF: ['flare'], KeyE: ['special'],
-  Escape: ['back', 'pause'], Backspace: ['back'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'],
+  Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'],
 };
 
 /** Pure action bookkeeping: sources (keys, pad buttons) map to actions; presses are latched per tick. */
@@ -165,6 +165,8 @@ export class Input {
   }
 
   private onKey(e: KeyboardEvent, down: boolean): void {
+    // Typing into a DOM text field (the callsign) is not game input.
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
     const acts = KEYMAP[e.code];
     if (!acts) return;
     if (!e.metaKey && !e.ctrlKey) e.preventDefault();

@@ -1,25 +1,36 @@
 import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
-import { objectiveText } from '../data/missions';
 import { THEATERS } from '../data/theaters';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
+import { debriefScript } from '../game/dialogue-scripts';
 import { applyResult, type Payout } from '../game/economy';
 import { campaignComplete } from '../game/progress';
 import type { GameContext } from '../game/state';
+import { missionName, objectiveText } from '../i18n/content';
+import { t } from '../i18n/i18n';
+import type { UiKey } from '../i18n/ui-en';
 import { COLORS, text } from '../render/text';
+import { pilotContext, SpeechBox } from '../ui/speech';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
 
-const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, string>> = {
-  perfect: 'Perfect', good: 'Good', early: 'Early rotation', late: 'Late — close call', skipped: 'Skipped',
+const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
+  perfect: 'debrief.launchPerfect', good: 'debrief.launchGood', early: 'debrief.launchEarly',
+  late: 'debrief.launchLate', skipped: 'debrief.launchSkipped',
 };
 
+const STATS = { x: 310, y: 268, w: 455, h: 250 };
+const PAY = { x: 785, y: 268, w: 455, h: 250 };
+/** The pay counts up while the admiral delivers his first lines. */
+const COUNT_UP = 3.2;
+
 export class DebriefScene implements Scene {
-  private t = 0;
+  private time = 0;
   private readonly payout: Payout;
   private readonly stars: number;
   private readonly newBest: boolean;
   private readonly finale: boolean;
-  private buttons: ButtonGroup;
+  private readonly buttons: ButtonGroup;
+  private readonly admiral: SpeechBox;
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
@@ -30,10 +41,18 @@ export class DebriefScene implements Scene {
     this.newBest = result.success && applied.stars > before;
     this.finale = result.success && mission.number === 30 && campaignComplete(applied.save);
     this.buttons = new ButtonGroup([
-      { id: 'map', label: 'CONTINUE', x: 400, y: 630, w: 200, h: 50, primary: true },
-      { id: 'retry', label: 'FLY AGAIN', x: 620, y: 630, w: 160, h: 50 },
-      { id: 'hangar', label: 'HANGAR', x: 800, y: 630, w: 160, h: 50 },
+      { id: 'map', label: t('debrief.continue'), x: 380, y: 648, w: 220, h: 50, primary: true },
+      { id: 'retry', label: t('debrief.flyAgain'), x: 620, y: 648, w: 180, h: 50 },
+      { id: 'hangar', label: t('debrief.hangar'), x: 820, y: 648, w: 180, h: 50 },
     ], 'horizontal');
+    this.admiral = new SpeechBox(game.audio, {
+      portrait: { x: 36, y: 136, w: 250, h: 300 },
+      bubble: { x: 310, y: 140, w: 930, h: 112 },
+      fontSize: 20, style: 'comic', persistent: true,
+    }, 'admiral', pilotContext(game));
+    this.admiral.say(debriefScript({
+      mission, result, stars: applied.stars, totalText: formatMoney(applied.payout.total), campaignDone: this.finale,
+    }));
   }
 
   enter(): void {
@@ -41,8 +60,9 @@ export class DebriefScene implements Scene {
   }
 
   update(dt: number): void {
-    this.t += dt;
+    this.time += dt;
     const input = this.game.input;
+    this.admiral.update(dt, input);
     if (input.pressed('hangar')) return this.leave('hangar');
     if (input.pressed('back')) return this.leave('map');
     const id = this.buttons.update(input);
@@ -65,61 +85,64 @@ export class DebriefScene implements Scene {
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1280, 720);
     const r = this.result;
-    const title = r.success ? 'MISSION COMPLETE' : r.aborted ? 'MISSION ABORTED' : 'MISSION FAILED';
-    text(ctx, title, 640, 92, { size: 54, display: true, italic: true, align: 'center', color: r.success ? COLORS.gold : COLORS.red, stroke: '#000', strokeWidth: 6 });
-    text(ctx, `MISSION ${this.mission.number} · ${this.mission.name.toUpperCase()}`, 640, 128, { size: 16, align: 'center', color: COLORS.dim, letterSpacing: 2 });
+    const title = t(r.success ? 'debrief.complete' : r.aborted ? 'debrief.aborted' : 'debrief.failed');
+    text(ctx, title, 640, 70, { size: 48, display: true, italic: true, align: 'center', color: r.success ? COLORS.gold : COLORS.red, stroke: '#000', strokeWidth: 6, maxWidth: 1200 });
+    text(ctx, t('debrief.header', { n: this.mission.number, name: missionName(this.mission).toUpperCase() }), 640, 106, { size: 15, align: 'center', color: COLORS.dim, letterSpacing: 2 });
+    this.admiral.render(ctx);
     this.renderStats(ctx);
     this.renderPayout(ctx);
     this.renderStars(ctx);
-    if (this.finale) text(ctx, '🎖  CAMPAIGN COMPLETE — YOU ARE TOP GUN  🎖', 640, 600, { size: 22, display: true, align: 'center', color: COLORS.gold });
-    this.buttons.render(ctx, this.t);
+    if (this.finale) text(ctx, t('debrief.finale'), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
+    this.buttons.render(ctx, this.time);
   }
 
   private renderStats(ctx: CanvasRenderingContext2D): void {
     const r = this.result;
-    drawPanel(ctx, { x: 120, y: 170, w: 500, h: 300 });
-    const rows: Array<[string, string, string]> = [
-      ['Objective', objectiveText(this.mission.objective), r.objectiveDone ? COLORS.green : COLORS.red],
-      ['Result', r.objectiveDone ? 'Accomplished' : 'Not accomplished', r.objectiveDone ? COLORS.green : COLORS.red],
-      ['Kills', `${r.kills} of ${r.spawned} contacts`, COLORS.ink],
-      ['Hull', `${Math.round(r.hullRatio * 100)}%`, r.hullRatio >= 0.7 ? COLORS.green : r.hullRatio > 0.3 ? COLORS.amber : COLORS.red],
-      ['Carrier launch', TAKEOFF_LABEL[r.takeoff], r.takeoff === 'perfect' ? COLORS.gold : COLORS.ink],
+    drawPanel(ctx, STATS);
+    const rows: Array<[UiKey, string, string]> = [
+      ['debrief.objective', objectiveText(this.mission.objective), r.objectiveDone ? COLORS.green : COLORS.red],
+      ['debrief.result', t(r.objectiveDone ? 'debrief.accomplished' : 'debrief.notAccomplished'), r.objectiveDone ? COLORS.green : COLORS.red],
+      ['debrief.kills', t('debrief.killsValue', { kills: r.kills, spawned: r.spawned }), COLORS.ink],
+      ['debrief.hull', `${Math.round(r.hullRatio * 100)}%`, r.hullRatio >= 0.7 ? COLORS.green : r.hullRatio > 0.3 ? COLORS.amber : COLORS.red],
+      ['debrief.launch', t(TAKEOFF_LABEL[r.takeoff]), r.takeoff === 'perfect' ? COLORS.gold : COLORS.ink],
     ];
-    text(ctx, 'DEBRIEF', 144, 208, { size: 13, color: COLORS.dim, letterSpacing: 2 });
+    text(ctx, t('debrief.debrief'), STATS.x + 22, STATS.y + 34, { size: 13, color: COLORS.dim, letterSpacing: 2 });
     rows.forEach(([k, v, c], i) => {
-      text(ctx, k, 144, 252 + i * 44, { size: 15, color: COLORS.dim });
-      text(ctx, v, 300, 252 + i * 44, { size: 15, color: c, maxWidth: 300 });
+      text(ctx, t(k), STATS.x + 22, STATS.y + 74 + i * 36, { size: 14, color: COLORS.dim, maxWidth: 130 });
+      text(ctx, v, STATS.x + 160, STATS.y + 74 + i * 36, { size: 14, color: c, maxWidth: STATS.w - 180 });
     });
   }
 
   private renderPayout(ctx: CanvasRenderingContext2D): void {
     const p = this.payout;
-    drawPanel(ctx, { x: 660, y: 170, w: 500, h: 300 });
-    text(ctx, 'PAYOUT', 684, 208, { size: 13, color: COLORS.dim, letterSpacing: 2 });
-    const rows: Array<[string, number]> = this.result.success
-      ? [['Mission reward', p.base], ['Launch bonus', p.takeoffBonus], ['Hull bonus', p.hullBonus], ['Cash collected', p.collected]]
-      : [['Salvage (50% of cash)', p.salvage]];
-    const reveal = Math.min(1, this.t / 1.2);
+    drawPanel(ctx, PAY);
+    const right = PAY.x + PAY.w - 22;
+    text(ctx, t('debrief.payout'), PAY.x + 22, PAY.y + 34, { size: 13, color: COLORS.dim, letterSpacing: 2 });
+    const rows: Array<[UiKey, number]> = this.result.success
+      ? [['debrief.reward', p.base], ['debrief.launchBonus', p.takeoffBonus], ['debrief.hullBonus', p.hullBonus], ['debrief.collected', p.collected]]
+      : [['debrief.salvage', p.salvage]];
+    const reveal = Math.min(1, this.time / COUNT_UP);
     rows.forEach(([k, v], i) => {
-      text(ctx, k, 684, 252 + i * 40, { size: 15, color: COLORS.ink });
-      text(ctx, formatMoney(v * reveal), 1136, 252 + i * 40, { size: 17, align: 'right', color: v > 0 ? COLORS.green : COLORS.faint });
+      text(ctx, t(k), PAY.x + 22, PAY.y + 74 + i * 34, { size: 14, color: COLORS.ink, maxWidth: 240 });
+      text(ctx, formatMoney(v * reveal), right, PAY.y + 74 + i * 34, { size: 16, align: 'right', color: v > 0 ? COLORS.green : COLORS.faint });
     });
     ctx.fillStyle = COLORS.panelEdge;
-    ctx.fillRect(684, 410, 452, 1.5);
-    text(ctx, 'TOTAL', 684, 446, { size: 18, display: true });
-    text(ctx, formatMoney(p.total * reveal), 1136, 448, { size: 28, display: true, align: 'right', color: COLORS.green });
-    text(ctx, `Account: ${formatMoney(this.game.save.money)}`, 1136, 500, { size: 15, align: 'right', color: COLORS.dim });
+    ctx.fillRect(PAY.x + 22, PAY.y + 200, PAY.w - 44, 1.5);
+    text(ctx, t('debrief.total'), PAY.x + 22, PAY.y + 234, { size: 18, display: true });
+    text(ctx, formatMoney(p.total * reveal), right, PAY.y + 236, { size: 28, display: true, align: 'right', color: COLORS.green });
+    text(ctx, t('debrief.account', { money: formatMoney(this.game.save.money) }), right, PAY.y + PAY.h + 26, { size: 14, align: 'right', color: COLORS.dim });
   }
 
   private renderStars(ctx: CanvasRenderingContext2D): void {
     if (!this.result.success) return;
+    const cx = 161;
     for (let i = 0; i < 3; i++) {
-      const appear = Math.min(1, Math.max(0, (this.t - 0.6 - i * 0.35) * 4));
+      const appear = Math.min(1, Math.max(0, (this.time - COUNT_UP - i * 0.35) * 4));
       const earned = i < this.stars;
-      const size = 54 * (earned ? 0.6 + appear * 0.4 : 1);
-      text(ctx, '★', 560 + i * 80, 560, { size, align: 'center', color: earned && appear > 0 ? COLORS.gold : 'rgba(255,255,255,0.15)' });
+      const size = 46 * (earned ? 0.6 + appear * 0.4 : 1);
+      text(ctx, '★', cx + (i - 1) * 64, 500, { size, align: 'center', color: earned && appear > 0 ? COLORS.gold : 'rgba(255,255,255,0.15)' });
     }
-    if (this.newBest && this.t > 1.8) text(ctx, 'NEW BEST', 640, 590, { size: 14, display: true, align: 'center', color: COLORS.cyan, letterSpacing: 3 });
-    text(ctx, '★ complete   ★ hull ≥ 70%   ★ 80% of contacts destroyed', 640, 506, { size: 12, align: 'center', color: COLORS.faint });
+    if (this.newBest && this.time > COUNT_UP + 1) text(ctx, t('debrief.newBest'), cx, 530, { size: 13, display: true, align: 'center', color: COLORS.cyan, letterSpacing: 3 });
+    text(ctx, t('debrief.starRules'), 640, 560, { size: 12, align: 'center', color: COLORS.faint, maxWidth: 1180 });
   }
 }

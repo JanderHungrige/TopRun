@@ -23,19 +23,19 @@ export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.fre
   },
   ecm: {
     id: 'ecm', name: 'ECM Pod', description: 'Jams enemy fire control. Enemy bullets -25% damage, missiles turn 30% slower.',
-    prices: [12000], levelText: ['Installed'],
+    prices: [12000], levelText: ['-25% bullet damage, slower missiles'],
   },
   damageControl: {
     id: 'damageControl', name: 'Damage Control', description: 'Once per mission, below 25% hull, restores 40% hull.',
-    prices: [15000], levelText: ['Installed'],
+    prices: [15000], levelText: ['Restores 40% hull once per mission'],
   },
   magnet: {
     id: 'magnet', name: 'Cargo Magnet', description: 'Pickups drift towards you from much further away.',
-    prices: [6000], levelText: ['Installed'],
+    prices: [6000], levelText: ['Wider pickup range'],
   },
   radar: {
     id: 'radar', name: 'Early-Warning Radar', description: 'Longer radar range: see bandits on the scope up to 4 seconds before they arrive.',
-    prices: [8000], levelText: ['Installed'],
+    prices: [8000], levelText: ['Bandits on radar 4 s earlier'],
   },
 });
 

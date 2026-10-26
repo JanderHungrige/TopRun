@@ -48,19 +48,19 @@ export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; descript
   },
   ecm: {
     name: 'ECM-Störbehälter', description: 'Stört die feindliche Feuerleitung. Feindliche Kugeln −25 % Schaden, Raketen drehen 30 % langsamer.',
-    levelText: ['Eingebaut'],
+    levelText: ['−25 % Kugelschaden, langsamere Raketen'],
   },
   damageControl: {
     name: 'Schadenskontrolle', description: 'Einmal pro Mission, unter 25 % Panzerung: stellt 40 % wieder her.',
-    levelText: ['Eingebaut'],
+    levelText: ['Einmal pro Mission +40 % Panzerung'],
   },
   magnet: {
     name: 'Frachtmagnet', description: 'Aufsammelbares fliegt dir aus viel größerer Entfernung zu.',
-    levelText: ['Eingebaut'],
+    levelText: ['Größere Sammelreichweite'],
   },
   radar: {
     name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen bis zu 4 Sekunden früher auf dem Schirm.',
-    levelText: ['Eingebaut'],
+    levelText: ['Banditen 4 s früher auf dem Radar'],
   },
 };
 

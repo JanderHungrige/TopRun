@@ -76,6 +76,9 @@ describe('Languages', () => {
       PLANE_IDS.forEach((id) => expect(PLANES_DE[id].description).toBeTruthy());
       SECONDARY_IDS.forEach((id) => expect(SECONDARIES_DE[id].description).toBeTruthy());
       EQUIPMENT_IDS.forEach((id) => expect(EQUIPMENT_DE[id].levelText).toHaveLength(EQUIPMENT[id].levelText.length));
+      // Level texts describe the effect: the hangar list shows them whether or not the add-on is owned (doc 02).
+      EQUIPMENT_IDS.forEach((id) => [...EQUIPMENT[id].levelText, ...EQUIPMENT_DE[id].levelText]
+        .forEach((lt) => expect(lt, id).not.toMatch(/^(installed|eingebaut)$/i)));
       (Object.keys(ENEMIES) as EnemyKind[]).forEach((k) => {
         expect(ENEMIES_DE[k][0]).toBeTruthy();
         expect(ENEMIES_EN_PLURAL[k]).toBeTruthy();

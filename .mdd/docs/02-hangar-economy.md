@@ -145,6 +145,11 @@ Guns deal **50 % damage to ground/sea targets**.
 | magnet | Cargo Magnet | 6,000 | pickups drift to you from 160 px |
 | radar | Early-Warning Radar | 8,000 | cockpit radar range 720 → 1100 px and shows spawns due in the next 4 s (doc 05) |
 
+Each level has a short effect text (`levelText`), shown as the list subtitle and as the level rows in the
+detail panel (■ owned, □ not yet). Single-level add-ons describe their effect too ("−25% bullet damage,
+slower missiles"), never "Installed": the list subtitle is shown whether or not the add-on is owned, and
+ownership is the BUY / INSTALLED button.
+
 ## API Endpoints
 
 None.

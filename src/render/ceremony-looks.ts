@@ -26,6 +26,7 @@ export const PILOT_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freeze
   pilot1: inWhites(PLAYER_LOOKS.pilot1, NAVY_BOARD),
   pilot2: inWhites(PLAYER_LOOKS.pilot2, NAVY_BOARD),
   pilot3: inWhites(PLAYER_LOOKS.pilot3, NAVY_BOARD),
+  pilot4: inWhites(PLAYER_LOOKS.pilot4, NAVY_BOARD),
 });
 
 /** The pilot in dress whites: a preset's table entry, or a custom look's (doc 29), built once per look. */

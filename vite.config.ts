@@ -16,5 +16,8 @@ export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts', 'server/**/*.test.ts'],
     environment: 'node',
+    // The asset modules list image folders with import.meta.glob at transform time; a cached transform keeps
+    // an old file list when images are added or renamed (the module's own source is unchanged), so no disk cache.
+    fsModuleCache: false,
   },
 });

@@ -15,7 +15,8 @@ const FIELD: Rect = { x: 390, y: 146, w: 500, h: 64 };
 const CARD_W = 240;
 const CARD_H = 288;
 const CARD_Y = 300;
-const CARD_GAP = 20;
+/** Five 240 × 288 cards (four presets + your own) shown 1:1 across the 1280 width. */
+const CARD_GAP = 10;
 /** Cards: the three presets, then CREATE YOUR OWN (doc 29). */
 const OWN = AVATAR_IDS.length;
 const CARDS = OWN + 1;

@@ -54,6 +54,22 @@ export const PLAYER_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freez
     sole: '#f2f2ee',
     tags: true,
   },
+  /** The grown-up preset (doc 08): curly honey-blond hair, blue-grey eyes, khaki flight-suit trousers. */
+  pilot4: {
+    skin: { base: '#f0c09c', light: '#fbd8bb', shadow: '#d29878', deep: '#975c42', lip: '#b15c52' },
+    hair: { style: 'messy', base: '#c99a4e', light: '#e8c27e', shadow: '#94702f', brow: '#8a6630' },
+    eyes: '#5f7f98',
+    torso: 'shirtless',
+    top: tone('#e6e2d4', '#faf7ee', '#bdb6a2'),
+    legs: 'trousers',
+    bottom: tone('#7d7150', '#9a8c66', '#5c5339'),
+    trim: '#e6e2d4',
+    tied: true,
+    feet: 'sneakers',
+    shoe: SNEAKER_DARK,
+    sole: '#f2f2ee',
+    tags: true,
+  },
 });
 
 export const RIVAL_LOOK: PersonLook = Object.freeze<PersonLook>({

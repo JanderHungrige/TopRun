@@ -19,8 +19,10 @@ const CARD_GAP = 20;
 /** Cards: the three presets, then CREATE YOUR OWN (doc 29). */
 const OWN = AVATAR_IDS.length;
 const CARDS = OWN + 1;
-const BACK: Button = { id: 'back', label: '', x: 370, y: 624, w: 200, h: 50 };
-const START: Button = { id: 'start', label: '', x: 590, y: 624, w: 320, h: 50, primary: true };
+const BACK: Button = { id: 'back', label: '', x: 250, y: 624, w: 200, h: 50 };
+const START: Button = { id: 'start', label: '', x: 470, y: 624, w: 320, h: 50, primary: true };
+/** Restore a pilot from a pilot code on a fresh device (doc 08). */
+const CODE: Button = { id: 'code', label: '', x: 810, y: 624, w: 220, h: 50 };
 
 const ERRORS: Readonly<Record<Exclude<CallsignCheck, 'ok'>, UiKey>> = {
   'too-short': 'newPilot.tooShort',
@@ -133,6 +135,10 @@ export class NewPilotScene implements Scene {
       if (card !== undefined) this.pick(card);
       if (hit(tap, BACK)) return this.back();
       if (hit(tap, START)) return this.submit();
+      if (hit(tap, CODE)) {
+        this.game.audio.play('uiSelect');
+        return this.game.go({ to: 'pilotCode', from: 'newPilot' });
+      }
     }
     if (input.pressed('left')) this.pick(this.avatar - 1);
     if (input.pressed('right')) this.pick(this.avatar + 1);
@@ -157,6 +163,7 @@ export class NewPilotScene implements Scene {
     const ok = this.check() === 'ok' && !this.full;
     drawButton(ctx, { ...BACK, label: t('newPilot.back') }, false, this.time);
     drawButton(ctx, { ...START, label: t('newPilot.start'), enabled: ok }, ok, this.time);
+    drawButton(ctx, { ...CODE, label: t('pilots.code') }, false, this.time);
     text(ctx, t('newPilot.hint'), 640, 704, { size: 13, align: 'center', color: COLORS.faint });
   }
 

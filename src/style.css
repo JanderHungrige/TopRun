@@ -55,3 +55,26 @@ canvas#game {
 .canvas-text-field::placeholder {
   color: rgba(233, 239, 245, 0.35);
 }
+
+/* The pilot code boxes (doc 08): a long base64 line, so it wraps anywhere. */
+.canvas-text-area {
+  position: fixed;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.6em 0.8em;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: #e9eff5;
+  caret-color: #ffc83d;
+  font-family: "American Typewriter", "Courier Prime", "Courier New", Courier, monospace;
+  line-height: 1.35;
+  word-break: break-all;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.canvas-text-area::placeholder {
+  color: rgba(233, 239, 245, 0.35);
+}

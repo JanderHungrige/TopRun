@@ -40,6 +40,20 @@ export function createProfile(store: ProfileStore, rawCallsign: string, avatar: 
   return { ok: true, id, store: { ...store, activeId: id, profiles: [...store.profiles, profile] } };
 }
 
+export type ImportResult = { ok: true; store: ProfileStore; id: string; replaced: boolean } | { ok: false; reason: 'taken' | 'full' };
+
+/** A pilot restored from a pilot code (doc 08): replaces the pilot with the same id in place, else joins as a
+ *  new one; either way it becomes active. */
+export function importProfile(store: ProfileStore, p: Profile, now: number): ImportResult {
+  const others = store.profiles.filter((x) => x.id !== p.id);
+  if (validateCallsign(p.callsign, others.map((x) => x.callsign)) === 'taken') return { ok: false, reason: 'taken' };
+  const replaced = others.length < store.profiles.length;
+  if (!replaced && store.profiles.length >= MAX_PROFILES) return { ok: false, reason: 'full' };
+  const restored: Profile = { ...p, playedAt: now };
+  const profiles = replaced ? store.profiles.map((x) => (x.id === p.id ? restored : x)) : [...store.profiles, restored];
+  return { ok: true, replaced, id: p.id, store: { ...store, activeId: p.id, profiles } };
+}
+
 export function selectProfile(store: ProfileStore, id: string, now: number): ProfileStore {
   if (!store.profiles.some((p) => p.id === id)) return store;
   return { ...store, activeId: id, profiles: store.profiles.map((p) => (p.id === id ? { ...p, playedAt: now } : p)) };

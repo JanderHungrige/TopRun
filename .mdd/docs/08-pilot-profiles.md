@@ -9,7 +9,11 @@ source_files:
   - src/game/callsign.ts
   - src/scenes/pilots.ts
   - src/scenes/new-pilot.ts
+  - src/scenes/pilot-code.ts
+  - src/game/pilot-code.ts
+  - src/core/persist.ts
   - src/ui/text-field.ts
+  - src/ui/text-area.ts
   - src/game/settings.ts
   - src/render/avatars/index.ts
   - src/render/avatars/kit.ts
@@ -22,10 +26,11 @@ models:
   - localStorage:topgun.save.v1 (legacy, read once for migration)
 test_files:
   - tests/unit/profiles.test.ts
+  - tests/unit/pilot-code.test.ts
   - tests/unit/settings.test.ts
   - tests/unit/pixel-cast.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-25
+last_synced: 2026-10-26
 status: complete
 phase: all
 mdd_version: 11
@@ -144,6 +149,37 @@ None.
 - **Callsign in dialogue** (06): every spoken line may use `{callsign}`; SpeechBox injects it.
 - The map top bar shows the active pilot's avatar and callsign; the mission HUD shows the callsign.
 
+## Keeping saves: persistent storage and the pilot code (owner, 2026-10-26)
+
+Saves live only in this browser's localStorage, per site address. They vanish in private windows, with
+"clear site data on exit", after Safari's 7 days without a visit, and when the game moves to another address
+(toprun → topgun). Two lightweight answers, no accounts and no server:
+
+- **Persistent storage (A).** After a pilot is created or restored, `requestPersistence()`
+  (`src/core/persist.ts`) asks `navigator.storage.persist()` once, if the browser has it and the site isn't
+  persistent already, so the browser does not evict the save under storage pressure. Chrome / Edge / Safari
+  decide silently; Firefox may show its own permission prompt — that is why it is tied to these two moments
+  and never fires at boot. A refusal or a missing API changes nothing.
+- **Pilot code (B).** A pilot's whole profile (id, callsign, avatar, dates, save — including the ladder link,
+  so the restored pilot keeps their ladder entry) as one line of text:
+  `TOPGUN1:<base64url(deflate-raw(JSON))>.<8-hex FNV-1a checksum of the payload>`. A full campaign stays
+  around 1–2 KB. `encodePilotCode` / `decodePilotCode` (`src/game/pilot-code.ts`, pure, async because of
+  `CompressionStream`) — decoding is tolerant: whitespace, line breaks and surrounding text are ignored (the
+  code is found by its `TOPGUN1:` prefix), so a pasted chat message or the saved file both work. A wrong
+  checksum, bad data or an invalid profile → a clear error, never a crash; the profile goes through the same
+  `parseStore` validation as localStorage.
+- **Restoring** (`importProfile(store, profile, now)`, pure): the same pilot id on this device → **replace** it
+  after a confirmation that shows both (callsign, missions, stars); otherwise added as a new pilot and made
+  active, unless the callsign is taken by another pilot (`taken`) or 6 pilots exist (`full`).
+- **Screen** PILOT CODE (route `pilotCode`), reachable from the pilot list (a PILOT CODE button, key **R**)
+  and from NEW PILOT (a PILOT CODE button) so a fresh device can restore before any pilot exists; BACK
+  returns where it came from. Left, **back up**: ◀ pilot ▶, the code in a read-only text box, COPY CODE (clipboard; if the
+  browser refuses, the text is selected for ⌘C / Ctrl+C) and SAVE FILE (`topgun-<callsign>.txt` with a
+  one-line how-to and the code). Right, **restore**: a text box to paste into, LOAD CODE, OPEN FILE (a
+  `.txt` picked with the browser's file dialog). Status line for copied / saved / restored / errors.
+- The code is a key to that pilot: anyone with it can play on and post to the ladder as them. The screen
+  says so in one line; the code holds no personal data beyond the callsign.
+
 ## Data Flow
 
 Title → pilots/new-pilot → `GameContext.selectProfile/createProfile` → store → `persistStore`.
@@ -155,7 +191,8 @@ All scenes keep reading `GameContext.save`; `setSave` writes into the active pro
 
 ## Security
 
-Untrusted input: the localStorage store (user-editable) and the typed callsign. Callsigns are
+Untrusted input: the localStorage store (user-editable), the typed callsign and a pasted / opened pilot
+code (decoded with a size cap and the same `parseStore` validation; never evaluated or inserted as HTML). Callsigns are
 filtered to a small character whitelist and only ever drawn with `fillText` on the canvas (never
 inserted as HTML). The text field is a plain `<input>` with `maxlength`, no autocomplete.
 

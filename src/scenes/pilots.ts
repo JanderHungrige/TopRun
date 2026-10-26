@@ -12,8 +12,10 @@ import { pilotStanding } from './pilot-rating';
 
 const CARD_W = 380;
 const CARD_H = 230;
-const BACK: Button = { id: 'back', label: '', x: 370, y: 632, w: 200, h: 50 };
-const NEW: Button = { id: 'new', label: '', x: 590, y: 632, w: 320, h: 50 };
+const BACK: Button = { id: 'back', label: '', x: 250, y: 632, w: 200, h: 50 };
+const NEW: Button = { id: 'new', label: '', x: 470, y: 632, w: 300, h: 50 };
+/** Back up / restore a pilot as text or a file (doc 08). */
+const CODE: Button = { id: 'code', label: '', x: 790, y: 632, w: 240, h: 50 };
 const CONFIRM_YES: Button = { id: 'yes', label: '', x: 450, y: 404, w: 180, h: 46, primary: true };
 const CONFIRM_NO: Button = { id: 'no', label: '', x: 650, y: 404, w: 180, h: 46 };
 
@@ -59,6 +61,7 @@ export class PilotsScene implements Scene {
     for (const tap of input.taps) {
       if (hit(tap, BACK)) return this.leave('title');
       if (hit(tap, NEW) && this.list.length < MAX_PROFILES) return this.leave('newPilot');
+      if (hit(tap, CODE)) return this.openCode();
       const i = this.list.findIndex((_, k) => hit(tap, cardRect(k)));
       const p = this.list[i];
       if (!p) continue;
@@ -74,12 +77,18 @@ export class PilotsScene implements Scene {
     if (p && input.pressed('confirm')) return this.fly(p);
     if (p && input.pressed('delete')) return this.askDelete(p);
     if (p && input.pressed('special')) return this.editLook(p);
+    if (input.pressed('secondary')) return this.openCode();
     if (input.pressed('back')) this.leave('title');
   }
 
   private editLook(p: Profile): void {
     this.game.audio.play('uiSelect');
     this.game.go({ to: 'avatarBuilder', target: { kind: 'pilot', profileId: p.id } });
+  }
+
+  private openCode(): void {
+    this.game.audio.play('uiSelect');
+    this.game.go({ to: 'pilotCode', from: 'pilots' });
   }
 
   private leave(to: 'title' | 'newPilot'): void {
@@ -118,6 +127,7 @@ export class PilotsScene implements Scene {
     this.list.forEach((p, i) => this.renderCard(ctx, p, i));
     drawButton(ctx, { ...BACK, label: t('pilots.back') }, false, this.time);
     drawButton(ctx, { ...NEW, label: t('pilots.newPilot'), enabled: this.list.length < MAX_PROFILES }, false, this.time);
+    drawButton(ctx, { ...CODE, label: t('pilots.code'), hint: 'R' }, false, this.time);
     text(ctx, t('pilots.hint'), 640, 706, { size: 13, align: 'center', color: COLORS.faint });
     if (this.confirmDelete) this.renderConfirm(ctx, this.confirmDelete);
   }

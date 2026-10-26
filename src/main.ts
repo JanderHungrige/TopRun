@@ -2,12 +2,14 @@ import { AudioEngine } from './core/audio';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
 import { LadderSync } from './core/ladder-sync';
+import { requestPersistence } from './core/persist';
 import { startLoop } from './core/loop';
 import { Music } from './core/music';
 import { SceneManager, type Scene } from './core/scene';
 import {
-  activeProfile, createProfile, deleteProfile, loadStore, newProfileId, persistStore, selectProfile,
-  sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type Profile, type ProfileStore,
+  activeProfile, createProfile, deleteProfile, importProfile, loadStore, newProfileId, persistStore, selectProfile,
+  sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type ImportResult, type Profile,
+  type ProfileStore,
 } from './game/profiles';
 import type { Submission } from './game/ladder';
 import { withLadderLink } from './game/ladder-stats';
@@ -32,6 +34,7 @@ import { MinigameOfferScene } from './scenes/minigame-offer';
 import { moduleFor } from './scenes/minigames/registry';
 import { MinigameScene } from './scenes/minigames/shell';
 import { pilotStats } from './scenes/pilot-rating';
+import { PilotCodeScene } from './scenes/pilot-code';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -102,7 +105,20 @@ class Game implements GameContext {
 
   createProfile(callsign: string, avatar: AvatarId): CreateResult {
     const r = createProfile(this.store, callsign, avatar, Date.now(), newProfileId());
-    if (r.ok) this.commit(r.store);
+    if (r.ok) {
+      this.commit(r.store);
+      requestPersistence();
+    }
+    return r;
+  }
+
+  importProfile(profile: Profile): ImportResult {
+    const r = importProfile(this.store, profile, Date.now());
+    if (r.ok) {
+      this.commit(r.store);
+      requestPersistence();
+      this.ladder.poke();
+    }
     return r;
   }
 
@@ -127,6 +143,7 @@ function createScene(game: GameContext, route: Route): Scene {
   switch (route.to) {
     case 'title': return new TitleScene(game);
     case 'pilots': return new PilotsScene(game);
+    case 'pilotCode': return new PilotCodeScene(game, route.from);
     case 'newPilot': return new NewPilotScene(game, route.draft);
     case 'avatarBuilder': return new AvatarBuilderScene(game, route.target);
     case 'joystick': return new JoystickSetupScene(game);

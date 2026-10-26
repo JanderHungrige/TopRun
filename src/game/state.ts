@@ -7,7 +7,7 @@ import type { MedalId } from '../data/medals';
 import type { MinigameId } from '../data/minigames';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarLook } from './avatar-look';
-import type { AvatarId, CreateResult, Profile } from './profiles';
+import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
 import type { SaveData } from './save';
 import type { Settings } from './settings';
 
@@ -20,6 +20,8 @@ export type BuilderTarget = { kind: 'new'; draft: NewPilotDraft; start: AvatarLo
 export type Route =
   | { to: 'title' }
   | { to: 'pilots' }
+  /** Back up / restore a pilot as text or a file (doc 08); BACK returns to `from`. */
+  | { to: 'pilotCode'; from: 'pilots' | 'newPilot' }
   | { to: 'newPilot'; draft?: NewPilotDraft }
   | { to: 'avatarBuilder'; target: BuilderTarget }
   | { to: 'joystick' }
@@ -60,6 +62,8 @@ export interface GameContext {
   /** Replaces the device settings, applies them (sound / music switches, volumes, language) and persists. */
   setSettings(next: Settings): void;
   createProfile(callsign: string, avatar: AvatarId): CreateResult;
+  /** Adds or replaces a pilot restored from a pilot code (doc 08); it becomes active. */
+  importProfile(profile: Profile): ImportResult;
   selectProfile(id: string): void;
   deleteProfile(id: string): void;
   go(route: Route): void;

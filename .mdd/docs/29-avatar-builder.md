@@ -53,8 +53,9 @@ sister_projects: []
 # 29 — Avatar Builder
 
 > **Superseded in part (2026-10-26, doc 33):** the procedural avatars (art v1 / v2 below) are retired. Presets draw
-> the owner's generated portraits `pilot1–3.png`; the builder now picks a generated portrait by **age, skin, hair
-> colour, hair length** (`AvatarLook` v3, `custom/<age>-<skin>-<hair>-<length>.png`, exact match or a silhouette) with
+> the owner's generated portraits `pilot1–3.png`; the builder now picks a generated portrait by **age, gender, skin,
+> hair colour, hair length** (`AvatarLook` v3, `custom/<age>-<gender>-<skin>-<hair>-<length>.png`, exact match or a
+> silhouette) with
 > RANDOM / CANCEL / DONE / ORIGINAL as before. `SaveData.look` stores the pick; v1/v2 looks migrate on load
 > (`parseLook`). Routes, New Pilot's fourth card, EDIT LOOK, `setSave`-only persistence and `playerPerson` stay.
 > The sections below describe the retired v1/v2 art and are kept for history.

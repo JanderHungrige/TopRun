@@ -8,7 +8,7 @@ import { CUSTOM_KEYS, customFrames, fixedFrames } from '../../src/render/portrai
 // Docs 29, 33: a pilot's portrait is the preset image or the generated portrait nearest the builder pick; the
 // full-body scenes derive the people-kit figure from the same pick and keep it as a stable object.
 
-const look: AvatarLook = { age: 'adult', skin: 'dark', hair: 'black', length: 'short' };
+const look: AvatarLook = { age: 'adult', gender: 'male', skin: 'dark', hair: 'black', length: 'short' };
 
 describe('pilot portraits', () => {
   it('draws the presets from their own images', () => {
@@ -42,6 +42,16 @@ describe('full-body player', () => {
     expect(playerPerson({ ...look, skin: 'fair' }).skin.base).not.toBe(a.skin.base);
     expect(playerPerson({ ...look, hair: 'red' }).hair.base).not.toBe(a.hair.base);
     expect(playerPerson(PRESET_LOOKS.pilot1)).not.toBe(playerPerson('pilot1'));
+  });
+
+  it('dresses a female pick in a sports top where the sports scenes go shirtless, and gives her short hair a tousled cut', () => {
+    expect(playerPerson(look).torso).toBe('shirtless');
+    const woman = playerPerson({ ...look, gender: 'female' });
+    expect(woman.torso).toBe('sportsTop');
+    expect(woman.hair.style).toBe('messy');
+    expect(playerPerson({ ...look, gender: 'female', age: 'kid' }).torso).toBe('sportsTop');
+    expect(playerPerson({ ...look, gender: 'female', length: 'long' }).hair.style).toBe('long');
+    expect(playerPerson({ ...look, gender: 'male', length: 'long' }).hair.style).toBe('long');
   });
 
   it('restyles a figure once per base and tag', () => {

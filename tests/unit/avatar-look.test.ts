@@ -5,28 +5,29 @@ import {
 } from '../../src/game/avatar-look';
 import { AVATAR_IDS } from '../../src/game/profiles';
 
-// Docs 29, 33: the builder's trait pick — parsing and migration of the retired looks, cycling, deterministic random
-// picks, keys (= portrait file names) and the nearest available portrait.
+// Docs 29, 33: the builder's trait pick — parsing and migration of the retired looks and of looks saved before
+// gender was a trait, cycling, deterministic random picks, keys (= portrait file names) and the exact portrait.
 
 const valid = (look: AvatarLook): boolean => LOOK_PARTS.every((part) => (lookOptions(part) as readonly string[]).includes(look[part]));
 const ALL: string[] = [];
-for (const age of lookOptions('age')) for (const skin of lookOptions('skin')) for (const hair of lookOptions('hair')) for (const length of lookOptions('length')) {
-  ALL.push(lookKey({ age, skin, hair, length }));
+for (const age of lookOptions('age')) for (const gender of lookOptions('gender')) for (const skin of lookOptions('skin')) {
+  for (const hair of lookOptions('hair')) for (const length of lookOptions('length')) ALL.push(lookKey({ age, gender, skin, hair, length }));
 }
 
 describe('avatar pick', () => {
-  it('offers age, skin, hair colour and hair length: 64 portraits', () => {
-    expect(LOOK_PARTS).toEqual(['age', 'skin', 'hair', 'length']);
+  it('offers age, gender, skin, hair colour and hair length: 128 portraits', () => {
+    expect(LOOK_PARTS).toEqual(['age', 'gender', 'skin', 'hair', 'length']);
     expect(lookOptions('age')).toEqual(['kid', 'adult']);
+    expect(lookOptions('gender')).toEqual(['female', 'male']);
     expect(lookOptions('skin')).toEqual(['fair', 'olive', 'brown', 'dark']);
     expect(lookOptions('hair')).toEqual(['black', 'brown', 'blond', 'red']);
     expect(lookOptions('length')).toEqual(['short', 'long']);
-    expect(new Set(ALL).size).toBe(64);
+    expect(new Set(ALL).size).toBe(128);
   });
 
   describe('parseLook', () => {
     it('keeps a valid pick and drops extra keys', () => {
-      const look: AvatarLook = { age: 'adult', skin: 'dark', hair: 'red', length: 'long' };
+      const look: AvatarLook = { age: 'adult', gender: 'male', skin: 'dark', hair: 'red', length: 'long' };
       expect(parseLook(JSON.parse(JSON.stringify({ ...look, extra: 1 })))).toEqual(look);
     });
 
@@ -35,15 +36,28 @@ describe('avatar pick', () => {
     });
 
     it('replaces unknown or wrongly typed traits with their default', () => {
-      expect(parseLook({ age: 'teen', skin: 'dark', hair: 7, length: 'long' })).toEqual({ ...DEFAULT_LOOK, skin: 'dark', length: 'long' });
+      expect(parseLook({ age: 'teen', gender: 'female', skin: 'dark', hair: 7, length: 'long' }))
+        .toEqual({ ...DEFAULT_LOOK, gender: 'female', skin: 'dark', length: 'long' });
+      expect(parseLook({ age: 'kid', gender: 'robot', skin: 'fair', hair: 'red', length: 'long' }).gender).toBe('female');
+    });
+
+    it('keeps the face of a look saved before gender was a trait', () => {
+      const old = (age: string, skin: string, hair: string, length: string): string => parseLook({ age, skin, hair, length }).gender;
+      expect(old('kid', 'fair', 'red', 'short')).toBe('male');
+      expect(old('adult', 'dark', 'black', 'short')).toBe('male');
+      expect(old('kid', 'fair', 'black', 'long')).toBe('female');
+      expect(old('adult', 'olive', 'blond', 'long')).toBe('female');
+      for (const [skin, hair] of [['fair', 'black'], ['fair', 'blond'], ['fair', 'brown'], ['fair', 'red'], ['olive', 'black']]) {
+        expect(old('adult', skin ?? '', hair ?? '', 'long'), `${skin} ${hair}`).toBe('male');
+      }
     });
 
     it('migrates a v2 look to the nearest pick: skin bucket, hair family, long styles, a kid', () => {
       const v2 = { hair: 'braids', hairColor: 'auburn', skin: 'deep', eyes: 'green', freckles: 'some', cheeks: 'rosy', glasses: 'clear', accessory: 'scarf', suit: 'khaki', sky: 'night' };
-      expect(parseLook(v2)).toEqual({ age: 'kid', skin: 'dark', hair: 'red', length: 'long' });
-      expect(parseLook({ ...v2, hair: 'crop', hairColor: 'platinum', skin: 'pale' })).toEqual({ age: 'kid', skin: 'fair', hair: 'blond', length: 'short' });
-      expect(parseLook({ ...v2, hair: 'bob', hairColor: 'darkBrown', skin: 'tan' })).toEqual({ age: 'kid', skin: 'olive', hair: 'brown', length: 'long' });
-      expect(parseLook({ ...v2, hair: 'mop', hairColor: 'black', skin: 'brown' })).toEqual({ age: 'kid', skin: 'brown', hair: 'black', length: 'short' });
+      expect(parseLook(v2)).toEqual({ age: 'kid', gender: 'female', skin: 'dark', hair: 'red', length: 'long' });
+      expect(parseLook({ ...v2, hair: 'crop', hairColor: 'platinum', skin: 'pale' })).toEqual({ age: 'kid', gender: 'male', skin: 'fair', hair: 'blond', length: 'short' });
+      expect(parseLook({ ...v2, hair: 'bob', hairColor: 'darkBrown', skin: 'tan' })).toEqual({ age: 'kid', gender: 'female', skin: 'olive', hair: 'brown', length: 'long' });
+      expect(parseLook({ ...v2, hair: 'mop', hairColor: 'black', skin: 'brown' })).toEqual({ age: 'kid', gender: 'male', skin: 'brown', hair: 'black', length: 'short' });
       expect(parseLook({ ...v2, hair: 'ponytail', hairColor: 'blue', skin: 'olive' }).length).toBe('long');
     });
 
@@ -53,7 +67,7 @@ describe('avatar pick', () => {
       const hairs = ['black', 'darkBrown', 'brown', 'chestnut', 'auburn', 'strawberry', 'ginger', 'golden', 'blond', 'platinum', 'silver', 'blue', 'pink']
         .map((hairColor) => parseLook({ hairColor }).hair);
       expect(hairs).toEqual(['black', 'brown', 'brown', 'brown', 'red', 'red', 'red', 'blond', 'blond', 'blond', 'blond', 'black', 'red']);
-      expect(parseLook({ hairColor: 'neon', skin: 'green', hair: 'mohawk' })).toEqual({ age: 'kid', skin: 'fair', hair: 'brown', length: 'short' });
+      expect(parseLook({ hairColor: 'neon', skin: 'green', hair: 'mohawk' })).toEqual({ age: 'kid', gender: 'male', skin: 'fair', hair: 'brown', length: 'short' });
     });
   });
 
@@ -70,31 +84,34 @@ describe('avatar pick', () => {
   });
 
   it('draws deterministic, valid and varied random picks', () => {
-    const picks = Array.from({ length: 300 }, (_, i) => randomLook(i * 31 + 7));
-    for (let i = 0; i < 300; i++) expect(randomLook(i * 31 + 7)).toEqual(picks[i]);
+    const picks = Array.from({ length: 600 }, (_, i) => randomLook(i * 31 + 7));
+    for (let i = 0; i < 600; i++) expect(randomLook(i * 31 + 7)).toEqual(picks[i]);
     expect(picks.every(valid)).toBe(true);
-    expect(new Set(picks.map(lookKey)).size).toBeGreaterThan(55);
+    expect(new Set(picks.map(lookKey)).size).toBeGreaterThan(110);
   });
 
   it('names a pick by its portrait file and reads names back', () => {
-    const look: AvatarLook = { age: 'adult', skin: 'olive', hair: 'blond', length: 'short' };
-    expect(lookKey(look)).toBe('adult-olive-blond-short');
-    expect(lookFromKey('adult-olive-blond-short')).toEqual(look);
-    for (const bad of ['adult-olive-blond', 'teen-olive-blond-short', 'adult-olive-blond-short-talk', 'pilot1']) expect(lookFromKey(bad)).toBeNull();
+    const look: AvatarLook = { age: 'adult', gender: 'female', skin: 'olive', hair: 'blond', length: 'short' };
+    expect(lookKey(look)).toBe('adult-female-olive-blond-short');
+    expect(lookFromKey('adult-female-olive-blond-short')).toEqual(look);
+    const bad = ['adult-olive-blond-short', 'adult-female-olive-blond', 'teen-female-olive-blond-short', 'adult-woman-olive-blond-short',
+      'adult-female-olive-blond-short-talk', 'pilot1'];
+    for (const key of bad) expect(lookFromKey(key), key).toBeNull();
     expect(sameLook(look, { ...look })).toBe(true);
+    expect(sameLook(look, { ...look, gender: 'male' })).toBe(false);
   });
 
   describe('portraitKey', () => {
-    const want: AvatarLook = { age: 'adult', skin: 'brown', hair: 'red', length: 'long' };
+    const want: AvatarLook = { age: 'adult', gender: 'male', skin: 'brown', hair: 'red', length: 'long' };
 
     it('takes the exact portrait when it exists, and nothing when the set is empty', () => {
-      expect(portraitKey(want, ALL)).toBe('adult-brown-red-long');
+      expect(portraitKey(want, ALL)).toBe('adult-male-brown-red-long');
       expect(portraitKey(want, [])).toBeNull();
-      expect(portraitKey(want, ['pilot1', 'adult-brown-red-long-talk'])).toBeNull();
+      expect(portraitKey(want, ['pilot1', 'adult-male-brown-red-long-talk'])).toBeNull();
     });
 
     it('never stands in a different portrait while the set is incomplete', () => {
-      expect(portraitKey(want, ['adult-brown-red-short', 'kid-brown-red-long', 'adult-olive-red-long'])).toBeNull();
+      expect(portraitKey(want, ['adult-female-brown-red-long', 'adult-male-brown-red-short', 'kid-male-brown-red-long'])).toBeNull();
     });
   });
 

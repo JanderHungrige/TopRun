@@ -51,7 +51,7 @@ known_issues:
   - "Until wingman.png exists the wingman keeps the procedural portrait (src/render/portraits/procedural.ts)."
   - "Resolved 2026-10-26: wingman.png (Duke in the cockpit, via 'Top Gun pixel pilot – cockpit') landed; the procedural portrait code is deleted."
   - "Resolved 2026-10-26: all 64 builder portraits exist (no silhouettes left)."
-  - "Hair length stands in for gender: short = boy / man, long = girl / woman, except five adults with long hair from the first batch (fair black / blond / brown / red, olive black) who came out as men. A gender trait with its own images is the next step (owner, 2026-10-26)."
+  - "Hair length stood in for gender (short = boy / man, long = girl / woman, five long-haired grown-ups male). Resolved 2026-10-26: gender is its own trait; until the gender round's 64 portraits are generated those picks show the silhouette."
 security_read_sites:
   - src/game/save.ts (parseSave → parseLook: untrusted localStorage value, old looks migrated)
 sister_projects: []
@@ -78,7 +78,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 | `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |
 | `chief.png` (+ `-talk`, `-half`, `-blink`) | the crew chief |
 | `wingman.png` (+ `-talk`, `-half`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
-| `custom/<age>-<skin>-<hair>-<length>.png` | the builder set: age `kid|adult`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long` (64) |
+| `custom/<age>-<gender>-<skin>-<hair>-<length>.png` | the builder set: age `kid|adult`, gender `female|male`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long` (128) |
 
 Talk, half and blink frames are identical to the base outside the mouth / eyes (`-talk` = mouth open,
 `-half` = lips slightly parted). Every file is discovered with
@@ -121,19 +121,34 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
 ## Builder v3 (`src/game/avatar-look.ts`, `src/scenes/avatar-builder*.ts`)
 
 ```ts
-interface AvatarLook { age: 'kid' | 'adult'; skin: 'fair' | 'olive' | 'brown' | 'dark'; hair: 'black' | 'brown' | 'blond' | 'red'; length: 'short' | 'long' }
+interface AvatarLook {
+  age: 'kid' | 'adult'; gender: 'female' | 'male'; skin: 'fair' | 'olive' | 'brown' | 'dark';
+  hair: 'black' | 'brown' | 'blond' | 'red'; length: 'short' | 'long';
+}
 ```
 
-- Four rows ◀ ▶ (AGE, SKIN, HAIR COLOUR, HAIR LENGTH; EN + DE labels), RANDOM, CANCEL, DONE, and ORIGINAL for an
-  existing pilot. The preview is the matching custom portrait (a silhouette until it is generated).
+- Five rows ◀ ▶ (AGE, GENDER, SKIN, HAIR COLOUR, HAIR LENGTH; EN + DE labels), RANDOM, CANCEL, DONE, and
+  ORIGINAL for an existing pilot. The preview is the matching custom portrait (a silhouette until it is generated).
+  The gender option reads by age: GIRL / BOY for a kid, WOMAN / MAN for a grown-up (MÄDCHEN / JUNGE,
+  FRAU / MANN).
+- **Gender** (owner, 2026-10-26: "we also need female/male, as long hair is not the distinction"): its own trait,
+  so every hair length exists for both — 2 × 2 × 4 × 4 × 2 = **128 portraits**. The first 64 were made with
+  short = boy / man and long = girl / woman, except five grown-ups with long hair from the first batch (fair
+  black / blond / brown / red, olive black) who came out as men; the second 64 (the "gender round", prompts
+  `prompts_gender.py`) are the girls / women with short hair, the boys / men with long hair and long-haired
+  women for those five.
+- A stored look without `gender` (saved before this change) keeps the face it showed: short → male, long →
+  female, except those five grown-up combinations → male (`legacyGender`). The v1/v2 migration does the same.
 - `parseLook` migrates the old v1/v2 looks (`{ hair: style, hairColor, skin, … }`): skin index of the 8 old tones
   → 4 buckets (pale·light → fair, ruddy·tan → olive, olive·brown → brown, deep·ebony → dark), hair colour family
   (black · dark brown, brown, chestnut → brown · auburn, strawberry, ginger, pink → red · golden, blond, platinum,
   silver → blond · blue → black), long / ponytail / braids / bob → long, anything else short, age → kid.
-- `lookKey(look)` = `<age>-<skin>-<hair>-<length>` = the asset name; `randomLook(seed)` deterministic.
+- `lookKey(look)` = `<age>-<gender>-<skin>-<hair>-<length>` = the asset name; `randomLook(seed)` deterministic.
 - Accent colour of a custom pick: by hair colour. `playerPerson(face)` (full-body scenes: push-ups, volleyball,
-  motorbike, piano, ceremony, hangar walker) derives skin, hair colour and the kit hair style (kid short → messy,
-  adult short → crew, long → long) from the pick, with olive suit trousers; presets keep their own looks.
+  motorbike, piano, ceremony, hangar walker) derives skin, hair colour and the kit hair style (long → long; short:
+  boy → messy, man → crew, girl / woman → messy) from the pick, with olive suit trousers; presets keep their own
+  looks. The sports scenes draw pilots shirtless (doc 12); a **female pick wears a sports top** there instead
+  (`torso: 'sportsTop'`) — scenes that dress the pilot themselves (dress whites, flight suit, T-shirt) are unchanged.
 
 ## Business Rules
 

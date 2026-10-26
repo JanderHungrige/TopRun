@@ -6,7 +6,8 @@ import { SKIN, tone, type HairLook, type PersonLook, type SkinTone, type Tone } 
 /**
  * The player as a people-kit figure (doc 17) in the full-body scenes — push-up duel, volleyball, motorbike, piano
  * bar, medal ceremony, the hangar walker (docs 29, 33): the preset's own look, or one derived from a builder pick
- * (skin, hair colour, a kit hair style from age and length, olive flight-suit trousers). Looks are memoised so
+ * (skin, hair colour, a kit hair style from age, gender and length, a sports top for a female pick, olive
+ * flight-suit trousers). Looks are memoised so
  * object identity (the kit's cache key) stays stable.
  */
 
@@ -27,7 +28,7 @@ const SUIT_TROUSERS = tone('#5f6b3f', '#77844f', '#454e2c');
 
 function kitHair(look: AvatarLook): HairLook['style'] {
   if (look.length === 'long') return 'long';
-  return look.age === 'kid' ? 'messy' : 'crew';
+  return look.age === 'kid' || look.gender === 'female' ? 'messy' : 'crew';
 }
 
 function fromLook(look: AvatarLook): PersonLook {
@@ -38,6 +39,8 @@ function fromLook(look: AvatarLook): PersonLook {
     skin: SKINS[look.skin],
     hair: { style: kitHair(look), ...h, brow: h.shadow },
     eyes: lightEyes ? '#4d6f8c' : '#3b2416',
+    // Sports scenes keep the base torso: shirtless for men and boys, a sports top for women and girls (doc 33).
+    torso: look.gender === 'female' ? 'sportsTop' : 'shirtless',
     bottom: SUIT_TROUSERS,
   };
 }

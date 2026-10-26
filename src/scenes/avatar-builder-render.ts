@@ -1,4 +1,4 @@
-import { LOOK_PARTS, lookOptions, type AvatarLook, type LookPart } from '../game/avatar-look';
+import { LOOK_PARTS, lookOptions, type Age, type AvatarLook, type Gender, type LookPart } from '../game/avatar-look';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { drawPilotAvatar } from '../render/avatars';
@@ -13,10 +13,10 @@ import { drawButton, drawPanel, type Button, type Rect } from '../ui/widgets';
 export const PREVIEW: Rect = { x: 110, y: 116, w: 360, h: 432 };
 const PLATE: Rect = { x: 130, y: 566, w: 320, h: 44 };
 const ROWS_X = 530;
-const ROWS_Y = 150;
+const ROWS_Y = 116;
 const ROW_W = 670;
-const ROW_H = 72;
-const ROW_STEP = 90;
+const ROW_H = 64;
+const ROW_STEP = 78;
 const ARROW_W = 56;
 
 export const rowRect = (i: number): Rect => ({ x: ROWS_X, y: ROWS_Y + i * ROW_STEP, w: ROW_W, h: ROW_H });
@@ -54,10 +54,17 @@ export interface BuilderView {
   callsign: string;
 }
 
+/** The gender option reads by age: GIRL / BOY for a kid, WOMAN / MAN for a grown-up. */
+const GENDER_LABEL: Readonly<Record<Age, Readonly<Record<Gender, UiKey>>>> = {
+  kid: { female: 'avatar.gender.girl', male: 'avatar.gender.boy' },
+  adult: { female: 'avatar.gender.woman', male: 'avatar.gender.man' },
+};
+
 /** The option name of one part of a pick (every option has its own UI key). */
 export function optionLabel(look: AvatarLook, part: LookPart): string {
   switch (part) {
     case 'age': return t(`avatar.age.${look.age}`);
+    case 'gender': return t(GENDER_LABEL[look.age][look.gender]);
     case 'skin': return t(`avatar.skin.${look.skin}`);
     case 'hair': return t(`avatar.hair.${look.hair}`);
     case 'length': return t(`avatar.length.${look.length}`);

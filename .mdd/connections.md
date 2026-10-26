@@ -1,7 +1,7 @@
 ---
 generated: 2026-10-25
-doc_count: 32
-connection_count: 80
+doc_count: 33
+connection_count: 84
 overlap_count: 0
 ---
 
@@ -27,6 +27,7 @@ Game
 │   └── Screen    28-ladder-screen       complete
 ├── Languages    07-i18n                complete
 ├── Look
+│   ├── Portraits 33-image-portraits     complete
 │   └── Retro     20-retro-look          complete
 ├── Minigames
 │   ├── Core      10-minigames-core      complete
@@ -90,6 +91,11 @@ graph TD
   hbase[30-hangar-base]:::complete
   locker[31-locker-uniform]:::complete
   wall[32-picture-wall]:::complete
+  portraits[33-image-portraits]:::complete
+  portraits --> chars
+  portraits --> pilots
+  portraits --> retro
+  portraits --> builder
   locker --> medals
   locker --> ceremony
   locker --> rating

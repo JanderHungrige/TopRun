@@ -86,22 +86,14 @@ function rgb(hex: string): [number, number, number] {
 
 const hexes: string[] = ['#000000'];
 const inkOf: number[] = [0];
-const lastOf: number[] = [0];
 const ramps = {} as Record<RampName, Ramp>;
 for (const name of Object.keys(RAMPS) as RampName[]) {
   const first = hexes.length;
   ramps[name] = RAMPS[name].map((h, i) => {
     hexes.push(h);
     inkOf.push(i === 0 ? (name === 'ink' ? first : 1) : first);
-    lastOf.push(first + RAMPS[name].length - 1);
     return first + i;
   });
-}
-
-/** The same colour `steps` lighter along its own ramp (rim light, doc 29); the ink and transparency stay. */
-export function lighter(i: number, steps = 1): number {
-  if (i <= 0 || inkOf[i] === i) return i;
-  return Math.min(lastOf[i] ?? i, i + steps);
 }
 
 /** Every ramp as palette indices. */

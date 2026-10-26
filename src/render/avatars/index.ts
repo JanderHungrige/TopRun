@@ -1,107 +1,58 @@
-import { lookKey, type AvatarLook } from '../../game/avatar-look';
+import { lookKey, nearestLookKey, type AvatarLook, type HairColor } from '../../game/avatar-look';
 import type { AvatarId } from '../../game/profiles';
-import { drawBust, type BustArt } from '../pixel/bust';
-import { hexOf } from '../pixel/palette';
-import { breath, hash, pixelRig, rigKey, type Box, type Mood, type Rig } from '../portraits';
-import { customArt, suitRamp } from './custom';
-import { selectionFrame, TILT_PIVOT, type AvatarArt } from './kit';
-import { rimLight } from './light';
-import { PILOT1 } from './pilot1';
-import { PILOT2 } from './pilot2';
-import { PILOT3 } from './pilot3';
-import { deckBackdrop, skyClouds } from './skies';
+import { CUSTOM_KEYS, customFrames, customUrls, fixedFrames, type FrameSet } from '../portraits/assets';
+import { drawImagePortrait, drawPlaceholder, preloadImages } from '../portraits/image';
+import type { Box, Mood } from '../portraits/types';
 
 /**
- * The player's pilot avatar as modern hi-res pixel art (doc 08, doc 20, doc 29): one of three hand-drawn presets
- * or a look composed in the builder, drawn like the portraits — own background, clipped to the box, contain-fit
- * and bottom-aligned, with blinking, breathing and an optional talking mouth. Every animation frame is
- * rasterised once and cached by the bust pipeline.
+ * The player's pilot portrait (docs 08, 29, 33): one of the owner's three preset portraits (`pilot1–3.png`) or the
+ * generated portrait nearest a builder pick (`custom/<age>-<skin>-<hair>-<length>.png`), drawn like the cast's
+ * portraits — cover-fit, bottom-aligned, clipped, never smoothed — with breathing and the gold selection frame.
+ * A pick whose set is still missing shows a dark pilot silhouette.
  */
 
 export interface AvatarState { t: number; mouth?: number; mood?: Mood; selected?: boolean }
-/** Who to draw: a preset id or a custom look (`pilotFace(profile)`). */
+/** Who to draw: a preset id or a builder pick (`pilotFace(profile)`). */
 export type PilotFace = AvatarId | AvatarLook;
 
-/** One accent colour per preset for UI (card borders). */
+/** One accent colour per preset for UI (card borders, the ladder). */
 export const AVATAR_COLORS: Readonly<Record<AvatarId, string>> = { pilot1: '#f2a531', pilot2: '#4fb0e6', pilot3: '#e2574c' };
+/** A builder pick's accent, by hair colour. */
+const HAIR_ACCENT: Readonly<Record<HairColor, string>> = { black: '#8fa6c8', brown: '#c98f55', blond: '#f2c94c', red: '#e2683c' };
 
-const ART: Readonly<Record<AvatarId, AvatarArt>> = { pilot1: PILOT1, pilot2: PILOT2, pilot3: PILOT3 };
-/** Per-avatar phase so a row of avatars never blinks or bobs in sync. */
+/** Per-avatar phase so a row of portraits never blinks or bobs in sync. */
 const SEED: Readonly<Record<AvatarId, number>> = { pilot1: 5.7, pilot2: 6.9, pilot3: 8.2 };
 
-function bust(id: string, art: AvatarArt, backgroundId?: string): BustArt<Rig> {
-  return {
-    id,
-    backgroundId,
-    background: (p, f) => deckBackdrop(p, f, art.sky),
-    ambient: (g, v) => skyClouds(g, v, art.sky),
-    figure(p, r) {
-      art.body(p, r);
-      const oy = p.oy;
-      p.oy = oy + Math.round(r.m.nod * p.k);
-      p.rot = art.tilt ?? 0;
-      p.pivotY = TILT_PIVOT;
-      art.head(p, r);
-      p.rot = 0;
-      p.oy = oy;
-      art.front?.(p, r);
-      if (p.k >= 0.6) rimLight(p, art.sky.rim.side, art.sky.rim.top, art.sky.rim.steps);
-    },
-  };
-}
-
-const BUSTS: Readonly<Record<AvatarId, BustArt<Rig>>> = { pilot1: bust('pilot1', PILOT1), pilot2: bust('pilot2', PILOT2), pilot3: bust('pilot3', PILOT3) };
-
-interface Built { art: AvatarArt; bust: BustArt<Rig>; seed: number }
-const built = new Map<string, Built>();
-
-/** The composed art of a custom look, memoised by its key (LRU 32). */
-function custom(look: AvatarLook): Built {
-  const key = lookKey(look);
-  const hit = built.get(key);
-  if (hit) {
-    built.delete(key);
-    built.set(key, hit);
-    return hit;
-  }
-  const art = customArt(look);
-  const made = { art, bust: bust(`look:${key}`, art, `sky:${look.sky}`), seed: 3 + hash(Number.parseInt(key.slice(0, 6), 36)) * 7 };
-  built.set(key, made);
-  if (built.size > 32) {
-    const oldest = built.keys().next();
-    if (!oldest.done) built.delete(oldest.value);
-  }
-  return made;
-}
-
-function resolve(face: PilotFace): Built {
-  return typeof face === 'string' ? { art: ART[face], bust: BUSTS[face], seed: SEED[face] } : custom(face);
-}
-
-/** The pixel art of a preset or look, its mood table and face measurements (tests render its frames directly). */
-export function avatarArt(face: PilotFace): { art: BustArt<Rig>; moods: AvatarArt['moods']; face: AvatarArt['face'] } {
-  const b = resolve(face);
-  return { art: b.bust, moods: b.art.moods, face: b.art.face };
-}
-
-/** The player's face for a profile: the custom look if one was built, else the preset. */
+/** The player's face for a profile: the builder pick if one was made, else the preset. */
 export const pilotFace = (p: { avatar: AvatarId; save: { look: AvatarLook | null } }): PilotFace => p.save.look ?? p.avatar;
 
-/** UI accent of a pilot (card borders): the preset colour, or the light tone of a custom look's suit. */
-export function pilotAccent(face: PilotFace): string {
-  return typeof face === 'string' ? AVATAR_COLORS[face] : hexOf(suitRamp(face.suit)[4] ?? 0);
+/** UI accent of a pilot (card borders): the preset colour, or the hair colour's accent of a pick. */
+export const pilotAccent = (face: PilotFace): string => (typeof face === 'string' ? AVATAR_COLORS[face] : HAIR_ACCENT[face.hair]);
+
+/** The portrait frames of a face: the preset's, or those of the generated portrait nearest the pick. */
+export function avatarFrames(face: PilotFace): FrameSet | null {
+  if (typeof face === 'string') return fixedFrames(face);
+  const key = nearestLookKey(face, CUSTOM_KEYS);
+  return key === null ? null : customFrames(key);
 }
 
-/** Head-and-shoulders pilot avatar filling the box like drawPortrait: own background, clipped, contain-fit, bottom-aligned.
- *  selected=true adds a pulsing gold pixel frame so a chosen avatar stands out in a picker. */
+/** Starts loading the builder's portraits (the builder and NEW PILOT call this). */
+export const preloadCustomPortraits = (): void => preloadImages(customUrls());
+
+function seedOf(face: PilotFace): number {
+  if (typeof face === 'string') return SEED[face];
+  let h = 0;
+  for (const ch of lookKey(face)) h = (h * 31 + ch.charCodeAt(0)) % 997;
+  return 3 + (h / 997) * 7;
+}
+
+/** Head-and-shoulders pilot portrait filling the box like drawPortrait: cover-fit, bottom-aligned, clipped.
+ *  selected=true adds a pulsing gold pixel frame so a chosen portrait stands out in a picker. */
 export function drawPilotAvatar(ctx: CanvasRenderingContext2D, face: PilotFace, box: Box, s: AvatarState): void {
-  const b = resolve(face);
-  const rig = pixelRig(s.t, s.mouth ?? 0, s.mood ?? 'neutral', 'none', b.seed, b.art.moods);
-  drawBust(ctx, box, b.bust, {
-    rig, key: rigKey(rig), t: s.t, bob: breath(s.t * 1.06, b.seed),
-    overlay: s.selected ? selectionFrame : undefined,
-  });
+  const frames = avatarFrames(face);
+  if (!frames) return drawPlaceholder(ctx, box, s, true);
+  drawImagePortrait(ctx, frames, box, { t: s.t, mouth: s.mouth ?? 0, seed: seedOf(face), selected: s.selected });
 }
 
-/** A preset avatar (kept for callers that only know the id). */
+/** A preset avatar (kept for callers that only know the id, e.g. the dev page). */
 export const drawAvatar = (ctx: CanvasRenderingContext2D, id: AvatarId, box: Box, s: AvatarState): void => drawPilotAvatar(ctx, id, box, s);

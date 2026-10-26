@@ -49,6 +49,12 @@ sister_projects: []
 
 # 06 — Talking Characters
 
+> **2026-10-26 update (image portraits, doc 33):** the admiral, the deck officer (shooter) and the crew chief are now
+> the owner's generated pixel-art portraits (`src/assets/portraits/*.png`, ComfyUI "Top Gun pixel crew portrait");
+> `drawPortrait` keeps its API, alternates base / talk frames with the spoken syllables and blinks where a blink
+> frame exists. Moods and gestures are ignored for image portraits. The wingman keeps the procedural portrait until
+> `wingman.png` exists, then switches automatically. The procedural admiral / chief / shooter art is retired.
+
 > **2026-10-25 update (paint jobs, doc 09):** new lines `adm.livery`, `adm.liveryRare` (debrief) and
 > chief event `painted` / line `chief.painted` (hangar PAINT tab).
 

@@ -51,7 +51,7 @@ known_issues:
   - "Until wingman.png exists the wingman keeps the procedural portrait (src/render/portraits/procedural.ts)."
   - "Resolved 2026-10-26: wingman.png (Duke in the cockpit, via 'Top Gun pixel pilot – cockpit') landed; the procedural portrait code is deleted."
   - "Resolved 2026-10-26: all 64 builder portraits exist (no silhouettes left)."
-  - "Hair length stood in for gender (short = boy / man, long = girl / woman, five long-haired grown-ups male). Resolved 2026-10-26: gender is its own trait; until the gender round's 64 portraits are generated those picks show the silhouette."
+  - "Hair length stood in for gender (short = boy / man, long = girl / woman, five long-haired grown-ups male). Resolved 2026-10-26: gender is its own trait and all 128 portraits exist."
 security_read_sites:
   - src/game/save.ts (parseSave → parseLook: untrusted localStorage value, old looks migrated)
 sister_projects: []
@@ -136,7 +136,10 @@ interface AvatarLook {
   short = boy / man and long = girl / woman, except five grown-ups with long hair from the first batch (fair
   black / blond / brown / red, olive black) who came out as men; the second 64 (the "gender round", prompts
   `prompts_gender.py`) are the girls / women with short hair, the boys / men with long hair and long-haired
-  women for those five.
+  women for those five. For kids a neutral prompt reads androgynous (long-haired boys looked like girls,
+  pixie-cut girls like boys), so the kid prompts name clear cues: boys get a boyish face (square jaw, straight
+  thick brows) and shaggy surfer-boy hair to the neck; girls a girlish face (long lashes, arched brows) and a
+  small hair clip. Made on the owner's M4 (most) and M1 with 'Top Gun pixel crew portrait', seed 7.
 - A stored look without `gender` (saved before this change) keeps the face it showed: short → male, long →
   female, except those five grown-up combinations → male (`legacyGender`). The v1/v2 migration does the same.
 - `parseLook` migrates the old v1/v2 looks (`{ hair: style, hairColor, skin, … }`): skin index of the 8 old tones

@@ -1,18 +1,21 @@
 import type { Scene } from '../core/scene';
-import { decodePilotCode, encodePilotCode, pilotCodeFile, type DecodeResult } from '../game/pilot-code';
+import { cardFileName, embedPilotCode, isPng, readPilotCode } from '../game/pilot-card';
+import { decodePilotCode, encodePilotCode, type DecodeResult } from '../game/pilot-code';
 import { profileSummary, type Profile } from '../game/profiles';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
-import { copyText, downloadText, pickTextFile } from '../ui/file-io';
+import { pilotCardPng } from '../render/pilot-card';
+import { copyText, downloadFile, pickFile } from '../ui/file-io';
 import { TextArea } from '../ui/text-area';
 import { hit } from '../ui/widgets';
+import { pilotCardData } from './pilot-card-data';
 import {
   BACKUP_BOX, CONFIRM_BUTTONS, drawPilotCode, MAIN_BUTTONS, RESTORE_BOX, type CodeButtonId, type CodeStatus,
 } from './pilot-code-render';
 
-/** A pilot code file is a few KB; anything much bigger is not one. */
-const MAX_FILE = 64 * 1024;
+/** An ID card is ~100 KB (a phone may re-save it bigger); anything far beyond is not one. */
+const MAX_FILE = 4 * 1024 * 1024;
 
 const DECODE_ERROR: Readonly<Record<Exclude<DecodeResult, { ok: true }>['reason'], UiKey>> = {
   'no-code': 'code.noCode', checksum: 'code.checksum', corrupt: 'code.corrupt', invalid: 'code.invalid',
@@ -23,7 +26,7 @@ const progressText = (p: Profile): string => {
   return t('map.progress', { done: s.cleared, stars: s.stars });
 };
 
-/** PILOT CODE (doc 08): back up a pilot as a line of text or a file, restore one on this device. */
+/** PILOT CODE (doc 08): back up a pilot as a line of text or an ID card picture, restore one on this device. */
 export class PilotCodeScene implements Scene {
   private time = 0;
   private sel = 0;
@@ -93,12 +96,21 @@ export class PilotCodeScene implements Scene {
     });
   }
 
-  private save(): void {
+  /** SAVE CARD: draws the pilot ID card, puts the code inside the PNG and downloads it. */
+  private saveCard(): void {
     const p = this.pilot;
-    if (!p || !this.code) return;
-    const file = pilotCodeFile(p, this.code, t('code.fileHowTo'));
-    downloadText(file.name, file.text);
-    this.say('backup', 'code.saved', false, { file: file.name });
+    const code = this.code;
+    if (!p || !code || this.busy) return;
+    this.busy = true;
+    this.status = { key: 'code.making', error: false, side: 'backup' };
+    void pilotCardPng(pilotCardData(p)).then((png) => {
+      this.busy = false;
+      const card = png && embedPilotCode(png, code);
+      if (!card) return this.say('backup', 'code.cardFailed', true);
+      const name = cardFileName(p.callsign);
+      downloadFile(name, card, 'image/png');
+      this.say('backup', 'code.savedCard', false, { file: name });
+    });
   }
 
   private load(textIn: string): void {
@@ -118,11 +130,14 @@ export class PilotCodeScene implements Scene {
     });
   }
 
+  /** OPEN FILE: an ID card (the code inside the PNG) or a text file with a code in it. */
   private open(): void {
-    pickTextFile(MAX_FILE, (result) => {
+    pickFile('image/png,.png,text/plain,.txt', MAX_FILE, (result) => {
       if (result === 'too-big') return this.say('restore', 'code.fileTooBig', true);
-      this.restoreBox.value = result;
-      this.load(result);
+      const code = isPng(result) ? readPilotCode(result) : new TextDecoder().decode(result);
+      if (code === null) return this.say('restore', 'code.noCardCode', true);
+      this.restoreBox.value = code;
+      this.load(code);
     });
   }
 
@@ -144,7 +159,7 @@ export class PilotCodeScene implements Scene {
       case 'prev': return this.choose(-1);
       case 'next': return this.choose(1);
       case 'copy': return this.copy();
-      case 'save': return this.save();
+      case 'card': return this.saveCard();
       case 'load': return this.load(this.restoreBox.value);
       case 'open': return this.open();
       case 'back': return this.leave();

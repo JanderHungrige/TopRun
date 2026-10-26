@@ -5,27 +5,27 @@ import { COLORS, text } from '../render/text';
 import { drawButton, drawPanel, type Button, type Rect } from '../ui/widgets';
 
 // PILOT CODE screen (doc 08): layout shared with the scene's hit tests, and the drawing. Left: back up the chosen
-// pilot (code box, COPY, SAVE FILE); right: restore (paste box, LOAD, OPEN FILE); a confirm before replacing.
+// pilot (code box, COPY, SAVE CARD); right: restore (paste box, LOAD, OPEN FILE); a confirm before replacing.
 
 const LEFT: Rect = { x: 60, y: 136, w: 560, h: 470 };
 const RIGHT: Rect = { x: 660, y: 136, w: 560, h: 470 };
 export const BACKUP_BOX: Rect = { x: 84, y: 250, w: 512, h: 206 };
 export const RESTORE_BOX: Rect = { x: 684, y: 226, w: 512, h: 230 };
 
-export type CodeButtonId = 'prev' | 'next' | 'copy' | 'save' | 'load' | 'open' | 'back' | 'replace' | 'cancel';
+export type CodeButtonId = 'prev' | 'next' | 'copy' | 'card' | 'load' | 'open' | 'back' | 'replace' | 'cancel';
 export type CodeButton = Button & { id: CodeButtonId };
 
 const B = (id: CodeButtonId, x: number, y: number, w: number, h: number, primary = false): CodeButton => ({ id, label: '', x, y, w, h, primary });
 export const MAIN_BUTTONS: readonly CodeButton[] = [
   B('prev', 84, 190, 48, 42), B('next', 548, 190, 48, 42),
-  B('copy', 84, 474, 250, 48, true), B('save', 346, 474, 250, 48),
+  B('copy', 84, 474, 250, 48, true), B('card', 346, 474, 250, 48),
   B('load', 684, 474, 250, 48, true), B('open', 946, 474, 250, 48),
   B('back', 540, 628, 200, 50),
 ];
 export const CONFIRM_BUTTONS: readonly CodeButton[] = [B('replace', 450, 412, 180, 46, true), B('cancel', 650, 412, 180, 46)];
 
 const LABEL: Readonly<Record<CodeButtonId, UiKey | null>> = {
-  prev: null, next: null, copy: 'code.copy', save: 'code.save', load: 'code.load', open: 'code.open',
+  prev: null, next: null, copy: 'code.copy', card: 'code.saveCard', load: 'code.load', open: 'code.open',
   back: 'pilots.back', replace: 'code.replace', cancel: 'title.cancel',
 };
 
@@ -99,7 +99,7 @@ export function drawPilotCode(ctx: CanvasRenderingContext2D, v: CodeView): void 
   drawBackup(ctx, v);
   drawRestore(ctx, v);
   for (const b of MAIN_BUTTONS) {
-    const off = v.callsign === null && (b.id === 'copy' || b.id === 'save' || b.id === 'prev' || b.id === 'next');
+    const off = v.callsign === null && (b.id === 'copy' || b.id === 'card' || b.id === 'prev' || b.id === 'next');
     if (off || ((b.id === 'prev' || b.id === 'next') && v.pilots < 2)) continue;
     drawButton(ctx, { ...b, label: label(b) }, false, v.t);
   }

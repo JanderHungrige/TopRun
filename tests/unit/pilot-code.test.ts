@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MISSIONS } from '../../src/data/missions';
-import { checksum, CODE_PREFIX, decodePilotCode, encodePilotCode, pilotCodeFile } from '../../src/game/pilot-code';
+import { checksum, CODE_PREFIX, decodePilotCode, encodePilotCode } from '../../src/game/pilot-code';
 import { createProfile, emptyStore, importProfile, MAX_PROFILES, type Profile, type ProfileStore } from '../../src/game/profiles';
 import { defaultSave } from '../../src/game/save';
 
@@ -39,15 +39,11 @@ describe('pilot code', () => {
     expect(await decodePilotCode(code)).toEqual({ ok: true, profile: p });
   });
 
-  it('finds the code inside pasted text, across line breaks and spaces, and in the saved file', async () => {
+  it('finds the code inside pasted text, across line breaks and spaces', async () => {
     const p = veteran();
     const code = await encodePilotCode(p);
     const chopped = code.replace(/(.{40})/g, '$1\n  ');
     expect(await decodePilotCode(`Here is my pilot:\n${chopped}\nsee you!`)).toEqual({ ok: true, profile: p });
-    const file = pilotCodeFile(p, code, 'How to restore.');
-    expect(file.name).toBe('topgun-ice-man-2.txt');
-    expect(file.text).toContain(code);
-    expect(await decodePilotCode(file.text)).toEqual({ ok: true, profile: p });
   });
 
   it('says what is wrong instead of crashing', async () => {

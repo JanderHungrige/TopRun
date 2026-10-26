@@ -32,8 +32,8 @@ services:
     regions:
       prod:
         image: ghcr.io/janderhungrige/toprun-ladder:main
-        status: not-deployed
-        last_checked: 2026-10-25T20:30Z
+        status: healthy
+        last_checked: 2026-10-26T00:00Z
 status: draft
 last_synced: 2026-10-25
 mdd_version: 11
@@ -114,7 +114,7 @@ Step 2 (Proxy host — already present on 2026-10-25):
   Action:  NPM → Proxy Hosts → `topgun.questenterprise.de` → `http://172.17.0.1:8081`, SSL cert + Force SSL.
   Verify:  `curl -fsS -o /dev/null -w '%{http_code}' https://topgun.questenterprise.de/` → `200`
 
-Step 2b (Ladder service — one time, after the first deploy that contains doc 27):
+Step 2b (Ladder service — one time, after the first deploy that contains doc 27; done by the owner 2026-10-26):
   Action:  `cd /opt/toprun && sudo git pull && sudo docker compose --env-file deploy/.env.prod -f deploy/compose.app.yml up -d`
            (git pull brings the new compose file and auto-deploy.sh; `up -d` creates the ladder
            service and its volume. Wait until CI has pushed `toprun-ladder:main` first.)

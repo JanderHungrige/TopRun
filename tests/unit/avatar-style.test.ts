@@ -32,7 +32,7 @@ function header(b: Uint8Array): { w: number; h: number; depth: number; type: num
 }
 
 const name = (path: string): string => path.slice(path.lastIndexOf('/') + 1).replace(/\.png$/, '');
-const baseOf = (n: string): string => n.replace(/-(talk|blink)$/, '');
+const baseOf = (n: string): string => n.replace(/-(talk|half|blink)$/, '');
 
 describe('portrait images', () => {
   const entries = Object.entries(FILES);
@@ -71,6 +71,7 @@ describe('portrait images', () => {
       const frames = path.includes('/custom/') ? customFrames(base) : fixedFrames(base);
       expect(frames, n).not.toBeNull();
       if (n.endsWith('-talk')) expect(frames?.talk, n).toBeTruthy();
+      if (n.endsWith('-half')) expect(frames?.half, n).toBeTruthy();
       if (n.endsWith('-blink')) expect(frames?.blink, n).toBeTruthy();
     }
     expect(CUSTOM_KEYS.every((k) => lookFromKey(k) !== null)).toBe(true);

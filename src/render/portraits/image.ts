@@ -17,7 +17,7 @@ import { radioFeed, selectionFrame } from './overlays';
 
 export interface ImagePortraitState {
   t: number;
-  /** 0 … 1 from the speech box; the talk frame shows while it is open. */
+  /** The speech box's mouth value: 0 closed, 0.5 half, 1 open (doc 06). */
   mouth: number;
   /** Per-character phase for blink and breathing. */
   seed: number;
@@ -140,8 +140,8 @@ export function drawPlaceholder(ctx: CanvasRenderingContext2D, box: Rect, s: { t
 
 /** The frame to show now (falling back to the base image while a talk / blink frame still loads). */
 function frameUrl(f: FrameSet, s: ImagePortraitState): string {
-  const which = portraitFrame(s.t, s.mouth, s.seed, { talk: f.talk !== undefined, blink: f.blink !== undefined });
-  const url = which === 'talk' ? f.talk : which === 'blink' ? f.blink : f.base;
+  const which = portraitFrame(s.t, s.mouth, s.seed, { talk: f.talk !== undefined, half: f.half !== undefined, blink: f.blink !== undefined });
+  const url = which === 'talk' ? f.talk : which === 'half' ? f.half : which === 'blink' ? f.blink : f.base;
   return url !== undefined && ready(image(url)) ? url : f.base;
 }
 

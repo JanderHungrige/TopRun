@@ -124,8 +124,13 @@ None.
 
 - **Typewriter**: `typewriter(text, elapsed, cps = 34)` returns the visible prefix; never splits a
   `{param}` (params are substituted before typing). `lineDuration(text) = max(1.8, len / cps + 1.4)`.
-- **Mouth**: `mouthOpen(t, talking)` is 0 when not talking, otherwise a deterministic syllable
-  pattern in [0, 1] (~9 syllables/s). A voice blip plays on each syllable start while typing
+- **Mouth** (owner 2026-10-26: "very fast, unnatural" → classic pixel-game lip flap): the mouth value is
+  one of three shapes — 0 closed, 0.5 half, 1 open — held for at least `MOUTH_HOLD` = 0.15 s (≤ ~7
+  changes/s). In the speech box it follows the text being typed (`mouthFromText(text, t)`): the letter
+  typed at the start of each hold decides — vowel → open, other letter → half, space / punctuation /
+  end of text → closed, so the mouth pauses at commas and stops when the text stops. Scenes without the
+  text (minigame banter boxes) use `mouthOpen(t, talking)`: the same holds, a deterministic non-repeating
+  open / half / closed sequence. A voice blip plays on each syllable start while typing
   (not on spaces/punctuation); radio speakers use `radioVoice` and a `radioClick` at open/close.
 - **Advance**: a line auto-advances after it has fully typed and been held 1.6 s. Clicking/tapping
   the bubble completes the typing, a second tap skips to the next line. Speech never steals

@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect } from 'vitest';
-import { lineDuration, mouthOpen, pickVariant, typewriter } from '../../src/game/dialogue';
+import { lineDuration, MOUTH_HOLD, mouthFromText, mouthOpen, pickVariant, typewriter } from '../../src/game/dialogue';
 import {
   CHIEF_EVENTS, debriefScript, SHOOTER_EVENTS, WINGMAN_EVENTS, wingmanStart, type DebriefInput,
 } from '../../src/game/dialogue-scripts';
@@ -44,18 +44,38 @@ describe('Dialogue', () => {
     });
   });
 
-  describe('mouthOpen', () => {
-    it('is 0 when silent and stays within 0..1 while talking', () => {
-      let max = 0;
-      for (let i = 0; i < 400; i++) {
-        const t = i / 97;
-        expect(mouthOpen(t, false)).toBe(0);
-        const v = mouthOpen(t, true);
-        expect(v).toBeGreaterThanOrEqual(0);
-        expect(v).toBeLessThanOrEqual(1);
-        max = Math.max(max, v);
+  describe('mouth', () => {
+    const at = (k: number, edge = 0.5): number => (k + edge) * MOUTH_HOLD; // a moment inside hold k
+    const SHAPES = [0, 0.5, 1];
+
+    it('follows the typed text: vowel-rich bits open, punctuation and the end close', () => {
+      expect(mouthFromText('Hello, pilot.', at(0))).toBe(1); // "Hello"
+      expect(mouthFromText('Hello, pilot.', at(1))).toBe(0); // ", pil" — the comma pauses
+      expect(mouthFromText('Hello, pilot.', at(2))).toBe(0); // "ot." — the full stop
+      expect(mouthFromText('Hello, pilot.', at(3))).toBe(0); // typed out: closed
+      expect(mouthFromText('Brrr', at(0))).toBe(0); // no vowel: closed
+      expect(mouthFromText('Grab it', at(0))).toBe(0.5); // one vowel: half
+    });
+
+    it('holds each shape for a whole hold and never shows the same open shape twice in a row', () => {
+      const text = 'Banana banana banana, all the way home';
+      for (let k = 0; k < 8; k++) {
+        const v = mouthFromText(text, at(k, 0.02));
+        expect(SHAPES).toContain(v);
+        expect(mouthFromText(text, at(k, 0.98))).toBe(v);
+        if (k > 0 && v > 0) expect(mouthFromText(text, at(k - 1))).not.toBe(v);
       }
-      expect(max).toBeGreaterThan(0.5);
+    });
+
+    it('without the text: closed when silent, otherwise a held, never-repeating flap', () => {
+      for (let k = 0; k < 40; k++) {
+        expect(mouthOpen(at(k), false)).toBe(0);
+        const v = mouthOpen(at(k, 0.02), true);
+        expect(SHAPES).toContain(v);
+        expect(mouthOpen(at(k, 0.98), true)).toBe(v);
+        if (k > 0) expect(mouthOpen(at(k - 1), true)).not.toBe(v);
+      }
+      expect(1 / MOUTH_HOLD).toBeLessThanOrEqual(7); // at most ~7 mouth changes a second
     });
   });
 

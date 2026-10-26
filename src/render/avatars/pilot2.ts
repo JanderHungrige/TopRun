@@ -1,72 +1,71 @@
 import { PAL, type Ramp } from '../pixel/palette';
 import { path } from '../pixel/path';
 import type { Mask, Pix } from '../pixel/raster';
-import { brows, eyes, mouth, nose, type Brows, type Eyes, type Mouth } from '../portraits/features';
-import { part } from '../portraits/hands';
-import { blush, D1, D2, face, L1, L2, piece, quadPts, shaded, type Face } from '../portraits/parts';
+import { D1, L2, quadPts } from '../portraits/parts';
 import type { Rig } from '../portraits/types';
-import { flightSuit, freckles, moods, roundPatch, type AvatarArt, type HairArt } from './kit';
+import { clumps, hairPiece, sheen } from './hair-kit';
+import { drawFace, KID_HEAD, type FaceArt } from './head';
+import { flightSuit, moods, roundPatch, type AvatarArt, type HairArt } from './kit';
+import { FOUR, litPiece } from './light';
 import { SKIES } from './skies';
 
 /**
- * Pilot 2 in pixel art (doc 08 / 29): long, sun-bleached blond hair parted near the centre, close round the face
- * and wavy past the shoulders; a longer face with a slightly pointed chin; a dense band of freckles; smiling,
- * slightly narrowed blue-grey eyes and a wide closed-lip smile. Navy suit with a guitar patch. Blue-sky day.
+ * Pilot 2 (doc 08 / 29): long, sun-bleached blond hair parted just left of centre, close round the face and wavy
+ * past the shoulders; a longer face with a slightly pointed chin; subtle freckles over nose and cheeks; blue-grey
+ * eyes narrowed by a confident half-smile. Navy suit with a guitar patch, a helmet in hand. Blue-sky day.
  */
 
 const SKIN = PAL.skinPale;
 const HAIR = PAL.hairBlond;
-const FACE: Face = { w: 18.4, jaw: 12, top: 26, chin: 75.4 };
-const EYES: Eyes = { x: 7.8, y: 52.8, rx: 4.1, ry: 3.1, iris: PAL.irisGrey };
-const BROWS: Brows = { x0: 3.2, x1: 12.2, y: 46.4, th: 1.4, color: HAIR[2] ?? 0 };
-const MOUTH: Mouth = { y: 67.2, w: 6.4, lower: PAL.rose[3] ?? 0 };
-const PART = -2.6;
+const PART = -1.6;
+
+const FACE: FaceArt = {
+  head: { ...KID_HEAD, cheek: 15, jaw: 11.6, jawY: 57.6, chin: 4.8, chinY: 67 },
+  skin: SKIN,
+  eye: { x: 7.4, y: 43.6, w: 6.6, h: 2.7, iris: PAL.irisGrey, lid: PAL.hairChestnut[1] ?? 0 },
+  brow: { x0: 3, x1: 11.4, y: 38.6, th: 1.1, color: HAIR[2] ?? 0, attitude: 0.3 },
+  nose: { y0: 43, tip: 52.2, w: 2.2 },
+  mouth: { y: 59, w: 5, line: SKIN[1] ?? 0, upper: SKIN[2] ?? 0, lower: PAL.rose[3] ?? 0, smirk: 0.9 },
+  warmth: { tint: PAL.skinRuddy[4] ?? 0, level: 0.7 },
+  freckles: { tones: [SKIN[D1] ?? 0, PAL.skinTan[3] ?? 0], density: 0.2 },
+};
 
 /** Left lock: from the parting down past the shoulder, in front of the suit, wavy at the ends. */
 function leftLock(p: Pix, h: Ramp): Mask {
-  return piece(p, path().move(PART, 15.4).cubic(-13.4, 14.4, -22.6, 22, -23.2, 40).cubic(-24, 58, -23.2, 80, -27.4, 103)
-    .lines([-24.6, 99.8, -23.2, 105.6, -20.6, 99.4, -18.4, 103.6, -17, 97.4]).cubic(-16.4, 82, -17.6, 62, -16.4, 48)
-    .cubic(-15.4, 35, -9.6, 27, PART, 25).close(), h, [-27, 72, 5, 34], [-14, 22, 3, 3]);
+  return hairPiece(p, path().move(PART, 12.4).cubic(-12, 12, -20, 19, -20.4, 34).cubic(-21, 52, -20.6, 76, -24, 100)
+    .lines([-21.4, 97, -20.2, 102.4, -17.8, 96.6, -15.8, 100.4, -14.4, 94.6]).cubic(-14, 80, -15.6, 60, -14.4, 44)
+    .cubic(-13.8, 32, -8.6, 23.6, PART, 21.6).close(), h);
 }
 
 /** Right lock: resting on the shoulder, so the name tape stays visible. */
 function rightLock(p: Pix, h: Ramp): Mask {
-  return piece(p, path().move(PART, 15.4).cubic(9.6, 14.4, 21.6, 22, 22.6, 40).cubic(23.4, 58, 24.2, 74, 29, 91)
-    .lines([25.6, 89.4, 24.2, 94.6, 21.4, 88.8, 19.2, 92.2, 18, 86.6]).cubic(17, 74, 17.8, 60, 16.6, 48)
-    .cubic(15.6, 35, 9.4, 27, PART, 25).close(), h, [28, 66, 6, 30], [6, 18, 4, 2]);
+  return hairPiece(p, path().move(PART, 12.4).cubic(9, 12, 19, 19, 19.8, 34).cubic(20.4, 50, 21, 70, 25.4, 86)
+    .lines([22.4, 84.4, 21, 89.4, 18.6, 84, 16.6, 87, 15.4, 82]).cubic(14.8, 70, 15.6, 58, 14.2, 44)
+    .cubic(13.6, 32, 8.4, 23.6, PART, 21.6).close(), h);
 }
 
 function longFront(p: Pix, h: Ramp): void {
   const l = leftLock(p, h);
   const rl = rightLock(p, h);
-  p.line(PART, 16.2, PART, 24.4, h[D1] ?? 0);
-  if (p.k < 0.6) return;
-  for (const m of [l, rl]) p.paint(p.oval(PART, 17.4, 11, 2.2), h[L2] ?? 0, m); // sun-bleached crown
-  p.paint(p.thick(quadPts([-6, 18, -19, 22, -20.4, 46]).concat([-21.4, 96]), 0), h[L1] ?? 0, l);
-  p.paint(p.thick(quadPts([3, 18, 17, 22, 19.6, 46]).concat([22.4, 84]), 0), h[L1] ?? 0, rl);
-  p.line(-18.6, 52, -19.4, 98, h[D1] ?? 0, l);
-  p.line(19, 54, 21, 86, h[D1] ?? 0, rl);
-  p.line(-22, 80, -24.4, 100, h[D2] ?? 0, l); // darker under-layers near the ends
-  p.line(23, 72, 26.2, 88, h[D2] ?? 0, rl);
+  p.line(PART, 13.2, PART, 21.4, h[D1] ?? 0);
+  sheen(p, l, h, [PART - 1, 15, -11, 15.4, -17, 24]);
+  sheen(p, rl, h, [PART + 1, 14.6, 9, 14.4, 15, 21], 1);
+  clumps(p, l, h, [[-8, 17, -16.6, 26, -17.6, 48], [-17.6, 50, -18.4, 76, -21.4, 96], [-15.2, 60, -16, 80, -16.6, 96]],
+    [[-6, 16, -14, 22, -16, 40], [-19.4, 44, -19.6, 70, -22, 92]]);
+  clumps(p, rl, h, [[4, 16, 15, 24, 16.8, 46], [17, 48, 18, 66, 21.6, 82]], [[3, 15.4, 12, 18, 14.6, 30]]);
 }
 
 /** Long straight hair of pilot 2 in any colour (also the builder's "long"). */
 export const LONG: HairArt = {
   behind: (p, h) => {
-    shaded(p, path().move(-25.5, 108).cubic(-28.5, 80, -28.5, 28, -14, 14.5).cubic(-5, 7, 9, 7, 17, 14.5)
-      .cubic(28.5, 28, 28.5, 80, 25.5, 108).close(), h, [30, 60, 8, 40]);
+    hairPiece(p, path().move(-22.5, 106).cubic(-25.6, 80, -25.6, 24, -13, 13.6).cubic(-5, 9.6, 8, 9.6, 15, 13.6)
+      .cubic(25.6, 24, 25.6, 80, 22.5, 106).close(), h, { cx: -4, cy: 50, rx: 30, ry: 60, flat: 1.1 });
   },
   front: longFront,
 };
 
 function head(p: Pix, r: Rig): void {
-  const fm = face(p, SKIN, FACE, r);
-  blush(p, 11.4, 61.2, 3.8, 2.2, PAL.rose[3] ?? 0, fm, 0.5);
-  freckles(p, fm, [SKIN[D1] ?? 0, PAL.skinTan[3] ?? 0], 0.3, 57.8);
-  eyes(p, r, EYES, SKIN);
-  brows(p, r, BROWS);
-  nose(p, SKIN, 55.2, 61.2, 2.6);
-  mouth(p, r, MOUTH, SKIN);
+  drawFace(p, r, FACE);
   LONG.front(p, HAIR, SKIN);
 }
 
@@ -83,28 +82,27 @@ function body(p: Pix): void {
   guitarPatch(p);
 }
 
-/** A white flight helmet with a sky-blue stripe, held at the side in a gloved hand. */
+/** A white flight helmet with a sky-blue stripe and a dark visor, held at the side in a gloved hand. */
 export function helmet(p: Pix): void {
   const c = Math.cos(-0.2);
   const s = Math.sin(-0.2);
-  const at = (u: number, v: number): [number, number] => [-36 + u * c - v * s, 109 + u * s + v * c];
-  const shell = p.oval(-36, 109, 12, 12);
-  part(p, shell, PAL.white, p.oval(...at(9, 7), 8, 13, -0.2));
+  const at = (u: number, v: number): [number, number] => [-38 + u * c - v * s, 110 + u * s + v * c];
+  const shell = litPiece(p, p.oval(-38, 110, 12, 12), PAL.white, { cx: -41, cy: 106, rx: 13, ry: 13 }, { tones: FOUR, lo: -0.4 });
   p.paint(p.thick(quadPts([...at(-10.4, -1), ...at(0, -14.6), ...at(10.4, -1)]), 1.3), PAL.blue[4] ?? 0, shell);
-  const visor = p.oval(...at(5.6, 3.2), 6.2, 5.2, 0);
-  p.paint(visor, PAL.glass[2] ?? 0, shell);
-  p.paint(p.oval(...at(3.6, 1.2), 2, 1.1, -0.4), PAL.glass[6] ?? 0, visor);
+  const visor = litPiece(p, p.oval(...at(5.6, 3.2), 6.2, 5.2, 0), PAL.glass, { cx: -34, cy: 110, rx: 7, ry: 6 }, { tones: [1, 2, 3, 5] });
+  p.paint(p.oval(...at(3.4, 1), 1.6, 0.8, -0.4), PAL.glass[6] ?? 0, visor);
   for (let i = 0; i < 3; i++) {
-    const f = p.shape(path().rect(-29.6 + i * 2.7, 116.4 + i * 0.6, 2.6, 6));
-    part(p, f, PAL.glove, p.blank());
+    const f = p.shape(path().rect(-31.6 + i * 2.7, 117.4 + i * 0.6, 2.6, 6));
+    litPiece(p, f, PAL.glove, { cx: -31 + i * 2.7, cy: 118, rx: 2.4, ry: 5 }, { tones: FOUR });
   }
-  p.paint(p.oval(...at(-6, -6), 2, 1.2, -0.6), PAL.white[L2] ?? 0, shell);
+  p.paint(p.oval(...at(-6, -6), 2, 1.1, -0.6), PAL.white[L2] ?? 0, shell);
 }
 
 export const PILOT2: AvatarArt = {
   sky: SKIES.day,
-  moods: moods(1.1, { squint: 0.12, hood: -0.05 }),
+  moods: moods(0.9, { squint: 0.12, hood: -0.04 }),
   body,
   head,
   front: helmet,
+  face: FACE,
 };

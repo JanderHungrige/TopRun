@@ -23,6 +23,9 @@ export interface Sky {
   deck?: Ramp;
   /** A few fixed stars (night). */
   stars?: boolean;
+  /** The rim light the sun (or moon) puts on the figure's edges (doc 29): its side, whether it is high enough to
+   *  light the top edges too, and how many ramp steps it lightens. */
+  rim: { side: -1 | 1; top: boolean; steps: number };
 }
 
 const at = (r: Ramp, ...i: number[]): number[] => i.map((n) => r[n] ?? 0);
@@ -30,19 +33,19 @@ const at = (r: Ramp, ...i: number[]): number[] => i.map((n) => r[n] ?? 0);
 export const SKIES: Readonly<Record<SkyId, Sky>> = {
   dawn: {
     grad: at(PAL.dawn, 1, 2, 3, 4, 5), ramp: PAL.dawn, sea: PAL.seaDawn, sun: PAL.dawn[6] ?? 0, cloud: PAL.dawn[4] ?? 0,
-    sunX: -30, sunY: 74, sunR: 7, island: 1,
+    sunX: -30, sunY: 74, sunR: 7, island: 1, rim: { side: -1, top: false, steps: 2 },
   },
   day: {
     grad: at(PAL.sky, 2, 3, 4, 5, 6), ramp: PAL.sky, sea: PAL.sea, sun: PAL.sky[7] ?? 0, cloud: PAL.white[3] ?? 0,
-    sunX: 34, sunY: 14, sunR: 5, island: -1,
+    sunX: 34, sunY: 14, sunR: 5, island: -1, rim: { side: 1, top: true, steps: 2 },
   },
   sunset: {
     grad: at(PAL.dusk, 1, 2, 3, 4, 5), ramp: PAL.dusk, sea: PAL.seaDusk, sun: PAL.lamp[3] ?? 0, cloud: PAL.dusk[4] ?? 0,
-    sunX: 30, sunY: 76, sunR: 9, island: -1,
+    sunX: 30, sunY: 76, sunR: 9, island: -1, rim: { side: 1, top: false, steps: 2 },
   },
   night: {
     grad: at(PAL.night, 1, 2, 3, 4, 5), ramp: PAL.night, sea: PAL.seaNight, sun: PAL.white[3] ?? 0, cloud: PAL.night[5] ?? 0,
-    sunX: -28, sunY: 20, sunR: 4.6, island: 1, deck: PAL.wall, stars: true,
+    sunX: -28, sunY: 20, sunR: 4.6, island: 1, deck: PAL.wall, stars: true, rim: { side: -1, top: true, steps: 1 },
   },
 };
 

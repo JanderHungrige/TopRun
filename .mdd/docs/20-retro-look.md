@@ -69,6 +69,25 @@ sister_projects: []
 > The three pilot avatars were redrawn closer to the reference photos (pilot 3 tilted); the avatar skies live in
 > `src/render/avatars/skies.ts`; custom looks are composed in `src/render/avatars/custom.ts` (doc 29).
 
+> **Avatar style rule (owner feedback 2026-10-25, applies to the pilot avatars — presets and builder, doc 29):**
+> "The proportions look off. Way too long heads … more anime-like … They all look cute. But TopGun is a cool genre.
+> They are kids, and that can show, but less Pippi Langstrumpf, more Monkey Island 1 (not literally that pixelated)."
+> The avatars are therefore drawn as **normal faces in pixel style**, like the close-up character portraits of
+> early-90s VGA adventure games — style inspiration only, all art original:
+>
+> - **Proportions:** realistic heads, ≈ 3:4 width:height including hair volume; eyes at about the vertical middle of
+>   the head; a real forehead, cheekbones, a defined (softer, rounder for kids) jaw and chin; a visible neck and
+>   shoulders that fit the head (shoulders ≈ 2.4× the head width — no bobble-heads). Kids read as kids through softer
+>   features and a slightly larger cranium, not through big eyes.
+> - **Faces:** small realistic eyes (whites, iris, pupil, a dark upper lid line, a lower lid and a crease — no
+>   sparkle catch-lights), brows with a little attitude, a modelled nose (bridge highlight, shadow side, nostril hint,
+>   cast shadow), natural lips, cheek colour only as a faint dithered warmth, subtle freckles.
+> - **Rendering:** one key light from the upper left, every material shaded in 3–5 tones of its ramp as volumes
+>   (`src/render/avatars/light.ts`: lit ellipsoids with ordered-dither seams between bands), a rim light from the
+>   background's sun/moon side, dark outlines only on the silhouette (post.ts) and where forms overlap.
+> - **Mood:** cool and confident — steady gaze, half-smile, slight brow attitude — not cute.
+> - Same hi-res art grid (≈ 100 × 120 art px at k = 1); the NPC portraits and people-kit figures are unchanged.
+
 ## Purpose
 
 Owner feedback (2026-10-25): the arcade parts (jets, missions, carrier, HUD) are good; the

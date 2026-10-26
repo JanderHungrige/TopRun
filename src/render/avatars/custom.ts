@@ -1,13 +1,13 @@
 import type { AvatarLook, Cheeks, EyeColor, Freckles, HairColor, HairStyle, SkinTone, SuitColor } from '../../game/avatar-look';
 import { PAL, type Ramp } from '../pixel/palette';
-import type { Mask, Pix } from '../pixel/raster';
-import { brows, eyes, mouth, nose, type Brows, type Eyes, type Mouth } from '../portraits/features';
-import { blush, D1, D2, face, type Face } from '../portraits/parts';
+import type { Pix } from '../pixel/raster';
+import { D1, D2 } from '../portraits/parts';
 import type { Rig } from '../portraits/types';
 import { accessory, accessoryFront, glasses, starPatch } from './extras';
 import { CROP, BUZZ, PONYTAIL, SIDE_PART } from './hair';
 import { BRAIDS, BUN, CURLY } from './hair-more';
-import { flightSuit, freckles, moods, type AvatarArt, type HairArt } from './kit';
+import { drawFace, KID_HEAD, type FaceArt } from './head';
+import { flightSuit, moods, type AvatarArt, type HairArt } from './kit';
 import { BOB } from './pilot1';
 import { LONG } from './pilot2';
 import { MOP } from './pilot3';
@@ -15,13 +15,18 @@ import { SKIES } from './skies';
 
 /**
  * A pilot avatar composed from the builder's parts (doc 29): sky, flight suit in the chosen colour, hair back and
- * front layers, face, freckles, cheeks, eyes, brows, nose, mouth, glasses and a neck accessory — the same pieces,
- * frame, moods and animation frames as the hand-drawn presets.
+ * front layers, the realistic face (head.ts) with its eyes, brows, nose, mouth, warmth and freckles, glasses and a
+ * neck accessory — the same pieces, frame, moods and animation frames as the hand-drawn presets.
  */
 
 const SKIN: Readonly<Record<SkinTone, Ramp>> = {
   pale: PAL.skinPale, light: PAL.skinLight, ruddy: PAL.skinRuddy, tan: PAL.skinTan,
   olive: PAL.skinOlive, brown: PAL.skinBrown, deep: PAL.skinDeep, ebony: PAL.skinEbony,
+};
+/** A slightly warmer tone of each skin for the cheeks' faint warmth (only replaces the mid tone). */
+const WARM: Readonly<Record<SkinTone, number>> = {
+  pale: PAL.skinRuddy[4] ?? 0, light: PAL.rose[3] ?? 0, ruddy: PAL.rose[2] ?? 0, tan: PAL.skinRuddy[3] ?? 0,
+  olive: PAL.skinRuddy[3] ?? 0, brown: PAL.skinRuddy[2] ?? 0, deep: PAL.skinRuddy[1] ?? 0, ebony: PAL.skinDeep[2] ?? 0,
 };
 const HAIR: Readonly<Record<HairColor, Ramp>> = {
   black: PAL.hairBlack, darkBrown: PAL.hairDarkBrown, brown: PAL.hairBrown, chestnut: PAL.hairChestnut, auburn: PAL.hairAuburn,
@@ -41,54 +46,49 @@ const STYLE: Readonly<Record<HairStyle, HairArt>> = {
 const LIGHT_HAIR: ReadonlySet<HairColor> = new Set(['strawberry', 'ginger', 'golden', 'blond', 'platinum', 'silver']);
 const DARK_SKIN: ReadonlySet<SkinTone> = new Set(['brown', 'deep', 'ebony']);
 
-const FACE: Face = { w: 18.4, jaw: 12.6, top: 26, chin: 74.2 };
-const EYE_AT = { x: 7.8, y: 52.6 } as const;
-const BROW: Omit<Brows, 'color'> = { x0: 3.2, x1: 12.2, y: 45.8, th: 1.7 };
-const MOODS = moods(0.5);
+const CHEEK_LEVEL: Readonly<Record<Cheeks, number>> = { none: 0, soft: 0.6, rosy: 1.15 };
+const FRECKLE_DENSITY: Readonly<Record<Freckles, number>> = { none: 0, some: 0.1, many: 0.2 };
+const MOODS = moods(0.5, { hood: 0.04 });
 
 export const suitRamp = (s: SuitColor): Ramp => SUIT[s];
 export const skinRamp = (s: SkinTone): Ramp => SKIN[s];
 export const hairRamp = (h: HairColor): Ramp => HAIR[h];
 export const eyeRamp = (e: EyeColor): Ramp => IRIS[e];
 
-/** Cheek tint and dither level per option; darker skins get a deeper rose so it still shows. */
-function cheeks(p: Pix, c: Cheeks, skin: SkinTone, clip: Mask): void {
-  if (c === 'none') return;
-  const deep = DARK_SKIN.has(skin);
-  const tint = (deep ? PAL.rose[1] : c === 'rosy' ? PAL.rose[2] : PAL.rose[3]) ?? 0;
-  const level = c === 'rosy' ? 0.62 : deep ? 0.3 : 0.4;
-  blush(p, 11.4, 60.8, c === 'rosy' ? 4.4 : 3.6, c === 'rosy' ? 2.8 : 2.2, tint, clip, level);
-}
-
-const FRECKLE_DENSITY: Readonly<Record<Freckles, number>> = { none: 0, some: 0.14, many: 0.3 };
-
 function lowerLip(skin: SkinTone): number {
   if (DARK_SKIN.has(skin)) return PAL.mouth[3] ?? 0;
   return (skin === 'tan' || skin === 'olive' ? PAL.rose[2] : PAL.rose[3]) ?? 0;
 }
 
-function head(look: AvatarLook, p: Pix, r: Rig): void {
+/** The face of a look: the shared kid head with the chosen skin, eyes, brows, cheeks and freckles. */
+function faceOf(look: AvatarLook): FaceArt {
   const s = SKIN[look.skin];
   const h = HAIR[look.hairColor];
+  const dark = DARK_SKIN.has(look.skin);
+  return {
+    head: KID_HEAD,
+    skin: s,
+    eye: { x: 7.5, y: 43.6, w: 6.6, h: 2.5, iris: IRIS[look.eyes], lid: (dark ? PAL.hairBlack[1] : PAL.hairBrown[1]) ?? 0 },
+    brow: { x0: 3, x1: 11.4, y: 38.6, th: 1.3, color: h[LIGHT_HAIR.has(look.hairColor) ? 2 : 1] ?? 0, attitude: 0.3 },
+    nose: { y0: 43.2, tip: 52, w: 2.1 },
+    mouth: { y: 58.6, w: 4.8, line: s[D2] ?? 0, upper: s[D1] ?? 0, lower: lowerLip(look.skin), smirk: 0.6 },
+    warmth: { tint: WARM[look.skin], level: CHEEK_LEVEL[look.cheeks] },
+    freckles: { tones: [s[D1] ?? 0, (dark ? s[D2] : PAL.skinTan[3]) ?? 0], density: FRECKLE_DENSITY[look.freckles] },
+  };
+}
+
+function head(look: AvatarLook, face: FaceArt, p: Pix, r: Rig): void {
   const style = STYLE[look.hair];
-  style.back?.(p, h, s);
-  const fm = face(p, s, FACE, r);
-  cheeks(p, look.cheeks, look.skin, fm);
-  freckles(p, fm, [s[D1] ?? 0, (DARK_SKIN.has(look.skin) ? s[D2] : PAL.skinTan[3]) ?? 0], FRECKLE_DENSITY[look.freckles]);
-  const e: Eyes = { ...EYE_AT, rx: 4.2, ry: 3.2, iris: IRIS[look.eyes], irisW: 0.52 };
-  eyes(p, r, e, s);
-  nose(p, s, 55.4, 60.6, 2.4);
-  const m: Mouth = { y: 66.6, w: 5.4, lower: lowerLip(look.skin) };
-  mouth(p, r, m, s);
-  style.front(p, h, s);
-  glasses(p, look.glasses, EYE_AT.x, EYE_AT.y);
-  brows(p, r, { ...BROW, color: h[LIGHT_HAIR.has(look.hairColor) ? 2 : 1] ?? 0 });
+  const h = HAIR[look.hairColor];
+  style.back?.(p, h, face.skin);
+  drawFace(p, r, face);
+  style.front(p, h, face.skin);
+  glasses(p, look.glasses, face.eye.x, face.eye.y);
 }
 
 function body(look: AvatarLook, p: Pix, r: Rig): void {
-  const s = SKIN[look.skin];
   STYLE[look.hair].behind?.(p, HAIR[look.hairColor]);
-  flightSuit(p, { ramp: SUIT[look.suit], tee: PAL.white[3] ?? 0 }, s);
+  flightSuit(p, { ramp: SUIT[look.suit], tee: PAL.white[3] ?? 0 }, SKIN[look.skin]);
   starPatch(p);
   accessory(p, look.accessory, r);
 }
@@ -96,11 +96,13 @@ function body(look: AvatarLook, p: Pix, r: Rig): void {
 /** The bust art of a look (index.ts memoises it by lookKey). */
 export function customArt(look: AvatarLook): AvatarArt {
   const front = accessoryFront(look.accessory);
+  const face = faceOf(look);
   return {
     sky: SKIES[look.sky],
     moods: MOODS,
     body: (p, r) => body(look, p, r),
-    head: (p, r) => head(look, p, r),
+    head: (p, r) => head(look, face, p, r),
     front: front ? (p) => front(p) : undefined,
+    face,
   };
 }

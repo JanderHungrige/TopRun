@@ -65,7 +65,7 @@ const RAMPS = {
   skinEbony: ['#120804', '#28140a', '#3c2212', '#52321e', '#6c472d', '#8a6044'],
   hairDarkBrown: ['#0c0705', '#1a100a', '#28180f', '#3a2416', '#563a24', '#765236'],
   hairAuburn: ['#260a06', '#4e160c', '#742814', '#9a3c1e', '#bc5a30', '#d8804e'],
-  hairStrawberry: ['#341a0e', '#683c22', '#946036', '#bc8652', '#d8a872', '#eccb98'],
+  hairStrawberry: ['#2e160c', '#5e3620', '#885832', '#ad7849', '#cb9864', '#e3ba88'],
   hairPlatinum: ['#4e4636', '#9a8e70', '#c6bc9c', '#e8e0c4', '#f8f3e2', '#fffdf6'],
   hairBlue: ['#0a1230', '#1a2c6a', '#2a48a2', '#4470d0', '#74a0ea', '#aecdf8'],
   hairPink: ['#360a22', '#701c4c', '#a43274', '#d25c9e', '#ec8ec0', '#fac2de'],
@@ -86,14 +86,22 @@ function rgb(hex: string): [number, number, number] {
 
 const hexes: string[] = ['#000000'];
 const inkOf: number[] = [0];
+const lastOf: number[] = [0];
 const ramps = {} as Record<RampName, Ramp>;
 for (const name of Object.keys(RAMPS) as RampName[]) {
   const first = hexes.length;
   ramps[name] = RAMPS[name].map((h, i) => {
     hexes.push(h);
     inkOf.push(i === 0 ? (name === 'ink' ? first : 1) : first);
+    lastOf.push(first + RAMPS[name].length - 1);
     return first + i;
   });
+}
+
+/** The same colour `steps` lighter along its own ramp (rim light, doc 29); the ink and transparency stay. */
+export function lighter(i: number, steps = 1): number {
+  if (i <= 0 || inkOf[i] === i) return i;
+  return Math.min(lastOf[i] ?? i, i + steps);
 }
 
 /** Every ramp as palette indices. */

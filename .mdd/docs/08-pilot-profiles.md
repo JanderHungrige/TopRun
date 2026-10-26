@@ -12,6 +12,10 @@ source_files:
   - src/scenes/pilot-code.ts
   - src/game/pilot-code.ts
   - src/core/persist.ts
+  - src/game/pilot-card.ts
+  - src/render/pilot-card.ts
+  - src/scenes/pilot-card-data.ts
+  - src/ui/file-io.ts
   - src/ui/text-field.ts
   - src/ui/text-area.ts
   - src/game/settings.ts
@@ -27,6 +31,7 @@ models:
 test_files:
   - tests/unit/profiles.test.ts
   - tests/unit/pilot-code.test.ts
+  - tests/unit/pilot-card.test.ts
   - tests/unit/settings.test.ts
   - tests/unit/pixel-cast.test.ts
 data_flow: writes-existing
@@ -175,11 +180,19 @@ Saves live only in this browser's localStorage, per site address. They vanish in
 - **Screen** PILOT CODE (route `pilotCode`), reachable from the pilot list (a PILOT CODE button, key **R**)
   and from NEW PILOT (a PILOT CODE button) so a fresh device can restore before any pilot exists; BACK
   returns where it came from. Left, **back up**: ◀ pilot ▶, the code in a read-only text box, COPY CODE (clipboard; if the
-  browser refuses, the text is selected for ⌘C / Ctrl+C) and SAVE FILE (`topgun-<callsign>.txt` with a
-  one-line how-to and the code). Right, **restore**: a text box to paste into, LOAD CODE, OPEN FILE (a
-  `.txt` picked with the browser's file dialog). Status line for copied / saved / restored / errors.
-- The code is a key to that pilot: anyone with it can play on and post to the ladder as them. The screen
-  says so in one line; the code holds no personal data beyond the callsign.
+  browser refuses, the text is selected for ⌘C / Ctrl+C) and SAVE CARD (the pilot ID card below). Right,
+  **restore**: a text box to paste into, LOAD CODE, OPEN FILE (a card `.png` or a `.txt` with a code, picked
+  with the browser's file dialog, at most 4 MB). Status line under the panel that caused it.
+- **Pilot ID card** (owner, 2026-10-26): SAVE CARD downloads `topgun-<callsign>.png`, a 720 × 432 card that
+  looks like a game collectible — header "TOPGUN · CARRIER STRIKE" / PILOT ID, the pixel portrait 1 : 1 in its
+  frame, callsign, rank board and name, rating, missions and stars, money, jet, up to nine earned medals (or
+  NO MEDALS YET), the issue date and a one-line how-to restore. The **pilot code rides inside the PNG** as a
+  `tEXt` chunk (keyword `TopGunPilotCode`, inserted before `IEND`; `src/game/pilot-card.ts`, pure, with CRC-32),
+  so OPEN FILE on the card restores the pilot. Apps that recompress shared photos (WhatsApp, some photo
+  shares) drop the chunk: the saved message says to share it as a file, not as a photo; COPY CODE stays the
+  robust way. The card is drawn by `src/render/pilot-card.ts` after the portrait image has loaded.
+- The code (and so the card) is a key to that pilot: anyone with it can play on and post to the ladder as
+  them. The screen says so in one line; it holds no personal data beyond the callsign.
 
 ## Data Flow
 

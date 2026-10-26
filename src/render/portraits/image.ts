@@ -46,6 +46,15 @@ export function preloadImages(urls: readonly string[]): void {
   for (const url of urls) image(url);
 }
 
+/** Resolves once these images have loaded or failed, so a one-off drawing (the pilot ID card) is complete. */
+export async function whenImagesReady(urls: readonly string[]): Promise<void> {
+  await Promise.all(urls.map((url) => {
+    const img = image(url);
+    if (img === null || (img.complete && img.naturalWidth > 0)) return undefined;
+    return img.decode().catch(() => undefined);
+  }));
+}
+
 interface Source { data: Uint8ClampedArray; w: number; h: number; pal: readonly Packed[] }
 const sources = new Map<string, Source>();
 

@@ -101,9 +101,3 @@ export async function decodePilotCode(text: string): Promise<DecodeResult> {
   return profile ? { ok: true, profile } : { ok: false, reason: 'invalid' };
 }
 
-/** The SAVE FILE download: `topgun-<callsign>.txt` with a one-line how-to (translated) above the code. */
-export function pilotCodeFile(p: Profile, code: string, howTo: string): { name: string; text: string } {
-  const slug = p.callsign.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  return { name: `topgun-${slug || 'pilot'}.txt`, text: `${howTo}\n${p.callsign}\n\n${code}\n` };
-}

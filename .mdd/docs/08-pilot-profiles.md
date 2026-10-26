@@ -76,7 +76,8 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > shading (eyes at mid-head, a real jaw, a neck and shoulders that fit) — doc 29 "Art style v2", rules in doc 20.
 
 > **Image portraits (2026-10-26, doc 33):** pilot1–3 are now the owner's generated pixel-art portraits
-> (`src/assets/portraits/pilot1–3.png`, ComfyUI "Top Gun pixel pilot portrait"); the builder picks a generated
+> (`src/assets/portraits/pilot1–3.png`, ComfyUI "Top Gun pixel pilot portrait"; a fourth, grown-up preset `pilot4`
+> drawn after the owner joined on 2026-10-26 — NEW PILOT shows five 240 × 288 cards 1:1 with 10 px gaps); the builder picks a generated
 > portrait by age, skin, hair colour and hair length (`SaveData.look` = that pick; old looks migrate on load).
 > `drawPilotAvatar` keeps its API; the procedural avatars are retired.
 

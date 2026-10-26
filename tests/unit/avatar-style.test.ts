@@ -37,7 +37,7 @@ const baseOf = (n: string): string => n.replace(/-(talk|half|blink)$/, '');
 describe('portrait images', () => {
   const entries = Object.entries(FILES);
 
-  it('ships the six fixed portraits', () => {
+  it('ships a portrait for the crew and every preset pilot', () => {
     for (const id of ['admiral', 'shooter', 'chief', ...AVATAR_IDS]) expect(fixedFrames(id)?.base, id).toBeTruthy();
   });
 

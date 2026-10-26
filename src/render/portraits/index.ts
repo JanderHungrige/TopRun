@@ -1,3 +1,4 @@
+import { AVATAR_IDS } from '../../game/profiles';
 import { fixedFrames, fixedUrls } from './assets';
 import { drawImagePortrait, drawPlaceholder, preloadImages } from './image';
 import type { Box, CharacterId, Gesture, Mood } from './types';
@@ -21,9 +22,9 @@ export interface PortraitState {
 const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6 };
 const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman'];
 
-/** Starts loading the portraits of the cast and of the three preset pilots (called once at boot). */
+/** Starts loading the portraits of the cast and of the preset pilots (called once at boot). */
 export function preloadPortraits(): void {
-  preloadImages(fixedUrls([...CAST, 'pilot1', 'pilot2', 'pilot3']));
+  preloadImages(fixedUrls([...CAST, ...AVATAR_IDS]));
 }
 
 /** Head-and-shoulders portrait filling the box (aspect ~5:6), bottom-aligned, clipped to the box. */

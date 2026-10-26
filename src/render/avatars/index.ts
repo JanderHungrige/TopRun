@@ -16,12 +16,12 @@ export interface AvatarState { t: number; mouth?: number; mood?: Mood; selected?
 export type PilotFace = AvatarId | AvatarLook;
 
 /** One accent colour per preset for UI (card borders, the ladder). */
-export const AVATAR_COLORS: Readonly<Record<AvatarId, string>> = { pilot1: '#f2a531', pilot2: '#4fb0e6', pilot3: '#e2574c' };
+export const AVATAR_COLORS: Readonly<Record<AvatarId, string>> = { pilot1: '#f2a531', pilot2: '#4fb0e6', pilot3: '#e2574c', pilot4: '#8fd16a' };
 /** A builder pick's accent, by hair colour. */
 const HAIR_ACCENT: Readonly<Record<HairColor, string>> = { black: '#8fa6c8', brown: '#c98f55', blond: '#f2c94c', red: '#e2683c' };
 
 /** Per-avatar phase so a row of portraits never blinks or bobs in sync. */
-const SEED: Readonly<Record<AvatarId, number>> = { pilot1: 5.7, pilot2: 6.9, pilot3: 8.2 };
+const SEED: Readonly<Record<AvatarId, number>> = { pilot1: 5.7, pilot2: 6.9, pilot3: 8.2, pilot4: 9.6 };
 
 /** The player's face for a profile: the builder pick if one was made, else the preset. */
 export const pilotFace = (p: { avatar: AvatarId; save: { look: AvatarLook | null } }): PilotFace => p.save.look ?? p.avatar;

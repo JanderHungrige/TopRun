@@ -44,6 +44,7 @@ export const PRESET_LOOKS: Readonly<Record<AvatarId, Readonly<AvatarLook>>> = Ob
   pilot1: { age: 'kid', gender: 'female', skin: 'fair', hair: 'blond', length: 'long' },
   pilot2: { age: 'kid', gender: 'female', skin: 'fair', hair: 'blond', length: 'long' },
   pilot3: { age: 'kid', gender: 'male', skin: 'fair', hair: 'red', length: 'short' },
+  pilot4: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'short' },
 });
 
 /** The preset a custom pilot is filed under (profile.avatar) where only presets exist, e.g. the ladder colour. */

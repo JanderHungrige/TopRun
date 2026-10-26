@@ -42,7 +42,7 @@ integration_contracts:
   - function: "drawPortrait(ctx, id, box, state) (doc 06)"
     when: "same API; admiral, shooter, chief and wingman draw their image"
   - function: "drawPilotAvatar(ctx, face, box, state) (doc 29)"
-    when: "same API; presets draw pilot1–3.png, a custom pick draws exactly custom/<age>-<skin>-<hair>-<length>.png (silhouette while that file is missing)"
+    when: "same API; presets draw pilot1–4.png, a custom pick draws exactly custom/<age>-<skin>-<hair>-<length>.png (silhouette while that file is missing)"
   - function: "GameContext.setSave(save)"
     when: "the builder stores the pick as save.look; nothing else persists it"
 satisfies_contracts: []
@@ -73,7 +73,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 
 | File | Use |
 |------|-----|
-| `pilot1.png`, `pilot2.png`, `pilot3.png` | the three preset pilots |
+| `pilot1.png` … `pilot4.png` | the four preset pilots (pilot4, the grown-up, added 2026-10-26 from the owner's own selfie with the owner's consent: cropped to 5:6 locally, 'Top Gun pixel pilot portrait' on the M1 with a 'preserve the man's real face' identity block; the photo stays out of the repo and is deleted from the ComfyUI input) |
 | `admiral.png` (+ `-talk`, `-half`) | the admiral — no blink frame (dark sunglasses) |
 | `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |
 | `chief.png` (+ `-talk`, `-half`, `-blink`) | the crew chief |

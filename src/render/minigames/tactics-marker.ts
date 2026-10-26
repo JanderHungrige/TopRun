@@ -1,10 +1,12 @@
 import type { Vec } from '../../core/math';
+import { FONT_TYPE } from '../text';
 
 // Dogfight Tactics (doc 19): whiteboard marker drawing — slightly wobbly strokes, arrowheads, hand-drawn
 // circles, handwriting and the jet glyph the instructor sketches.
 
 export const INK = { blue: '#1d5fc4', red: '#cf3229', black: '#26292f', green: '#1f8a52' } as const;
-export const MARKER_FONT = '"Marker Felt", "Chalkboard SE", "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive';
+/** The whiteboard lettering uses the game-wide typewriter face too (doc 20). */
+export const MARKER_FONT = FONT_TYPE;
 
 /** Deterministic noise in [−1, 1]. */
 export const wobble = (seed: number, i: number): number => {

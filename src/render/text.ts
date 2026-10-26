@@ -1,7 +1,8 @@
-export const FONT_DISPLAY = '"Arial Black", "Helvetica Neue", Arial, sans-serif';
-export const FONT_BODY = 'system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-/** Typewriter face for dialogue, briefings, debrief and minigame offer/rules lines (doc 20); system fonts only. */
+/** The typewriter face for all game text (doc 20, owner 2026-10-26); system fonts only. Only the title logo differs. */
 export const FONT_TYPE = '"American Typewriter", "Courier Prime", "Courier New", Courier, monospace';
+/** Headings and buttons: the same typewriter face, set bold. */
+export const FONT_DISPLAY = FONT_TYPE;
+export const FONT_BODY = FONT_TYPE;
 
 export const COLORS = Object.freeze({
   ink: '#e9eff5',
@@ -35,9 +36,9 @@ export interface TextOpts {
   type?: boolean;
 }
 
-export function setFont(ctx: CanvasRenderingContext2D, size: number, display = false, weight = 600, italic = false, type = false): void {
-  const family = display ? FONT_DISPLAY : type ? FONT_TYPE : FONT_BODY;
-  ctx.font = `${italic ? 'italic ' : ''}${display ? 900 : weight} ${size}px ${family}`;
+/** Everything is typewriter (doc 20): `display` sets it bold; italics are not used (a slanted typewriter looks cheap). */
+export function setFont(ctx: CanvasRenderingContext2D, size: number, display = false, weight = 600, _italic = false, _type = false): void {
+  ctx.font = `${display ? 700 : Math.min(weight, 700)} ${size}px ${FONT_TYPE}`;
 }
 
 export function text(ctx: CanvasRenderingContext2D, s: string, x: number, y: number, o: TextOpts = {}): void {

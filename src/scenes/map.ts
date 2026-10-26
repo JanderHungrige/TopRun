@@ -16,6 +16,8 @@ import { drawMapBase, drawNode, drawRoute } from './map-render';
 
 const PANEL = { x: 882, y: 76, w: 378, h: 628 };
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
+/** Left edge of the callsign and money in the top bar; the avatar sits just left of it. */
+const PILOT_X = 860;
 
 export class MapScene implements Scene {
   private t = 0;
@@ -108,13 +110,13 @@ export class MapScene implements Scene {
     text(ctx, t('map.progress', { done, stars: totalStars(s) }), 470, 44, { size: 15, color: COLORS.dim });
     const pilot = this.game.profile;
     if (pilot) {
-      drawPilotAvatar(ctx, pilotFace(pilot), { x: 882, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
-      text(ctx, pilot.callsign, 942, 32, { size: 17, display: true, italic: true, color: COLORS.gold, maxWidth: 196 });
+      drawPilotAvatar(ctx, pilotFace(pilot), { x: PILOT_X - 60, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
+      text(ctx, pilot.callsign, PILOT_X, 32, { size: 17, display: true, color: COLORS.gold, maxWidth: BASE_BTN.x - PILOT_X - 12 });
     }
-    text(ctx, formatMoney(s.money), 942, 60, { size: 20, display: true, color: COLORS.green });
+    text(ctx, formatMoney(s.money), PILOT_X, 60, { size: 20, display: true, color: COLORS.green, maxWidth: BASE_BTN.x - PILOT_X - 12 });
     drawButton(ctx, { id: 'title', label: t('map.menu'), x: 1150, y: 14, w: 110, h: 44 }, false, this.t);
     drawButton(ctx, { id: 'base', label: t('map.base'), ...BASE_BTN, hint: 'B' }, false, this.t);
-    if (campaignComplete(s)) text(ctx, t('map.campaignComplete'), 690, 44, { size: 15, color: COLORS.gold });
+    if (campaignComplete(s)) text(ctx, t('map.campaignComplete'), 470, 66, { size: 13, color: COLORS.gold, maxWidth: PILOT_X - 540 });
   }
 
   private renderBriefing(ctx: CanvasRenderingContext2D): void {

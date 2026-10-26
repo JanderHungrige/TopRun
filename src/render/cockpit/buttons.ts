@@ -1,4 +1,5 @@
 import type { Rect } from './layout';
+import { FONT_TYPE } from '../text';
 import { bevel, halo, legend, rr, screenText, screw } from './metal';
 
 /** Physical backlit push-buttons: a sunken housing in the plate cache, a live cap that lights by state. */
@@ -132,7 +133,7 @@ export function pauseButton(ctx: CanvasRenderingContext2D, r: Rect, label: strin
 export function keyCap(ctx: CanvasRenderingContext2D, r: Rect, key: string): void {
   if (!key) return;
   ctx.save();
-  ctx.font = '800 13px "Arial Black", "Helvetica Neue", Arial, sans-serif';
+  ctx.font = `700 13px ${FONT_TYPE}`;
   const w = Math.max(24, ctx.measureText(key).width + 12);
   const x = r.x + r.w - w - 3;
   const y = r.y + 3;

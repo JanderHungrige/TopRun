@@ -9,6 +9,7 @@ import type { SaveData } from '../game/save';
 import { drawPlaneTop } from '../render/draw-planes';
 import { drawPlaneSide } from '../render/draw-planes-side';
 import { drawEquipmentIcon, drawWeaponIcon } from '../render/icons';
+import { drawItemPicture } from '../render/items';
 import { COLORS, paragraph, text } from '../render/text';
 import { drawBar, drawPanel, type Rect } from '../ui/widgets';
 import { equipmentLevelText, planeSpecialName } from '../i18n/content';
@@ -57,9 +58,9 @@ function liveryThumb(ctx: CanvasRenderingContext2D, save: SaveData, id: LiveryId
 function drawThumb(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem, x: number, y: number, t: number): void {
   switch (item.type) {
     case 'plane': drawPlaneTop(ctx, item.id, x, y, 0.9, { t, throttle: 0.3, sweep: 0.3, livery: save.livery[item.id] }); return;
-    case 'gun': drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
-    case 'secondary': drawWeaponIcon(ctx, item.id, x, y, 0.7); return;
-    case 'equipment': drawEquipmentIcon(ctx, item.id, x, y, 32); return;
+    case 'gun': if (!drawItemPicture(ctx, 'gun', x, y, true)) drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
+    case 'secondary': if (!drawItemPicture(ctx, item.id, x, y, true)) drawWeaponIcon(ctx, item.id, x, y, 0.7); return;
+    case 'equipment': if (!drawItemPicture(ctx, item.id, x, y, true)) drawEquipmentIcon(ctx, item.id, x, y, 32); return;
     case 'livery': liveryThumb(ctx, save, item.id, x, y, t); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
@@ -166,9 +167,9 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
   switch (item.type) {
     case 'plane': return showcase(ctx, item.id, save.livery[item.id], cx, cy, t);
     case 'livery': return showcase(ctx, save.selectedPlane, item.id, cx, cy, t);
-    case 'gun': drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
-    case 'secondary': drawWeaponIcon(ctx, item.id, cx, cy, 3); return;
-    case 'equipment': drawEquipmentIcon(ctx, item.id, cx, cy, 130); return;
+    case 'gun': if (!drawItemPicture(ctx, 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
+    case 'secondary': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawWeaponIcon(ctx, item.id, cx, cy, 3); return;
+    case 'equipment': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawEquipmentIcon(ctx, item.id, cx, cy, 130); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }

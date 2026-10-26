@@ -26,8 +26,9 @@ files from an nginx container behind the owner's reverse proxy.
 - Never ship real photos of people (repo and site are public). Character portraits are generated pixel-art
   illustrations — 240×288 indexed PNGs in `src/assets/portraits/`, made with the owner's ComfyUI workflows
   (doc 33); the three pilot presets are drawn after the owner's family with their consent, every other face
-  is original. Never add photos or source photos to the repo.
-- Apart from those portraits, art is drawn in code and audio is synthesized with WebAudio.
+  is original. Never add photos or source photos to the repo. The hangar's item pictures are generated
+  pixel art too (`src/assets/items/`, doc 02).
+- Apart from those portraits and item pictures, art is drawn in code and audio is synthesized with WebAudio.
 
 ## Testing in the browser
 - `npm run dev` exposes `window.__toprun` (dev only, stripped from builds): `step(frames)`, `go(route)`,

@@ -1,6 +1,6 @@
 import { easeOutCubic } from '../../core/math';
 import { pixelFrame, pixelRect, RPG_BOX } from '../pixel/frame';
-import { COLORS, text } from '../text';
+import { COLORS, FONT_TYPE, text } from '../text';
 
 // Beach Volleyball HUD (doc 21): the scoreboard with serve ball, touch pips and MATCH POINT flag, pop-ups,
 // the point / match banners, the serve and aim hints and the touch strip.
@@ -89,7 +89,7 @@ export function drawBanner(ctx: CanvasRenderingContext2D, b: Banner): void {
 /** A key-cap style hint pill. */
 export function drawHint(ctx: CanvasRenderingContext2D, label: string, x: number, y: number, t: number, pulse = true): void {
   ctx.save();
-  ctx.font = '900 15px "Arial Black", Arial, sans-serif';
+  ctx.font = `700 15px ${FONT_TYPE}`;
   const w = ctx.measureText(label).width + 28;
   ctx.restore();
   ctx.save();

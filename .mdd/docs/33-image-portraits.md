@@ -50,6 +50,8 @@ known_issues:
   - "Moods and gestures are ignored for image portraits (one face per character); only talk and blink frames animate."
   - "Until wingman.png exists the wingman keeps the procedural portrait (src/render/portraits/procedural.ts)."
   - "Resolved 2026-10-26: wingman.png (Duke in the cockpit, via 'Top Gun pixel pilot – cockpit') landed; the procedural portrait code is deleted."
+  - "Resolved 2026-10-26: all 64 builder portraits exist (no silhouettes left)."
+  - "Hair length stands in for gender: short = boy / man, long = girl / woman, except five adults with long hair from the first batch (fair black / blond / brown / red, olive black) who came out as men. A gender trait with its own images is the next step (owner, 2026-10-26)."
 security_read_sites:
   - src/game/save.ts (parseSave → parseLook: untrusted localStorage value, old looks migrated)
 sister_projects: []

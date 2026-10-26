@@ -22,6 +22,7 @@ source_files:
   - src/render/planes/geom.ts
   - src/render/planes/surface.ts
   - src/render/icons.ts
+  - src/render/items.ts
 routes: []
 models:
   - localStorage:topgun.save.v1 (money, ownedPlanes, gunLevel, ownedSecondaries, loadout, equipment)
@@ -86,7 +87,19 @@ game/economy.ts    canBuy / buy / mount / unmount / selectPlane / computePayout 
 game/loadout.ts    derivePlayerStats(save) → PlayerStats used by the mission
 scenes/hangar.ts   UI: tabs PLANES / WEAPONS / EQUIPMENT, item list, detail panel, buy/mount
 render/draw-planes.ts  vector art (top-down + side view) for all three planes
+render/items.ts        the item pictures (below); render/icons.ts stays as the vector fallback
 ```
+
+### Item pictures (owner 2026-10-26: "more pixel style images, rather than the paint drawings")
+
+Every weapon, the cannon and every add-on has a generated pixel-art picture, made on the owner's M4 with
+the ComfyUI workflow 'Top Gun pixel crew portrait' as text-to-image (768², FLUX.2 klein, 1990s VGA item
+style, flat magenta background) → area 192², 48 colours; the background is keyed out offline (flood fill
+from the edges plus enclosed pure-magenta holes, purple rim pixels repainted with the darkest art colour).
+Two files per item in `src/assets/items/`: `<id>.png` (192 × 192, transparent, the detail panel, drawn
+1 : 1 and centred) and `<id>-small.png` (72 × 40, area-reduced onto the art's own colours, the list rows).
+Ids: `aim9 aim54 agm65 rockets mk82 gun armor engine flares ecm damageControl magnet radar`. Until a
+picture exists or while it loads, the old vector icon is drawn instead.
 
 ## Data Model
 
@@ -131,6 +144,11 @@ Guns deal **50 % damage to ground/sea targets**.
 | damageControl | Damage Control | 15,000 | once per mission at hull < 25 %: restore 40 % |
 | magnet | Cargo Magnet | 6,000 | pickups drift to you from 160 px |
 | radar | Early-Warning Radar | 8,000 | cockpit radar range 720 → 1100 px and shows spawns due in the next 4 s (doc 05) |
+
+Each level has a short effect text (`levelText`), shown as the list subtitle and as the level rows in the
+detail panel (■ owned, □ not yet). Single-level add-ons describe their effect too ("−25% bullet damage,
+slower missiles"), never "Installed": the list subtitle is shown whether or not the add-on is owned, and
+ownership is the BUY / INSTALLED button.
 
 ## API Endpoints
 

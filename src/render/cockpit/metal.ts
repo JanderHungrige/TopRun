@@ -1,9 +1,10 @@
 import type { Rect } from './layout';
-import { FONT_BODY } from '../text';
+import { FONT_BODY, FONT_TYPE } from '../text';
 
 /** Gunmetal primitives for the cockpit consoles: plates, bevels, screws, scratches, engraved legends. */
 
-export const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace';
+/** Screens and stencils type too (doc 20: typewriter everywhere). */
+export const MONO = FONT_TYPE;
 export const PHOSPHOR = '#62f08a';
 export const PHOSPHOR_DIM = 'rgba(98,240,138,0.45)';
 export const LEGEND = '#d8dee3';

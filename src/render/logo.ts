@@ -1,5 +1,6 @@
 import { TAU } from '../core/math';
-import { FONT_DISPLAY } from './text';
+/** The title logo keeps its heavy display face — the one exception to the typewriter rule (doc 20). */
+const LOGO_FONT = '"Arial Black", "Helvetica Neue", Arial, sans-serif';
 
 /**
  * The TopGun badge: an original emblem in the 80s naval-aviation style — gold wings,
@@ -79,7 +80,7 @@ function drawRoundel(ctx: CanvasRenderingContext2D, x: number, y: number, t: num
 
 function drawWordmark(ctx: CanvasRenderingContext2D, cx: number, y: number, t: number): void {
   ctx.save();
-  ctx.font = `italic 900 124px ${FONT_DISPLAY}`;
+  ctx.font = `italic 900 124px ${LOGO_FONT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   const g = ctx.createLinearGradient(0, y - 104, 0, y + 6);
@@ -131,7 +132,7 @@ function drawRibbon(ctx: CanvasRenderingContext2D, cx: number, y: number): void 
   ctx.lineWidth = 2.5;
   ctx.strokeStyle = '#e8b83a';
   ctx.stroke();
-  ctx.font = `900 19px ${FONT_DISPLAY}`;
+  ctx.font = `900 19px ${LOGO_FONT}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.letterSpacing = '5px';

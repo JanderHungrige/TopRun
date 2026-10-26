@@ -87,12 +87,18 @@ changes the save.
 `uniformLayout(medals, chest = LOCKER_CHEST)` → `{ slots, wings, top }`:
 
 - Input: the earned medals in catalogue order (`earnedMedals(save, goldCount(save))`) and the chest frame
-  (`LOCKER_CHEST`: left breast x 458 … 606 with the pocket top at 420 and the shoulder-board limit at 190; right
-  breast centre 368 with the name plate top at 392; sizes).
+  (`LOCKER_CHEST`: left breast x 458 … 606 with the pocket top at 336 and the collar limit at 172; right breast
+  centre 368 with the ribbon bars standing at 308 on the name plate; sizes). **Chest height** (owner,
+  2026-10-26: "the nametag is a bit too low, it is not on chest height"): the breast pockets, name plate, ribbon
+  bars and medal rack sit about a third of the way down the tunic (shoulders ≈ 176, hem 632), no longer at its
+  middle (pocket top 420 before).
 - Shape `ribbon` → `kind: 'ribbon'` slots, the rest `kind: 'medal'`; `slots` stay in catalogue order.
 - Rows like a real rack: the **top row of each block holds the remainder and is centred** (`rackRows`), all rows
   below are full. Precedence reads like text (first medal at the top row's viewer-left).
 - Medals stand on the pocket and fill upward (row height = tallest art in the row + gap), the wings above them.
+  When the rows would reach past the collar limit (a full rack of 3 + 5 + 5), the upper rows tuck behind the
+  lower ones by the same step, like a court-mounted rack, so the wings stay at or below the limit; later (lower)
+  rows are drawn in front and win the hit test.
   Each medal's width comes from its shape's painted art (`MEDAL_ART`, checked against `paintMedal` in the test);
   a row wider than the breast closes its gaps (slight overlap) and is centred.
 - Each slot: `id`, `kind`, `row` (within its block), the draw anchor (`x`, `y` — medal: top centre of the brooch;

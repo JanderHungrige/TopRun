@@ -39,7 +39,7 @@ export interface ChestFrame {
   right: number;
   /** The pocket flap's top edge: the medals stand on it. */
   pocketTop: number;
-  /** The rack never reaches above this (shoulder boards). */
+  /** The rack never reaches above this (the collar). */
   minTop: number;
   medalSize: number;
   medalsPerRow: number;
@@ -56,8 +56,8 @@ export interface ChestFrame {
 
 /** The locker's jacket (src/render/locker/jacket.ts draws the pockets and name plate to match). */
 export const LOCKER_CHEST: ChestFrame = {
-  left: 458, right: 606, pocketTop: 420, minTop: 190, medalSize: 64, medalsPerRow: 5, gap: 4, wingsH: 18,
-  ribbonCentre: 368, ribbonBottom: 392, ribbonW: 40, ribbonH: 13, ribbonsPerRow: 3,
+  left: 458, right: 606, pocketTop: 336, minTop: 172, medalSize: 64, medalsPerRow: 5, gap: 4, wingsH: 18,
+  ribbonCentre: 368, ribbonBottom: 308, ribbonW: 40, ribbonH: 13, ribbonsPerRow: 3,
 };
 
 /** Each shape's art in the 64 × 96 medal frame: half-width and bottom (matches src/render/medals). */
@@ -110,13 +110,17 @@ const rowHeight = (ids: readonly MedalId[], c: ChestFrame): number => Math.max(0
 
 function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlot[]; top: number } {
   const rows = rackRows(ids, c.medalsPerRow);
+  const natural = rows.reduce((sum, row) => sum + rowHeight(row, c) + c.gap, 0);
+  const room = c.pocketTop - c.gap - c.minTop - c.wingsH;
+  // Too tall for the chest: the upper rows tuck behind the ones below by the same step (a court-mounted rack).
+  const tuck = natural > room && rows.length > 1 ? Math.ceil((natural - room) / (rows.length - 1)) : 0;
   const out: UniformSlot[][] = [];
   let cursor = c.pocketTop - c.gap;
   for (let r = rows.length - 1; r >= 0; r--) {
     const row = rows[r] ?? [];
     const top = Math.round(cursor - rowHeight(row, c));
     out.unshift(medalRow(row, r, top, c));
-    cursor = top - c.gap;
+    cursor = top - c.gap + (r > 0 ? tuck : 0);
   }
   return { slots: out.flat(), top: cursor };
 }

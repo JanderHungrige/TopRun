@@ -54,6 +54,19 @@ describe('uniform layout', () => {
     }
   });
 
+  it('sits at chest height (a third down the tunic) and tucks a full rack under the collar', () => {
+    // The tunic runs from the shoulders (≈ 176) to the hem (632): the breast line is no longer at its middle.
+    expect(C.pocketTop).toBeLessThan(176 + (632 - 176) * 0.4);
+    const full = uniformLayout(MEDAL_IDS);
+    expect(full.top).toBeGreaterThanOrEqual(C.minTop);
+    const [r0, r1, r2] = [0, 1, 2].map((r) => rowSpan(full, 'medal', r));
+    expect(r0 && r1 && r0.y1 > r1.y0).toBe(true);
+    expect(r1 && r2 && r1.y1 > r2.y0).toBe(true);
+    expect(r2?.y1).toBeLessThanOrEqual(C.pocketTop);
+    const two = uniformLayout(['victory', 'ace', 'topace', 'giant', 'untouchable', 'gunslinger']);
+    expect(rowSpan(two, 'medal', 0).y1).toBeLessThanOrEqual(rowSpan(two, 'medal', 1).y0);
+  });
+
   it('stands the ribbon bars on the name plate, centred on the right breast', () => {
     const l = uniformLayout(MEDAL_IDS);
     const bottom = rowSpan(l, 'ribbon', 1);

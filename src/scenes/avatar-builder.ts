@@ -3,8 +3,9 @@ import { cycleLook, LOOK_PARTS, PRESET_LOOKS, randomLook, sameLook, type AvatarL
 import { AVATAR_IDS, type Profile } from '../game/profiles';
 import type { BuilderTarget, GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
+import { preloadCustomPortraits } from '../render/avatars';
 import { hit } from '../ui/widgets';
-import { arrowRect, barButtons, drawBuilder, PREVIEW, rowRect, type BarButton } from './avatar-builder-render';
+import { arrowRect, barButtons, drawBuilder, rowRect, type BarButton } from './avatar-builder-render';
 
 const ROWS = LOOK_PARTS.length;
 const BAR_ROW = ROWS;
@@ -12,10 +13,11 @@ const BAR_ROW = ROWS;
 const OWN_CARD = AVATAR_IDS.length;
 
 /**
- * AVATAR BUILDER (doc 29): one row per part with ◀ ▶, a big live preview, RANDOM, (ORIGINAL), CANCEL, DONE.
- * Keyboard and gamepad (↑/↓ rows and the button bar, ←/→ change, ENTER/A done or press, ESC/B cancel, R/E/Y
- * random), mouse (hover focuses, click ◀ ▶ / a row / a button) and touch (tap). Nothing is stored before DONE:
- * a new pilot's look goes back to NEW PILOT in the draft; an existing pilot's look is saved via setSave.
+ * AVATAR BUILDER (docs 29, 33): one row per trait (age, skin, hair colour, hair length) with ◀ ▶, the generated
+ * portrait nearest the pick as a big preview, RANDOM, (ORIGINAL), CANCEL, DONE. Keyboard and gamepad (↑/↓ rows and
+ * the button bar, ←/→ change, ENTER/A done or press, ESC/B cancel, R/E/Y random), mouse (hover focuses, click ◀ ▶ /
+ * a row / a button) and touch (tap). Nothing is stored before DONE: a new pilot's pick goes back to NEW PILOT in
+ * the draft; an existing pilot's pick is saved via setSave.
  */
 export class AvatarBuilderScene implements Scene {
   private time = 0;
@@ -24,7 +26,6 @@ export class AvatarBuilderScene implements Scene {
   private focus = 0;
   private bar: number;
   private rolls = 0;
-  private cheer = 0;
   private readonly seed = Math.floor(Math.random() * 1e6);
   private readonly pilot: Profile | null;
   private readonly buttons: readonly BarButton[];
@@ -39,24 +40,23 @@ export class AvatarBuilderScene implements Scene {
 
   enter(): void {
     this.game.music.play('menu');
+    preloadCustomPortraits();
   }
 
   private change(row: number, dir: number): void {
     const part = LOOK_PARTS[row];
     if (!part) return;
     this.look = cycleLook(this.look, part, dir);
-    this.cheer = 0.9;
     this.game.audio.play('uiMove');
   }
 
   private random(): void {
     this.rolls++;
     this.look = randomLook(this.seed + this.rolls * 7919);
-    this.cheer = 1.4;
     this.game.audio.play('uiSelect');
   }
 
-  /** Stores an existing pilot's look (null = back to the hand-drawn preset) through setSave. */
+  /** Stores an existing pilot's pick (null = back to the preset portrait) through setSave. */
   private store(look: AvatarLook | null): void {
     if (!this.pilot) return;
     this.game.selectProfile(this.pilot.id); // setSave writes the active pilot
@@ -71,7 +71,7 @@ export class AvatarBuilderScene implements Scene {
         this.game.audio.play('uiSelect');
         return this.game.go({ to: 'newPilot', draft: { ...target.draft, look: this.look, pick: OWN_CARD } });
       case 'pilot': {
-        // A preset pilot who changed nothing keeps the hand-drawn face.
+        // A preset pilot who changed nothing keeps the preset portrait.
         const untouched = this.pilot?.save.look === null && sameLook(this.look, this.start);
         if (!untouched) this.store(this.look);
         return this.game.go({ to: 'pilots' });
@@ -118,7 +118,6 @@ export class AvatarBuilderScene implements Scene {
         this.press(b);
         return true;
       }
-      if (hit(tap, PREVIEW)) this.cheer = 1.2;
     }
     return false;
   }
@@ -141,7 +140,6 @@ export class AvatarBuilderScene implements Scene {
 
   update(dt: number): void {
     this.time += dt;
-    this.cheer = Math.max(0, this.cheer - dt);
     if (this.pointer()) return;
     this.keys();
   }
@@ -151,8 +149,6 @@ export class AvatarBuilderScene implements Scene {
     drawBuilder(ctx, {
       t: this.time, look: this.look, focus: this.focus, bar: this.bar, buttons: this.buttons, callsign,
       title: this.pilot ? t('avatar.titleEdit', { callsign: this.pilot.callsign }) : t('avatar.title'),
-      mood: this.cheer > 0 ? 'happy' : 'neutral',
-      mouth: this.cheer > 0.5 ? Math.max(0, Math.sin(this.time * 14)) * 0.8 : 0,
     });
   }
 }

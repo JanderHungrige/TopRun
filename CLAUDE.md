@@ -23,8 +23,11 @@ files from an nginx container behind the owner's reverse proxy.
   with `mt()` (doc 10). Add new UI keys
   to `ui-en.ts` AND `ui-de.ts` (the compiler rejects a missing German key); same `{placeholders}`.
 - Characters talk only through `SpeechBox` + `src/game/dialogue-scripts.ts`; lines may use `{callsign}`.
-- Never ship real photos of people: avatars/portraits are original vector cartoons (repo and site are public).
-- No asset files needed: art is vector-drawn in code, audio is synthesized with WebAudio.
+- Never ship real photos of people (repo and site are public). Character portraits are generated pixel-art
+  illustrations — 240×288 indexed PNGs in `src/assets/portraits/`, made with the owner's ComfyUI workflows
+  (doc 33); the three pilot presets are drawn after the owner's family with their consent, every other face
+  is original. Never add photos or source photos to the repo.
+- Apart from those portraits, art is drawn in code and audio is synthesized with WebAudio.
 
 ## Testing in the browser
 - `npm run dev` exposes `window.__toprun` (dev only, stripped from builds): `step(frames)`, `go(route)`,

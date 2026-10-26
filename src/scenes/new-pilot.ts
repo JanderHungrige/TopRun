@@ -5,7 +5,7 @@ import { AVATAR_IDS, MAX_PROFILES, type AvatarId } from '../game/profiles';
 import type { GameContext, NewPilotDraft } from '../game/state';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
-import { drawPilotAvatar, type PilotFace } from '../render/avatars';
+import { drawPilotAvatar, preloadCustomPortraits, type PilotFace } from '../render/avatars';
 import { drawSunset } from '../render/backdrop';
 import { COLORS, text } from '../render/text';
 import { TextField } from '../ui/text-field';
@@ -64,6 +64,7 @@ export class NewPilotScene implements Scene {
   enter(): void {
     this.game.music.play('menu');
     this.field.mount();
+    preloadCustomPortraits(); // card 4 cycles through the builder's portraits
   }
 
   exit(): void {

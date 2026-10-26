@@ -35,6 +35,7 @@ import { pilotStats } from './scenes/pilot-rating';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
+import { preloadPortraits } from './render/portraits';
 
 class Game implements GameContext {
   private store: ProfileStore = loadStore();
@@ -163,6 +164,7 @@ function boot(): void {
     if (document.hidden) scenes.blur();
   });
   canvas.focus();
+  preloadPortraits(); // the owner's portrait images (doc 33)
   game.go({ to: 'title' });
   const update = (dt: number): void => {
     input.tick();

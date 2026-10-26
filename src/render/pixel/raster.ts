@@ -50,17 +50,6 @@ export class Pix {
     const dy = y - this.pivotY;
     return [this.X(this.pivotX + dx * c - dy * s), this.Y(this.pivotY + dx * s + dy * c)];
   }
-  /** Frame point under an art position (the inverse of `at`, tilt included): for per-pixel lighting. */
-  frame(ax: number, ay: number): [number, number] {
-    const x = (ax - this.ox) / this.k;
-    const y = (ay - this.oy) / this.k;
-    if (this.rot === 0) return [x, y];
-    const c = Math.cos(this.rot);
-    const s = Math.sin(this.rot);
-    const dx = x - this.pivotX;
-    const dy = y - this.pivotY;
-    return [this.pivotX + dx * c + dy * s, this.pivotY - dx * s + dy * c];
-  }
   /** Pixel containing a frame point under the tilt. */
   cell(x: number, y: number): [number, number] {
     const [ax, ay] = this.at(x, y);

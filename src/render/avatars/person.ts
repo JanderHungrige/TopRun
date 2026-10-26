@@ -1,43 +1,44 @@
-import { lookKey, type AvatarLook, type HairStyle } from '../../game/avatar-look';
+import { lookKey, type AvatarLook, type HairColor, type Skin } from '../../game/avatar-look';
 import type { AvatarId } from '../../game/profiles';
 import { PLAYER_LOOKS } from '../minigames/pushups-looks';
-import type { HairLook, PersonLook, SkinTone } from '../people';
-import { hexOf, type Ramp } from '../pixel/palette';
-import { BASE, D1, D2, L1 } from '../portraits/parts';
-import { eyeRamp, hairRamp, skinRamp, suitRamp } from './custom';
+import { SKIN, tone, type HairLook, type PersonLook, type SkinTone, type Tone } from '../people';
 
 /**
  * The player as a people-kit figure (doc 17) in the full-body scenes — push-up duel, volleyball, motorbike, piano
- * bar, medal ceremony (doc 29): the preset's own look, or one derived from a custom look (skin, hair colour and the
- * nearest kit hair style, eyes, suit colour). Looks are memoised so object identity (the kit's cache key) stays
- * stable.
+ * bar, medal ceremony, the hangar walker (docs 29, 33): the preset's own look, or one derived from a builder pick
+ * (skin, hair colour, a kit hair style from age and length, olive flight-suit trousers). Looks are memoised so
+ * object identity (the kit's cache key) stays stable.
  */
 
-/** Who to draw: a preset id or a custom look (the `PilotFace` of index.ts). */
+/** Who to draw: a preset id or a builder pick (the `PilotFace` of index.ts). */
 type Face = AvatarId | AvatarLook;
 
 /** The active pilot's face for the full-body scenes (pilot 1 before any pilot is chosen). */
 export const faceOf = (p: { avatar: AvatarId; save: { look: AvatarLook | null } } | null): Face => (p ? p.save.look ?? p.avatar : 'pilot1');
 
-const KIT_HAIR: Readonly<Record<HairStyle, HairLook['style']>> = {
-  bob: 'bob', long: 'long', mop: 'messy', crop: 'crew', buzz: 'buzz', sidePart: 'crew', ponytail: 'crew', bun: 'crew', curly: 'messy', braids: 'long',
+const SKINS: Readonly<Record<Skin, SkinTone>> = { fair: SKIN.fair, olive: SKIN.olive, brown: SKIN.brown, dark: SKIN.deep };
+const HAIR: Readonly<Record<HairColor, Tone>> = {
+  black: tone('#1d1714', '#3a2e28', '#0e0a08'),
+  brown: tone('#5b3d24', '#7f5a38', '#3c2615'),
+  blond: tone('#e0bd6e', '#f6dfa2', '#b28f4a'),
+  red: tone('#a8562c', '#cc7a48', '#7a3a1c'),
 };
+const SUIT_TROUSERS = tone('#5f6b3f', '#77844f', '#454e2c');
 
-const hex = (r: Ramp, i: number): string => hexOf(r[i] ?? 0);
-const tone = (r: Ramp): { base: string; light: string; shadow: string } => ({ base: hex(r, BASE), light: hex(r, L1), shadow: hex(r, D1) });
-
-function skinOf(r: Ramp): SkinTone {
-  return { ...tone(r), deep: hex(r, D2), lip: hex(r, D1) };
+function kitHair(look: AvatarLook): HairLook['style'] {
+  if (look.length === 'long') return 'long';
+  return look.age === 'kid' ? 'messy' : 'crew';
 }
 
 function fromLook(look: AvatarLook): PersonLook {
-  const h = hairRamp(look.hairColor);
+  const h = HAIR[look.hair];
+  const lightEyes = look.skin === 'fair' && (look.hair === 'blond' || look.hair === 'red');
   return {
     ...PLAYER_LOOKS.pilot1,
-    skin: skinOf(skinRamp(look.skin)),
-    hair: { style: KIT_HAIR[look.hair], ...tone(h), brow: hex(h, D2) },
-    eyes: hex(eyeRamp(look.eyes), BASE),
-    bottom: tone(suitRamp(look.suit)),
+    skin: SKINS[look.skin],
+    hair: { style: kitHair(look), ...h, brow: h.shadow },
+    eyes: lightEyes ? '#4d6f8c' : '#3b2416',
+    bottom: SUIT_TROUSERS,
   };
 }
 
@@ -51,10 +52,6 @@ export function playerPerson(face: Face): PersonLook {
   if (!look) {
     look = fromLook(face);
     custom.set(key, look);
-    if (custom.size > 16) {
-      const oldest = custom.keys().next();
-      if (!oldest.done) custom.delete(oldest.value);
-    }
   }
   return look;
 }

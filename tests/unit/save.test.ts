@@ -73,7 +73,8 @@ describe('Save', () => {
     });
 
     describe('own avatar look (doc 29)', () => {
-      const look = { hair: 'braids', hairColor: 'auburn', skin: 'deep', eyes: 'green', freckles: 'some', cheeks: 'rosy', glasses: 'clear', accessory: 'scarf', suit: 'khaki', sky: 'night' } as const;
+      const look = { age: 'adult', skin: 'dark', hair: 'red', length: 'long' } as const;
+      const v2 = { hair: 'braids', hairColor: 'auburn', skin: 'deep', eyes: 'green', freckles: 'some', cheeks: 'rosy', glasses: 'clear', accessory: 'scarf', suit: 'khaki', sky: 'night' } as const;
 
       it('defaults to null (= the preset avatar)', () => {
         expect(defaultSave().look).toBeNull();
@@ -92,11 +93,16 @@ describe('Save', () => {
         expect(parseSave(JSON.parse(JSON.stringify(s)))?.look).toEqual(look);
       });
 
-      it('turns a non-object look into null and unknown parts into defaults', () => {
+      it('turns a non-object look into null and unknown traits into defaults', () => {
         expect(parseSave({ ...valid(), look: 'pilot2' })?.look).toBeNull();
         expect(parseSave({ ...valid(), look: [look] })?.look).toBeNull();
-        const s = parseSave({ ...valid(), look: { ...look, hair: 'mohawk', suit: 42 } });
-        expect(s?.look).toEqual({ ...look, hair: 'crop', suit: 'orange' });
+        const s = parseSave({ ...valid(), look: { ...look, hair: 'green', length: 42 } });
+        expect(s?.look).toEqual({ ...look, hair: 'brown', length: 'short' });
+      });
+
+      it('migrates a stored v2 look to the nearest portrait pick', () => {
+        expect(parseSave({ ...valid(), look: { ...v2 } })?.look).toEqual({ age: 'kid', skin: 'dark', hair: 'red', length: 'long' });
+        expect(parseSave({ ...valid(), look: { ...v2, hair: 'mohawk', suit: 42 } })?.look).toEqual({ age: 'kid', skin: 'dark', hair: 'red', length: 'short' });
       });
     });
   });

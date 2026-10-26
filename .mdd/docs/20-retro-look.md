@@ -60,6 +60,15 @@ sister_projects: []
 
 # 20 — Retro Look
 
+> **Update 2026-10-26 (doc 33, image portraits):** the character portraits (admiral, shooter, chief, later the
+> wingman) and all pilot avatars are now the owner's generated pixel-art images (ComfyUI "Top Gun pixel pilot
+> portrait" / "Top Gun pixel crew portrait", FLUX.2 klein, 720 × 864 → area 240 × 288, 64 colours; generated
+> illustrations, never photos) drawn nearest-neighbour — or from a reduced copy snapped back to the image's own
+> colours when the box is smaller than the image — with the radio feed and the selection frame on top. The
+> procedural portrait / avatar art below (and the "Avatar style rule") is retired except the wingman until
+> `wingman.png` exists; the pixel pipeline itself (palette, raster, bust sprites, fx, frames, capture) stays for
+> the people kit, ceremony, locker, picture wall and hangar base.
+
 > **Update 2026-10-25 (doc 29, avatar builder):** the pipeline gained a **head tilt** — `Pix.rot` with a pivot turns
 > shapes, ovals, strokes and lines (`Pix.at`), hand-placed features move whole to their turned anchor (`Pix.nudge`;
 > eyes, nose, mouth with its slope, each brow on its own line); `rot = 0` keeps the exact old mapping (all portrait

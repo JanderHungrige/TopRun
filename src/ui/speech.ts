@@ -1,6 +1,6 @@
 import type { AudioEngine } from '../core/audio';
 import type { Input } from '../core/input';
-import { HOLD_AFTER_TYPING, mouthOpen, syllableIndex, typewriter, typingTime } from '../game/dialogue';
+import { HOLD_AFTER_TYPING, mouthFromText, syllableIndex, typewriter, typingTime } from '../game/dialogue';
 import type { LineRef } from '../game/dialogue-scripts';
 import type { GameContext } from '../game/state';
 import { line, type Params } from '../i18n/i18n';
@@ -152,7 +152,8 @@ export class SpeechBox {
     ctx.save();
     ctx.globalAlpha = this.appear;
     frameAround(ctx, p, radio ? RADIO_BOX : PORTRAIT_FRAME, radio ? 1 : 2);
-    drawPortrait(ctx, speaker, p, { t: this.clock, mouth: mouthOpen(this.clock, talking), mood: this.mood, gesture: this.gesture, radio });
+    const mouth = c !== null && talking ? mouthFromText(c.text, c.t) : 0;
+    drawPortrait(ctx, speaker, p, { t: this.clock, mouth, mood: this.mood, gesture: this.gesture, radio });
     if (c) this.renderBox(ctx, c, talking);
     ctx.restore();
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BLINK_TIME, blinking, breathBob, portraitFrame, talking, TALK_OPEN } from '../../src/game/portrait-frames';
+import { BLINK_TIME, blinking, breathBob, mouthShape, portraitFrame } from '../../src/game/portrait-frames';
 
 // Doc 33: which frame of an image portrait shows — talk while the mouth is open, a 120 ms blink every 3–6 s with a
 // per-character phase, the base image otherwise — and the one-pixel breathing bob.
@@ -44,24 +44,29 @@ describe('portrait frames', () => {
     expect(Math.max(...gaps) - Math.min(...gaps)).toBeGreaterThan(1);
   });
 
-  it('opens the talk frame from the threshold up', () => {
-    expect(talking(0)).toBe(false);
-    expect(talking(TALK_OPEN - 0.01)).toBe(false);
-    expect(talking(TALK_OPEN)).toBe(true);
-    expect(talking(1)).toBe(true);
+  it('reads the mouth value as closed, half or open', () => {
+    expect(mouthShape(0)).toBe('closed');
+    expect(mouthShape(0.2)).toBe('closed');
+    expect(mouthShape(0.5)).toBe('half');
+    expect(mouthShape(0.7)).toBe('half');
+    expect(mouthShape(0.75)).toBe('open');
+    expect(mouthShape(1)).toBe('open');
   });
 
   it('prefers talk over blink over base, and only uses frames that exist', () => {
     const blinkAt = blinks(1.9, 10)[0]!.start + BLINK_TIME / 2;
     const restAt = blinkAt + 1;
-    const all = { talk: true, blink: true };
+    const all = { talk: true, half: true, blink: true };
     expect(portraitFrame(blinkAt, 1, 1.9, all)).toBe('talk');
     expect(portraitFrame(blinkAt, 0, 1.9, all)).toBe('blink');
     expect(portraitFrame(restAt, 0, 1.9, all)).toBe('base');
     expect(portraitFrame(restAt, 1, 1.9, all)).toBe('talk');
-    expect(portraitFrame(blinkAt, 1, 1.9, { talk: false, blink: true })).toBe('blink'); // no talk frame yet
-    expect(portraitFrame(blinkAt, 0, 1.9, { talk: true, blink: false })).toBe('base'); // the admiral: sunglasses
-    expect(portraitFrame(blinkAt, 1, 1.9, { talk: false, blink: false })).toBe('base');
+    expect(portraitFrame(restAt, 0.5, 1.9, all)).toBe('half');
+    expect(portraitFrame(blinkAt, 0.5, 1.9, all)).toBe('half');
+    expect(portraitFrame(restAt, 0.5, 1.9, { talk: true, half: false, blink: true })).toBe('base'); // no half frame: closed
+    expect(portraitFrame(blinkAt, 1, 1.9, { talk: false, half: false, blink: true })).toBe('blink'); // no talk frame yet
+    expect(portraitFrame(blinkAt, 0, 1.9, { talk: true, half: true, blink: false })).toBe('base'); // the admiral: sunglasses
+    expect(portraitFrame(blinkAt, 1, 1.9, { talk: false, half: false, blink: false })).toBe('base');
   });
 
   it('breathes by one pixel, part of the time, out of step between characters', () => {

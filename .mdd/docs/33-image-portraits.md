@@ -72,13 +72,14 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 | File | Use |
 |------|-----|
 | `pilot1.png`, `pilot2.png`, `pilot3.png` | the three preset pilots |
-| `admiral.png` (+ `admiral-talk.png`) | the admiral — no blink frame (dark sunglasses) |
-| `shooter.png` (+ `-talk`, `-blink`) | the catapult / deck officer |
-| `chief.png` (+ `-talk`, `-blink`) | the crew chief |
-| `wingman.png` (+ `-talk`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
+| `admiral.png` (+ `-talk`, `-half`) | the admiral — no blink frame (dark sunglasses) |
+| `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |
+| `chief.png` (+ `-talk`, `-half`, `-blink`) | the crew chief |
+| `wingman.png` (+ `-talk`, `-half`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
 | `custom/<age>-<skin>-<hair>-<length>.png` | the builder set: age `kid|adult`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long` (64) |
 
-Talk and blink frames are identical to the base outside the mouth / eyes. Every file is discovered with
+Talk, half and blink frames are identical to the base outside the mouth / eyes (`-talk` = mouth open,
+`-half` = lips slightly parted). Every file is discovered with
 `import.meta.glob(…, { eager: true, query: '?url', import: 'default' })` (`assets.ts`), so whatever exists is
 bundled as a hashed asset and anything missing is simply absent — the code works with any subset.
 
@@ -96,8 +97,9 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
   map header, the radio strip) get a **reduced copy**: an area average back onto the image's own colours
   (`pixel/reduce.ts`, pure, cached per size) drawn 1:1 — never a blurred, smoothed draw.
 - Animation (`src/game/portrait-frames.ts`, pure): a 1-image-pixel breathing bob; a blink (if the character has a
-  blink frame) once every 3–6 s for 120 ms with a per-character phase; the talk frame while the speech box's
-  `mouth` value is open (≥ 0.35), so talking alternates base / talk with the syllables.
+  blink frame) once every 3–6 s for 120 ms with a per-character phase; the mouth frames follow the speech box's
+  `mouth` value (doc 06: closed 0 / half 0.5 / open 1, each held ≥ 0.15 s): open → `-talk`, half → `-half`
+  (if the character has one; without it half shows the closed base), closed → the base.
 - Overlays on the composed image: the gold `selected` frame (pickers) and the green **radio feed** (the image
   remapped onto the phosphor ramp by luminance, plus scanlines, flicker and brackets) — `overlays.ts`.
 - **Moods and gestures are ignored** for image portraits: one expression per character.

@@ -130,9 +130,6 @@ export const lookKey = (look: AvatarLook): string => `${look.age}-${look.skin}-$
 
 export const sameLook = (a: AvatarLook, b: AvatarLook): boolean => lookKey(a) === lookKey(b);
 
-/** Hair colours from dark to light, so a missing colour falls back to its neighbour. */
-const HAIR_ORDER: readonly HairColor[] = ['black', 'brown', 'red', 'blond'];
-
 /** A portrait file name → its pick (null for anything that is not `<age>-<skin>-<hair>-<length>`). */
 export function lookFromKey(key: string): AvatarLook | null {
   const [age, skin, hair, length, extra] = key.split('-');
@@ -141,25 +138,8 @@ export function lookFromKey(key: string): AvatarLook | null {
   return ok ? parseLook({ age, skin, hair, length }) : null;
 }
 
-/** How far a portrait is from the wanted pick: age first, then skin, hair colour, length. */
-function distance(want: AvatarLook, have: AvatarLook): number {
-  const skin = Math.abs(SKINS.indexOf(want.skin) - SKINS.indexOf(have.skin));
-  const hair = Math.abs(HAIR_ORDER.indexOf(want.hair) - HAIR_ORDER.indexOf(have.hair));
-  return (want.age === have.age ? 0 : 1000) + skin * 100 + hair * 10 + (want.length === have.length ? 0 : 1);
-}
-
-/** The available portrait nearest to the pick (exact match first; ties by name); null when none exists. */
-export function nearestLookKey(want: AvatarLook, available: readonly string[]): string | null {
-  let best: string | null = null;
-  let bestD = Infinity;
-  for (const key of [...available].sort()) {
-    const have = lookFromKey(key);
-    if (!have) continue;
-    const d = distance(want, have);
-    if (d < bestD) {
-      bestD = d;
-      best = key;
-    }
-  }
-  return best;
+/** The portrait of exactly this pick, or null while it hasn't been generated (no stand-in face). */
+export function portraitKey(want: AvatarLook, available: readonly string[]): string | null {
+  const key = lookKey(want);
+  return available.includes(key) ? key : null;
 }

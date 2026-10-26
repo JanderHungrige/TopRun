@@ -42,7 +42,7 @@ integration_contracts:
   - function: "drawPortrait(ctx, id, box, state) (doc 06)"
     when: "same API; admiral, shooter, chief and wingman draw their image"
   - function: "drawPilotAvatar(ctx, face, box, state) (doc 29)"
-    when: "same API; presets draw pilot1–3.png, a custom pick draws the nearest custom/<age>-<skin>-<hair>-<length>.png"
+    when: "same API; presets draw pilot1–3.png, a custom pick draws exactly custom/<age>-<skin>-<hair>-<length>.png (silhouette while that file is missing)"
   - function: "GameContext.setSave(save)"
     when: "the builder stores the pick as save.look; nothing else persists it"
 satisfies_contracts: []
@@ -110,7 +110,8 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
   code (`procedural.ts`, `wingman.ts`, `features.ts`, `hands.ts`, `pixel-cast.test.ts`) is deleted; `parts.ts`
   stays (the jets and enemies use it).
 - `drawPilotAvatar(ctx, face, box, state)` (doc 29, unchanged API): `pilot1–3` → `pilot1–3.png`; a custom pick →
-  the nearest available `custom/…png` (`nearestLookKey`: same age first, then skin, hair colour, length). Used by
+  exactly its own `custom/…png` (`portraitKey`; a silhouette while that file is missing — owner testing showed a
+  nearest-match fallback with a half-generated set makes every pick look the same). Used by
   NEW PILOT, the pilot list, the map header and the builder.
 
 ## Builder v3 (`src/game/avatar-look.ts`, `src/scenes/avatar-builder*.ts`)
@@ -120,7 +121,7 @@ interface AvatarLook { age: 'kid' | 'adult'; skin: 'fair' | 'olive' | 'brown' | 
 ```
 
 - Four rows ◀ ▶ (AGE, SKIN, HAIR COLOUR, HAIR LENGTH; EN + DE labels), RANDOM, CANCEL, DONE, and ORIGINAL for an
-  existing pilot. The preview is the matching custom portrait (or the nearest one while the set is incomplete).
+  existing pilot. The preview is the matching custom portrait (a silhouette until it is generated).
 - `parseLook` migrates the old v1/v2 looks (`{ hair: style, hairColor, skin, … }`): skin index of the 8 old tones
   → 4 buckets (pale·light → fair, ruddy·tan → olive, olive·brown → brown, deep·ebony → dark), hair colour family
   (black · dark brown, brown, chestnut → brown · auburn, strawberry, ginger, pink → red · golden, blond, platinum,
@@ -134,12 +135,12 @@ interface AvatarLook { age: 'kid' | 'adult'; skin: 'fair' | 'olive' | 'brown' | 
 
 - The game never generates, edits or ships photos; all portraits are the owner's generated illustrations.
 - Image portraits are always drawn nearest-neighbour or from a reduced copy, never smoothed.
-- A missing image never breaks a screen: placeholder while loading, nearest custom pick.
+- A missing image never breaks a screen: placeholder while loading, silhouette for a custom pick not generated yet.
 - Old saves keep working: a stored v1/v2 look becomes the nearest pick on load.
 
 ## Verification (2026-10-26)
 
-Vitest (pick model and migration, nearest-asset choice, random picks, frame timing, reduction, asset contract,
+Vitest (pick model and migration, exact asset choice, random picks, frame timing, reduction, asset contract,
 save parsing), `tsc --noEmit`, production build (PNGs emitted as hashed assets, smaller JS); browser: NEW PILOT,
 builder, dialogues with the admiral / shooter / chief, map header, hangar walker and ceremony with a custom pick,
 an old save with a v2 look.

@@ -1,4 +1,4 @@
-import { lookKey, nearestLookKey, type AvatarLook, type HairColor } from '../../game/avatar-look';
+import { lookKey, portraitKey, type AvatarLook, type HairColor } from '../../game/avatar-look';
 import type { AvatarId } from '../../game/profiles';
 import { CUSTOM_KEYS, customFrames, customUrls, fixedFrames, type FrameSet } from '../portraits/assets';
 import { drawImagePortrait, drawPlaceholder, preloadImages } from '../portraits/image';
@@ -29,10 +29,10 @@ export const pilotFace = (p: { avatar: AvatarId; save: { look: AvatarLook | null
 /** UI accent of a pilot (card borders): the preset colour, or the hair colour's accent of a pick. */
 export const pilotAccent = (face: PilotFace): string => (typeof face === 'string' ? AVATAR_COLORS[face] : HAIR_ACCENT[face.hair]);
 
-/** The portrait frames of a face: the preset's, or those of the generated portrait nearest the pick. */
+/** The portrait frames of a face: the preset's, or those of exactly the pick's generated portrait. */
 export function avatarFrames(face: PilotFace): FrameSet | null {
   if (typeof face === 'string') return fixedFrames(face);
-  const key = nearestLookKey(face, CUSTOM_KEYS);
+  const key = portraitKey(face, CUSTOM_KEYS);
   return key === null ? null : customFrames(key);
 }
 

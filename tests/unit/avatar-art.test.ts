@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LOOK, lookKey, nearestLookKey, PRESET_LOOKS, type AvatarLook } from '../../src/game/avatar-look';
+import { DEFAULT_LOOK, lookKey, portraitKey, PRESET_LOOKS, type AvatarLook } from '../../src/game/avatar-look';
 import { AVATAR_IDS } from '../../src/game/profiles';
 import { AVATAR_COLORS, avatarFrames, pilotAccent, pilotFace } from '../../src/render/avatars';
 import { faceOf, playerPerson, restyle } from '../../src/render/avatars/person';
@@ -16,10 +16,10 @@ describe('pilot portraits', () => {
     expect(avatarFrames('pilot2')?.base).toBeTruthy();
   });
 
-  it('draws a builder pick from the nearest generated portrait, or none while the set is missing', () => {
-    const key = nearestLookKey(look, CUSTOM_KEYS);
+  it('draws a builder pick from exactly its generated portrait, or none while it is missing', () => {
+    const key = portraitKey(look, CUSTOM_KEYS);
     expect(avatarFrames(look)).toEqual(key === null ? null : customFrames(key));
-    if (CUSTOM_KEYS.includes(lookKey(look))) expect(key).toBe(lookKey(look));
+    expect(key).toBe(CUSTOM_KEYS.includes(lookKey(look)) ? lookKey(look) : null);
   });
 
   it('picks the face of a profile and a UI accent for it', () => {

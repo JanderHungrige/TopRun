@@ -9,7 +9,6 @@ source_files:
   - src/render/portraits/assets.ts
   - src/render/portraits/image.ts
   - src/render/portraits/overlays.ts
-  - src/render/portraits/procedural.ts
   - src/render/portraits/index.ts
   - src/render/pixel/reduce.ts
   - src/render/avatars/index.ts
@@ -41,15 +40,16 @@ tags: [portraits, avatars, images, pixel-art, comfyui, avatar-builder, character
 path: Game/Look/Portraits
 integration_contracts:
   - function: "drawPortrait(ctx, id, box, state) (doc 06)"
-    when: "same API; admiral, shooter and chief (and the wingman once wingman.png exists) draw their image"
+    when: "same API; admiral, shooter, chief and wingman draw their image"
   - function: "drawPilotAvatar(ctx, face, box, state) (doc 29)"
-    when: "same API; presets draw pilot1–3.png, a custom pick draws the nearest custom/<age>-<skin>-<hair>-<length>.png"
+    when: "same API; presets draw pilot1–3.png, a custom pick draws exactly custom/<age>-<skin>-<hair>-<length>.png (silhouette while that file is missing)"
   - function: "GameContext.setSave(save)"
     when: "the builder stores the pick as save.look; nothing else persists it"
 satisfies_contracts: []
 known_issues:
   - "Moods and gestures are ignored for image portraits (one face per character); only talk and blink frames animate."
   - "Until wingman.png exists the wingman keeps the procedural portrait (src/render/portraits/procedural.ts)."
+  - "Resolved 2026-10-26: wingman.png (Duke in the cockpit, via 'Top Gun pixel pilot – cockpit') landed; the procedural portrait code is deleted."
 security_read_sites:
   - src/game/save.ts (parseSave → parseLook: untrusted localStorage value, old looks migrated)
 sister_projects: []
@@ -63,7 +63,7 @@ Owner decision (2026-10-26): the characters' faces are no longer drawn in code. 
 portraits with their own ComfyUI workflows — **"Top Gun pixel pilot portrait"** and **"Top Gun pixel crew
 portrait"** (FLUX.2 klein, rendered at 720 × 864, reduced by area to **240 × 288**, **64 colours**, saved as
 indexed PNGs on a true pixel grid) — and the game shows those images: the three pilots on pilot select, the
-admiral, the deck officer (shooter) and the crew chief, and later the wingman. "Create your own" picks from a
+admiral, the deck officer (shooter), the crew chief and the wingman. "Create your own" picks from a
 matching set of generated portraits. They are generated illustrations, never photos of people. The procedural
 portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 
@@ -75,7 +75,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 | `admiral.png` (+ `admiral-talk.png`) | the admiral — no blink frame (dark sunglasses) |
 | `shooter.png` (+ `-talk`, `-blink`) | the catapult / deck officer |
 | `chief.png` (+ `-talk`, `-blink`) | the crew chief |
-| `wingman.png` (+ `-talk`, `-blink`) | the wingman (until it exists: the procedural portrait) |
+| `wingman.png` (+ `-talk`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
 | `custom/<age>-<skin>-<hair>-<length>.png` | the builder set: age `kid|adult`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long` (64) |
 
 Talk and blink frames are identical to the base outside the mouth / eyes. Every file is discovered with
@@ -104,13 +104,14 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
 
 ## Who uses what
 
-- `drawPortrait(ctx, id, box, state)` (doc 06, unchanged API): admiral, shooter, chief → their images; the wingman
-  → `wingman.png` as soon as it exists, until then the procedural portrait (`procedural.ts`, the only procedural
-  character left; retiring it is a one-file follow-up: drop the fallback in `portraits/index.ts`, then delete
-  `procedural.ts`, `wingman.ts`, `parts.ts`, `features.ts`, `hands.ts`, `pixel-cast.test.ts`; the head tilt
-  `Pix.rot` / `nudge` in `pixel/raster.ts` is then unused too).
+- `drawPortrait(ctx, id, box, state)` (doc 06, unchanged API): admiral, shooter, chief and wingman → their
+  images. The wingman is Lt. "Duke" Carter in the cockpit: his face from 'Top Gun pixel crew portrait', then that
+  image through 'Top Gun pixel pilot – cockpit' (helmet, hanging oxygen mask, harness). The procedural portrait
+  code (`procedural.ts`, `wingman.ts`, `features.ts`, `hands.ts`, `pixel-cast.test.ts`) is deleted; `parts.ts`
+  stays (the jets and enemies use it).
 - `drawPilotAvatar(ctx, face, box, state)` (doc 29, unchanged API): `pilot1–3` → `pilot1–3.png`; a custom pick →
-  the nearest available `custom/…png` (`nearestLookKey`: same age first, then skin, hair colour, length). Used by
+  exactly its own `custom/…png` (`portraitKey`; a silhouette while that file is missing — owner testing showed a
+  nearest-match fallback with a half-generated set makes every pick look the same). Used by
   NEW PILOT, the pilot list, the map header and the builder.
 
 ## Builder v3 (`src/game/avatar-look.ts`, `src/scenes/avatar-builder*.ts`)
@@ -120,7 +121,7 @@ interface AvatarLook { age: 'kid' | 'adult'; skin: 'fair' | 'olive' | 'brown' | 
 ```
 
 - Four rows ◀ ▶ (AGE, SKIN, HAIR COLOUR, HAIR LENGTH; EN + DE labels), RANDOM, CANCEL, DONE, and ORIGINAL for an
-  existing pilot. The preview is the matching custom portrait (or the nearest one while the set is incomplete).
+  existing pilot. The preview is the matching custom portrait (a silhouette until it is generated).
 - `parseLook` migrates the old v1/v2 looks (`{ hair: style, hairColor, skin, … }`): skin index of the 8 old tones
   → 4 buckets (pale·light → fair, ruddy·tan → olive, olive·brown → brown, deep·ebony → dark), hair colour family
   (black · dark brown, brown, chestnut → brown · auburn, strawberry, ginger, pink → red · golden, blond, platinum,
@@ -134,12 +135,12 @@ interface AvatarLook { age: 'kid' | 'adult'; skin: 'fair' | 'olive' | 'brown' | 
 
 - The game never generates, edits or ships photos; all portraits are the owner's generated illustrations.
 - Image portraits are always drawn nearest-neighbour or from a reduced copy, never smoothed.
-- A missing image never breaks a screen: placeholder while loading, nearest custom pick, procedural wingman.
+- A missing image never breaks a screen: placeholder while loading, silhouette for a custom pick not generated yet.
 - Old saves keep working: a stored v1/v2 look becomes the nearest pick on load.
 
 ## Verification (2026-10-26)
 
-Vitest (pick model and migration, nearest-asset choice, random picks, frame timing, reduction, asset contract,
+Vitest (pick model and migration, exact asset choice, random picks, frame timing, reduction, asset contract,
 save parsing), `tsc --noEmit`, production build (PNGs emitted as hashed assets, smaller JS); browser: NEW PILOT,
 builder, dialogues with the admiral / shooter / chief, map header, hangar walker and ceremony with a custom pick,
 an old save with a v2 look.
@@ -155,7 +156,7 @@ Asset URLs come from the build (Vite), not from user data; the stored pick is wh
 ## Known Issues
 
 - Moods and gestures are ignored for image portraits (one face per character); only talk and blink frames animate.
-- Until `wingman.png` exists the wingman keeps the procedural portrait.
+- (Resolved) the wingman's procedural portrait is retired; `wingman.png` is in.
 
 ## Bugs
 

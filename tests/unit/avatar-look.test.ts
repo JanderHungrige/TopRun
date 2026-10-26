@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  cycleLook, DEFAULT_LOOK, LOOK_PARTS, lookFromKey, lookKey, lookOptions, lookPreset, nearestLookKey, parseLook, PRESET_LOOKS,
+  cycleLook, DEFAULT_LOOK, LOOK_PARTS, lookFromKey, lookKey, lookOptions, lookPreset, parseLook, portraitKey, PRESET_LOOKS,
   randomLook, sameLook, type AvatarLook,
 } from '../../src/game/avatar-look';
 import { AVATAR_IDS } from '../../src/game/profiles';
@@ -84,21 +84,17 @@ describe('avatar pick', () => {
     expect(sameLook(look, { ...look })).toBe(true);
   });
 
-  describe('nearestLookKey', () => {
+  describe('portraitKey', () => {
     const want: AvatarLook = { age: 'adult', skin: 'brown', hair: 'red', length: 'long' };
 
     it('takes the exact portrait when it exists, and nothing when the set is empty', () => {
-      expect(nearestLookKey(want, ALL)).toBe('adult-brown-red-long');
-      expect(nearestLookKey(want, [])).toBeNull();
-      expect(nearestLookKey(want, ['pilot1', 'adult-brown-red-long-talk'])).toBeNull();
+      expect(portraitKey(want, ALL)).toBe('adult-brown-red-long');
+      expect(portraitKey(want, [])).toBeNull();
+      expect(portraitKey(want, ['pilot1', 'adult-brown-red-long-talk'])).toBeNull();
     });
 
-    it('keeps the age first, then the skin, then the hair colour, then the length', () => {
-      expect(nearestLookKey(want, ['kid-brown-red-long', 'adult-fair-black-short'])).toBe('adult-fair-black-short');
-      expect(nearestLookKey(want, ['adult-fair-red-long', 'adult-brown-black-short'])).toBe('adult-brown-black-short');
-      expect(nearestLookKey(want, ['adult-brown-blond-long', 'adult-brown-black-long'])).toBe('adult-brown-blond-long');
-      expect(nearestLookKey(want, ['adult-brown-red-short', 'adult-olive-red-long'])).toBe('adult-brown-red-short');
-      expect(nearestLookKey(want, ['adult-dark-red-long', 'adult-olive-red-long'])).toBe('adult-dark-red-long'); // tie → by name
+    it('never stands in a different portrait while the set is incomplete', () => {
+      expect(portraitKey(want, ['adult-brown-red-short', 'kid-brown-red-long', 'adult-olive-red-long'])).toBeNull();
     });
   });
 

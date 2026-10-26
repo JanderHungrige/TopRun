@@ -112,7 +112,9 @@ Owner feedback (2026-10-25): the arcade parts (jets, missions, carrier, HUD) are
   synthetic italic typewriter looks cheap), so the old `italic` text option is ignored. The only
   exception is the title logo — 'TOPGUN' and its 'CARRIER STRIKE' banner keep the heavy display face
   (`LOGO_FONT` in `render/logo.ts`). Drawn bitmap lettering (the hangar's split-flap board) is art,
-  not a font, and stays.
+  not a font, and stays. The typewriter face runs wider, so every screen was checked in EN and DE
+  with a 12-letter callsign; the map's top bar now starts the callsign and money at x 860 and caps
+  them at the BASE button (the "campaign complete" line moved under the mission count).
 - **Retro RPG text box** instead of comic speech bubbles (owner choice): a dark box with a pixel
   border, the pixel portrait beside it in a frame, a name plate, text typed out letter by letter with
   a blinking block cursor and typewriter clicks.

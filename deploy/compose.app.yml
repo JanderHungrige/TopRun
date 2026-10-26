@@ -5,7 +5,7 @@
 #
 # COMPOSE_PROJECT_NAME (set in the env-file) names the stack. The port is published on the
 # Docker bridge gateway 172.17.0.1 and nowhere else: Nginx Proxy Manager runs as a container
-# and reaches the app there (toprun.questenterprise.de -> http://172.17.0.1:8081). A bare
+# and reaches the app there (topgun.questenterprise.de -> http://172.17.0.1:8081). A bare
 # "8081:8080" would bind 0.0.0.0 and answer the whole internet in plaintext beside the proxy.
 services:
   app:

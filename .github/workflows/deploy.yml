@@ -6,7 +6,7 @@ name: build-and-push
 # The host (159.195.148.193) runs a root cron (deploy/roll-all.sh -> deploy/auto-deploy.sh)
 # that polls GHCR and rolls the container — this workflow never SSHes into the host.
 #
-#   main -> image :main (+ :<sha>) -> prod stack on 172.17.0.1:8081 -> toprun.questenterprise.de
+#   main -> image :main (+ :<sha>) -> prod stack on 172.17.0.1:8081 -> topgun.questenterprise.de
 #
 # TLS and the domain are handled in front by Nginx Proxy Manager.
 
@@ -102,4 +102,4 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           echo "Pushed :main and :${{ github.sha }} to ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ env.IMAGE }} and /${{ env.LADDER_IMAGE }}." >> "$GITHUB_STEP_SUMMARY"
-          echo "The host cron rolls it out on its next tick (~1 min): https://toprun.questenterprise.de/" >> "$GITHUB_STEP_SUMMARY"
+          echo "The host cron rolls it out on its next tick (~1 min): https://topgun.questenterprise.de/" >> "$GITHUB_STEP_SUMMARY"

@@ -78,11 +78,11 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
 
 ## API
 
-- `GET /api/ladder` → `{ pilots: [{ callsign, avatar, rating, rank, updatedAt }], updatedAt }` — every
+- `GET /api/ladder` → `{ pilots: [{ callsign, avatar, country, rating, rank, updatedAt }], updatedAt }` — every
   entry (≤ 1 000) by rating (ties: whoever reached that rating first, `ratedAt`). Never contains ids or
   secrets. `Cache-Control: no-store`.
-- `POST /api/ladder` body `{ id, secret, callsign, avatar, stats }` (JSON, ≤ 2 KB; unknown fields are
-  ignored):
+- `POST /api/ladder` body `{ id, secret, callsign, avatar, country, stats }` (JSON, ≤ 2 KB; unknown fields
+  are ignored):
   - `id`: random pilot id (22–40 chars `[A-Za-z0-9_-]`), `secret`: random 32–64 chars, both created
     in the browser and kept in the pilot's profile (doc 28).
   - `stats` = `RatingStats` (doc 26); the service **computes the rating itself** from the stats
@@ -96,6 +96,10 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
     (doc 29). Checked against those two fixed patterns (`parseAvatar`); anything else, or a missing
     field (older clients, entries stored before), becomes `null` and the row shows a silhouette. It is
     only ever mapped to a bundled portrait, never used as a URL or path.
+  - `country` (owner, 2026-10-27: a flag "from the country the user is logged in the first time"): an
+    ISO 3166-1 alpha-2 code from `COUNTRY_CODES` (`src/data/countries.ts`, the codes of the tz database's
+    `zone.tab`; `parseCountry`), else `null`. The browser decides it once (doc 28); the service keeps a
+    stored country when a later post has none, so a device that cannot tell does not erase it.
   - 200 → `{ place, rating, rank }`; 400 malformed; 403 wrong secret; 413 too large;
     415 not JSON; 429 rate.
 - `DELETE /api/ladder` body `{ id, secret }` → `{ removed }` (opt-out, doc 28).
@@ -103,7 +107,7 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
 
 ## Business Rules
 
-- The store keeps `{ id, secretHash (sha-256), callsign, avatar, stats, rating, ratedAt, updatedAt }`;
+- The store keeps `{ id, secretHash (sha-256), callsign, avatar, country, stats, rating, ratedAt, updatedAt }`;
   `ladder.json` is written atomically (temp file + rename) at most once per second (debounced),
   and flushed on SIGTERM. An unreadable file is moved aside (`ladder.json.corrupt-<ms>`) and the
   service starts empty instead of crash-looping.

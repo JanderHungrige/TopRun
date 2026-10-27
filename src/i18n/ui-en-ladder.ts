@@ -16,7 +16,7 @@ export const UI_EN_LADDER = {
   'ladder.refresh': 'REFRESH',
   'ladder.shareOn': 'SHOW MY PILOT: ON',
   'ladder.shareOff': 'SHOW MY PILOT: OFF',
-  'ladder.public': 'Callsign, avatar and rating are visible to everyone with the game\'s link.',
+  'ladder.public': 'Callsign, avatar, flag and rating are visible to everyone with the game\'s link.',
   'ladder.hint': '↑/↓ scroll  ·  ←/→ buttons  ·  ESC back',
   'ladder.page': '{from}–{to} of {total}',
   'rank.ensign': 'Ensign',

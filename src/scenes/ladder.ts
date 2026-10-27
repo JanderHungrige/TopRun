@@ -157,7 +157,8 @@ export class LadderScene implements Scene {
     const p = this.game.profile;
     if (!this.mine || !p || !this.link?.share) return null;
     const local: PublicPilot = {
-      callsign: p.callsign, avatar: ladderAvatar(p.avatar, p.save.look), rating: this.mine.rating, rank: this.mine.rank, updatedAt: 0,
+      callsign: p.callsign, avatar: ladderAvatar(p.avatar, p.save.look), country: p.save.ladder?.country ?? null,
+      rating: this.mine.rating, rank: this.mine.rank, updatedAt: 0,
     };
     return { place: this.mine.place, pilot: local, you: true };
   }

@@ -13,7 +13,7 @@ function veteran(): Profile {
     id: 'pmvpc20hta67i', callsign: 'ICE-MAN 2', avatar: 'pilot3', createdAt: 1_789_000_000_000, playedAt: 1_790_000_100_000,
     save: {
       ...save, money: 987_654, ownedPlanes: ['f16', 'f14', 'sr71'], selectedPlane: 'f14', gunLevel: 5,
-      ladder: { id: `p_${'a'.repeat(22)}`, secret: 'S'.repeat(43), share: true },
+      ladder: { id: `p_${'a'.repeat(22)}`, secret: 'S'.repeat(43), share: true, country: 'DE' },
       look: { age: 'adult', gender: 'female', skin: 'olive', hair: 'red', length: 'short', face: 'f2' },
     },
   };

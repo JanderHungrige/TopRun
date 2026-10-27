@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applySubmission, emptyTable, MAX_ENTRIES, parseAvatar, parseSubmission, parseTable, PUBLIC_TOP, publicLadder, removeEntry,
+  applySubmission, emptyTable, MAX_ENTRIES, parseAvatar, parseCountry, parseSubmission, parseTable, PUBLIC_TOP, publicLadder, removeEntry,
   type LadderTable, type Submission,
 } from '../../src/game/ladder';
 import { AVATAR_IDS } from '../../src/game/profiles';
@@ -10,7 +10,7 @@ const ID = 'p_0123456789abcdefghijkl';
 const SECRET = 's'.repeat(40);
 const hash = (s: string): string => `h:${s}`;
 const sub = (over: Partial<Submission> = {}): Submission => ({
-  id: ID, secret: SECRET, callsign: 'MAVERICK', avatar: 'pilot7',
+  id: ID, secret: SECRET, callsign: 'MAVERICK', avatar: 'pilot7', country: 'DE',
   stats: { stars: 10, medals: 2, kills: 100, golds: 1, silvers: 0, bronzes: 0 }, ...over,
 });
 const post = (t: LadderTable, s: Submission, now = 1000) => applySubmission(t, s, hash(s.secret), now);
@@ -25,6 +25,9 @@ describe('Online ladder rules', () => {
     expect(parseSubmission({ ...sub(), avatar: '../../etc/passwd' })).toEqual(sub({ avatar: null }));
     const { avatar: _old, ...noAvatar } = sub();
     expect(parseSubmission(noAvatar)).toEqual(sub({ avatar: null }));
+    expect(parseSubmission({ ...sub(), country: 'ZZ' })).toEqual(sub({ country: null }));
+    const { country: _c, ...noCountry } = sub();
+    expect(parseSubmission(noCountry)).toEqual(sub({ country: null }));
     expect(parseSubmission({ ...sub(), stats: { stars: 'many' } })).toBeNull();
     expect(parseSubmission(null)).toBeNull();
     expect(parseSubmission({ ...sub(), callsign: '  maverick ' })?.callsign).toBe('MAVERICK');
@@ -45,6 +48,10 @@ describe('Online ladder rules', () => {
     const update = post(first.table, sub({ stats: { ...sub().stats, stars: 20 } }), 3000);
     expect(update.ok && update.entry.rating).toBe(2000 + 500 + 200 + 150);
     expect(update.ok && update.table.pilots).toHaveLength(1);
+    const unknown = post(first.table, sub({ country: null }), 4000);
+    expect(unknown.ok && unknown.entry.country).toBe('DE');
+    const moved = post(first.table, sub({ country: 'AT' }), 5000);
+    expect(moved.ok && moved.entry.country).toBe('AT');
   });
 
   it('ranks publicly by rating, ties by who got there first, without ids or secrets', () => {
@@ -58,7 +65,7 @@ describe('Online ladder rules', () => {
     add('p_cccccccccccccccccccccc', 'VIPER', 30, 4);
     const pub = publicLadder(t);
     expect(pub.map((p) => p.callsign)).toEqual(['GOOSE', 'VIPER', 'ICE']);
-    expect(pub[0]).toEqual({ callsign: 'GOOSE', avatar: 'pilot7', rating: 5000, rank: 'lcdr', updatedAt: 6 });
+    expect(pub[0]).toEqual({ callsign: 'GOOSE', avatar: 'pilot7', country: 'DE', rating: 5000, rank: 'lcdr', updatedAt: 6 });
     expect(JSON.stringify(pub)).not.toMatch(/secret|p_aaaa|h:/);
   });
 
@@ -85,6 +92,13 @@ describe('Online ladder rules', () => {
     expect(parseTable('garbage')).toEqual(emptyTable());
     const { avatar: _gone, ...old } = r.table.pilots[0] ?? {};
     expect(parseTable({ version: 1, pilots: [old] }).pilots[0]?.avatar).toBeNull();
+    const { country: _gone2, ...older } = old;
+    expect(parseTable({ version: 1, pilots: [older] }).pilots[0]?.country).toBeNull();
+  });
+
+  it('takes as country only an ISO code of the tz database (doc 27)', () => {
+    for (const ok of ['DE', 'AT', 'CH', 'US', 'GB', 'JP']) expect(parseCountry(ok)).toBe(ok);
+    for (const bad of ['de', 'DEU', 'ZZ', 'EU', '', 'D', 49, null, {}]) expect(parseCountry(bad)).toBeNull();
   });
 
   it('takes as avatar only a preset id or a builder look key (doc 27)', () => {

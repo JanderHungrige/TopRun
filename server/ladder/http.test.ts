@@ -17,7 +17,7 @@ const memoryStore = (): Store & { sets: number } => {
 };
 
 const pilot = (over: Record<string, unknown> = {}) => ({
-  id: 'p_0123456789abcdefghijkl', secret: 'k'.repeat(43), callsign: 'Iceman', avatar: 'pilot11',
+  id: 'p_0123456789abcdefghijkl', secret: 'k'.repeat(43), callsign: 'Iceman', avatar: 'pilot11', country: 'NL',
   stats: { stars: 12, medals: 1, kills: 40, golds: 0, silvers: 2, bronzes: 0 }, ...over,
 });
 
@@ -53,7 +53,7 @@ describe('Ladder service HTTP', () => {
     expect(r.status).toBe(200);
     expect(await r.json()).toEqual({ place: 1, rating: 1200 + 250 + 80 + 160, rank: 'ltjg' });
     const text = await (await fetch(`${base}${LADDER_PATH}`)).text();
-    expect(JSON.parse(text).pilots).toEqual([{ callsign: 'ICEMAN', avatar: 'pilot11', rating: 1690, rank: 'ltjg', updatedAt: clock }]);
+    expect(JSON.parse(text).pilots).toEqual([{ callsign: 'ICEMAN', avatar: 'pilot11', country: 'NL', rating: 1690, rank: 'ltjg', updatedAt: clock }]);
     expect(text).not.toContain('kkkk');
     expect(text).not.toContain('p_0123');
   });

@@ -28,7 +28,8 @@ files from an nginx container behind the owner's reverse proxy.
   (doc 33); the pilot presets (`pilot1–19`) are drawn after photos the owner supplied, with the consent of the people
   shown, every other face is original. Never add photos or source photos to the repo. The hangar's item pictures are generated
   pixel art too (`src/assets/items/`, doc 02).
-- Apart from those portraits and item pictures, art is drawn in code and audio is synthesized with WebAudio.
+- Apart from those portraits, the item pictures and the ladder's flag sheet (`src/assets/flags/`, real flags
+  pixelated from the MIT flag-icons set, doc 28), art is drawn in code and audio is synthesized with WebAudio.
 
 ## Testing in the browser
 - `npm run dev` exposes `window.__toprun` (dev only, stripped from builds): `step(frames)`, `go(route)`,

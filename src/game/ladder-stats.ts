@@ -1,7 +1,7 @@
 import { RANK_IDS, type RankId } from '../data/ranks';
 import { lookFromKey, lookKey, PRESET_LOOKS, type AvatarLook } from './avatar-look';
 import { validateCallsign } from './callsign';
-import { parseAvatar, PUBLIC_TOP, type PublicPilot } from './ladder';
+import { parseAvatar, parseCountry, PUBLIC_TOP, type PublicPilot } from './ladder';
 import type { Medal } from './minigames/core';
 import type { AvatarId } from './profiles';
 import type { RatingStats } from './rating';
@@ -14,6 +14,8 @@ export interface LadderLink {
   id: string;
   secret: string;
   share: boolean;
+  /** The flag: decided once, at the first save or pilot pick with a known country (doc 28). */
+  country: string | null;
 }
 
 /** Stats for the pilot rating. `tiers` = medal tier of each built minigame's personal best. */
@@ -61,13 +63,13 @@ export function parseLadderLink(v: unknown): LadderLink | null {
   const { id, secret, share } = v;
   if (typeof id !== 'string' || !/^p_[A-Za-z0-9_-]{22}$/.test(id)) return null;
   if (typeof secret !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(secret) || typeof share !== 'boolean') return null;
-  return { id, secret, share };
+  return { id, secret, share, country: parseCountry(v.country) };
 }
 
 /** The save with a ladder link; `random` is only called when the pilot has none yet. */
 export function withLadderLink(save: SaveData, random: () => Uint8Array): SaveData {
   if (save.ladder) return save;
-  return { ...save, ladder: { ...ladderIdentity(random()), share: true } };
+  return { ...save, ladder: { ...ladderIdentity(random()), share: true, country: null } };
 }
 
 export interface LadderView {
@@ -89,7 +91,7 @@ function parsePilot(v: unknown): PublicPilot | null {
   const { callsign, rating, rank, updatedAt } = v;
   if (typeof callsign !== 'string' || validateCallsign(callsign, []) !== 'ok') return null;
   if (!isCount(rating) || !isRank(rank) || !isCount(updatedAt)) return null;
-  return { callsign, avatar: parseAvatar(v.avatar), rating, rank, updatedAt };
+  return { callsign, avatar: parseAvatar(v.avatar), country: parseCountry(v.country), rating, rank, updatedAt };
 }
 
 /** The service's GET answer (untrusted network JSON) → view; bad rows are dropped, a bad answer is null. */

@@ -47,7 +47,7 @@ describe('Ladder client side and write limit', () => {
   it('links a pilot to the ladder once, sharing by default, and keeps the link in the save', () => {
     const linked = withLadderLink(defaultSave(), () => BYTES);
     expect(defaultSave().ladder).toBeNull();
-    expect(linked.ladder).toEqual({ ...ladderIdentity(BYTES), share: true });
+    expect(linked.ladder).toEqual({ ...ladderIdentity(BYTES), share: true, country: null });
     expect(withLadderLink(linked, () => { throw new Error('must not draw a new id'); })).toBe(linked);
     expect(parseSave(JSON.parse(JSON.stringify(linked)))?.ladder).toEqual(linked.ladder);
     expect(parseSave({ ...defaultSave(), ladder: 'junk' })?.ladder).toBeNull();
@@ -65,12 +65,13 @@ describe('Ladder client side and write limit', () => {
   });
 
   it('reads the ladder from the network defensively', () => {
-    const ok = { callsign: 'GOOSE', avatar: 'pilot3', rating: 5000, rank: 'lcdr', updatedAt: 9 };
+    const ok = { callsign: 'GOOSE', avatar: 'pilot3', country: 'CH', rating: 5000, rank: 'lcdr', updatedAt: 9 };
     expect(parseLadderView({ pilots: [ok, { ...ok, callsign: '<b>x</b>' }, { ...ok, rank: 'pope' }, 7], updatedAt: 9 }))
       .toEqual({ pilots: [ok], updatedAt: 9 });
     expect(parseLadderView({ pilots: [{ ...ok, avatar: 'javascript:alert(1)' }], updatedAt: 9 })?.pilots[0]?.avatar).toBeNull();
     const { avatar: _a, ...older } = ok;
     expect(parseLadderView({ pilots: [older], updatedAt: 9 })?.pilots[0]?.avatar).toBeNull();
+    expect(parseLadderView({ pilots: [{ ...ok, country: '<b>' }], updatedAt: 9 })?.pilots[0]?.country).toBeNull();
     expect(parseLadderView('<!doctype html>')).toBeNull();
     expect(parseLadderView({ pilots: 'x', updatedAt: 1 })).toBeNull();
     expect(parsePostReply({ place: 2, rating: 1690, rank: 'ltjg' })).toEqual({ place: 2, rating: 1690, rank: 'ltjg' });
@@ -83,7 +84,7 @@ describe('Ladder client side and write limit', () => {
     expect(ladderAvatar('pilot14', null)).toBe('pilot14');
     expect(ladderAvatar('pilot2', look)).toBe('adult-female-fair-red-long-f2');
     expect(parseSubmission({ id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(43), callsign: 'ACE',
-      avatar: ladderAvatar('pilot2', look), stats: ladderStats(defaultSave(), [], 0, 0) })?.avatar).toBe('adult-female-fair-red-long-f2');
+      avatar: ladderAvatar('pilot2', look), country: 'DE', stats: ladderStats(defaultSave(), [], 0, 0) })?.avatar).toBe('adult-female-fair-red-long-f2');
     expect(ladderFace('pilot14')).toBe('pilot14');
     expect(ladderFace('adult-female-fair-red-long-f2')).toEqual(look);
     expect(ladderFace(null)).toBeNull();

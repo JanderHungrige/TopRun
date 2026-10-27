@@ -7,5 +7,5 @@
     "types": ["node"],
     "erasableSyntaxOnly": true
   },
-  "include": ["server", "src/game/ladder.ts", "src/game/rating.ts", "src/game/callsign.ts", "src/data/ranks.ts"]
+  "include": ["server", "src/game/ladder.ts", "src/game/rating.ts", "src/game/callsign.ts", "src/data/ranks.ts", "src/data/countries.ts"]
 }

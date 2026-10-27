@@ -10,7 +10,7 @@ beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'ladder-')); });
 afterEach(() => rm(dir, { recursive: true, force: true }));
 
 const sub = {
-  id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(40), callsign: 'GOOSE', avatar: 'pilot4',
+  id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(40), callsign: 'GOOSE', avatar: 'pilot4', country: 'DE',
   stats: { stars: 4, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 },
 };
 

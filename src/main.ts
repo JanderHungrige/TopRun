@@ -12,6 +12,7 @@ import {
   type ProfileStore,
 } from './game/profiles';
 import type { Submission } from './game/ladder';
+import { deviceCountry, withLadderCountry } from './game/ladder-country';
 import { ladderAvatar, withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
 import { toggleAllSound, type Settings } from './game/settings';
@@ -84,8 +85,13 @@ class Game implements GameContext {
       return;
     }
     const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
-    this.commit(updateActiveSave(this.store, linked));
+    this.commit(updateActiveSave(this.store, withLadderCountry(linked, this.localCountry())));
     this.ladder.poke();
+  }
+
+  /** The device's country for the ladder flag (doc 28): its time zone, else its language region. */
+  private localCountry(): string | null {
+    return deviceCountry(Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.languages ?? [navigator.language]);
   }
 
   /** What the active pilot reports to the online ladder; null while not shared (doc 28). */
@@ -93,7 +99,8 @@ class Game implements GameContext {
     const p = activeProfile(this.store);
     const link = p?.save.ladder;
     if (!p || !link?.share) return null;
-    return { id: link.id, secret: link.secret, callsign: p.callsign, avatar: ladderAvatar(p.avatar, p.save.look), stats: pilotStats(p.save) };
+    const avatar = ladderAvatar(p.avatar, p.save.look);
+    return { id: link.id, secret: link.secret, callsign: p.callsign, avatar, country: link.country, stats: pilotStats(p.save) };
   }
 
   setSettings(next: Settings): void {
@@ -124,7 +131,10 @@ class Game implements GameContext {
 
   selectProfile(id: string): void {
     this.commit(selectProfile(this.store, id, Date.now()));
-    this.ladder.poke(); // an entry catches up (e.g. its avatar) as soon as its pilot is picked
+    const save = activeProfile(this.store)?.save;
+    // An entry catches up as soon as its pilot is picked: its avatar, and a flag it has none of yet (doc 28).
+    if (save?.ladder?.country === null) this.setSave(save); // setSave pokes the ladder too
+    else this.ladder.poke();
   }
 
   deleteProfile(id: string): void {

@@ -63,11 +63,18 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 ## Posting (automatic)
 
 - After every `setSave()` the game pokes `LadderSync`; 2.5 s later (debounced) it posts the active
-  pilot's `{ id, secret, callsign, avatar, stats }` if `share` is on and the submission differs from
+  pilot's `{ id, secret, callsign, avatar, country, stats }` if `share` is on and the submission differs from
   the last one accepted this session. That covers debriefs, minigame bests and hangar purchases
   without touching those scenes. Choosing a pilot (`selectProfile`, the CONTINUE list) pokes it too, so
   an entry catches up as soon as its pilot is picked — e.g. the avatar that older entries lack (owner,
   2026-10-27: "are the avatars filled in when the players log in?").
+- **Country (owner, 2026-10-27):** a pilot's flag comes "from the country the user is logged in the first
+  time". Decided in the browser, no IP lookup and no third party (owner's choice): the device's time zone
+  (`Intl…resolvedOptions().timeZone`, e.g. `Europe/Berlin` → `DE`, via the tz database's `zone.tab` in
+  `src/data/time-zones.ts` plus the old names browsers still report, e.g. `Asia/Calcutta`), else the region
+  of the first browser language that has one (`de-DE` → `DE`), else unknown. It is stored once in the
+  pilot's ladder link (`LadderLink.country`, `withLadderCountry`) on the first save or the next pilot pick
+  and never changes after that (a trip abroad keeps the first flag; a pilot code carries it along).
 - Stats: `pilotStats(save)` = `ladderStats(save, tiers, medals, kills)` — stars summed over
   progress, minigame tiers from the registry (`minigameTiers(save)`: each built game's
   personal-best medal), medals = `earnedMedals(save, goldCount(save)).length` (doc 24), kills =
@@ -78,9 +85,12 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 
 - Opened from the hangar base's LADDER area (route `ladder`); BACK / Esc returns to `base`. Not on
   the title menu any more. Header "ONLINE LADDER", backdrop like the pilot list.
-- Table: place, rank board + rank name, avatar, callsign, rating. The avatar is a small face crop of the
+- Table: place, rank board + rank name, flag, avatar, callsign, rating. The avatar is a small face crop of the
   pilot's portrait (`ladderAvatar`: the builder look's key when the pilot built one, else the preset;
   `ladderFace` maps it back), drawn left of the callsign; an entry without one shows a dark silhouette.
+  The flag (`drawFlag`, `src/render/flags.ts`) sits left of the avatar: a small pixel flag drawn in code for
+  the common countries (`FLAGS`, `src/data/flags.ts` — stripes, crosses and a few hand-drawn ones), any other
+  country a small badge with its code (owner's choice); no flag while the country is unknown.
   10 rows per page, ↑/↓ scroll
   a row, the ▲/▼ buttons right of the table a page (mouse, touch, or focus + ENTER).
 - **Your row is always visible and highlighted:** the active pilot's row is found by the place from
@@ -93,7 +103,7 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 - Buttons: BACK, REFRESH, SHOW MY PILOT: ON/OFF (active pilot only; OFF deletes the entry and
   stops posting, ON posts at once). While sharing is off, every visit retries the DELETE, so an
   opt-out that hit a network error still lands. Keyboard: ←/→ between buttons, ↑/↓ scroll, Esc back.
-- A small info line: "Callsign, avatar and rating are visible to everyone with the game's link."
+- A small info line: "Callsign, avatar, flag and rating are visible to everyone with the game's link."
 
 ## Ranks elsewhere
 

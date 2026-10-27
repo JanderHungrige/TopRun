@@ -1,3 +1,4 @@
+import { COUNTRY_CODES } from '../data/countries.ts';
 import type { RankId } from '../data/ranks.ts';
 import { normalizeCallsign, validateCallsign } from './callsign.ts';
 import { clampStats, pilotRating, rankFor, type RatingStats } from './rating.ts';
@@ -22,6 +23,8 @@ export interface Submission {
   callsign: string;
   /** The pilot's portrait key (`parseAvatar`); null when missing or unknown. */
   avatar: string | null;
+  /** ISO country code for the flag (`parseCountry`); null when unknown. */
+  country: string | null;
   stats: RatingStats;
 }
 
@@ -30,6 +33,7 @@ export interface LadderEntry {
   secretHash: string;
   callsign: string;
   avatar: string | null;
+  country: string | null;
   stats: RatingStats;
   rating: number;
   /** When the current rating was first reached (earlier wins a tie). */
@@ -45,6 +49,7 @@ export interface LadderTable {
 export interface PublicPilot {
   callsign: string;
   avatar: string | null;
+  country: string | null;
   rating: number;
   rank: RankId;
   updatedAt: number;
@@ -67,6 +72,9 @@ const LOOK_AVATAR = /^(kid|adult)-(female|male)-(fair|olive|brown|dark)-(black|b
 /** Untrusted avatar → the same key when it names a known portrait, else null. */
 export const parseAvatar = (v: unknown): string | null =>
   typeof v === 'string' && (PRESET_AVATAR.test(v) || LOOK_AVATAR.test(v)) ? v : null;
+
+/** Untrusted country → the same ISO code when the tz database knows it, else null. */
+export const parseCountry = (v: unknown): string | null => (typeof v === 'string' && COUNTRY_CODES.has(v) ? v : null);
 
 function parseStats(v: unknown): RatingStats | null {
   if (!isRecord(v)) return null;
@@ -99,7 +107,7 @@ export function parseSubmission(v: unknown): Submission | null {
   const callsign = parseCallsign(v.callsign);
   const stats = parseStats(v.stats);
   if (callsign === null || stats === null) return null;
-  return { ...who, callsign, avatar: parseAvatar(v.avatar), stats };
+  return { ...who, callsign, avatar: parseAvatar(v.avatar), country: parseCountry(v.country), stats };
 }
 
 /** Compares two hashes without an early exit, so timing reveals nothing. */
@@ -134,7 +142,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
   const stats = clampStats(sub.stats);
   const rating = pilotRating(stats);
   const entry: LadderEntry = {
-    id: sub.id, secretHash, callsign: sub.callsign, avatar: sub.avatar, stats, rating,
+    id: sub.id, secretHash, callsign: sub.callsign, avatar: sub.avatar, country: sub.country ?? prev?.country ?? null, stats, rating,
     ratedAt: prev && prev.rating === rating ? prev.ratedAt : now,
     updatedAt: now,
   };
@@ -145,7 +153,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
 /** The top of the ladder without ids or secrets. */
 export function publicLadder(table: LadderTable): PublicPilot[] {
   return [...table.pilots].sort(byRank).slice(0, PUBLIC_TOP).map((p) => ({
-    callsign: p.callsign, avatar: p.avatar, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
+    callsign: p.callsign, avatar: p.avatar, country: p.country, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
   }));
 }
 
@@ -170,7 +178,8 @@ function parseEntry(v: unknown): LadderEntry | null {
   if (typeof id !== 'string' || !ID.test(id) || typeof secretHash !== 'string' || secretHash.length === 0) return null;
   if (callsign === null || stats === null || !isTime(ratedAt) || !isTime(updatedAt)) return null;
   const clamped = clampStats(stats);
-  return { id, secretHash, callsign, avatar: parseAvatar(v.avatar), stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
+  const avatar = parseAvatar(v.avatar);
+  return { id, secretHash, callsign, avatar, country: parseCountry(v.country), stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
 }
 
 /** Stored ladder.json → table; malformed and duplicate entries are dropped. */

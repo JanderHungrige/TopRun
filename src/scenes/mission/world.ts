@@ -58,7 +58,7 @@ export interface Bullet {
   dead: boolean;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'agm65' | 'rocket' | 'enemy';
+export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;

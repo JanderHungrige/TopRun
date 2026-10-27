@@ -3,7 +3,7 @@ import type { EquipmentId, SecondaryId } from '../data/types';
 import { fillPoly } from './shapes';
 
 /** Horizontal store drawings (nose pointing right) for the hangar; `s` = scale. */
-export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun', x: number, y: number, s: number): void {
+export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2', x: number, y: number, s: number): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
@@ -14,7 +14,10 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'agm65': missile(ctx, 50, 5, '#d8d2a8', '#55602f', '#1f2a33'); break;
     case 'rockets': rocketPod(ctx); break;
     case 'mk82': bomb(ctx); break;
+    case 'aim120': missile(ctx, 66, 3.5, '#eef0f2', '#4c5a7a', '#b9bfc6'); break;
+    case 'jdam': jdam(ctx); break;
     case 'gun': gun(ctx); break;
+    case 'gun2': twinGun(ctx); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
@@ -63,6 +66,34 @@ function bomb(ctx: CanvasRenderingContext2D): void {
   ctx.stroke();
   ctx.fillStyle = '#d6b84a';
   ctx.fillRect(12, -7, 3, 14);
+}
+
+/** 2,000 lb bomb with its guidance tail kit (doc 37). */
+function jdam(ctx: CanvasRenderingContext2D): void {
+  fillPoly(ctx, [-30, 0, -42, -13, -36, -13, -22, -4, -22, 4, -36, 13, -42, 13], '#4f5747');
+  ctx.beginPath();
+  ctx.ellipse(2, 0, 30, 10, 0, 0, TAU);
+  ctx.fillStyle = '#6b7457';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.stroke();
+  ctx.fillStyle = '#3c4237';
+  ctx.fillRect(-26, -7, 10, 14); // tail kit
+  fillPoly(ctx, [4, -10, 16, -14, 18, -14, 12, -9], '#59634a');
+  fillPoly(ctx, [4, 10, 16, 14, 18, 14, 12, 9], '#59634a');
+  ctx.fillStyle = '#d6b84a';
+  ctx.fillRect(18, -8, 3, 16);
+}
+
+/** The second gun (doc 37): two gun packs, one above the other. */
+function twinGun(ctx: CanvasRenderingContext2D): void {
+  for (const dy of [-9, 9]) {
+    ctx.save();
+    ctx.translate(0, dy);
+    ctx.scale(1, 0.7);
+    gun(ctx);
+    ctx.restore();
+  }
 }
 
 function gun(ctx: CanvasRenderingContext2D): void {

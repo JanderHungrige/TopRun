@@ -4,9 +4,10 @@
 export type PlaneId = 'f16' | 'f14' | 'sr71' | 'a10' | 'f35' | 'tornado';
 export const PLANE_IDS: readonly PlaneId[] = Object.freeze(['f16', 'f14', 'sr71', 'a10', 'f35', 'tornado'] as const);
 
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54';
+/** The last two are sold once map 2 is open (doc 37). */
+export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
-  'aim9', 'rockets', 'mk82', 'agm65', 'aim54',
+  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -80,4 +81,5 @@ export interface MissionResult {
   usedSecondaries?: boolean;
 }
 
-export type GunLevel = 1 | 2 | 3 | 4 | 5;
+/** 1–5 from the start; 6–8 once map 2 is open (doc 37). */
+export type GunLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

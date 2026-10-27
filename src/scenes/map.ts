@@ -7,6 +7,7 @@ import { enemyName, missionBriefing, missionName, objectiveText, theaterName } f
 import { t } from '../i18n/i18n';
 import type { CampaignId, MissionDef } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
+import { doubleFirepower, jetGunLevel } from '../game/firepower';
 import { campaignComplete, campaignStars, isCleared, isUnlocked, mapTwoOpen, nextMission, nextMissionOn } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { COLORS, paragraph, text } from '../render/text';
@@ -178,7 +179,8 @@ export class MapScene implements Scene {
     const s = this.game.save;
     const weapons = s.loadout[s.selectedPlane].map((id) => (id ? SECONDARIES[id].short : '—')).join(' / ');
     text(ctx, t('map.yourJet'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
-    text(ctx, t('map.gunLevel', { plane: PLANES[s.selectedPlane].name, level: s.gunLevel }), x, y + 22, { size: 15, color: COLORS.ink, maxWidth: PANEL.w - 40 });
+    const level = s.gun2Level > 0 && doubleFirepower(s.selectedPlane) ? `${jetGunLevel(s.selectedPlane, s.gunLevel)} + ${s.gun2Level}` : String(jetGunLevel(s.selectedPlane, s.gunLevel));
+    text(ctx, t('map.gunLevel', { plane: PLANES[s.selectedPlane].name, level }), x, y + 22, { size: 15, color: COLORS.ink, maxWidth: PANEL.w - 40 });
     text(ctx, weapons, x, y + 44, { size: 13, color: COLORS.dim, maxWidth: PANEL.w - 40 });
   }
 }

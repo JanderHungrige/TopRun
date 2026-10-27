@@ -6,12 +6,15 @@ export interface EquipmentDef {
   description: string;
   prices: readonly number[]; // one entry per level; length = max level
   levelText: readonly string[];
+  /** Levels on sale before map 2 opens; the rest come with map 2 (doc 37). Default: all. */
+  map1Levels?: number;
 }
 
 export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.freeze({
   armor: {
     id: 'armor', name: 'Armor Plating', description: 'Titanium plates around cockpit and engines.',
-    prices: [3000, 7000, 14000], levelText: ['+20% hull', '+40% hull', '+60% hull'],
+    prices: [3000, 7000, 14000, 25000, 40000], levelText: ['+20% hull', '+40% hull', '+60% hull', '+80% hull', '+100% hull'],
+    map1Levels: 3,
   },
   engine: {
     id: 'engine', name: 'Engine Tuning', description: 'Tuned turbines and a hotter afterburner.',
@@ -19,7 +22,8 @@ export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.fre
   },
   flares: {
     id: 'flares', name: 'Flare Dispenser', description: 'Decoys that pull enemy missiles away. Key F.',
-    prices: [2000, 4000, 8000], levelText: ['2 flares', '4 flares', '6 flares'],
+    prices: [2000, 4000, 8000, 12000, 18000], levelText: ['2 flares', '4 flares', '6 flares', '8 flares', '10 flares'],
+    map1Levels: 3,
   },
   ecm: {
     id: 'ecm', name: 'ECM Pod', description: 'Jams enemy fire control. Enemy bullets -25% damage, missiles turn 30% slower.',
@@ -39,10 +43,15 @@ export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.fre
   },
 });
 
-export const ARMOR_BONUS: readonly number[] = Object.freeze([0, 0.2, 0.4, 0.6]);
+export const ARMOR_BONUS: readonly number[] = Object.freeze([0, 0.2, 0.4, 0.6, 0.8, 1.0]);
 export const ENGINE_BONUS: readonly number[] = Object.freeze([0, 0.08, 0.16, 0.24]);
-export const FLARE_COUNT: readonly number[] = Object.freeze([0, 2, 4, 6]);
+export const FLARE_COUNT: readonly number[] = Object.freeze([0, 2, 4, 6, 8, 10]);
 
 export function maxEquipmentLevel(id: EquipmentId): number {
   return EQUIPMENT[id].prices.length;
+}
+
+/** The top level on sale before map 2 opens (doc 37). */
+export function map1EquipmentLevel(id: EquipmentId): number {
+  return EQUIPMENT[id].map1Levels ?? maxEquipmentLevel(id);
 }

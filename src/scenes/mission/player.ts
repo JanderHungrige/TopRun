@@ -1,6 +1,7 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
-import { gunLevelDef } from '../../data/weapons';
+import { gunLevelDef, MAX_GUN2_LEVEL } from '../../data/weapons';
+import { powerCap } from '../../game/firepower';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -12,6 +13,8 @@ export interface SecondarySlot {
   id: SecondaryId;
   ammo: number;
   start: number;
+  /** Twin pods: both fire per trigger (doc 37). */
+  twin: boolean;
 }
 
 /** Player jet state; behaviour that touches the world lives in weapons-fire.ts / mission-scene.ts. */
@@ -25,6 +28,9 @@ export class Player {
   forward = 0;
   invuln = 1.2;
   gunCooldown = 0;
+  /** Second gun of the new jets (doc 37): its own rate; `gun2Side` alternates the wing roots. */
+  gun2Cooldown = 0;
+  gun2Side = 1;
   secCooldown = 0;
   readonly secondaries: SecondarySlot[];
   /** Fired any missile, rocket or bomb this sortie (doc 24, Gunslinger). */
@@ -52,11 +58,16 @@ export class Player {
     this.hull = stats.maxHull;
     this.speed = stats.speed;
     this.flares = stats.flares;
-    this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo }));
+    this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin }));
   }
 
   get gunLevel(): number {
-    return Math.min(5, this.stats.gunLevel + (this.powerTimer > 0 ? 1 : 0));
+    return Math.min(powerCap(this.stats.plane.id, this.stats.gunLevel), this.stats.gunLevel + (this.powerTimer > 0 ? 1 : 0));
+  }
+
+  /** Second gun level, power-up included; 0 = no second gun. */
+  get gun2Level(): number {
+    return this.stats.gun2Level > 0 ? Math.min(MAX_GUN2_LEVEL, this.stats.gun2Level + (this.powerTimer > 0 ? 1 : 0)) : 0;
   }
 
   get gun(): ReturnType<typeof gunLevelDef> {
@@ -91,6 +102,7 @@ export class Player {
   tick(dt: number): void {
     this.invuln = Math.max(0, this.invuln - dt);
     this.gunCooldown = Math.max(0, this.gunCooldown - dt);
+    this.gun2Cooldown = Math.max(0, this.gun2Cooldown - dt);
     this.secCooldown = Math.max(0, this.secCooldown - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.specialActive = Math.max(0, this.specialActive - dt);

@@ -44,7 +44,7 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
     ctx.save();
     ctx.translate(m.x, m.y);
     ctx.rotate(m.heading);
-    ctx.fillStyle = m.kind === 'enemy' ? '#c94a3a' : m.kind === 'aim54' ? '#f0f0f0' : '#d8dde2';
+    ctx.fillStyle = m.kind === 'enemy' ? '#c94a3a' : m.kind === 'aim54' || m.kind === 'aim120' ? '#f0f0f0' : '#d8dde2';
     ctx.fillRect(-2, -8, 4, 14);
     ctx.fillStyle = '#555';
     ctx.fillRect(-4, 4, 8, 2);

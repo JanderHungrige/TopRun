@@ -5,6 +5,7 @@ import { liveryName } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
+import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
@@ -13,7 +14,7 @@ import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { itemAction, itemName, tabs } from './hangar-items';
+import { itemAction, itemName, tabs, twinAction } from './hangar-items';
 
 const BACK_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 
@@ -50,6 +51,23 @@ export class HangarScene implements Scene {
     return { id: 'action', label: a.label, enabled: a.enabled, primary: true, x: DETAIL.x + DETAIL.w - 294, y: DETAIL.y + DETAIL.h - 66, w: 270, h: 48, hint: 'ENTER' };
   }
 
+  /** TWIN PODS for an owned weapon once map 2 is open (doc 37), right of the weapon's stats. */
+  private twinButton(): Button | null {
+    const item = this.item;
+    const a = item ? twinAction(this.game.save, item) : null;
+    if (!a) return null;
+    return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 214, y: DETAIL.y + 452, w: 196, h: 32, hint: 'E' };
+  }
+
+  private buyTwinFocused(): void {
+    const item = this.item;
+    if (item?.type !== 'secondary' || !twinAction(this.game.save, item)) return;
+    const check = canBuyTwin(this.game.save, item.id);
+    if (!check.ok) return this.say(t(check.reason === 'insufficient-funds' ? 'hangar.cannotBuy' : 'hangar.maxed'), false);
+    this.commit(buyTwin(this.game.save, item.id), t('hangar.twinBought', { item: itemName(item) }));
+    this.chief.bought(item);
+  }
+
   private tabButtons(): Button[] {
     return tabs(this.game.save).map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 135, y: 76, w: 130, h: 42, primary: i === this.tab }));
   }
@@ -67,6 +85,7 @@ export class HangarScene implements Scene {
     if (input.pressed('down')) this.setFocus((this.focus[this.tab] ?? 0) + 1);
     if (input.pressed('confirm')) this.doAction();
     if (input.pressed('secondary')) this.unmountFocused();
+    if (input.pressed('special')) this.buyTwinFocused();
     for (const tap of input.taps) this.handleTap(tap);
   }
 
@@ -80,6 +99,8 @@ export class HangarScene implements Scene {
     });
     const action = this.actionButton();
     if (action && action.enabled !== false && hit(p, action)) this.doAction();
+    const twin = this.twinButton();
+    if (twin && twin.enabled !== false && hit(p, twin)) this.buyTwinFocused();
     if (this.tab === 1) {
       slotRects(PLANES[this.game.save.selectedPlane].hardpoints).forEach((r, i) => {
         if (hit(p, r)) this.clickSlot(i);
@@ -222,6 +243,8 @@ export class HangarScene implements Scene {
     const item = this.item;
     if (!b || !item) return;
     drawButton(ctx, b, b.enabled !== false, this.t);
+    const twin = this.twinButton();
+    if (twin) drawButton(ctx, twin, false, this.t);
     const note = itemAction(this.game.save, item).note;
     if (note && this.toastTime <= 0) text(ctx, note, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 14, color: COLORS.red, maxWidth: DETAIL.w - 340 });
   }

@@ -37,11 +37,12 @@ export class Boss {
   readonly parts: PartState[];
   private readonly bulletSpeedMul: number;
 
-  constructor(id: BossId, difficulty: number) {
+  /** `ease` < 1: Rookie — slower bullets, less fire (doc 38). */
+  constructor(id: BossId, difficulty: number, private readonly ease = 1) {
     this.def = BOSSES[id];
     this.maxHp = scaleBossHp(this.def.coreHp, difficulty);
     this.hp = this.maxHp;
-    this.bulletSpeedMul = 1 + 0.015 * (difficulty - 1);
+    this.bulletSpeedMul = (1 + 0.015 * (difficulty - 1)) * ease;
     this.parts = this.def.parts.map((def, i) => {
       const hp = scaleBossHp(def.hp, difficulty);
       return { def, hp, max: hp, alive: true, fireT: 1.5 + i * 0.37, aim: Math.PI, flash: 0 };
@@ -93,14 +94,14 @@ export class Boss {
       if (!part.alive) continue;
       part.fireT -= dt * rage;
       if (part.fireT <= 0) {
-        part.fireT = part.def.period * (0.85 + Math.random() * 0.3);
+        part.fireT = (part.def.period / this.ease) * (0.85 + Math.random() * 0.3);
         if (p.stealthed) continue; // F-35 stealth: nothing to shoot at (doc 36)
         fireEnemyWeapon(world, { x: this.x + part.def.dx, y: this.y + part.def.dy, bulletSpeedMul: this.bulletSpeedMul }, part.def.weapon, p, audio);
       }
     }
     this.coreFireT -= dt * rage;
     if (this.coreFireT <= 0 && !p.stealthed) {
-      this.coreFireT = this.def.corePeriod;
+      this.coreFireT = this.def.corePeriod / this.ease;
       fireEnemyWeapon(world, { x: this.x, y: this.y + 40, bulletSpeedMul: this.bulletSpeedMul }, this.def.coreWeapon, p, audio);
       if (this.enraged) fireEnemyWeapon(world, { x: this.x, y: this.y + 40, bulletSpeedMul: this.bulletSpeedMul }, 'spread3', p, audio);
     }

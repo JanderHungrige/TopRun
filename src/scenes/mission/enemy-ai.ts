@@ -13,7 +13,7 @@ export function spawnEnemy(world: World, kind: EnemyKind, x: number, behavior: B
     id: world.nextId(), kind, def, layer: def.layer, behavior, x, y, vx: 0, vy: def.speed * 0.7, baseX: x,
     hp: sc.hp, maxHp: sc.hp, radius: def.radius, t: 0, phase: Math.random() * Math.PI * 2,
     fireT: 0.8 + Math.random() * sc.period, fire2T: 1.5 + Math.random() * Math.max(1, sc.period2),
-    period: sc.period, period2: sc.period2, bulletSpeedMul: sc.bulletSpeedMul, bounty: sc.bounty,
+    period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: sc.bounty,
     flash: 0, heading: 0, aim: Math.PI, targetX: x, targetY: 160 + Math.random() * 120, dead: false, counted: false,
   };
   if (def.layer === 'ground') {

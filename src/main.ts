@@ -8,7 +8,7 @@ import { startLoop } from './core/loop';
 import { Music } from './core/music';
 import { SceneManager, type Scene } from './core/scene';
 import {
-  activeProfile, createProfile, deleteProfile, importProfile, loadStore, newProfileId, persistStore, selectProfile,
+  activeProfile, createProfile, deleteProfile, importProfile, loadStore, newProfileId, persistStore, selectProfile, setProfileRookie,
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type ImportResult, type Profile,
   type ProfileStore,
 } from './game/profiles';
@@ -163,6 +163,10 @@ class Game implements GameContext {
 
   deleteProfile(id: string): void {
     this.commit(deleteProfile(this.store, id));
+  }
+
+  setRookie(profileId: string, on: boolean): void {
+    this.commit(setProfileRookie(this.store, profileId, on));
   }
 
   go(route: Route): void {

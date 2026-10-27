@@ -34,6 +34,8 @@ const flyRect = (r: Rect): Rect => ({ x: r.x + 186, y: r.y + 134, w: 178, h: 42 
 /** EDIT LOOK opens the avatar builder for this pilot (doc 29). */
 const lookRect = (r: Rect): Rect => ({ x: r.x + 186, y: r.y + 186, w: 92, h: 30 });
 const delRect = (r: Rect): Rect => ({ x: r.x + 284, y: r.y + 186, w: 80, h: 30 });
+/** ROOKIE switch (doc 38): easier enemies and more hull for this pilot, outside the adaptive challenge. */
+const rookieRect = (r: Rect): Rect => ({ x: r.x + 286, y: r.y + 104, w: 78, h: 24 });
 
 /** CONTINUE: pick which pilot flies, edit a pilot's look, or delete one (docs 08, 29). */
 export class PilotsScene implements Scene {
@@ -112,6 +114,7 @@ export class PilotsScene implements Scene {
       this.focus = i;
       if (hit(tap, delRect(cardRect(i)))) this.askDelete(p);
       else if (hit(tap, lookRect(cardRect(i)))) this.editLook(p);
+      else if (hit(tap, rookieRect(cardRect(i)))) this.toggleRookie(p);
       else this.fly(p);
       return;
     }
@@ -121,6 +124,7 @@ export class PilotsScene implements Scene {
     if (p && input.pressed('confirm')) return this.fly(p);
     if (p && input.pressed('delete')) return this.askDelete(p);
     if (p && input.pressed('special')) return this.editLook(p);
+    if (p && input.pressed('flare')) return this.toggleRookie(p);
     if (input.pressed('secondary')) return this.openLoad();
     if (input.pressed('back')) this.leave('title');
   }
@@ -128,6 +132,11 @@ export class PilotsScene implements Scene {
   private editLook(p: Profile): void {
     this.game.audio.play('uiSelect');
     this.game.go({ to: 'avatarBuilder', target: { kind: 'pilot', profileId: p.id } });
+  }
+
+  private toggleRookie(p: Profile): void {
+    this.game.setRookie(p.id, !p.save.rookie);
+    this.game.audio.play(p.save.rookie ? 'uiBack' : 'uiSelect');
   }
 
   private openLoad(): void {
@@ -207,10 +216,11 @@ export class PilotsScene implements Scene {
     const rank = pilotStanding(p.save).rank;
     drawRankBoard(ctx, rank, r.x + 188, r.y + 82, 0.75);
     text(ctx, t(RANK_KEY[rank]), r.x + 214, r.y + 97, { size: 13, color: COLORS.gold, maxWidth: CARD_W - 230 });
-    text(ctx, formatMoney(s.money), r.x + 188, r.y + 124, { size: 18, display: true, color: COLORS.green });
+    text(ctx, formatMoney(s.money), r.x + 188, r.y + 124, { size: 18, display: true, color: COLORS.green, maxWidth: 92 });
     drawButton(ctx, { id: 'fly', label: t('pilots.fly'), ...flyRect(r), primary: true }, focused, this.time);
     drawButton(ctx, { id: 'look', label: t('avatar.editLook'), ...lookRect(r) }, false, this.time);
     drawButton(ctx, { id: 'del', label: t('pilots.delete'), ...delRect(r) }, false, this.time);
+    rookieSwitch(ctx, rookieRect(r), p.save.rookie);
   }
 
   private renderConfirm(ctx: CanvasRenderingContext2D, p: Profile): void {
@@ -222,4 +232,10 @@ export class PilotsScene implements Scene {
     drawButton(ctx, { ...CONFIRM_YES, label: t('pilots.delete') }, false, this.time);
     drawButton(ctx, { ...CONFIRM_NO, label: t('title.cancel') }, true, this.time);
   }
+}
+
+/** The ROOKIE chip: green and filled when on, a faint outline when off (doc 38). */
+function rookieSwitch(ctx: CanvasRenderingContext2D, r: Rect, on: boolean): void {
+  drawPanel(ctx, r, { fill: on ? 'rgba(40,120,70,0.95)' : 'rgba(0,0,0,0.35)', edge: on ? COLORS.green : COLORS.panelEdge, radius: 6 });
+  text(ctx, t('pilots.rookie'), r.x + r.w / 2, r.y + 17, { size: 12, display: true, align: 'center', color: on ? COLORS.ink : COLORS.faint });
 }

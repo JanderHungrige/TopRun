@@ -3,6 +3,7 @@ import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
+import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
 import type { SaveData } from './save';
 
@@ -48,7 +49,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   }
   return {
     plane,
-    maxHull: Math.round(plane.hull * (1 + (ARMOR_BONUS[eq.armor] ?? 0))),
+    maxHull: Math.round(plane.hull * (1 + (ARMOR_BONUS[eq.armor] ?? 0)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
     speed: Math.round(plane.speed * (1 + (ENGINE_BONUS[eq.engine] ?? 0))),
     gunLevel: jetGunLevel(plane.id, save.gunLevel) as GunLevel,
     gun2Level: double ? save.gun2Level : 0,

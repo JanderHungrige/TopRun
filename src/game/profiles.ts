@@ -81,6 +81,11 @@ export function updateActiveSave(store: ProfileStore, save: SaveData): ProfileSt
   return { ...store, profiles: store.profiles.map((p) => (p.id === store.activeId ? { ...p, save } : p)) };
 }
 
+/** Switches one pilot's Rookie option (doc 38) without making it the active pilot. */
+export function setProfileRookie(store: ProfileStore, id: string, on: boolean): ProfileStore {
+  return { ...store, profiles: store.profiles.map((p) => (p.id === id ? { ...p, save: { ...p.save, rookie: on } } : p)) };
+}
+
 export function updateSettings(store: ProfileStore, settings: Settings): ProfileStore {
   return { ...store, settings };
 }

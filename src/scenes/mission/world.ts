@@ -133,7 +133,11 @@ export class World {
   blast: { x: number; y: number; t: number } | null = null;
   private ids = 0;
 
-  constructor(readonly mission: MissionDef) {
+  /**
+   * `mission` arrives with the pilot's challenge level already added to its difficulty; `ease` < 1 is Rookie: slower
+   * enemy bullets and fire (doc 38).
+   */
+  constructor(readonly mission: MissionDef, readonly ease = 1) {
     this.timeline = generateTimeline(mission);
     this.terrain = new Terrain(THEATERS[mission.theater], mission.number * 31 + 7);
   }

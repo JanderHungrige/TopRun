@@ -1,6 +1,7 @@
 import { approach } from '../../core/math';
 import type { Scene } from '../../core/scene';
 import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types';
+import { missionTuning } from '../../game/challenge';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
@@ -51,7 +52,8 @@ export class MissionScene implements Scene {
   private left = false;
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly takeoff: TakeoffRating) {
-    this.world = new World(mission);
+    const tuning = missionTuning(game.save);
+    this.world = new World({ ...mission, difficulty: mission.difficulty + tuning.difficulty }, tuning.ease);
     this.player = new Player(derivePlayerStats(game.save));
     this.banner = { title: missionName(mission).toUpperCase(), sub: objectiveText(mission.objective), color: COLORS.ink, time: 3 };
     this.radio = new WingmanRadio(game.audio, pilotContext(game));
@@ -163,7 +165,7 @@ export class MissionScene implements Scene {
     for (let ev = w.timeline[w.nextEvent]; ev && ev.t <= w.t; ev = w.timeline[++w.nextEvent]) {
       if (ev.type === 'enemy') spawnEnemy(w, ev.kind, ev.x, ev.behavior);
       else {
-        w.boss = new Boss(ev.boss, this.mission.difficulty);
+        w.boss = new Boss(ev.boss, w.mission.difficulty, w.ease);
         this.banner = { title: t('mission.warning'), sub: t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), color: COLORS.red, time: 3 };
         this.radio.bossWarning(w.boss.def.name);
         this.game.audio.play('warning');

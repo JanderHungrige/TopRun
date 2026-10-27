@@ -70,6 +70,8 @@ export interface GameContext {
   loadCloudPilot(match: PilotMatch, save: SaveData): ImportResult;
   selectProfile(id: string): void;
   deleteProfile(id: string): void;
+  /** Rookie on or off for one pilot (doc 38); persists like setSave, without selecting the pilot. */
+  setRookie(profileId: string, on: boolean): void;
   go(route: Route): void;
   /** Seconds since start, for UI animation. */
   readonly time: number;

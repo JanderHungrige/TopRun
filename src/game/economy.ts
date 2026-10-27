@@ -7,6 +7,7 @@ import { equipmentCap, gun2Price, gunCap, weaponOnSale } from './firepower';
 import { jetOnSale } from './jets';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
+import { recordSortie } from './challenge';
 import { recordMission } from './service-record';
 
 export type ShopItem =
@@ -161,6 +162,9 @@ export function applyResult(save: SaveData, mission: MissionDef, result: Mission
   const next: SaveData = structuredClone(save);
   next.money += payout.total;
   next.record = recordMission(save.record, result, save.selectedPlane);
+  const logged = recordSortie(save, mission, result, now ?? 0);
+  next.challenge = logged.challenge;
+  next.sorties = logged.sorties;
   if (result.success) {
     const prev = save.progress[mission.id];
     const better = !prev || stars >= prev.stars;

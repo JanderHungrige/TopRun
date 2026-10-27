@@ -22,7 +22,7 @@ source_files:
   - src/i18n/ui-de-avatar.ts
 routes: []
 models:
-  - "SaveData.look: AvatarLook | null — now the trait pick { age, skin, hair, length } (v1/v2 looks migrate on load)"
+  - "SaveData.look: AvatarLook | null — the trait pick { age, gender, skin, hair, length, face } (v1/v2 looks migrate on load; a look without face gets f1)"
 test_files:
   - tests/unit/avatar-look.test.ts
   - tests/unit/portrait-frames.test.ts
@@ -32,7 +32,7 @@ test_files:
   - tests/unit/pixel-cast.test.ts
   - tests/unit/save.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-26
+last_synced: 2026-10-27
 status: complete
 phase: all
 mdd_version: 11
@@ -42,7 +42,7 @@ integration_contracts:
   - function: "drawPortrait(ctx, id, box, state) (doc 06)"
     when: "same API; admiral, shooter, chief and wingman draw their image"
   - function: "drawPilotAvatar(ctx, face, box, state) (doc 29)"
-    when: "same API; presets draw pilot1–4.png, a custom pick draws exactly custom/<age>-<skin>-<hair>-<length>.png (silhouette while that file is missing)"
+    when: "same API; presets draw pilot1–4.png, a custom pick draws exactly custom/<age>-<gender>-<skin>-<hair>-<length>-<face>.png (silhouette while that file is missing)"
   - function: "GameContext.setSave(save)"
     when: "the builder stores the pick as save.look; nothing else persists it"
 satisfies_contracts: []
@@ -52,6 +52,7 @@ known_issues:
   - "Resolved 2026-10-26: wingman.png (Duke in the cockpit, via 'Top Gun pixel pilot – cockpit') landed; the procedural portrait code is deleted."
   - "Resolved 2026-10-26: all 64 builder portraits exist (no silhouettes left)."
   - "Hair length stood in for gender (short = boy / man, long = girl / woman, five long-haired grown-ups male). Resolved 2026-10-26: gender is its own trait and all 128 portraits exist."
+  - "The text-only builder portraits looked drawn, not like real people (owner, 2026-10-26). Resolved 2026-10-27: builder v4 — two real-photo faces per pick (256), made photo first, then pixelated."
 security_read_sites:
   - src/game/save.ts (parseSave → parseLook: untrusted localStorage value, old looks migrated)
 sister_projects: []
@@ -78,7 +79,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 | `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |
 | `chief.png` (+ `-talk`, `-half`, `-blink`) | the crew chief |
 | `wingman.png` (+ `-talk`, `-half`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
-| `custom/<age>-<gender>-<skin>-<hair>-<length>.png` | the builder set: age `kid|adult`, gender `female|male`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long` (128) |
+| `custom/<age>-<gender>-<skin>-<hair>-<length>-<face>.png` | the builder set: age `kid|adult`, gender `female|male`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long`, face `f1|f2` (256, builder v4) |
 
 Talk, half and blink frames are identical to the base outside the mouth / eyes (`-talk` = mouth open,
 `-half` = lips slightly parted). Every file is discovered with
@@ -117,6 +118,28 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
   exactly its own `custom/…png` (`portraitKey`; a silhouette while that file is missing — owner testing showed a
   nearest-match fallback with a half-generated set makes every pick look the same). Used by
   NEW PILOT, the pilot list, the map header and the builder.
+
+## Builder v4 — two real-looking faces per pick (2026-10-27)
+
+Owner (2026-10-26): the builder portraits looked "fake" next to the photo-based presets; generate real-looking
+people first and put them through the same pixelator. "2 Gesichter. Die Personen/Gesichter sollen eher schön sein."
+
+- **Sixth trait `face: 'f1' | 'f2'`** — two different people for every combination, 2 × 2 × 4 × 4 × 2 × 2 =
+  **256 portraits**, `custom/<age>-<gender>-<skin>-<hair>-<length>-<face>.png`. The builder gets a sixth row
+  FACE / GESICHT (options 1 / 2) under HAIR LENGTH; rows are packed tighter (step 66, height 56) so the button bar
+  stays where it is. RANDOM also rolls the face.
+- **How they are made** (ComfyUI workflow "Top Gun real photo → pixel pilot (templated)", owner's M4, v2): stage A
+  renders an invented, attractive person as a candid smartphone selfie (FLUX.2 klein); stage B edits that photo into
+  the Top Gun pixel portrait (flight jacket, patch without letters, sunset carrier deck) while preserving the face,
+  then the pixel grid is snapped to an exact 240 × 288 indexed PNG. Only the pixel portrait ships — the
+  intermediate photos are of nobody real, stay on the machine and are never committed. Prompts: `prompts_real.py`
+  (per pick a seeded mix of eye colour, face shape, smile and one detail); **no sunglasses or glasses** anywhere
+  (owner: "die Sonnenbrille ist oft falsch").
+- Kid prompts avoid "sunburnt nose" (became a red clown nose) and "rosy cheeks" on brown / dark skin (became red
+  blush circles); those 39 were re-made with dimples or freckles instead.
+- **Migration**: a stored look or pilot code without `face` (or with an unknown one) gets `f1` — the face the pick
+  now shows first; every other trait is kept, so an existing pilot keeps age, gender, skin and hair.
+- The four presets (`pilot1–4.png`) are unchanged (owner: "Die bleiben"); `PRESET_LOOKS` start their builder at f1.
 
 ## Builder v3 (`src/game/avatar-look.ts`, `src/scenes/avatar-builder*.ts`)
 

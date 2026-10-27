@@ -15,8 +15,8 @@ const PLATE: Rect = { x: 130, y: 566, w: 320, h: 44 };
 const ROWS_X = 530;
 const ROWS_Y = 116;
 const ROW_W = 670;
-const ROW_H = 64;
-const ROW_STEP = 78;
+const ROW_H = 56;
+const ROW_STEP = 66;
 const ARROW_W = 56;
 
 export const rowRect = (i: number): Rect => ({ x: ROWS_X, y: ROWS_Y + i * ROW_STEP, w: ROW_W, h: ROW_H });
@@ -68,6 +68,7 @@ export function optionLabel(look: AvatarLook, part: LookPart): string {
     case 'skin': return t(`avatar.skin.${look.skin}`);
     case 'hair': return t(`avatar.hair.${look.hair}`);
     case 'length': return t(`avatar.length.${look.length}`);
+    case 'face': return t(`avatar.face.${look.face}`);
     default: throw new Error(`unhandled: ${part satisfies never}`);
   }
 }

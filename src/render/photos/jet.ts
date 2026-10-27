@@ -14,6 +14,9 @@ const METRICS: Readonly<Record<PlaneId, { len: number; cx: number; cy: number }>
   f16: { len: 113, cx: 0, cy: -26 },
   f14: { len: 127, cx: -2, cy: -31 },
   sr71: { len: 158, cx: 7, cy: -27 },
+  a10: { len: 114, cx: 1.6, cy: -24 },
+  f35: { len: 112, cx: -2, cy: -25 },
+  tornado: { len: 116, cx: 0, cy: -26 },
 };
 
 export interface JetPose {

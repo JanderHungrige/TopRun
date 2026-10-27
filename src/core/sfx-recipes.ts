@@ -7,7 +7,7 @@ type LayerSfx =
   | 'gun' | 'missile' | 'rocket' | 'bombDrop' | 'explosionSmall' | 'explosionLarge' | 'explosionHuge'
   | 'hit' | 'playerHit' | 'pickup' | 'cash' | 'powerup' | 'flare' | 'catapult' | 'warning'
   | 'uiMove' | 'uiSelect' | 'uiBack' | 'buy' | 'denied' | 'enemyShot' | 'enemyMissile' | 'special' | 'splash'
-  | 'radioClick';
+  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke';
 /** Procedural babble syllables (see sfx-voice.ts). */
 type VoiceSfx = 'voice' | 'radioVoice';
 export type SfxName = LayerSfx | VoiceSfx;
@@ -102,6 +102,28 @@ const SFX: Record<LayerSfx, Layer[]> = {
     hiss('lowpass', 5000, 200, 0.6, 0.7, { a: 0.005, h: 0.05 }), thump(220, 60, 0.06, 0.25, 0.4),
     hiss('bandpass', 2500, 900, 0.45, 0.2, { q: 1.2, at: 0.08 }),
   ],
+  // A-10 GAU-8 "BRRRT" (doc 36): 3 s of a ~65 Hz tearing buzz (3,900 rounds/min) — two detuned saws for the grit, a
+  // sub-octave square and band noise for the blast — then the rolling echo of the rounds arriving.
+  cannon: [
+    tone('sawtooth', 70, 64, 0.12, 0.24, { a: 0.03, h: 2.85 }), tone('sawtooth', 67, 61, 0.12, 0.14, { a: 0.03, h: 2.85 }),
+    tone('square', 33, 31, 0.12, 0.12, { a: 0.03, h: 2.85 }), hiss('bandpass', 1100, 800, 0.15, 0.4, { q: 1.4, a: 0.02, h: 2.85 }),
+    hiss('lowpass', 500, 160, 1.4, 0.45, { at: 2.9, a: 0.1 }), thump(90, 40, 0.2, 1.0, 0.35, { at: 3.0 }),
+  ],
+  // F-35 stealth: a falling shimmer as the jet fades out
+  stealth: [
+    hiss('bandpass', 5000, 600, 0.8, 0.35, { q: 3, a: 0.05 }), tone('sine', 1800, 300, 0.7, 0.08, { a: 0.02 }),
+    tone('triangle', 900, 150, 0.6, 0.06, { a: 0.02 }),
+  ],
+  // Tornado nuke: a heavy launch, then the deepest blast in the game with a long rumble
+  nukeLaunch: [
+    hiss('bandpass', 300, 2400, 1.0, 0.6, { q: 1.5, a: 0.05 }), tone('sawtooth', 90, 300, 0.9, 0.08, { a: 0.03 }),
+    thump(120, 40, 0.15, 0.5, 0.5),
+  ],
+  nuke: [
+    hiss('lowpass', 3000, 60, 3.2, 1, { a: 0.01, h: 0.4 }), thump(100, 25, 0.5, 2.6, 1, { h: 0.2 }),
+    tone('sawtooth', 50, 22, 2.4, 0.14, { h: 0.3 }), hiss('bandpass', 1400, 200, 1.6, 0.4, { q: 0.6, at: 0.3 }),
+    thump(70, 28, 0.3, 1.8, 0.6, { at: 0.6 }), hiss('lowpass', 600, 60, 2.4, 0.5, { at: 1.0 }),
+  ],
   // push-to-talk squelch: key click, ~120 ms band-limited noise burst that cuts off sharply, release tick
   radioClick: [
     tone('square', 2400, 1500, 0.006, 0.12, { a: 0.001 }),
@@ -124,7 +146,7 @@ export const GAP: Partial<Record<SfxName, number>> = {
 /** Impacts and launches: played into the low-shelf impact bus (doc 01 Audio). UI sounds never are. */
 export const HEAVY: ReadonlySet<SfxName> = new Set<SfxName>([
   'gun', 'missile', 'rocket', 'bombDrop', 'explosionSmall', 'explosionLarge', 'explosionHuge',
-  'hit', 'playerHit', 'catapult', 'special', 'splash', 'enemyMissile',
+  'hit', 'playerHit', 'catapult', 'special', 'splash', 'enemyMissile', 'cannon', 'nukeLaunch', 'nuke',
 ]);
 
 const layersOf = (name: SfxName): readonly Layer[] => (name === 'voice' || name === 'radioVoice' ? [] : SFX[name]);

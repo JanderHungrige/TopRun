@@ -36,6 +36,6 @@ jets and new ones to unlock in general.
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/second-front-wave-1.md | After beating mission 30 the globe on the campaign map opens map 2: 30 harder missions in 5 new theaters with 5 new bosses; map-2 stars raise the pilot rating to the new top ranks. | complete |
-| Wave 2 | waves/second-front-wave-2.md | With map 2 open, the hangar sells the A-10, F-35 and Tornado; each flies with its own E ability (A-10 cannon burst with its sound, F-35 stealth, Tornado nuke) and the Tornado bleeds hull. | planned |
+| Wave 2 | waves/second-front-wave-2.md | With map 2 open, the hangar sells the A-10, F-35 and Tornado; each flies with its own E ability (A-10 cannon burst with its sound, F-35 stealth, Tornado nuke) and the Tornado bleeds hull. | complete |
 | Wave 3 | waves/second-front-wave-3.md | With map 2 open, the new jets mount every weapon twice (a second gun with its own level, twin pods that fire together) and the old jets buy gun and equipment levels beyond today's caps plus a heavier air-to-air and air-to-ground weapon. | planned |
 | Wave 4 | waves/second-front-wave-4.md | New camos: factory schemes for the three new jets and new paint jobs unlocked by map-2 bosses and stars, shown in the PAINT tab, the mission and the carrier launch. | planned |

@@ -36,7 +36,7 @@ describe('photo list', () => {
       m01: { stars: 3, at: 5, plane: 'f14', livery: 'gullgray' },
       m02: { stars: 2 },
       m03: { stars: 1, plane: 'sr71' },
-    }, { selectedPlane: 'f16', livery: { f16: 'desert', f14: 'standard', sr71: 'arctic' } });
+    }, { selectedPlane: 'f16', livery: { f16: 'desert', f14: 'standard', sr71: 'arctic', a10: 'standard', f35: 'standard', tornado: 'standard' } });
     const [a, b, c] = photoList(s);
     expect(a).toMatchObject({ plane: 'f14', livery: 'gullgray', fallback: false, at: 5 });
     expect(b).toMatchObject({ plane: 'f16', livery: 'desert', fallback: true, at: null });

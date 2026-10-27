@@ -44,7 +44,8 @@ export interface Enemy {
   counted: boolean;
 }
 
-export type BulletKind = 'gun' | 'enemy' | 'flak' | 'wingman';
+/** `cannon`: A-10 GAU-8 rounds (doc 36). */
+export type BulletKind = 'gun' | 'cannon' | 'enemy' | 'flak' | 'wingman';
 
 export interface Bullet {
   kind: BulletKind;
@@ -127,6 +128,9 @@ export class World {
   collected = 0;
   scrollMul = 1;
   shake = 0;
+  /** Tornado nuke climbing to its burst point, and the burst itself (doc 36); `t` counts up. */
+  nuke: { x: number; y: number; t: number } | null = null;
+  blast: { x: number; y: number; t: number } | null = null;
   private ids = 0;
 
   constructor(readonly mission: MissionDef) {

@@ -17,7 +17,7 @@ import { drawForeground, drawWorld, ROAD_Y, RUNWAY_Y } from './motorbike-world';
 
 /** Jet drawing scale and each jet's nose ahead of its main gear (plane units). */
 export const JET_SCALE = 2.1;
-const NOSE: Readonly<Record<PlaneId, number>> = { f16: 52, f14: 62, sr71: 80 };
+const NOSE: Readonly<Record<PlaneId, number>> = { f16: 52, f14: 62, sr71: 80, a10: 58, f35: 54, tornado: 58 };
 
 export interface ObstacleView {
   kind: ObstacleKind;

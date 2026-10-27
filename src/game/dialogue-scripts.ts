@@ -65,7 +65,10 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   const list = campaignMissions(m.campaign);
   if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id) {
     lines.push(ref('admiral', m.campaign === 1 ? 'adm.finale' : 'adm.finale2', 'happy', 'salute'));
-    if (m.campaign === 1) lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
+    if (m.campaign === 1) {
+      lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
+      lines.push(ref('admiral', 'adm.newJets', 'happy', 'point')); // and its jets are on sale (doc 36)
+    }
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
@@ -80,13 +83,14 @@ export function medalLine(index: number, medal: MedalId): LineRef {
 }
 
 export type ChiefEvent =
-  | 'hello' | 'helloRich' | 'helloBroke' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
+  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
   | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   hello: { key: 'chief.hello', mood: 'neutral', gesture: 'none' },
   helloRich: { key: 'chief.helloRich', mood: 'happy', gesture: 'thumbsUp' },
   helloBroke: { key: 'chief.helloBroke', mood: 'stern', gesture: 'none' },
+  helloNewJets: { key: 'chief.helloNewJets', mood: 'happy', gesture: 'point' },
   buyPlane: { key: 'chief.buyPlane', mood: 'happy', gesture: 'thumbsUp' },
   buyGun: { key: 'chief.buyGun', mood: 'happy', gesture: 'point' },
   buySecondary: { key: 'chief.buySecondary', mood: 'happy', gesture: 'none' },

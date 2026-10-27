@@ -28,6 +28,18 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Mach-3-Sprint',
     description: 'Der schnellste Jet aller Zeiten, umgerüstet für den Kampf. Der Mach-3-Sprint rammt alles aus dem Weg.',
   },
+  a10: {
+    specialName: 'GAU-8-Feuerstoß',
+    description: 'Gepanzerter Panzerknacker rund um seine 30-mm-Kanone. Langsam und kaum kleinzukriegen; der GAU-8-Feuerstoß zerlegt Boden- und Luftziele.',
+  },
+  f35: {
+    specialName: 'Tarnkappe',
+    description: 'Tarnkappen-Mehrzweckjäger. Verschwindet vom Radar: Solange er getarnt ist, stellt der Feind das Feuer ein.',
+  },
+  tornado: {
+    specialName: 'Atomschlag',
+    description: 'Alter Schwenkflügel-Jagdbomber für Hardcore-Piloten: so alt, dass er in jeder Mission langsam Hülle verliert. Trägt eine Atomrakete.',
+  },
 };
 
 export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; description: string }>> = {

@@ -188,7 +188,8 @@ None.
   straight.
 - **Flares**: FLARE drops a flare (if any left); every enemy missile within 260 px retargets
   to the flare. Enemy missiles otherwise home on the player (turn rate limited, 5 s life).
-- **Special** per plane (02): F-16 barrel roll, F-14 wingman, SR-71 Mach dash.
+- **Special** per plane (02): F-16 barrel roll, F-14 wingman, SR-71 Mach dash; map-2 jets (doc 36): A-10 GAU-8 burst,
+  F-35 stealth, Tornado nuke (activation and ticks in `scenes/mission/specials.ts`).
 - **Damage**: enemy bullet 8 × scale, missile 22, flak 12, collision with air enemy 25 (enemy
   takes 80). ECM −25 % bullet damage. 0.6 s invulnerability after any hit (blink).
   Hull ≤ 0 → explosion → mission failed. Damage control restores 40 % once below 25 %.

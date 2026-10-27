@@ -51,7 +51,7 @@ real squadron or team names, insignia, national markings or logos.
 
 | id | EN name | DE name | Unlock | Look (all jets) |
 |----|---------|---------|--------|-----------------|
-| standard | Factory Standard | Werkslackierung | always | today's per-jet scheme: F-16 two-tone gray, F-14 low-vis gray, SR-71 black |
+| standard | Factory Standard | Werkslackierung | always | today's per-jet scheme: F-16 two-tone gray, F-14 low-vis gray, SR-71 black; A-10 two-tone grey, F-35 dark radar grey, Tornado grey-green splinter (doc 36, no insignia) |
 | gullgray | Seventies Navy | Siebziger-Navy | boss Pacific (IRONCLAD) | glossy light gull gray, high-visibility tail: red with white chevrons, colourful wingtip bands |
 | blackflag | Black Flag | Schwarze Flagge | 3★ Pacific | gray body, gloss-black tails with a white skull & crossbones, black/yellow nose stripe |
 | desert | Desert Camo | Wüstentarnung | boss Gulf (SANDSTORM) | sand, brown and tan soft-edged camouflage blobs |

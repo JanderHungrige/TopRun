@@ -62,6 +62,9 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.globe': [
     'Aber es ist noch nicht vorbei. Eine zweite Front hat sich geöffnet. Sieh dir den Globus auf deiner Karte an, {callsign}.',
   ],
+  'adm.newJets': [
+    'Und im Hangar stehen drei neue Vögel für die zweite Front: die A-10, die F-35 und der alte Tornado.',
+  ],
   'adm.finale2': [
     'Die zweite Front ist gewonnen, {callsign}. So ist noch keiner geflogen. Du bist eine Top-Gun-Legende.',
   ],
@@ -96,6 +99,10 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'chief.helloBroke': [
     'Schon wieder pleite, {callsign}? Flieg eine Mission und komm mit Geld zurück.',
     'Knapp bei Kasse, {callsign}? Schauen kostet wenigstens nichts.',
+  ],
+  'chief.helloNewJets': [
+    'Drei neue Vögel sind da, {callsign}: eine A-10, eine F-35 und ein alter Tornado. Schau mal unter JETS.',
+    'Frische Lieferung, {callsign}! Ein Warthog, eine Lightning und ein Tornado, der älter ist als ich. Sieh unter JETS nach.',
   ],
   'chief.buyPlane': [
     'Die {plane}! Behandel sie gut. Sie ist eine Schönheit.',

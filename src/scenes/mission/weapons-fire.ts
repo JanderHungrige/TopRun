@@ -6,7 +6,7 @@ import { ECM_TURN_FACTOR, headingTo } from '../../game/combat';
 import type { Player } from './player';
 import type { Missile, World } from './world';
 
-const GUN_SPEED = 900;
+export const GUN_SPEED = 900;
 
 export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void {
   if (p.gunCooldown > 0) return;

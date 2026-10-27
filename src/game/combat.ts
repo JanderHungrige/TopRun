@@ -9,7 +9,8 @@ export const circleHit = (ax: number, ay: number, ar: number, bx: number, by: nu
   return dx * dx + dy * dy <= r * r;
 };
 
-export type DamageSource = 'gun' | 'secondary' | 'ram' | 'enemyBullet' | 'enemyMissile' | 'flak' | 'collision';
+/** `cannon` = the A-10's GAU-8 burst: full damage on ground targets, unlike the gun (doc 36). */
+export type DamageSource = 'gun' | 'cannon' | 'secondary' | 'ram' | 'enemyBullet' | 'enemyMissile' | 'flak' | 'collision';
 
 export const PLAYER_DAMAGE = Object.freeze({ bullet: 8, missile: 22, flak: 12, collision: 25 });
 export const COLLISION_DAMAGE_TO_ENEMY = 80;
@@ -28,6 +29,7 @@ export function applyDamage(base: number, c: DamageContext): number {
     case 'gun': return c.targetLayer === 'ground' ? base * GROUND_GUN_FACTOR : base;
     case 'enemyBullet':
     case 'flak': return c.ecm ? base * ECM_BULLET_FACTOR : base;
+    case 'cannon':
     case 'secondary':
     case 'ram':
     case 'enemyMissile':

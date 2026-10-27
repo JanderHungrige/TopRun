@@ -18,6 +18,7 @@ import { clipPlayfield, renderWorld } from './mission-render';
 import { updatePickups } from './pickups';
 import { Player } from './player';
 import { WingmanRadio } from './radio';
+import { activateSpecial, tickSpecials } from './specials';
 import { updateCombat } from './projectiles';
 import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
@@ -131,18 +132,7 @@ export class MissionScene implements Scene {
   }
 
   private activateSpecial(): void {
-    const p = this.player;
-    const plane = p.stats.plane;
-    if (p.specialCooldown > 0 || p.specialActive > 0) return;
-    p.specialCooldown = plane.specialCooldown;
-    p.specialActive = plane.specialDuration;
-    this.game.audio.play('special');
-    if (plane.special === 'roll') p.dashVX = (p.bank >= 0 ? 1 : -1) * 620;
-    if (plane.special === 'wingman') {
-      p.wingman = { x: p.x + 90, y: PF_H + 40, fireT: 0.5 };
-      this.radio.special();
-    }
-    if (plane.special === 'dash') this.world.addShake(6);
+    activateSpecial(this.world, this.player, this.game.audio, this.radio);
   }
 
   private simulate(dt: number): void {
@@ -150,7 +140,7 @@ export class MissionScene implements Scene {
     const p = this.player;
     w.t += dt;
     p.tick(dt);
-    if (p.wingman && p.specialActive <= 0) p.wingman = null;
+    tickSpecials(w, p, dt, this.game.audio);
     fireWingman(w, p, dt);
     const dashing = p.specialActive > 0 && p.stats.plane.special === 'dash';
     const holdForBoss = w.boss?.def.id === 'sandstorm' && w.boss.phase !== 'enter';

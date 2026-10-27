@@ -33,7 +33,10 @@ export type Zone = 'inner' | 'outer' | 'out';
 export type Stick = Vec;
 
 /** Right-wing offset from the lead's centre per pilot jet (behind = +y), so the wingtips never touch. */
-const SLOT_BASE: Readonly<Record<PlaneId, Vec>> = { f16: { x: 94, y: 72 }, f14: { x: 106, y: 74 }, sr71: { x: 100, y: 90 } };
+const SLOT_BASE: Readonly<Record<PlaneId, Vec>> = {
+  f16: { x: 94, y: 72 }, f14: { x: 106, y: 74 }, sr71: { x: 100, y: 90 },
+  a10: { x: 108, y: 74 }, f35: { x: 96, y: 72 }, tornado: { x: 102, y: 76 },
+};
 const SIDE: Readonly<Record<SlotId, number>> = { right: 1, left: -1 };
 
 export interface WingSpec {

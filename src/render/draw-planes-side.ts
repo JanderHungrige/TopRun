@@ -1,9 +1,12 @@
 import type { LiveryId } from '../data/liveries';
 import type { PlaneId } from '../data/types';
 import { liveryLook } from './livery-art';
+import { drawA10Side } from './planes/a10-side';
 import { drawF14Side } from './planes/f14-side';
 import { drawF16Side } from './planes/f16-side';
+import { drawF35Side } from './planes/f35-side';
 import { drawSR71Side } from './planes/sr71-side';
+import { drawTornadoSide } from './planes/tornado-side';
 import type { SideOpts } from './planes/surface';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
@@ -32,10 +35,13 @@ export function drawPlaneSide(
     case 'f16': drawF16Side(ctx, look, opts); break;
     case 'f14': drawF14Side(ctx, look, opts); break;
     case 'sr71': drawSR71Side(ctx, look, opts); break;
+    case 'a10': drawA10Side(ctx, look, opts); break;
+    case 'f35': drawF35Side(ctx, look, opts); break;
+    case 'tornado': drawTornadoSide(ctx, look, opts); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -54, f14: -62, sr71: -66 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -54, f14: -62, sr71: -66, a10: -31, f35: -56, tornado: -57 };

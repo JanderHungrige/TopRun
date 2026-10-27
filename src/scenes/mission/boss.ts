@@ -2,6 +2,7 @@ import type { AudioEngine } from '../../core/audio';
 import { BOSSES, type BossDef, type BossPartDef } from '../../data/bosses';
 import type { BossId } from '../../data/types';
 import { circleHit, headingTo, scaleBossHp } from '../../game/combat';
+import { nukeBossDamage, nukePartDamage } from '../../game/jets';
 import { drawBoss } from '../../render/draw-bosses';
 import { spawnEnemy } from './enemy-ai';
 import type { Player } from './player';
@@ -11,6 +12,7 @@ import { PF_W, type World } from './world';
 interface PartState {
   def: BossPartDef;
   hp: number;
+  readonly max: number;
   alive: boolean;
   fireT: number;
   aim: number;
@@ -40,9 +42,10 @@ export class Boss {
     this.maxHp = scaleBossHp(this.def.coreHp, difficulty);
     this.hp = this.maxHp;
     this.bulletSpeedMul = 1 + 0.015 * (difficulty - 1);
-    this.parts = this.def.parts.map((def, i) => ({
-      def, hp: scaleBossHp(def.hp, difficulty), alive: true, fireT: 1.5 + i * 0.37, aim: Math.PI, flash: 0,
-    }));
+    this.parts = this.def.parts.map((def, i) => {
+      const hp = scaleBossHp(def.hp, difficulty);
+      return { def, hp, max: hp, alive: true, fireT: 1.5 + i * 0.37, aim: Math.PI, flash: 0 };
+    });
   }
 
   get enraged(): boolean {
@@ -91,11 +94,12 @@ export class Boss {
       part.fireT -= dt * rage;
       if (part.fireT <= 0) {
         part.fireT = part.def.period * (0.85 + Math.random() * 0.3);
+        if (p.stealthed) continue; // F-35 stealth: nothing to shoot at (doc 36)
         fireEnemyWeapon(world, { x: this.x + part.def.dx, y: this.y + part.def.dy, bulletSpeedMul: this.bulletSpeedMul }, part.def.weapon, p, audio);
       }
     }
     this.coreFireT -= dt * rage;
-    if (this.coreFireT <= 0) {
+    if (this.coreFireT <= 0 && !p.stealthed) {
       this.coreFireT = this.def.corePeriod;
       fireEnemyWeapon(world, { x: this.x, y: this.y + 40, bulletSpeedMul: this.bulletSpeedMul }, this.def.coreWeapon, p, audio);
       if (this.enraged) fireEnemyWeapon(world, { x: this.x, y: this.y + 40, bulletSpeedMul: this.bulletSpeedMul }, 'spread3', p, audio);
@@ -117,29 +121,42 @@ export class Boss {
     for (const part of this.parts) {
       if (!part.alive) continue;
       if (circleHit(x, y, r, this.x + part.def.dx, this.y + part.def.dy, part.def.r)) {
-        part.hp -= amount;
-        part.flash = 0.06;
-        if (part.hp <= 0) {
-          part.alive = false;
-          world.particles.explosion(this.x + part.def.dx, this.y + part.def.dy, 'large', this.def.layer === 'ground');
-          audio.play('explosionLarge');
-          world.addShake(4);
-          world.collected += 100;
-          world.particles.popup(this.x + part.def.dx, this.y + part.def.dy - 20, '+$100', '#5be37d');
-        }
+        this.hitPart(part, amount, world, audio);
         return true;
       }
     }
     const onHull = this.def.hitboxes.some((h) => circleHit(x, y, r, this.x + h.dx, this.y + h.dy, h.r));
     if (!onHull) return false;
+    this.hitHull(amount, audio);
+    return true;
+  }
+
+  /** Tornado nuke (doc 36): the core loses a share of its maximum HP, every part a share of its own. */
+  blast(world: World, audio: AudioEngine): void {
+    if (!this.active) return;
+    for (const part of this.parts) if (part.alive) this.hitPart(part, nukePartDamage(part.max), world, audio);
+    this.hitHull(nukeBossDamage(this.maxHp), audio);
+  }
+
+  private hitPart(part: PartState, amount: number, world: World, audio: AudioEngine): void {
+    part.hp -= amount;
+    part.flash = 0.06;
+    if (part.hp > 0) return;
+    part.alive = false;
+    world.particles.explosion(this.x + part.def.dx, this.y + part.def.dy, 'large', this.def.layer === 'ground');
+    audio.play('explosionLarge');
+    world.addShake(4);
+    world.collected += 100;
+    world.particles.popup(this.x + part.def.dx, this.y + part.def.dy - 20, '+$100', '#5be37d');
+  }
+
+  private hitHull(amount: number, audio: AudioEngine): void {
     this.hp -= amount;
     this.flash = 0.05;
-    if (this.hp <= 0) {
-      this.hp = 0;
-      this.phase = 'dying';
-      audio.play('explosionHuge');
-    }
-    return true;
+    if (this.hp > 0) return;
+    this.hp = 0;
+    this.phase = 'dying';
+    audio.play('explosionHuge');
   }
 
   /** Nearest point of the boss to aim homing missiles at. */

@@ -6,6 +6,7 @@ import type { PlaneId } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
 import { chiefLine } from '../game/dialogue-scripts';
 import type { ShopItem } from '../game/economy';
+import { newJetsWaiting } from '../game/jets';
 import type { SaveData } from '../game/save';
 import { equipmentName, secondaryName } from '../i18n/content';
 import type { Params } from '../i18n/i18n';
@@ -32,7 +33,7 @@ export class HangarChief {
   }
 
   greet(save: SaveData): void {
-    const ev = save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
+    const ev = newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
     this.box.say(chiefLine(ev));
   }
 

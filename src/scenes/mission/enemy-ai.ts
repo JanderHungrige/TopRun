@@ -64,6 +64,7 @@ function moveAir(e: Enemy, dt: number, p: Player): void {
       break;
     }
     case 'kamikaze': {
+      if (p.stealthed) break; // lost the target: keeps flying straight (doc 36)
       const h = steerHoming(Math.atan2(e.vx, -e.vy || 1), e.x, e.y, p.x, p.y, 2.2, dt);
       e.vx = Math.sin(h) * sp;
       e.vy = -Math.cos(h) * sp;
@@ -79,7 +80,7 @@ function moveAir(e: Enemy, dt: number, p: Player): void {
 }
 
 function fire(e: Enemy, dt: number, world: World, p: Player, audio: AudioEngine): void {
-  const onScreen = e.y > 10 && e.y < PF_H - 120 && p.alive;
+  const onScreen = e.y > 10 && e.y < PF_H - 120 && p.alive && !p.stealthed;
   e.fireT -= dt;
   if (e.def.weapon !== 'none' && e.fireT <= 0) {
     e.fireT = e.period * (0.8 + Math.random() * 0.4);

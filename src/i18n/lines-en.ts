@@ -60,6 +60,9 @@ export const LINES_EN = {
   'adm.globe': [
     "But it isn't over. A second front has opened. Check the globe on your map, {callsign}.",
   ],
+  'adm.newJets': [
+    "And the hangar has three new birds for the second front: the A-10, the F-35 and the old Tornado.",
+  ],
   'adm.finale2': [
     "The second front is won, {callsign}. Nobody has flown like that. You're a Top Gun legend.",
   ],
@@ -94,6 +97,10 @@ export const LINES_EN = {
   'chief.helloBroke': [
     "Empty pockets again, {callsign}? Fly a mission and come back with some cash.",
     "Money's tight, {callsign}. Window shopping is free, at least.",
+  ],
+  'chief.helloNewJets': [
+    "Got three new birds in, {callsign}: an A-10, an F-35 and an old Tornado. Have a look under JETS.",
+    "Fresh delivery, {callsign}! A Warthog, a Lightning and a Tornado that's older than me. Check the JETS tab.",
   ],
   'chief.buyPlane': [
     "The {plane}! Treat her well. She's a beauty.",

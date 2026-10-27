@@ -54,7 +54,30 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   };
 }
 
-/** The slot the AIR or GROUND key fires: the first mounted weapon of that role with ammo, or −1 (doc 05). */
-export function slotFor(secondaries: ReadonlyArray<{ id: SecondaryId; ammo: number }>, role: WeaponRole): number {
-  return secondaries.findIndex((s) => s.ammo > 0 && SECONDARIES[s.id].role === role);
+type Stores = ReadonlyArray<{ id: SecondaryId; ammo: number }>;
+
+const usable = (s: { id: SecondaryId; ammo: number } | undefined, role: WeaponRole): boolean =>
+  !!s && s.ammo > 0 && SECONDARIES[s.id].role === role;
+
+/**
+ * The slot the AIR or GROUND key fires (doc 05): the picked slot while it has ammo, else the first
+ * mounted weapon of that role with ammo, or −1.
+ */
+export function slotFor(secondaries: Stores, role: WeaponRole, pick = -1): number {
+  if (usable(secondaries[pick], role)) return pick;
+  return secondaries.findIndex((s) => usable(s, role));
 }
+
+/** SWITCH: the next weapon of that role with ammo after the one firing now, wrapping; unchanged if none other. */
+export function nextPick(secondaries: Stores, role: WeaponRole, pick: number): number {
+  const now = slotFor(secondaries, role, pick);
+  for (let k = 1; k <= secondaries.length; k++) {
+    const i = (now + k) % secondaries.length;
+    if (usable(secondaries[i], role)) return i;
+  }
+  return now;
+}
+
+/** At least two weapons of that role still have ammo, so SWITCH does something. */
+export const canSwitch = (secondaries: Stores, role: WeaponRole): boolean =>
+  secondaries.filter((s) => usable(s, role)).length >= 2;

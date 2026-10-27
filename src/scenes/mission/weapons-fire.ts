@@ -44,9 +44,9 @@ function playerMissile(p: Player, kind: Missile['kind'], dx: number, heading: nu
   };
 }
 
-/** AIR or GROUND key: fires the first mounted weapon of that role with ammo (doc 05). False when nothing fired. */
+/** AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). False when nothing fired. */
 export function fireSecondary(world: World, p: Player, audio: AudioEngine, role: WeaponRole): boolean {
-  const slot = p.secondaries[slotFor(p.secondaries, role)];
+  const slot = p.secondaries[slotFor(p.secondaries, role, role === 'ground' ? p.groundPick : -1)];
   if (!slot || slot.ammo <= 0 || p.secCooldown > 0) return false;
   const def = SECONDARIES[slot.id];
   slot.ammo -= 1;

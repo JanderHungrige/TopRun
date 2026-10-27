@@ -54,14 +54,20 @@ export function storesStatic(ctx: CanvasRenderingContext2D, r: Rect, plane: Plan
   greenPlane(ctx, plane, s.x + s.w - 38, s.y + s.h / 2 + 2, 1.15);
 }
 
-export function storesLive(ctx: CanvasRenderingContext2D, r: Rect, stores: LeftConsoleView['stores'], none: string): void {
+export function storesLive(
+  ctx: CanvasRenderingContext2D, r: Rect, stores: LeftConsoleView['stores'], none: string, swap: LeftConsoleView['swap'],
+): void {
   const s = screenRect(r);
   const w = s.w - 82;
   if (stores.length === 0) {
     screenText(ctx, none, s.x + 6 + w / 2, s.y + s.h / 2 + 8, { size: 11, align: 'center', maxW: w - 8, color: PHOSPHOR_DIM });
     return;
   }
-  const rowH = Math.min(17, (s.h - 26) / stores.length);
+  if (swap) {
+    const color = swap.ready ? PHOSPHOR : PHOSPHOR_DIM;
+    screenText(ctx, swap.text, s.x + 9, s.y + s.h - 8, { size: 10.5, maxW: s.w - 16, color, weight: 800, spacing: 0.5 });
+  }
+  const rowH = Math.min(17, (s.h - (swap ? 40 : 26)) / stores.length);
   stores.forEach((st, i) => {
     const y = s.y + 31 + i * rowH;
     const ink = st.ammo > 0 ? PHOSPHOR : PHOSPHOR_DIM;

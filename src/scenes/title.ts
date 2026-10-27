@@ -21,7 +21,8 @@ const CONTROLS: ReadonlyArray<readonly [UiKey, UiKey | string, UiKey | string]> 
   ['controls.move', 'controls.arrows', 'controls.stick'],
   ['controls.gun', 'controls.spaceJ', 'A'],
   ['controls.air', 'R / K', 'B'],
-  ['controls.ground', 'Q / L', 'LB / RB'],
+  ['controls.ground', 'Q / L', 'RB'],
+  ['controls.switch', 'X / O', 'LB'],
   ['controls.flare', 'F', 'X'],
   ['controls.special', 'E', 'Y'],
   ['controls.pause', 'P / Esc', 'Start'],
@@ -143,7 +144,7 @@ export class TitleScene implements Scene {
     text(ctx, t('controls.keyboard'), 590, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
     text(ctx, t('controls.gamepad'), 790, 400, { size: 12, color: COLORS.dim, letterSpacing: 2 });
     CONTROLS.forEach(([what, keys, pad], i) => {
-      const y = 426 + i * 25;
+      const y = 422 + i * 23;
       text(ctx, t(what), 310, y, { size: 15, color: COLORS.ink });
       text(ctx, label(keys), 590, y, { size: 15, color: COLORS.cyan });
       text(ctx, label(pad), 790, y, { size: 15, color: COLORS.cyan, maxWidth: 200 });

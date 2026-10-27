@@ -21,11 +21,13 @@ const MONITOR = { x: 500, y: 356, w: 710, h: 270 };
 
 const ROW: Readonly<Record<Step, UiKey>> = {
   right: 'joy.row.right', back: 'joy.row.back', fire: 'joy.row.fire', throttle: 'joy.row.throttle',
-  missile: 'joy.row.missile', flare: 'joy.row.flare', special: 'joy.row.special', switch: 'joy.row.switch', pause: 'joy.row.pause',
+  missile: 'joy.row.missile', flare: 'joy.row.flare', special: 'joy.row.special', switch: 'joy.row.switch', cycle: 'joy.row.cycle',
+  pause: 'joy.row.pause',
 };
 const ASK_TEXT: Readonly<Record<Step, UiKey>> = {
   right: 'joy.ask.right', back: 'joy.ask.back', fire: 'joy.ask.fire', throttle: 'joy.ask.throttle',
-  missile: 'joy.ask.missile', flare: 'joy.ask.flare', special: 'joy.ask.special', switch: 'joy.ask.switch', pause: 'joy.ask.pause',
+  missile: 'joy.ask.missile', flare: 'joy.ask.flare', special: 'joy.ask.special', switch: 'joy.ask.switch', cycle: 'joy.ask.cycle',
+  pause: 'joy.ask.pause',
 };
 
 /** JOYSTICK setup (doc 01): bind stick, throttle and buttons by moving / pressing them. */
@@ -119,6 +121,7 @@ export class JoystickSetupScene implements Scene {
       case 'flare':
       case 'special':
       case 'switch':
+      case 'cycle':
       case 'pause': {
         const b = s.buttons[step];
         return b ? this.buttonLabel(b) : passed ? t('joy.unbound') : '';

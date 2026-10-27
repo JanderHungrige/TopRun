@@ -5,6 +5,7 @@ import { UI_EN_HONOURS } from './ui-en-honours';
 import { UI_EN_OFFDUTY } from './ui-en-offduty';
 import { UI_EN_AVATAR } from './ui-en-avatar';
 import { UI_EN_CODE } from './ui-en-code';
+import { UI_EN_JOYSTICK } from './ui-en-joystick';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
   // Title
@@ -30,6 +31,7 @@ export const UI_EN = {
   'controls.gun': 'Gun (hold)',
   'controls.air': 'Air-to-air missile',
   'controls.ground': 'Ground weapon (rockets, bombs)',
+  'controls.switch': 'Switch ground weapon',
   'controls.flare': 'Flare',
   'controls.special': 'Special move',
   'controls.pause': 'Pause',
@@ -38,7 +40,7 @@ export const UI_EN = {
   'controls.arrows': 'Arrows / WASD',
   'controls.stick': 'Left stick / D-pad',
   'controls.spaceJ': 'Space / J',
-  'controls.touch': 'Touch: drag to fly, auto-fire, buttons on the side panels.  Carrier: hold the screen for throttle, then LOCK and LAUNCH.',
+  'controls.touch': 'Touch: drag to fly, auto-fire, side-panel buttons, tap STORES to switch.  Carrier: hold for throttle, then LOCK and LAUNCH.',
   'controls.joystick': 'Joystick / HOTAS: stick flies, trigger fires, throttle for the launch. Set the other buttons under JOYSTICK.',
   // Pilots
   'pilots.title': 'CHOOSE YOUR PILOT',
@@ -60,7 +62,7 @@ export const UI_EN = {
   'newPilot.invalid': 'Letters, digits, space and - only',
   'newPilot.taken': 'That callsign is already taken',
   'newPilot.full': 'Hangar full: delete a pilot first',
-  'newPilot.hint': 'Type a callsign, pick a look with ←/→ (↓ builds your own), press ENTER',
+  'newPilot.hint': 'Type a callsign, pick a look with the arrows, press ENTER',
   // Map
   'map.title': 'THEATER OF OPERATIONS',
   'map.progress': '{done}/30 MISSIONS  ·  ★ {stars}/90',
@@ -189,6 +191,9 @@ export const UI_EN = {
   'cockpit.stores': 'STORES',
   'cockpit.air': 'AIR',
   'cockpit.ground': 'GROUND',
+  'cockpit.switch': 'SWITCH',
+  'cockpit.switchTap': 'TAP = SWITCH',
+  'cockpit.ready': '{weapon} READY',
   'cockpit.flare': 'FLARE',
   'cockpit.special': 'SPECIAL',
   'cockpit.pause': 'PAUSE',
@@ -238,42 +243,6 @@ export const UI_EN = {
   'objective.intercept': 'Intercept: shoot down {n} aircraft',
   'objective.strike': 'Strike: destroy {n} {targets}',
   'objective.boss': 'Destroy the {boss} ({title})',
-  'joy.title': 'JOYSTICK SETUP',
-  'joy.wake': 'Press any button on your joystick',
-  'joy.wakeHint': 'Browsers only reveal a controller once one of its buttons has been pressed.',
-  'joy.ask.right': 'Push the stick fully RIGHT',
-  'joy.ask.back': 'Pull the stick fully BACK, towards you',
-  'joy.ask.fire': 'Pull the TRIGGER — it fires the gun',
-  'joy.ask.throttle': 'Move the THROTTLE from end to end, leave it at FULL, then pull the trigger',
-  'joy.ask.missile': 'Press the button for AIR-TO-AIR MISSILES',
-  'joy.ask.flare': 'Press the button for FLARE',
-  'joy.ask.special': 'Press the button for SPECIAL — it also locks and launches on the carrier',
-  'joy.ask.switch': 'Press the button for GROUND WEAPONS (rockets, bombs)',
-  'joy.ask.pause': 'Press the button for PAUSE',
-  'joy.done': 'Saved! Your joystick is ready.',
-  'joy.used': 'That button is already used for {what}.',
-  'joy.noThrottle': 'No throttle movement seen — move it from end to end, or skip.',
-  'joy.row.right': 'Stick left / right',
-  'joy.row.back': 'Stick forward / back',
-  'joy.row.fire': 'Trigger (gun)',
-  'joy.row.throttle': 'Throttle',
-  'joy.row.missile': 'Air missile',
-  'joy.row.flare': 'Flare',
-  'joy.row.special': 'Special / launch',
-  'joy.row.switch': 'Ground weapon',
-  'joy.row.pause': 'Pause',
-  'joy.axis': 'Axis {n}',
-  'joy.button': 'Button {n}',
-  'joy.reversed': 'reversed',
-  'joy.otherDevice': '2nd device',
-  'joy.unbound': '—',
-  'joy.default': 'default',
-  'joy.skip': 'SKIP',
-  'joy.cancel': 'CANCEL',
-  'joy.clear': 'CLEAR SAVED',
-  'joy.cleared': 'Saved setup deleted — the default mapping applies again.',
-  'joy.hasProfile': 'A joystick setup is saved in this browser.',
-  'joy.devices': 'CONTROLLERS',
   'hangar.tabPaint': 'PAINT',
   'hangar.paintDesc': 'Paint jobs are campaign rewards: beat a theater\'s boss, or earn 3 stars on all its missions. Applying one is free and paints only the jet you fly.',
   'hangar.paintReady': 'UNLOCKED',
@@ -292,6 +261,7 @@ export const UI_EN = {
   ...UI_EN_HANGAR,
   ...UI_EN_AVATAR,
   ...UI_EN_CODE,
+  ...UI_EN_JOYSTICK,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

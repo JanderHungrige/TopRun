@@ -7,6 +7,13 @@ import { tone, type PersonLook } from '../people';
 
 const WHITE_TOP = tone('#f3efe4', '#ffffff', '#c9c2b0');
 const SNEAKER_DARK = tone('#2c3646', '#56627a', '#1b222d');
+const FAIR_SKIN = { base: '#f2c4a0', light: '#fcdcc0', shadow: '#d49e7a', deep: '#9a6044', lip: '#b46056' };
+
+/** A second-row preset (doc 08) in the shared sports kit: shirtless, flight-suit trousers, sneakers. */
+const sporty = (hair: PersonLook['hair'], eyes: string, bottom: PersonLook['bottom']): PersonLook => ({
+  skin: FAIR_SKIN, hair, eyes, torso: 'shirtless', top: WHITE_TOP, legs: 'trousers', bottom, trim: '#f3efe4', tied: true,
+  feet: 'sneakers', shoe: SNEAKER_DARK, sole: '#f2f2ee', tags: true,
+});
 
 export const PLAYER_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freeze({
   pilot1: {
@@ -70,6 +77,18 @@ export const PLAYER_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freez
     sole: '#f2f2ee',
     tags: true,
   },
+  /** Second row (doc 08): the teen with the dark-blond fringe, the grown-up with the strawberry-blond bun, the
+   *  freckled girl with the hairband, the grown-up with windswept brown hair, the youngest, platinum blond. */
+  pilot5: sporty({ style: 'messy', base: '#b8955c', light: '#d8b882', shadow: '#8a6c3c', brow: '#7d6034' }, '#6a8296',
+    tone('#3d4a5c', '#56657c', '#2a3340')),
+  pilot6: sporty({ style: 'long', base: '#d2a06e', light: '#ecc296', shadow: '#a4764a', brow: '#b07848' }, '#7aa0c0',
+    tone('#7d7150', '#9a8c66', '#5c5339')),
+  pilot7: sporty({ style: 'long', base: '#e8c56c', light: '#f8e3a4', shadow: '#bd9a44', brow: '#a8843a' }, '#6d8ea8',
+    tone('#2c6a68', '#3f8a86', '#1e4c4a')),
+  pilot8: sporty({ style: 'bob', base: '#6b4a32', light: '#8e6a4c', shadow: '#4a3020', brow: '#4e3424' }, '#6a8296',
+    tone('#2c3d68', '#43588f', '#1f2b4c')),
+  pilot9: sporty({ style: 'crew', base: '#f0dfa8', light: '#fff4d2', shadow: '#c8b47c', brow: '#c4ad78' }, '#4f86c6',
+    tone('#b8322c', '#d65a50', '#8a2420')),
 });
 
 export const RIVAL_LOOK: PersonLook = Object.freeze<PersonLook>({

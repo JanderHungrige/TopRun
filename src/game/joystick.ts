@@ -3,12 +3,13 @@ import type { Vec } from '../core/math';
 
 // Joystick / HOTAS mapping rules (doc 01): which controller button and axis means what. Pure.
 
-export type JoyAction = 'fire' | 'missile' | 'flare' | 'special' | 'switch' | 'pause';
-export const JOY_ACTIONS: readonly JoyAction[] = Object.freeze(['fire', 'missile', 'flare', 'special', 'switch', 'pause'] as const);
+/** `switch` is the GROUND weapon button (name kept for saved setups); `cycle` switches the ground weapon (doc 05). */
+export type JoyAction = 'fire' | 'missile' | 'flare' | 'special' | 'switch' | 'cycle' | 'pause';
+export const JOY_ACTIONS: readonly JoyAction[] = Object.freeze(['fire', 'missile', 'flare', 'special', 'switch', 'cycle', 'pause'] as const);
 
 export const JOY_ACTION_INPUTS: Readonly<Record<JoyAction, readonly Action[]>> = {
   fire: ['fire', 'confirm'], missile: ['secondary', 'back'], flare: ['flare'], special: ['special'],
-  switch: ['groundWeapon'], pause: ['pause'],
+  switch: ['groundWeapon'], cycle: ['weaponSwitch'], pause: ['pause'],
 };
 
 /** A button on one controller, identified by the browser's `Gamepad.id`. */
@@ -58,7 +59,7 @@ export const MAX_INDEX = 63;
 // Standard gamepad mapping: 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 8 Back, 9 Start, 12–15 d-pad.
 const STANDARD_BUTTONS: Readonly<Record<number, readonly Action[]>> = {
   0: ['fire', 'confirm'], 1: ['secondary', 'back'], 2: ['flare'], 3: ['special'],
-  4: ['groundWeapon'], 5: ['groundWeapon'], 8: ['back'], 9: ['pause'],
+  4: ['weaponSwitch'], 5: ['groundWeapon'], 8: ['back'], 9: ['pause'],
   12: ['up'], 13: ['down'], 14: ['left'], 15: ['right'],
 };
 
@@ -85,7 +86,7 @@ export function defaultProfile(pad: string, rest?: readonly number[]): JoyProfil
     x: withCenter({ pad, index: 0, invert: false }, rest?.[0] ?? 0),
     y: withCenter({ pad, index: 1, invert: false }, rest?.[1] ?? 0),
     throttle: null,
-    buttons: { fire: b(0), missile: b(1), flare: b(2), special: b(3), switch: b(4), pause: b(5) },
+    buttons: { fire: b(0), missile: b(1), flare: b(2), special: b(3), switch: b(4), cycle: b(6), pause: b(5) },
   };
 }
 

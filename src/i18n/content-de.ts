@@ -8,6 +8,11 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   arctic: { name: 'Arktischer Schild', tagline: 'Kalter Krieg, heißer Himmel' },
   canyon: { name: 'Roter Canyon', tagline: 'Tief und schnell' },
   leviathan: { name: 'Operation Leviathan', tagline: 'Beende den Krieg' },
+  northsea: { name: 'Nordsee-Plattformen', tagline: 'Sturm über den Bohrinseln' },
+  himalaya: { name: 'Dach der Welt', tagline: 'Dünne Luft, hoher Einsatz' },
+  jungle: { name: 'Grüne Hölle', tagline: 'Unter dem Blätterdach' },
+  nightfall: { name: 'Wüstennacht', tagline: 'Ins Dunkel' },
+  thunderhead: { name: 'Operation Gewitterfront', tagline: 'Mach endgültig Schluss' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -94,4 +99,9 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   blackjack: 'Strategischer Bomber',
   typhoon: 'Nurflügler',
   leviathan: 'Feindlicher Superträger',
+  kraken: 'Seefestung',
+  condor: 'Schweres Kampfflugzeug',
+  python: 'Panzerzug',
+  scorpion: 'Raketenkriecher',
+  colossus: 'Fliegende Festung',
 };

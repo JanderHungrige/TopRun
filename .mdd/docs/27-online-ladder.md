@@ -3,7 +3,7 @@ id: 27-online-ladder
 title: Online Ladder Service - Shared Leaderboard for All Pilots
 edition: TopRun
 depends_on: [26-pilot-rating, 08-pilot-profiles]
-relates: [28-ladder-screen]
+relates: [28-ladder-screen, 35-second-map]
 source_files:
   - src/game/ladder.ts
   - server/ladder/main.ts
@@ -30,7 +30,7 @@ test_files:
   - server/ladder/http.test.ts
   - server/ladder/store.test.ts
 data_flow: greenfield
-last_synced: 2026-10-25
+last_synced: 2026-10-27
 status: complete
 phase: all
 mdd_version: 11
@@ -88,7 +88,10 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
   - `id`: random pilot id (22–40 chars `[A-Za-z0-9_-]`), `secret`: random 32–64 chars, both created
     in the browser and kept in the pilot's profile (doc 28).
   - `stats` = `RatingStats` (doc 26); the service **computes the rating itself** from the stats
-    (clamped to the caps), so a client cannot post an arbitrary number.
+    (clamped to the caps), so a client cannot post an arbitrary number. The caps and ranks are doc 26's shared
+    code: map 2 (doc 35) raised them to 180 stars / 28 000 and added Fleet Admiral and Top Gun Legend, so the
+    service must roll out with the game (auto-deploy rolls the ladder first; an older service would clamp
+    map-2 stars to 90).
   - New id → entry created (max 1 000 entries; above that the lowest-rated, then stalest entries
     are pruned — never the one just posted).
     Known id → updated only if `secret` matches (constant-time compare); else 403.

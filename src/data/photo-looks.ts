@@ -12,4 +12,10 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   arctic: ['dawn', 'day', 'night', 'dawn', 'day', 'night'],
   canyon: ['day', 'dusk', 'day', 'dawn', 'day', 'dusk'],
   leviathan: ['storm', 'dusk', 'day', 'night', 'storm', 'dusk'],
+  // Map 2 (doc 35): ready for its photos, which the wall does not show yet.
+  northsea: ['day', 'storm', 'dusk', 'day', 'storm', 'dusk'],
+  himalaya: ['dawn', 'day', 'day', 'dawn', 'day', 'dusk'],
+  jungle: ['dawn', 'day', 'dusk', 'day', 'dawn', 'dusk'],
+  nightfall: ['night', 'night', 'dusk', 'night', 'night', 'night'],
+  thunderhead: ['storm', 'storm', 'night', 'storm', 'dusk', 'storm'],
 });

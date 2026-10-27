@@ -10,7 +10,8 @@ import { offerAfterMission } from '../game/minigames/core';
 import { earnedMedals, newMedals } from '../game/medals';
 import type { MedalId } from '../data/medals';
 import type { Route } from '../game/state';
-import { campaignComplete } from '../game/progress';
+import { campaignMissions } from '../data/missions';
+import { campaignComplete, nextMissionOn } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { liveryName, missionName, objectiveText } from '../i18n/content';
 import { t } from '../i18n/i18n';
@@ -61,7 +62,8 @@ export class DebriefScene implements Scene {
     this.payout = applied.payout;
     this.stars = applied.stars;
     this.newBest = result.success && applied.stars > before;
-    this.finale = result.success && mission.number === 30 && campaignComplete(applied.save);
+    const last = campaignMissions(mission.campaign).at(-1);
+    this.finale = result.success && mission.id === last?.id && campaignComplete(applied.save, mission.campaign);
     this.buttons = new ButtonGroup([
       { id: 'map', label: t('debrief.continue'), x: 380, y: 648, w: 220, h: 50, primary: true },
       { id: 'retry', label: t('debrief.flyAgain'), x: 620, y: 648, w: 180, h: 50 },
@@ -98,7 +100,7 @@ export class DebriefScene implements Scene {
     const next: Route = to === 'retry' ? { to: 'takeoff', mission: this.mission }
       : to === 'hangar' ? { to: 'hangar' }
         : this.offer ? { to: 'offer', id: this.offer.id, isNew: this.offer.isNew }
-          : { to: 'map', select: this.result.success ? undefined : this.mission.id };
+          : { to: 'map', select: this.result.success ? nextMissionOn(this.game.save, this.mission.campaign).id : this.mission.id };
     this.game.go(this.medals.length > 0 ? { to: 'ceremony', medals: this.medals, then: next } : next);
   }
 
@@ -118,7 +120,7 @@ export class DebriefScene implements Scene {
     this.renderPayout(ctx);
     this.renderStars(ctx);
     this.renderPaint(ctx);
-    if (this.finale) text(ctx, t('debrief.finale'), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
+    if (this.finale) text(ctx, t(this.mission.campaign === 1 ? 'debrief.finale' : 'debrief.finale2'), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
     this.buttons.render(ctx, this.time);
   }
 

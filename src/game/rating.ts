@@ -13,7 +13,7 @@ export interface RatingStats {
 }
 
 export const RATING = Object.freeze({
-  star: 100, maxStars: 90,
+  star: 100, maxStars: 180, // both maps (doc 35); was 90
   medal: 250, maxMedals: 18,
   kill: 2, maxKills: 2000,
   gold: 150, silver: 80, bronze: 40, games: 10,

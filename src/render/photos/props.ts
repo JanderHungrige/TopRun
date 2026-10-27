@@ -82,6 +82,12 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   blackjack: { shape: bomber, air: true, s: 0.62 },
   typhoon: { shape: flyingWing, air: true, s: 0.7 },
   leviathan: { shape: supercarrier, air: false, s: 0.75 },
+  // Map 2 (doc 35): stand-in silhouettes until its photos come (the wall shows map 1 only).
+  kraken: { shape: fortress, air: false, s: 0.7 },
+  condor: { shape: bomber, air: true, s: 0.62 },
+  python: { shape: battleship, air: false, s: 0.8 },
+  scorpion: { shape: fortress, air: false, s: 0.65 },
+  colossus: { shape: flyingWing, air: true, s: 0.75 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

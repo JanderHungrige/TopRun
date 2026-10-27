@@ -1,3 +1,4 @@
+import { BOSSES_2 } from './bosses-2';
 import type { BossId, EnemyKind, EnemyWeapon, Layer } from './types';
 
 export interface Hitbox {
@@ -37,7 +38,7 @@ const part = (id: string, dx: number, dy: number, r: number, hp: number, weapon:
   ({ id, dx, dy, r, hp, weapon, period });
 
 // Boss art in render/draw-bosses.ts is laid out in the same local coordinates (nose/bow points down, +y).
-export const BOSSES: Readonly<Record<BossId, BossDef>> = Object.freeze({
+const BOSSES_1 = {
   ironclad: {
     id: 'ironclad', name: 'IRONCLAD', title: 'Battleship', layer: 'ground',
     coreHp: 2600, coreWeapon: 'spread3', corePeriod: 3.2,
@@ -94,4 +95,6 @@ export const BOSSES: Readonly<Record<BossId, BossDef>> = Object.freeze({
     ],
     settleY: 225, sway: 80, swaySpeed: 0.3, bounty: 8000, escort: { kind: 'fishbed', every: 3.2 },
   },
-});
+} satisfies Record<string, BossDef>;
+
+export const BOSSES: Readonly<Record<BossId, BossDef>> = Object.freeze({ ...BOSSES_1, ...BOSSES_2 });

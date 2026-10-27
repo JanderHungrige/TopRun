@@ -5,7 +5,7 @@ import { pollGamepad } from './gamepad';
 
 export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'groundWeapon' | 'weaponSwitch' | 'flare' | 'special'
-  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete';
+  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete' | 'globe';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
 
@@ -17,6 +17,7 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   KeyR: ['secondary'], KeyK: ['secondary'], // never Shift: 5× Shift opens the Windows Sticky Keys prompt
   KeyQ: ['groundWeapon'], KeyL: ['groundWeapon'], KeyX: ['weaponSwitch'], KeyO: ['weaponSwitch'], KeyF: ['flare'], KeyE: ['special'],
   Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
+  KeyG: ['globe'], // the campaign map's globe: switch between map 1 and map 2 (doc 35)
 };
 
 /** Pure action bookkeeping: sources (keys, pad buttons) map to actions; presses are latched per tick. */

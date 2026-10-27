@@ -27,4 +27,6 @@ export const UI_DE_LADDER = {
   'rank.capt': 'Kapitän zur See',
   'rank.radm': 'Konteradmiral',
   'rank.adm': 'Admiral',
+  'rank.fadm': 'Flottenadmiral',
+  'rank.legend': 'Top-Gun-Legende',
 } as const;

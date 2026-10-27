@@ -1,6 +1,6 @@
 import { BOSSES } from '../data/bosses';
 import type { MedalId } from '../data/medals';
-import { MISSIONS } from '../data/missions';
+import { campaignMissions } from '../data/missions';
 import type { MissionDef, MissionResult, Objective } from '../data/types';
 import { enemyName, medalName, theaterName } from '../i18n/content';
 import type { Params } from '../i18n/i18n';
@@ -62,10 +62,12 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   for (const l of d.liveries ?? []) {
     lines.push(ref('admiral', l.rare ? 'adm.liveryRare' : 'adm.livery', 'happy', l.rare ? 'thumbsUp' : 'point', { livery: l.name }));
   }
-  if (r.success && d.campaignDone && m.number === MISSIONS.length) {
-    lines.push(ref('admiral', 'adm.finale', 'happy', 'salute'));
+  const list = campaignMissions(m.campaign);
+  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id) {
+    lines.push(ref('admiral', m.campaign === 1 ? 'adm.finale' : 'adm.finale2', 'happy', 'salute'));
+    if (m.campaign === 1) lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
   } else if (r.success && m.objective.type === 'boss') {
-    const next = MISSIONS[m.number];
+    const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
   }
   return lines;

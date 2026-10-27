@@ -57,6 +57,12 @@ export const LINES_EN = {
   'adm.finale': [
     "That's the war, {callsign}. You're the best of the best. Welcome to TopGun.",
   ],
+  'adm.globe': [
+    "But it isn't over. A second front has opened. Check the globe on your map, {callsign}.",
+  ],
+  'adm.finale2': [
+    "The second front is won, {callsign}. Nobody has flown like that. You're a Top Gun legend.",
+  ],
   'adm.livery': [
     "And the paint shop has something for you: {livery}. Wear it with pride.",
     "One more thing. The crew painted up a new scheme for you: {livery}. It's waiting in the hangar.",

@@ -59,6 +59,12 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.finale': [
     'Der Krieg ist vorbei, {callsign}. Du bist der Beste der Besten. Willkommen bei TopGun.',
   ],
+  'adm.globe': [
+    'Aber es ist noch nicht vorbei. Eine zweite Front hat sich geöffnet. Sieh dir den Globus auf deiner Karte an, {callsign}.',
+  ],
+  'adm.finale2': [
+    'Die zweite Front ist gewonnen, {callsign}. So ist noch keiner geflogen. Du bist eine Top-Gun-Legende.',
+  ],
   'adm.livery': [
     'Und die Lackiererei hat etwas für dich: {livery}. Trag sie mit Stolz.',
     'Noch etwas. Die Crew hat dir eine neue Lackierung gemacht: {livery}. Sie wartet im Hangar.',

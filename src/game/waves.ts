@@ -1,7 +1,7 @@
 import { createRng, type Rng } from '../core/rng';
 import { lerp } from '../core/math';
 import { ENEMIES, isAir } from '../data/enemies';
-import type { Behavior, BossId, EnemyKind, MissionDef } from '../data/types';
+import type { Behavior, BossId, CampaignId, EnemyKind, MissionDef } from '../data/types';
 
 /** Playfield size in world units; world x is local to the playfield. */
 export const PF_W = 640;
@@ -83,12 +83,18 @@ function countEnemies(events: readonly SpawnEvent[], match: (k: EnemyKind) => bo
   return events.filter((e) => e.type === 'enemy' && match(e.kind)).length;
 }
 
+/** Strike targets a timeline guarantees: two spare on map 1; map 2 adds half the count again, because its tougher
+ *  heavy targets (destroyers) slip past half-dead (doc 35). */
+export function strikeSpawns(count: number, campaign: CampaignId): number {
+  return campaign === 1 ? count + 2 : Math.ceil(count * 1.5) + 2;
+}
+
 /** Inserts guaranteed spawns so the objective is always achievable. */
 function ensureObjective(out: SpawnEvent[], rng: Rng, m: MissionDef): void {
   const o = m.objective;
   const lastT = m.length - 6;
   if (o.type === 'strike') {
-    const missing = o.count + 2 - countEnemies(out, (k) => k === o.target);
+    const missing = strikeSpawns(o.count, m.campaign) - countEnemies(out, (k) => k === o.target);
     for (let i = 0; i < missing; i++) {
       const t = lerp(6, lastT, (i + 0.5) / missing);
       out.push(enemy(t, o.target, rng.range(X_MIN + 40, X_MAX - 40), rng.pick(ENEMIES[o.target].behaviors)));
@@ -104,10 +110,15 @@ function ensureObjective(out: SpawnEvent[], rng: Rng, m: MissionDef): void {
 }
 
 /** Deterministic spawn timeline for a mission. */
+/** Seconds between waves: unchanged up to difficulty 30, then down to a floor of 1.1 at 60 (doc 35). */
+export function waveGap(difficulty: number): number {
+  return difficulty <= 30 ? lerp(3.2, 1.5, (difficulty - 1) / 29) : lerp(1.5, 1.1, Math.min(1, (difficulty - 30) / 30));
+}
+
 export function generateTimeline(m: MissionDef): SpawnEvent[] {
   const rng = createRng(m.number * 7919 + 13);
   const events: SpawnEvent[] = [];
-  const gap = lerp(3.2, 1.5, (m.difficulty - 1) / 29);
+  const gap = waveGap(m.difficulty);
   const end = m.length - 4;
   for (let t = 2.5; t < end; t += gap * rng.range(0.75, 1.25)) addWave(events, rng, m, t);
   ensureObjective(events, rng, m);

@@ -3,11 +3,11 @@ id: second-front-wave-1
 title: "Wave 1: Map 2 and the globe"
 initiative: second-front
 initiative_version: 1
-status: planned
+status: complete
 depends_on: none
 demo_state: "After beating mission 30 the globe on the campaign map opens map 2: 30 harder missions in 5 new theaters with 5 new bosses; map-2 stars raise the pilot rating to the new top ranks."
 created: 2026-10-27
-hash: 43eb801a
+hash: af672fc5
 ---
 
 # Wave 1: Map 2 and the globe
@@ -19,9 +19,10 @@ After beating mission 30 the globe on the campaign map opens map 2: 30 harder mi
 ## Features
 | # | Feature | Doc | Status | Depends on |
 |---|---------|-----|--------|------------|
-| 1 | second-map | 35-second-map | planned | — |
-| 2 | rating-map-2 | 26-pilot-rating (update) + 27-online-ladder (update) | planned | second-map |
+| 1 | second-map | 35-second-map | complete | — |
+| 2 | rating-map-2 | 26-pilot-rating (update) + 27-online-ladder (update) | complete | second-map |
 
-## Open Research
-- Difficulty curve for missions 31–60: enemy HP/fire-rate/bullet-speed formulas keep growing; the wave gap needs a floor; bot playtest of a map-2 mission, its boss and the last one.
-- Five new boss designs (code-drawn), names without real units, and their photo-wall props.
+## Open Research (resolved)
+- Difficulty curve for missions 31–60: formulas keep growing, the wave gap has a floor; bot playtest and the
+  destroyer retune are recorded in doc 35 (Balance).
+- Five new boss designs (code-drawn), generic names; photo-wall props as stand-ins (the wall stays map 1).

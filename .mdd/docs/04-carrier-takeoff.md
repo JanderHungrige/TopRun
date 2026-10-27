@@ -30,7 +30,7 @@ models: []
 test_files:
   - tests/unit/takeoff.test.ts
 data_flow: greenfield
-last_synced: 2026-10-25
+last_synced: 2026-10-27
 status: complete
 phase: all
 mdd_version: 11
@@ -69,7 +69,8 @@ game/takeoff-logic.ts  pure state machine: createTakeoff() / stepTakeoff(state, 
 scenes/takeoff.ts      drives the state machine, camera, particles, deck officer, audio
 scenes/takeoff-hud.ts  throttle gauge, countdown numbers, prompts, LOCK/LAUNCH touch button
 render/draw-carrier.ts sky, sun, clouds, sea with waves, carrier hull, island, deck crew, JBD, steam
-render/draw-planes-side.ts  side-view vector art: F-16, F-14, SR-71 (+ afterburner)
+render/draw-planes-side.ts  side-view vector art: F-16, F-14, SR-71, A-10, F-35, Tornado (+ afterburner), each drawn
+                            from real dimensions through realProfile() (side-kit.ts)
 ```
 
 State machine:
@@ -79,6 +80,25 @@ spool ──(E, needle in green)──▶ locked ──(3 s countdown)──▶ 
   ▲  └─(E outside green: rejected low/high, stay in spool)
 any phase ──(S / SKIP)──▶ done('skipped')
 ```
+
+## Side views from real dimensions (Fair Challenge wave 4, owner 2026-10-27)
+
+Owner: "From the side the planes don't look like the original airframes — they look like kids' toys. That also counts
+for the new planes. Top view is good in all." The side views were too tall: deep tube fuselages, canopy bubbles a
+metre too high, fins a fifth too tall, short noses (the F-16's main gear at 46 % of the length instead of 61 %), and
+none of the type marks (the F-16's chin intake, ventral fins, chute housing).
+
+- Every side view is rebuilt from **real dimensions in metres** — distance from the nose and height above the deck,
+  gear down — converted by `realProfile(k, xMain)` (side-kit.ts): `x = (xMain − m) · k`, `y = −h · k`, so the
+  origin stays the main-gear contact and the nose points right. `k` keeps each jet's drawn length (F-16 ≈ 113 units).
+- Proportions from public figures only (length, height, span, wheelbase, canopy and intake positions from published
+  three-views' dimensions) — no traced artwork. Gear stance, wheel sizes and canopy heights follow the real jets.
+- Thinner outline in the side view (the ink halo that made them read as cartoons is lighter).
+- Everything that measures the side view follows: `SIDE_TAIL_X`, the flyby hull (doc 13), the motorbike nose (doc 22),
+  the picture-wall metrics (doc 32).
+- Used figures (m): F-16 15.06 long / 4.88 high, main gear 9.2 from the nose; F-14 19.1 / 4.88, 12.2; SR-71 32.6 / 5.64,
+  21.0; A-10 16.26 / 4.47, 8.0; F-35 15.67 / 4.38, 9.6; Tornado 16.72 / 5.95, 10.8. Canopy tops ≈ 3.0–3.3 m, bellies
+  ≈ 0.9–1.5 m, wheel radii 0.27–0.47 m.
 
 ## Data Model
 

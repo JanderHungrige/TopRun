@@ -1,10 +1,17 @@
 import type { Look } from '../livery-art';
-import { stroke } from './geom';
+import { stroke, type Pts } from './geom';
 import { glare } from './parts';
 import type { Fin } from './surface';
 import { finArtSide } from './tail-art';
 
 /** Side-view helpers shared by the jets: far fin, arrestor hook, canopy glass, wing sliver, receptacles. */
+
+/**
+ * Side-view outline from real dimensions (doc 04): [metres from the nose, metres above the deck, …] → local units,
+ * nose right, origin = the main-gear contact at `xMain` metres from the nose, `k` units per metre.
+ */
+export const realProfile = (k: number, xMain: number) => (pts: Pts): number[] =>
+  pts.map((v, i) => (i % 2 === 0 ? (xMain - v) * k : -v * k));
 
 /** The far-side fin peeking out behind the near one: base colour + tail art, darkened. */
 export function farFin(ctx: CanvasRenderingContext2D, l: Look, f: Fin, size: number): void {

@@ -1,96 +1,105 @@
 import type { Look } from '../livery-art';
-import type { Pts } from './geom';
+import type { Pts, Rect } from './geom';
 import { band, bounds, lazy, lines, polys, reversed, stroke } from './geom';
 import { paintPass, panelLines } from './paint-pass';
 import { gearLeg, helmet, missileSide, nozzleSide } from './parts';
-import { canopySide, farFin, sliver } from './side-kit';
+import { canopySide, farFin, realProfile, sliver } from './side-kit';
 import type { Fin, SideOpts, Surface } from './surface';
 import { finArtSide } from './tail-art';
 
 /**
- * A-10 side view, nose right, origin = main-gear deck contact. Blunt nose with the GAU-8 barrels under it, bubble
- * canopy, low straight wing with the gear pods, engine pod on a pylon high over the rear fuselage, twin fins reaching
- * above and below the tailplane. Engine exhaust at x = -31.
+ * A-10 side view from real dimensions (doc 04): 16.26 m long, 4.47 m to the fin tips, main gear in the wing pods 8 m
+ * behind the nose; blunt nose with the GAU-8 under it, high bubble canopy, low straight wing, the engine pods high
+ * on the rear fuselage, twin fins reaching above and below the tailplane. 6.9 units per metre.
  */
 
-const TOP: Pts = [54, -13.5, 53.4, -15.6, 52, -17.4, 50, -18.8, 47, -20.0, 43, -20.8, 38, -21.2, 26, -21.6, 18, -22.0, 4, -22.2,
-  -10, -21.8, -24, -21.0, -36, -20.0, -44, -19.4, -50, -18.9, -53, -18.4];
-const BOTTOM: Pts = [54, -13.5, 53.4, -11.6, 52, -10.0, 49, -8.6, 44, -7.8, 36, -7.4, 20, -7.2, 4, -7.4, -10, -8.4, -22, -10.8,
-  -34, -13.8, -44, -15.8, -50, -16.9, -53, -17.4];
-const CANOPY: Pts = [38, -21.2, 36.6, -25.0, 33.6, -27.4, 29.6, -28.2, 26.2, -27.6, 23.8, -25.6, 22.6, -21.8];
-const NACELLE: Pts = [-6, -29, -6.6, -32.2, -8.4, -33.6, -26, -33.4, -29.6, -32.0, -30.6, -29.0, -29.6, -26.4, -26, -25.0, -8.4, -24.6,
-  -6.6, -25.8];
-const PYLON: Pts = [-12, -24.8, -23, -24.8, -24.6, -21.2, -11, -21.8];
-const FIN: Pts = [-41.5, -19, -43, -34, -45.6, -40.8, -49.4, -42.0, -52.6, -40.2, -54, -32, -54, -14, -52.8, -11.4, -49.6, -10.8,
-  -46.4, -12.4, -44.2, -15.6];
-const FIN_Q: Pts = [-42.4, -21, -45.6, -40.6, -52.6, -40.2, -54, -21];
-const STAB: Pts = [-34, -19.6, -50, -19.4, -55.4, -18.6, -50, -17.8, -34, -18.4];
-const WING: Pts = [16, -10.4, 4, -11.2, -8, -11.2, -9, -10.2, 4, -9.8, 16, -9.6];
-const POD: Pts = [17.6, -9.4, 18.6, -7.6, 17.4, -5.8, 6, -5.8, 5.4, -8.2, 7, -9.6];
-const shift = (p: Pts, dx: number, dy: number): Pts => p.map((v, i) => (i % 2 === 0 ? v + dx : v + dy));
+const K = 6.9;
+const XM = 8.0;
+const P = realProfile(K, XM);
+const at = (x: number, h: number): [number, number] => [(XM - x) * K, -h * K];
+const zone = (x0: number, x1: number, h0: number, h1: number): Rect => ({ x: (XM - x1) * K, y: -h1 * K, w: (x1 - x0) * K, h: (h1 - h0) * K });
+
+const TOP = P([0, 1.5, 0.15, 1.75, 0.5, 1.95, 1.0, 2.1, 1.6, 2.2, 2.0, 2.3, 4.6, 2.62, 5.5, 2.65, 7.0, 2.62, 9.0, 2.55,
+  11.0, 2.42, 12.8, 2.3, 14.0, 2.22, 15.5, 2.15]);
+const BOTTOM = P([0, 1.5, 0.15, 1.28, 0.5, 1.12, 1.0, 1.02, 2.0, 0.95, 4.0, 0.92, 6.0, 0.95, 8.0, 1.0, 10.0, 1.12, 12.0, 1.35,
+  13.5, 1.6, 15.5, 1.95]);
+const CANOPY = P([2.0, 2.3, 2.4, 2.75, 2.9, 3.15, 3.5, 3.3, 4.0, 3.2, 4.4, 2.95, 4.6, 2.62]);
+const NACELLE = P([9.25, 2.55, 9.35, 3.45, 9.8, 3.62, 12.0, 3.6, 12.6, 3.45, 12.9, 3.15, 12.9, 2.75, 12.6, 2.45, 12.0, 2.3, 9.8, 2.28]);
+const PYLON = P([10.2, 2.32, 11.6, 2.32, 11.8, 2.5, 10.0, 2.55]);
+const FIN = P([14.75, 2.4, 14.8, 3.6, 15.05, 4.2, 15.5, 4.47, 16.0, 4.35, 16.26, 3.9, 16.26, 1.85, 16.1, 1.6, 15.6, 1.55, 15.1, 1.75,
+  14.85, 2.05]);
+const FIN_Q = P([14.85, 2.4, 15.3, 4.4, 16.1, 4.4, 16.26, 2.4]);
+const STAB = P([13.4, 2.45, 15.5, 2.47, 16.4, 2.42, 15.5, 2.33, 13.5, 2.35]);
+const WING = P([5.4, 1.42, 7.0, 1.47, 8.8, 1.42, 8.8, 1.3, 7.0, 1.3, 5.6, 1.32]);
+const POD = P([5.6, 1.3, 8.6, 1.3, 8.9, 1.15, 8.6, 0.95, 5.9, 0.95, 5.5, 1.12]);
+const INTAKE = P([9.25, 2.55, 9.35, 3.45, 9.55, 3.45, 9.45, 2.5]);
+const far = (p: Pts): Pts => p.map((v, i) => (i % 2 === 0 ? v + 1.6 : v - 0.6));
 
 const geo = lazy(() => {
   const body = [...TOP, ...reversed(BOTTOM)];
   const surface: Surface = {
     key: 'a10-side', clip: polys(body, NACELLE, PYLON, FIN), box: bounds(body, NACELLE, FIN), cell: 10,
-    under: polys([58, -13.8, 30, -13.6, 0, -13.8, -30, -15.6, -58, -17.6, -58, 2, 58, 2]),
-    twoTone: polys([22, -22.0, -44, -19.6, -44, -17.2, -20, -18.2, 0, -19.0, 22, -19.4]),
-    radome: polys([54, -13.5, 53.4, -15.6, 52, -17.4, 50, -18.8, 49.4, -19.1, 49.4, -8.4, 52, -10.0, 53.4, -11.6]),
-    band: { x: 45.4, y: -22, w: 2.4, h: 16 },
-    nose: { x: 34, y: -24, w: 22, h: 18, dir: 'y', out: 1 },
-    stripes: [[51, -15.4, 6, -12, -40, -30]],
-    trim: [[48, -16, 0, -16.4, -44, -17.6], [49.4, -19.1, 49.4, -8.4]],
+    under: polys(P([-1, 1.55, 6, 1.6, 17, 1.95, 17, -0.3, -1, -0.3])),
+    twoTone: polys(P([4.6, 2.62, 12.8, 2.3, 15.5, 2.15, 15.5, 1.95, 9.0, 2.2, 4.6, 2.35])),
+    radome: polys(P([0, 1.5, 0.15, 1.75, 0.5, 1.95, 0.6, 1.98, 0.6, 1.1, 0.5, 1.12, 0.15, 1.28])),
+    band: zone(1.2, 1.5, 1.0, 2.3),
+    nose: { ...zone(0, 3.0, 0.9, 2.5), dir: 'y', out: 1 },
+    stripes: [P([0.4, 1.6, 7.0, 1.7, 15.3, 4.2])],
+    trim: [P([0.8, 1.7, 8.0, 1.75, 15.0, 2.0]), P([0.6, 1.98, 0.6, 1.1])],
   };
   const fin: Fin = { path: polys(FIN), q: FIN_Q };
-  const far: Fin = { path: polys(shift(FIN, 2.4, -1)), q: shift(FIN_Q, 2.4, -1) };
+  const farF: Fin = { path: polys(far(FIN)), q: far(FIN_Q) };
   const shades = [
-    { path: polys(band(TOP, -1, 2.2)), color: 'rgba(255,255,255,0.15)', gloss: true },
-    { path: polys(band(BOTTOM, -3.2, 1)), color: 'rgba(0,0,0,0.12)' },
-    { path: polys([-8.4, -33.4, -26, -33.2, -28, -32.4, -26, -31.4, -8.4, -31.4]), color: 'rgba(255,255,255,0.16)', gloss: true },
-    { path: polys([-8.4, -27.4, -26, -27.4, -29.6, -26.4, -26, -25.0, -8.4, -24.6]), color: 'rgba(0,0,0,0.16)' },
-    { path: polys([-43, -34, -45.6, -40.8, -47, -41.4, -44.6, -34]), color: 'rgba(255,255,255,0.12)', gloss: true },
+    { path: polys(band(TOP, -0.8, 1.6)), color: 'rgba(255,255,255,0.15)', gloss: true },
+    { path: polys(band(BOTTOM, -2.2, 0.8)), color: 'rgba(0,0,0,0.12)' },
+    { path: polys(P([9.8, 3.62, 12.0, 3.6, 12.6, 3.45, 12.0, 3.35, 9.8, 3.38])), color: 'rgba(255,255,255,0.16)', gloss: true },
+    { path: polys(P([9.8, 2.5, 12.0, 2.52, 12.6, 2.45, 12.0, 2.3, 9.8, 2.28])), color: 'rgba(0,0,0,0.16)' },
+    { path: polys(P([14.85, 2.6, 15.05, 4.2, 15.3, 4.4, 15.1, 2.6])), color: 'rgba(255,255,255,0.12)', gloss: true },
   ];
-  const panels = lines([[49.4, -19.1, 49.4, -8.4], [38, -21.2, 38, -7.4], [18, -22.0, 18, -7.2], [0, -22.2, 0, -7.2],
-    [-16, -21.8, -16, -8.0], [-32, -20.6, -32, -10.2], [44, -14, 4, -14.4, -40, -15.6], [-12, -29.0, -26, -29.0],
-    [-11.4, -33.5, -11.4, -24.7], [-22, -33.4, -22, -24.9]]);
-  const hinges = lines([[-46.6, -40.6, -46.4, -12.0], [-50, -18.6, -55, -18.6]]);
+  const panels = lines([P([0.6, 1.98, 0.6, 1.1]), P([2.0, 2.3, 2.0, 0.95]), P([4.6, 2.62, 4.6, 0.93]), P([7.0, 2.62, 7.0, 0.97]),
+    P([10.0, 2.5, 10.0, 1.12]), P([12.5, 2.32, 12.5, 1.4]), P([1.0, 1.65, 8.0, 1.7, 14.5, 1.95]), P([10.5, 3.6, 10.5, 2.3])]);
+  const hinges = lines([P([15.7, 4.4, 15.75, 1.6]), P([15.5, 2.4, 16.35, 2.4])]);
   return {
-    surface, fin, far, shades, panels, hinges, canopy: polys(CANOPY), wing: polys(WING),
-    wingEdge: lines([[16, -10.4, 4, -11.2, -8, -11.2]]), stab: polys(STAB), stabEdge: lines([[-34, -19.6, -50, -19.4, -55.4, -18.6]]),
-    pod: polys(POD), intake: polys([-6, -29, -6.6, -32.2, -7.6, -33.0, -7.6, -25.0, -6.6, -25.8]),
+    surface, fin, farF, shades, panels, hinges, canopy: polys(CANOPY), wing: polys(WING),
+    wingEdge: lines([P([5.4, 1.42, 7.0, 1.47, 8.8, 1.42])]), stab: polys(STAB), stabEdge: lines([P([13.4, 2.45, 15.5, 2.47, 16.4, 2.42])]),
+    pod: polys(POD), intake: polys(INTAKE),
   };
 });
 
 function interior(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = '#2a2e34';
-  ctx.fillRect(22, -22.6, 16, 1.6); // sill
+  const [sx, sy] = at(4.5, 2.4);
+  ctx.fillRect(sx, sy, 2.4 * K, 0.16 * K); // sill
+  const seat = P([4.25, 2.4, 4.15, 3.02, 3.9, 3.04, 3.8, 2.4]);
   ctx.beginPath();
-  ctx.moveTo(25.2, -21.6);
-  ctx.lineTo(25.8, -26.6);
-  ctx.lineTo(28.0, -26.8);
-  ctx.lineTo(28.6, -21.6);
+  ctx.moveTo(seat[0] ?? 0, seat[1] ?? 0);
+  for (let i = 2; i < seat.length; i += 2) ctx.lineTo(seat[i] ?? 0, seat[i + 1] ?? 0);
   ctx.fill(); // seat headrest
-  helmet(ctx, 31, -25.2, 1.9, '#4a515b', '#1d2126');
-  ctx.fillRect(35, -24.8, 0.8, 2.4); // HUD
+  const [hx, hy] = at(3.45, 2.85);
+  helmet(ctx, hx, hy, 0.2 * K, '#4a515b', '#1d2126');
+  const [ux, uy] = at(2.5, 2.7);
+  ctx.fillRect(ux, uy, 0.1 * K, 0.3 * K); // HUD
 }
 
 /** GAU-8: seven barrels sticking out under the nose, the drum behind them hidden in the fuselage. */
 function gau8(ctx: CanvasRenderingContext2D): void {
+  const [x0, y0] = at(0.35, 1.22);
+  const w = 0.9 * K;
   ctx.fillStyle = '#2c3036';
-  ctx.fillRect(52, -12.4, 6.6, 2.4);
+  ctx.fillRect(x0 - w, y0, w + 0.35 * K, 0.18 * K);
   ctx.fillStyle = '#7a828b';
-  ctx.fillRect(52, -12.0, 6.4, 0.5);
-  ctx.fillRect(52, -11.0, 6.4, 0.4);
+  ctx.fillRect(x0 - w, y0 + 0.2, w + 0.35 * K, 0.35);
   ctx.fillStyle = '#16181c';
-  ctx.fillRect(58.2, -12.4, 0.5, 2.4);
+  ctx.fillRect(x0 + 0.35 * K - 0.4, y0, 0.4, 0.18 * K);
 }
 
 export function drawA10Side(ctx: CanvasRenderingContext2D, l: Look, o: SideOpts): void {
   const g = geo();
-  gearLeg(ctx, 44, -7.8, 2.4, o.gear, { door: l.under, doorSide: 1 });
-  farFin(ctx, l, g.far, 14);
+  const [nx, nb] = at(2.6, 0.95);
+  gearLeg(ctx, nx, nb, 0.3 * K, o.gear, { door: l.under, doorSide: 1 });
+  farFin(ctx, l, g.farF, 12);
   paintPass(ctx, l, g.surface, { shades: g.shades });
-  finArtSide(ctx, l, g.fin, 14);
+  finArtSide(ctx, l, g.fin, 12);
   panelLines(ctx, l, g.panels, g.hinges);
   ctx.fillStyle = '#16181c';
   ctx.fill(g.intake);
@@ -99,10 +108,14 @@ export function drawA10Side(ctx: CanvasRenderingContext2D, l: Look, o: SideOpts)
   ctx.fillStyle = l.under;
   ctx.fill(g.pod);
   stroke(ctx, g.pod, l.ink, 0.45);
-  for (const x of [10, 2]) missileSide(ctx, x, -6.6, 10, 0.9);
+  for (const x of [5.6, 6.6]) {
+    const [mx, my] = at(x, 0.82);
+    missileSide(ctx, mx, my, 2.5 * K, 0.9);
+  }
   gau8(ctx);
-  gearLeg(ctx, 6, -5.8, 3.2, o.gear, { door: l.under, doorSide: -1 });
-  nozzleSide(ctx, -29.6, -31.4, -29, 3.0, 2.7);
-  canopySide(ctx, g.canopy, { glass: '#86b2cc', tint: 'rgba(70,120,160,0.3)', frame: 'rgba(40,40,40,0.75)' }, () => interior(ctx),
-    30, -27.2, 5.4);
+  gearLeg(ctx, 0, -0.95 * K, 0.42 * K, o.gear, { door: l.under, doorSide: -1 });
+  const [ex, ey] = at(12.9, 2.95);
+  nozzleSide(ctx, ex, ex - 0.25 * K, ey, 0.42 * K, 0.4 * K);
+  const [gx, gy] = at(3.4, 3.2);
+  canopySide(ctx, g.canopy, { glass: '#86b2cc', tint: 'rgba(70,120,160,0.3)', frame: 'rgba(40,40,40,0.75)' }, () => interior(ctx), gx, gy, 5.4);
 }

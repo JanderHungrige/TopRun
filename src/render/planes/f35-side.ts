@@ -1,88 +1,98 @@
 import type { Look } from '../livery-art';
-import type { Pts } from './geom';
+import type { Pts, Rect } from './geom';
 import { band, bounds, lazy, lines, polys, reversed, stroke } from './geom';
 import { paintPass, panelLines } from './paint-pass';
 import { flameSide, gearLeg, helmet, nozzleSide } from './parts';
-import { canopySide, farFin, sliver, tailHook } from './side-kit';
+import { canopySide, farFin, realProfile, sliver, tailHook } from './side-kit';
 import type { Fin, SideOpts, Surface } from './surface';
 import { finArtSide } from './tail-art';
 
 /**
- * F-35 side view, nose right, origin = main-gear deck contact. Chined nose, deep blended fuselage with the caret
- * intake under the canopy, canted twin fins (the far one peeks out), one nozzle with exit at x = -56.5.
+ * F-35 side view from real dimensions (doc 04): 15.67 m long, 4.38 m to the fin tips, main gear 9.6 m behind the nose;
+ * chined nose, long one-piece canopy, the caret intake behind it, a deep blended fuselage, canted twin fins and one
+ * nozzle. Nose right, origin = main-gear deck contact, 7.2 units per metre.
  */
 
-const TOP: Pts = [54, -15, 52.4, -17, 50, -18.8, 46.4, -20.6, 42, -22.0, 37, -22.8, 17, -24.2, 8, -25.4, -4, -25.8, -16, -25.6,
-  -28, -24.8, -40, -23.4, -48, -21.8, -52, -20.4];
-const BOTTOM: Pts = [54, -15, 52.4, -13.4, 50, -12.2, 45, -10.8, 40, -10.0, 32, -9.2, 24, -8.8, 14, -8.4, 2, -8.2, -10, -8.6,
-  -22, -9.6, -34, -11.4, -44, -13.6, -50, -15.6, -52, -17];
-const CANOPY: Pts = [37, -22.8, 35, -26.6, 31.6, -28.8, 27, -29.6, 22.4, -29.0, 19, -27.0, 17, -24.2];
-const FIN: Pts = [-20, -25.2, -32.4, -41.6, -40.4, -41.8, -44.4, -23.0];
-const STAB: Pts = [-36, -17.6, -52, -17.4, -58, -16.8, -52, -16.0, -36, -16.4];
-const WING: Pts = [14, -15.6, 0, -16.4, -12, -16.8, -24, -16.4, -24, -15.2, -10, -15.0, 8, -14.6, 14, -14.6];
-const MOUTH: Pts = [31, -19.6, 32.2, -14.6, 29.2, -12.0, 26.4, -12.2, 27.6, -19.2];
-const far = (p: Pts): Pts => p.map((v, i) => (i % 2 === 0 ? v + 2.6 : v - 1.2));
+const K = 7.2;
+const XM = 9.6;
+const P = realProfile(K, XM);
+const at = (x: number, h: number): [number, number] => [(XM - x) * K, -h * K];
+const zone = (x0: number, x1: number, h0: number, h1: number): Rect => ({ x: (XM - x1) * K, y: -h1 * K, w: (x1 - x0) * K, h: (h1 - h0) * K });
+
+const TOP = P([0, 1.75, 0.5, 1.95, 1.2, 2.15, 2.0, 2.32, 2.8, 2.45, 6.2, 2.75, 7.5, 2.9, 9.0, 2.95, 10.5, 2.92, 12.0, 2.82,
+  13.5, 2.65, 14.5, 2.5, 15.0, 2.42]);
+const BOTTOM = P([0, 1.75, 0.5, 1.58, 1.2, 1.42, 2.0, 1.3, 3.0, 1.2, 4.2, 1.12, 6.0, 1.05, 8.0, 1.02, 10.0, 1.06, 12.0, 1.18,
+  13.5, 1.35, 15.0, 1.55]);
+const CANOPY = P([2.8, 2.45, 3.2, 2.75, 3.8, 2.98, 4.5, 3.05, 5.2, 3.0, 5.8, 2.85, 6.2, 2.75]);
+const FIN = P([11.9, 2.85, 13.6, 4.38, 14.6, 4.38, 15.2, 2.6]);
+const STAB = P([12.8, 2.2, 14.5, 2.25, 15.9, 2.18, 15.9, 2.1, 14.5, 2.05, 12.9, 2.08]);
+const WING = P([6.5, 2.05, 9.5, 2.1, 12.4, 2.06, 12.4, 1.96, 9.5, 1.94, 6.7, 1.98]);
+const MOUTH = P([5.9, 2.42, 6.35, 2.4, 6.4, 1.6, 5.75, 1.62]);
+const far = (p: Pts): Pts => p.map((v, i) => (i % 2 === 0 ? v + 2.4 : v - 0.9));
+const NOZZLE = { x0: (XM - 15.0) * K, x1: (XM - 15.67) * K, y: -1.98 * K, r: 0.56 * K };
 
 const geo = lazy(() => {
   const body = [...TOP, ...reversed(BOTTOM)];
   const surface: Surface = {
     key: 'f35-side', clip: polys(body, FIN), box: bounds(body, FIN), cell: 10,
-    under: polys([58, -15.2, 30, -14.0, 0, -13.6, -30, -14.6, -58, -16.6, -58, 2, 58, 2]),
-    twoTone: polys([17, -24.2, -44, -22.6, -44, -20.4, -20, -22.0, 0, -22.8, 17, -22.4]),
-    radome: polys([54, -15, 52.4, -17, 50, -18.8, 46.4, -20.6, 45.6, -20.9, 45.6, -10.7, 50, -12.2, 52.4, -13.4]),
-    band: { x: 41.6, y: -23, w: 2.4, h: 14 },
-    nose: { x: 34, y: -24, w: 24, h: 16, dir: 'y', out: 1 },
-    stripes: [[52, -15.6, 4, -11, -34, -34]],
-    trim: [[50, -15.2, 0, -16.2, -46, -18.2], [45.6, -20.9, 45.6, -10.7]],
+    under: polys(P([-1, 1.8, 6, 1.9, 16.5, 1.9, 16.5, -0.3, -1, -0.3])),
+    twoTone: polys(P([6.2, 2.75, 9.0, 2.95, 14.5, 2.5, 14.5, 2.3, 9.0, 2.72, 6.2, 2.55])),
+    radome: polys(P([0, 1.75, 0.5, 1.95, 1.2, 2.15, 1.7, 2.26, 1.7, 1.34, 1.2, 1.42, 0.5, 1.58])),
+    band: zone(2.1, 2.45, 1.2, 2.5),
+    nose: { ...zone(0, 3.4, 1.1, 2.6), dir: 'y', out: 1 },
+    stripes: [P([0.6, 1.8, 7.5, 1.6, 13.5, 4.0])],
+    trim: [P([0.8, 1.8, 7.0, 1.95, 14.0, 2.2]), P([1.7, 2.26, 1.7, 1.34])],
   };
   const fin: Fin = { path: polys(FIN), q: FIN };
   const farF: Fin = { path: polys(far(FIN)), q: far(FIN) };
   const shades = [
-    { path: polys(band(TOP, -1, 2.0)), color: 'rgba(255,255,255,0.12)', gloss: true },
-    { path: polys(band(BOTTOM, -3.4, 1)), color: 'rgba(0,0,0,0.14)' },
-    { path: polys([46, -15.4, 0, -16.6, -48, -18.4, -48, -16.6, 0, -14.6, 46, -13.4]), color: 'rgba(0,0,0,0.06)' },
-    { path: polys([-21.6, -26.2, -32.4, -41.6, -34.4, -41.6, -24, -26]), color: 'rgba(255,255,255,0.1)', gloss: true },
+    { path: polys(band(TOP, -0.8, 1.6)), color: 'rgba(255,255,255,0.12)', gloss: true },
+    { path: polys(band(BOTTOM, -2.4, 0.8)), color: 'rgba(0,0,0,0.14)' },
+    { path: polys(P([3.0, 1.75, 9.0, 1.65, 15.0, 1.85, 15.0, 1.6, 9.0, 1.4, 3.0, 1.5])), color: 'rgba(0,0,0,0.06)' },
+    { path: polys(P([12.0, 2.95, 13.6, 4.38, 13.85, 4.38, 12.3, 2.95])), color: 'rgba(255,255,255,0.1)', gloss: true },
   ];
-  const saw = (x: number, y0: number, y1: number): number[] => [x, y0, x - 1.2, (y0 + y1) / 2, x, y1];
-  const panels = lines([[45.6, -20.9, 45.6, -10.7], saw(16, -24.2, -8.6), saw(0, -25.6, -8.2), saw(-16, -25.4, -9.2),
-    [-30, -24.6, -30, -10.8], [40, -16.4, 0, -17.6, -44, -18.8], [24, -9.0, 4, -8.4]]);
-  const hinges = lines([[-36.6, -38.6, -42.8, -24.6], [-52, -16.8, -57.4, -16.8]]);
+  const saw = (x: number, h0: number, h1: number): number[] => P([x, h0, x - 0.18, (h0 + h1) / 2, x, h1]);
+  const panels = lines([P([1.7, 2.26, 1.7, 1.34]), saw(6.4, 2.75, 1.1), saw(8.6, 2.94, 1.03), saw(10.8, 2.9, 1.08),
+    P([12.6, 2.76, 12.6, 1.25]), P([2.6, 1.85, 9.0, 1.72, 14.6, 1.92]), P([6.6, 1.1, 9.8, 1.06])]);
+  const hinges = lines([P([13.9, 3.6, 14.95, 2.8]), P([14.5, 2.15, 15.8, 2.15])]);
   return {
     surface, fin, farF, shades, panels, hinges, canopy: polys(CANOPY), mouth: polys(MOUTH), wing: polys(WING),
-    wingEdge: lines([[14, -15.6, 0, -16.4, -12, -16.8, -24, -16.4]]), stab: polys(STAB),
-    stabEdge: lines([[-36, -17.6, -52, -17.4, -58, -16.8]]),
+    wingEdge: lines([P([6.5, 2.05, 9.5, 2.1, 12.4, 2.06])]), stab: polys(STAB), stabEdge: lines([P([12.8, 2.2, 14.5, 2.25, 15.9, 2.18])]),
   };
 });
 
 function interior(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = '#2a2e34';
-  ctx.fillRect(17, -24.6, 20, 1.8); // sill
+  const [sx, sy] = at(6.0, 2.56);
+  ctx.fillRect(sx, sy, 3.0 * K, 0.16 * K); // sill
+  const seat = P([5.3, 2.56, 5.2, 3.0, 4.95, 3.02, 4.85, 2.56]);
   ctx.beginPath();
-  ctx.moveTo(21.2, -23.8);
-  ctx.lineTo(22.0, -28.6);
-  ctx.lineTo(24.4, -28.8);
-  ctx.lineTo(25.0, -23.8);
+  ctx.moveTo(seat[0] ?? 0, seat[1] ?? 0);
+  for (let i = 2; i < seat.length; i += 2) ctx.lineTo(seat[i] ?? 0, seat[i + 1] ?? 0);
   ctx.fill(); // seat headrest
-  helmet(ctx, 27.4, -26.8, 1.9, '#3b4148', '#1a1d21');
+  const [hx, hy] = at(4.55, 2.82);
+  helmet(ctx, hx, hy, 0.2 * K, '#3b4148', '#1a1d21');
 }
 
 export function drawF35Side(ctx: CanvasRenderingContext2D, l: Look, o: SideOpts): void {
   const g = geo();
-  const r1 = 2.9 + o.throttle * 0.5;
-  gearLeg(ctx, 43, -10.4, 2.2, o.gear, { door: l.under, doorSide: 1, wheels: [1.4], far: true });
-  farFin(ctx, l, g.farF, 14);
-  flameSide(ctx, -56.5, -18.7, r1 * 1.9, o.throttle, o.t);
+  const r1 = NOZZLE.r * (0.9 + o.throttle * 0.08);
+  const [nx, nb] = at(4.2, 1.12);
+  gearLeg(ctx, nx, nb, 0.28 * K, o.gear, { door: l.under, doorSide: 1, wheels: [1.4], far: true });
+  farFin(ctx, l, g.farF, 12);
+  flameSide(ctx, NOZZLE.x1, NOZZLE.y, r1 * 1.8, o.throttle, o.t);
   paintPass(ctx, l, g.surface, { shades: g.shades });
-  finArtSide(ctx, l, g.fin, 14);
+  finArtSide(ctx, l, g.fin, 12);
   panelLines(ctx, l, g.panels, g.hinges);
   sliver(ctx, g.wing, g.wingEdge, l.gloss);
   sliver(ctx, g.stab, g.stabEdge, l.gloss);
   ctx.fillStyle = '#16181c';
   ctx.fill(g.mouth);
   stroke(ctx, g.mouth, 'rgba(255,255,255,0.2)', 0.3);
-  gearLeg(ctx, -6, -8.4, 3.0, o.gear, { door: l.under, doorSide: -1, rake: 1.2 });
-  tailHook(ctx, -40, -13.2, 6.5, o.hook);
-  canopySide(ctx, g.canopy, { glass: '#a58848', tint: 'rgba(160,120,50,0.35)', frame: 'rgba(30,30,30,0.75)' }, () => interior(ctx),
-    28, -28.6, 6.4);
-  nozzleSide(ctx, -52, -56.5, -18.7, 3.4, r1);
+  gearLeg(ctx, 0, -1.04 * K, 0.4 * K, o.gear, { door: l.under, doorSide: -1, rake: 1.2 });
+  const [hx, hy] = at(13.2, 1.3);
+  tailHook(ctx, hx, hy, 6.5, o.hook);
+  const [gx, gy] = at(4.5, 2.98);
+  canopySide(ctx, g.canopy, { glass: '#a58848', tint: 'rgba(160,120,50,0.35)', frame: 'rgba(30,30,30,0.75)' }, () => interior(ctx), gx, gy, 6.4);
+  nozzleSide(ctx, NOZZLE.x0, NOZZLE.x1, NOZZLE.y, NOZZLE.r, r1);
 }

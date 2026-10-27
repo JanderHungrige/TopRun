@@ -59,7 +59,7 @@ export function drawLadderRow(ctx: CanvasRenderingContext2D, row: LadderRow, y: 
   text(ctx, `#${row.place}`, COL.place, mid, { size: podium ? 20 : 17, display: podium, align: 'right', baseline: 'middle', color: podium ? COLORS.gold : COLORS.dim });
   drawRankBoard(ctx, p.rank, COL.board, y + 2, 1.15);
   text(ctx, t(RANK_KEY[p.rank]), COL.rank, mid, { size: 15, baseline: 'middle', color: COLORS.dim, maxWidth: COL.pilot - COL.rank - 40 });
-  drawFlag(ctx, p.country, { x: COL.pilot - 30, y: mid - 6.5, w: 20, h: 13 });
+  drawFlag(ctx, p.country, COL.pilot - 32, mid - 9);
   drawThumb(ctx, p.avatar, y);
   text(ctx, p.callsign, NAME_X, mid, { size: 20, display: true, italic: true, baseline: 'middle', color: ink, maxWidth: 300 });
   text(ctx, formatPoints(p.rating), COL.rating, mid, { size: 20, display: true, align: 'right', baseline: 'middle', color: row.you ? COLORS.gold : COLORS.green });

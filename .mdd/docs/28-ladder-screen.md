@@ -88,9 +88,14 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 - Table: place, rank board + rank name, flag, avatar, callsign, rating. The avatar is a small face crop of the
   pilot's portrait (`ladderAvatar`: the builder look's key when the pilot built one, else the preset;
   `ladderFace` maps it back), drawn left of the callsign; an entry without one shows a dark silhouette.
-  The flag (`drawFlag`, `src/render/flags.ts`) sits left of the avatar: a small pixel flag drawn in code for
-  the common countries (`FLAGS`, `src/data/flags.ts` — stripes, crosses and a few hand-drawn ones), any other
-  country a small badge with its code (owner's choice); no flag while the country is unknown.
+  The flag (`drawFlag`, `src/render/flags.ts`) sits left of the avatar: the real flag of every country,
+  pixelated to 24 × 18 (owner, same day: "real flags, pixelated" — the first take drew ~60 flags in code and a
+  code badge for the rest). Source: the open-source set flag-icons 7.6.0 (MIT, github.com/lipis/flag-icons,
+  4 : 3 SVGs; licence in `src/assets/flags/LICENSE-flag-icons.txt`), each SVG rendered with macOS QuickLook
+  (`qlmanage -t -s 800`, flag centred at 800 × 600), box-downscaled to 24 × 18 and reduced to 12 colours
+  without dithering — exact flags instead of an image model's guesses. All 247 `COUNTRY_CODES` sit in one
+  sheet (`src/assets/flags/flags.png`, 16 columns, `FLAG_ORDER` / `flagCell` in `src/data/flags.ts`); a code
+  without a cell would show a small badge with its code. No flag while the country is unknown.
   10 rows per page, ↑/↓ scroll
   a row, the ▲/▼ buttons right of the table a page (mouse, touch, or focus + ENTER).
 - **Your row is always visible and highlighted:** the active pilot's row is found by the place from

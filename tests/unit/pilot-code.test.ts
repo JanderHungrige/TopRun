@@ -14,7 +14,7 @@ function veteran(): Profile {
     save: {
       ...save, money: 987_654, ownedPlanes: ['f16', 'f14', 'sr71'], selectedPlane: 'f14', gunLevel: 5,
       ladder: { id: `p_${'a'.repeat(22)}`, secret: 'S'.repeat(43), share: true },
-      look: { age: 'adult', gender: 'female', skin: 'olive', hair: 'red', length: 'short' },
+      look: { age: 'adult', gender: 'female', skin: 'olive', hair: 'red', length: 'short', face: 'f2' },
     },
   };
 }

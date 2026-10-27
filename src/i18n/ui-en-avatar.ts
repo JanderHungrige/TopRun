@@ -1,4 +1,4 @@
-// Avatar builder UI strings (docs 29, 33): the builder screen, its five traits and every option name.
+// Avatar builder UI strings (docs 29, 33): the builder screen, its six traits and every option name.
 export const UI_EN_AVATAR = {
   'avatar.title': 'CREATE YOUR LOOK',
   'avatar.titleEdit': 'NEW LOOK FOR {callsign}',
@@ -17,6 +17,7 @@ export const UI_EN_AVATAR = {
   'avatar.part.skin': 'SKIN',
   'avatar.part.hair': 'HAIR COLOUR',
   'avatar.part.length': 'HAIR LENGTH',
+  'avatar.part.face': 'FACE',
   'avatar.age.kid': 'YOUNG',
   'avatar.age.adult': 'GROWN-UP',
   'avatar.gender.girl': 'GIRL',
@@ -33,4 +34,6 @@ export const UI_EN_AVATAR = {
   'avatar.hair.red': 'RED',
   'avatar.length.short': 'SHORT',
   'avatar.length.long': 'LONG',
+  'avatar.face.f1': '1',
+  'avatar.face.f2': '2',
 } as const;

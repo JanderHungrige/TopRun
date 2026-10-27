@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lookFromKey } from '../../src/game/avatar-look';
+import { LOOK_PARTS, lookFromKey, lookKey, lookOptions, type AvatarLook } from '../../src/game/avatar-look';
 import { AVATAR_IDS } from '../../src/game/profiles';
 import { CUSTOM_KEYS, customFrames, fixedFrames } from '../../src/render/portraits/assets';
 
@@ -76,5 +76,13 @@ describe('portrait images', () => {
     }
     expect(CUSTOM_KEYS.every((k) => lookFromKey(k) !== null)).toBe(true);
     expect(fixedFrames('admiral')?.blink).toBeUndefined(); // sunglasses: never a blink frame
+  });
+
+  it('has a portrait for every builder pick: two faces each, 256 in all (builder v4)', () => {
+    let picks: AvatarLook[] = [{ age: 'kid', gender: 'female', skin: 'fair', hair: 'black', length: 'short', face: 'f1' }];
+    for (const part of LOOK_PARTS) picks = picks.flatMap((p) => lookOptions(part).map((o) => ({ ...p, [part]: o })));
+    expect(picks.length).toBe(256);
+    expect(picks.filter((p) => !CUSTOM_KEYS.includes(lookKey(p))).map(lookKey)).toEqual([]);
+    expect(CUSTOM_KEYS.length).toBe(256);
   });
 });

@@ -17,6 +17,7 @@ export const UI_DE_AVATAR = {
   'avatar.part.skin': 'HAUT',
   'avatar.part.hair': 'HAARFARBE',
   'avatar.part.length': 'HAARLÄNGE',
+  'avatar.part.face': 'GESICHT',
   'avatar.age.kid': 'JUNG',
   'avatar.age.adult': 'ERWACHSEN',
   'avatar.gender.girl': 'MÄDCHEN',
@@ -33,4 +34,6 @@ export const UI_DE_AVATAR = {
   'avatar.hair.red': 'ROT',
   'avatar.length.short': 'KURZ',
   'avatar.length.long': 'LANG',
+  'avatar.face.f1': '1',
+  'avatar.face.f2': '2',
 } as const;

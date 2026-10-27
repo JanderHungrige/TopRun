@@ -8,7 +8,7 @@ import { CUSTOM_KEYS, customFrames, fixedFrames } from '../../src/render/portrai
 // Docs 29, 33: a pilot's portrait is the preset image or the generated portrait nearest the builder pick; the
 // full-body scenes derive the people-kit figure from the same pick and keep it as a stable object.
 
-const look: AvatarLook = { age: 'adult', gender: 'male', skin: 'dark', hair: 'black', length: 'short' };
+const look: AvatarLook = { age: 'adult', gender: 'male', skin: 'dark', hair: 'black', length: 'short', face: 'f2' };
 
 describe('pilot portraits', () => {
   it('draws the presets from their own images', () => {

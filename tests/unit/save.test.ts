@@ -73,7 +73,7 @@ describe('Save', () => {
     });
 
     describe('own avatar look (doc 29)', () => {
-      const look = { age: 'adult', gender: 'female', skin: 'dark', hair: 'red', length: 'long' } as const;
+      const look = { age: 'adult', gender: 'female', skin: 'dark', hair: 'red', length: 'long', face: 'f2' } as const;
       const v2 = { hair: 'braids', hairColor: 'auburn', skin: 'deep', eyes: 'green', freckles: 'some', cheeks: 'rosy', glasses: 'clear', accessory: 'scarf', suit: 'khaki', sky: 'night' } as const;
 
       it('defaults to null (= the preset avatar)', () => {
@@ -100,9 +100,14 @@ describe('Save', () => {
         expect(s?.look).toEqual({ ...look, hair: 'brown', length: 'short' });
       });
 
+      it('gives a look stored before faces existed the first face', () => {
+        const { face: _face, ...old } = look;
+        expect(parseSave({ ...valid(), look: old })?.look).toEqual({ ...look, face: 'f1' });
+      });
+
       it('migrates a stored v2 look to the nearest portrait pick', () => {
-        expect(parseSave({ ...valid(), look: { ...v2 } })?.look).toEqual({ age: 'kid', gender: 'female', skin: 'dark', hair: 'red', length: 'long' });
-        expect(parseSave({ ...valid(), look: { ...v2, hair: 'mohawk', suit: 42 } })?.look).toEqual({ age: 'kid', gender: 'male', skin: 'dark', hair: 'red', length: 'short' });
+        expect(parseSave({ ...valid(), look: { ...v2 } })?.look).toEqual({ age: 'kid', gender: 'female', skin: 'dark', hair: 'red', length: 'long', face: 'f1' });
+        expect(parseSave({ ...valid(), look: { ...v2, hair: 'mohawk', suit: 42 } })?.look).toEqual({ age: 'kid', gender: 'male', skin: 'dark', hair: 'red', length: 'short', face: 'f1' });
       });
     });
   });

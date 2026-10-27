@@ -140,8 +140,10 @@ The pre-profiles single save `localStorage["topgun.save.v1"]` is only read once 
 | money | integer ≥ 0 | clamped |
 | ownedPlanes | PlaneId[] | always contains `f16`; unknown ids dropped |
 | selectedPlane | PlaneId | must be owned, else `f16` |
-| gunLevel | 1–5 | clamped |
+| gunLevel | 1–8 (6–8 with map 2, doc 37) | clamped |
+| gun2Level | 0–5 (doc 37; missing = 0) | clamped |
 | ownedSecondaries | SecondaryId[] | unknown ids dropped |
+| twinSecondaries | SecondaryId[] (doc 37) | unknown or not-owned ids dropped |
 | loadout | Record<PlaneId, SecondaryId[]> | only owned secondaries, length ≤ plane hardpoints, plane restrictions honoured |
 | equipment | {armor,engine,flares: 0–3, ecm,damageControl,magnet: 0–1} | clamped |
 | progress | Record<missionId, {stars: 0–3}> | presence = cleared; unknown ids dropped |

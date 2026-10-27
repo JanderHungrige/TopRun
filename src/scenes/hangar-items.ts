@@ -1,13 +1,14 @@
 import { formatMoney } from '../core/math';
 import { BOSSES } from '../data/bosses';
-import { maxEquipmentLevel } from '../data/equipment';
 import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
-import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { gunLevelDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
+import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
 import { jetOnSale } from '../game/jets';
+import { mapTwoOpen } from '../game/progress';
 import { isLiveryUnlocked } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import {
@@ -24,7 +25,13 @@ export interface Tab {
 /** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36). */
 export const tabs = (save: SaveData): readonly Tab[] => [
   { name: 'hangar.tabJets', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
-  { name: 'hangar.tabWeapons', items: [{ type: 'gun' }, ...SECONDARY_IDS.map((id) => ({ type: 'secondary' as const, id }))] },
+  {
+    name: 'hangar.tabWeapons',
+    items: [
+      { type: 'gun' }, ...(mapTwoOpen(save) ? [{ type: 'gun2' as const }] : []),
+      ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id })),
+    ],
+  },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
   { name: 'hangar.tabPaint', items: LIVERY_IDS.map((id) => ({ type: 'livery', id })) },
 ];
@@ -45,6 +52,7 @@ export function itemName(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return PLANES[item.id].name;
     case 'gun': return t('hangar.gunName');
+    case 'gun2': return t('hangar.gun2Name');
     case 'secondary': return secondaryName(item.id);
     case 'equipment': return equipmentName(item.id);
     case 'livery': return liveryName(item.id);
@@ -56,6 +64,7 @@ export function itemDescription(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return planeDescription(item.id);
     case 'gun': return t('hangar.gunDesc');
+    case 'gun2': return t('hangar.gun2Desc');
     case 'secondary': return secondaryDescription(item.id);
     case 'equipment': return equipmentDescription(item.id);
     case 'livery': return t('hangar.paintDesc');
@@ -71,7 +80,10 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
       if (save.selectedPlane === item.id) return t('hangar.inUse');
       return save.ownedPlanes.includes(item.id) ? t('hangar.owned') : formatMoney(PLANES[item.id].price);
     case 'gun':
-      return save.gunLevel >= MAX_GUN_LEVEL ? t('hangar.maxLevel', { level: 5 }) : t('hangar.levelPrice', { level: save.gunLevel, price: formatMoney(price ?? 0) });
+      return save.gunLevel >= gunCap(save) ? t('hangar.maxLevel', { level: save.gunLevel }) : t('hangar.levelPrice', { level: save.gunLevel, price: formatMoney(price ?? 0) });
+    case 'gun2':
+      if (save.gun2Level >= MAX_GUN2_LEVEL) return t('hangar.maxLevel', { level: MAX_GUN2_LEVEL });
+      return save.gun2Level === 0 ? formatMoney(price ?? 0) : t('hangar.levelPrice', { level: save.gun2Level, price: formatMoney(price ?? 0) });
     case 'secondary': {
       const mounted = save.loadout[save.selectedPlane].filter((x) => x === item.id).length;
       if (save.ownedSecondaries.includes(item.id)) return mounted ? t('hangar.mounted', { n: mounted }) : t('hangar.owned');
@@ -79,7 +91,7 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
     }
     case 'equipment': {
       const lvl = save.equipment[item.id];
-      const max = maxEquipmentLevel(item.id);
+      const max = equipmentCap(save, item.id);
       if (price === null) return max === 1 ? t('hangar.installed') : t('hangar.maxLevel', { level: lvl });
       return max > 1 ? t('hangar.levelPrice', { level: lvl, price: formatMoney(price) }) : formatMoney(price);
     }
@@ -118,8 +130,11 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
       if (save.selectedPlane === item.id) return none(t('hangar.inUse'));
       return { kind: 'select', label: t('hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
     case 'gun':
-      if (save.gunLevel >= MAX_GUN_LEVEL) return none(t('hangar.maxed'));
+      if (save.gunLevel >= gunCap(save)) return none(t('hangar.maxed'));
       return buyAction(save, item, t('hangar.gunUpgrade', { level: save.gunLevel + 1, price }));
+    case 'gun2':
+      if (priceOf(save, item) === null) return none(t('hangar.maxed'));
+      return buyAction(save, item, save.gun2Level === 0 ? t('hangar.buy', { price }) : t('hangar.gunUpgrade', { level: save.gun2Level + 1, price }));
     case 'secondary':
       if (!save.ownedSecondaries.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (!secondaryAllowedOn(item.id, save.selectedPlane)) return none(t('hangar.f14Only'), t('hangar.f14OnlyNote'), 'restricted');
@@ -133,6 +148,13 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
       return { kind: 'paint', label: t('hangar.applyPaint'), enabled: true, note: '', reason: null, shortfall: 0 };
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
+}
+
+/** The TWIN PODS button of an owned weapon once map 2 is open (doc 37); null = no button. */
+export function twinAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
+  if (item.type !== 'secondary' || !mapTwoOpen(save) || !save.ownedSecondaries.includes(item.id)) return null;
+  if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
+  return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
 }
 
 /** How a paint job is earned: "Beat IRONCLAD — Pacific …" / "3★ on every … mission". */

@@ -1,6 +1,6 @@
 import type { AudioEngine } from '../../core/audio';
-import type { EnemyWeapon } from '../../data/types';
-import { SECONDARIES, type WeaponRole } from '../../data/weapons';
+import type { EnemyWeapon, SecondaryId } from '../../data/types';
+import { gunLevelDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
 import { ECM_TURN_FACTOR, headingTo } from '../../game/combat';
 import type { Player } from './player';
@@ -9,6 +9,7 @@ import type { Missile, World } from './world';
 export const GUN_SPEED = 900;
 
 export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void {
+  fireSecondGun(world, p);
   if (p.gunCooldown > 0) return;
   const gun = p.gun;
   p.gunCooldown = 1 / gun.shotsPerSec;
@@ -20,6 +21,22 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
     });
   }
   audio.play('gun', { volume: 0.5, pan: (p.x / 320 - 1) * 0.5 });
+}
+
+/** Second gun of the new jets (doc 37): its own level, from the wing roots, alternating left and right. */
+function fireSecondGun(world: World, p: Player): void {
+  const level = p.gun2Level;
+  if (level <= 0 || p.gun2Cooldown > 0) return;
+  const gun = gunLevelDef(level);
+  p.gun2Cooldown = 1 / gun.shotsPerSec;
+  p.gun2Side *= -1;
+  const damage = gun.damage * p.stats.gunDamageMul;
+  for (const b of gun.pattern) {
+    world.bullets.push({
+      kind: 'gun', x: p.x + p.gun2Side * 13 + b.dx * 0.6, y: p.y - 12, vx: Math.sin(b.angle) * GUN_SPEED,
+      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false,
+    });
+  }
 }
 
 export function fireWingman(world: World, p: Player, dt: number): void {
@@ -44,26 +61,35 @@ function playerMissile(p: Player, kind: Missile['kind'], dx: number, heading: nu
   };
 }
 
-/** AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). False when nothing fired. */
+const homingKind = (id: SecondaryId): Missile['kind'] | null =>
+  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' ? id : null);
+
+/**
+ * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods
+ * (doc 37) launch both at once. False when nothing fired.
+ */
 export function fireSecondary(world: World, p: Player, audio: AudioEngine, role: WeaponRole): boolean {
   const slot = p.secondaries[slotFor(p.secondaries, role, role === 'ground' ? p.groundPick : -1)];
   if (!slot || slot.ammo <= 0 || p.secCooldown > 0) return false;
   const def = SECONDARIES[slot.id];
-  slot.ammo -= 1;
+  const pods = slot.twin && slot.ammo >= 2 ? [-1, 1] : [0];
+  slot.ammo -= pods.length;
   p.firedSecondary = true;
   p.secCooldown = def.cooldown;
   p.sideToggle *= -1;
   switch (def.behavior) {
-    case 'homing':
-      if (slot.id === 'aim9' || slot.id === 'aim54' || slot.id === 'agm65') world.missiles.push(playerMissile(p, slot.id, 12 * p.sideToggle, 0));
+    case 'homing': {
+      const kind = homingKind(slot.id);
+      for (const s of pods) if (kind) world.missiles.push(playerMissile(p, kind, s === 0 ? 12 * p.sideToggle : 12 * s, 0));
       audio.play('missile');
       break;
+    }
     case 'fan':
-      for (let i = -2; i <= 2; i++) world.missiles.push(playerMissile(p, 'rocket', i * 4, i * 0.09));
+      for (const s of pods) for (let i = -2; i <= 2; i++) world.missiles.push(playerMissile(p, 'rocket', s * 10 + i * 4, i * 0.09));
       audio.play('rocket');
       break;
     case 'bomb':
-      world.bombs.push({ x: p.x, y: p.y, t: 0, damage: def.damage, radius: def.radius, dead: false });
+      for (const s of pods) world.bombs.push({ x: p.x + s * 16, y: p.y, t: 0, damage: def.damage, radius: def.radius, dead: false });
       audio.play('bombDrop');
       break;
     default:

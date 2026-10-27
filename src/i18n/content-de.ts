@@ -48,12 +48,14 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   mk82: { name: 'Mk-82-Bomben', description: '500-Pfund-Freifallbombe. Großer Explosionsradius gegen Boden- und Seeziele.' },
   agm65: { name: 'AGM-65 Maverick', description: 'Fernsehgelenkte Luft-Boden-Rakete. Sucht SAM-Stellungen, Panzer und Schiffe.' },
   aim54: { name: 'AIM-54 Phoenix', description: 'Schwere Langstreckenrakete. Verheerend gegen Bosse. Nur für die F-14.' },
+  aim120: { name: 'AIM-120 AMRAAM', description: 'Schnelle, wendige radargelenkte Rakete. Jagt die zähesten Jäger.' },
+  jdam: { name: 'GBU-31 JDAM', description: '2000-Pfund-Bombe mit Satellitenlenkung. Die größte Explosion im Hangar.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
   armor: {
     name: 'Panzerplatten', description: 'Titanplatten um Cockpit und Triebwerke.',
-    levelText: ['+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung'],
+    levelText: ['+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung', '+80 % Panzerung', '+100 % Panzerung'],
   },
   engine: {
     name: 'Triebwerkstuning', description: 'Getunte Turbinen und ein heißerer Nachbrenner.',
@@ -61,7 +63,7 @@ export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; descript
   },
   flares: {
     name: 'Täuschkörperwerfer', description: 'Täuschkörper lenken feindliche Raketen ab. Taste F.',
-    levelText: ['2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper'],
+    levelText: ['2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper', '8 Täuschkörper', '10 Täuschkörper'],
   },
   ecm: {
     name: 'ECM-Störbehälter', description: 'Stört die feindliche Feuerleitung. Feindliche Kugeln −25 % Schaden, Raketen drehen 30 % langsamer.',

@@ -3,11 +3,14 @@ import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
+import { doubleFirepower, jetGunLevel } from './firepower';
 import type { SaveData } from './save';
 
 export interface SecondaryAmmo {
   id: SecondaryId;
   ammo: number;
+  /** Twin pods on a new jet: double ammo, both pods fire per trigger (doc 37). */
+  twin: boolean;
 }
 
 export interface PlayerStats {
@@ -15,6 +18,8 @@ export interface PlayerStats {
   maxHull: number;
   speed: number;
   gunLevel: GunLevel;
+  /** Second gun of the new jets, 0 = none (doc 37). */
+  gun2Level: number;
   gunDamageMul: number;
   secondaries: SecondaryAmmo[];
   flares: number;
@@ -32,17 +37,21 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   const plane = PLANES[save.selectedPlane];
   const eq = save.equipment;
   const secondaries: SecondaryAmmo[] = [];
+  const double = doubleFirepower(plane.id);
   for (const id of save.loadout[plane.id]) {
     if (id === null) continue;
+    const twin = double && save.twinSecondaries.includes(id);
+    const ammo = SECONDARIES[id].ammoPerSlot * (twin ? 2 : 1);
     const existing = secondaries.find((s) => s.id === id);
-    if (existing) existing.ammo += SECONDARIES[id].ammoPerSlot;
-    else secondaries.push({ id, ammo: SECONDARIES[id].ammoPerSlot });
+    if (existing) existing.ammo += ammo;
+    else secondaries.push({ id, ammo, twin });
   }
   return {
     plane,
     maxHull: Math.round(plane.hull * (1 + (ARMOR_BONUS[eq.armor] ?? 0))),
     speed: Math.round(plane.speed * (1 + (ENGINE_BONUS[eq.engine] ?? 0))),
-    gunLevel: save.gunLevel,
+    gunLevel: jetGunLevel(plane.id, save.gunLevel) as GunLevel,
+    gun2Level: double ? save.gun2Level : 0,
     gunDamageMul: plane.gunDamageMul,
     secondaries,
     flares: FLARE_COUNT[eq.flares] ?? 0,

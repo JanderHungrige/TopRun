@@ -81,7 +81,7 @@ payout maths are pure functions over `SaveData` so they are fully unit-tested.
 
 ```
 data/planes.ts     PLANES: f16 | f14 | sr71 (stats, price, special ability)
-data/weapons.ts    GUN_LEVELS[1..5], SECONDARIES: aim9 | rockets | mk82 | agm65 | aim54
+data/weapons.ts    GUN_LEVELS[1..8] (6–8 with map 2), GUN2_PRICES, SECONDARIES: aim9 | rockets | mk82 | agm65 | aim54 | aim120 | jdam
 data/equipment.ts  EQUIPMENT: armor | engine | flares | ecm | damageControl | magnet
 game/economy.ts    canBuy / buy / mount / unmount / selectPlane / computePayout / computeStars
 game/loadout.ts    derivePlayerStats(save) → PlayerStats used by the mission
@@ -135,14 +135,16 @@ Guns deal **50 % damage to ground/sea targets**.
 | mk82 | Mk-82 Bombs | 5,000 | 6 | 140, radius 70 | ground | falls 0.6 s, area blast |
 | agm65 | AGM-65 Maverick | 9,000 | 4 | 160 | ground | homing on ground targets |
 | aim54 | AIM-54 Phoenix | 15,000 | 2 | 320 | air + boss | long-range homing — **F-14 only** |
+| aim120 | AIM-120 AMRAAM | 24,000 | 4 | 180 | air | fast agile homing — map 2 (doc 37) |
+| jdam | GBU-31 JDAM | 28,000 | 2 | 520 | ground, 130 px blast | 2,000 lb bomb — map 2 (doc 37) |
 
 ### Equipment (global, tiered)
 
 | id | Name | Prices per level | Effect per level |
 |----|------|------------------|------------------|
-| armor | Armor Plating | 3,000 / 7,000 / 14,000 | +20 % / +40 % / +60 % hull |
+| armor | Armor Plating | 3,000 / 7,000 / 14,000 (+ 25,000 / 40,000 with map 2) | +20 % / +40 % / +60 % hull (+80 % / +100 %, doc 37) |
 | engine | Engine Tuning | 3,000 / 7,000 / 14,000 | +8 % / +16 % / +24 % speed |
-| flares | Flare Dispenser | 2,000 / 4,000 / 8,000 | 2 / 4 / 6 flares per mission |
+| flares | Flare Dispenser | 2,000 / 4,000 / 8,000 (+ 12,000 / 18,000 with map 2) | 2 / 4 / 6 flares per mission (8 / 10, doc 37) |
 | ecm | ECM Pod | 12,000 | enemy bullet dmg −25 %, enemy missile turn −30 % |
 | damageControl | Damage Control | 15,000 | once per mission at hull < 25 %: restore 40 % |
 | magnet | Cargo Magnet | 6,000 | pickups drift to you from 160 px |

@@ -31,9 +31,9 @@ describe('Loadout', () => {
       s.loadout.f14 = ['aim9', 'aim54', 'aim9', 'mk82'];
       const st = derivePlayerStats(s);
       expect(st.secondaries).toEqual([
-        { id: 'aim9', ammo: 12 },
-        { id: 'aim54', ammo: 2 },
-        { id: 'mk82', ammo: 6 },
+        { id: 'aim9', ammo: 12, twin: false },
+        { id: 'aim54', ammo: 2, twin: false },
+        { id: 'mk82', ammo: 6, twin: false },
       ]);
     });
 
@@ -60,14 +60,14 @@ describe('Loadout', () => {
       const s = tomcat();
       s.loadout.f14 = [null, 'mk82', null, null];
       const st = derivePlayerStats(s);
-      expect(st.secondaries).toEqual([{ id: 'mk82', ammo: 6 }]);
+      expect(st.secondaries).toEqual([{ id: 'mk82', ammo: 6, twin: false }]);
       expect(derivePlayerStats(defaultSave()).secondaries).toEqual([]);
     });
   });
 
   describe('two weapon keys (doc 05)', () => {
     it('gives every secondary an air or ground role', () => {
-      expect(SECONDARY_ROLES).toEqual({ aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground' });
+      expect(SECONDARY_ROLES).toEqual({ aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground' });
       for (const id of Object.keys(SECONDARY_ROLES) as Array<keyof typeof SECONDARIES>) expect(SECONDARIES[id].role).toBe(SECONDARY_ROLES[id]);
     });
 

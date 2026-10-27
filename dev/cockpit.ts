@@ -68,7 +68,7 @@ function leftView(t: number, p: number): LeftConsoleView {
     callsign: labels === DE ? 'KAMPFADLER' : 'MAVERICK',
     radar: { contacts: contacts(t, p), early: p % 2 === 1 },
     hull: { ratio, value: Math.round(ratio * 160), max: 160 },
-    cannon: { level: p + 2, powered: p !== 1, powerRatio: 1 - ((t / 3) % 1) },
+    cannon: { level: p + 2 + (p === 3 ? 3 : 0), level2: p === 2 ? 3 : 0, powered: p !== 1, powerRatio: 1 - ((t / 3) % 1) },
     stores: pick(STORES, p),
     buttons: { missile: pick(['ready', 'cooldown', 'empty', 'none'] as const, p), switch: p % 2 ? 'none' : 'ready' },
     keys: { missile: 'X', switch: 'C' },

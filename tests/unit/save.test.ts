@@ -44,8 +44,8 @@ describe('Save', () => {
       const raw = { ...valid(), money: -50, gunLevel: 99, equipment: { armor: 9, ecm: -3, flares: 2.7 }, settings: { music: 4 } };
       const s = parseSave(raw);
       expect(s?.money).toBe(0);
-      expect(s?.gunLevel).toBe(5);
-      expect(s?.equipment).toEqual({ armor: 3, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0, radar: 0 });
+      expect(s?.gunLevel).toBe(8); // levels 6–8 with map 2 (doc 37)
+      expect(s?.equipment).toEqual({ armor: 5, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0, radar: 0 });
       expect(s && 'settings' in s).toBe(false); // settings are device-wide now (doc 08)
     });
 

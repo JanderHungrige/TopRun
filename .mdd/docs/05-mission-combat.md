@@ -164,7 +164,9 @@ None.
 
 - **Movement**: 8-way, plane speed from PlayerStats, clamped to the playfield. Banking visual
   when moving sideways; the F-14 sweeps its wings back while moving forward. Shadow on terrain.
-- **Gun** fires while FIRE is held (or always, with autofire setting / touch). Pattern per gun level.
+- **Gun** fires while FIRE is held (or always, with autofire setting / touch). Pattern per gun level (1–8; the
+  map-2 jets fly at most 5 and fire a second gun with its own level from the wing roots; twin pods launch both
+  pods per trigger — doc 37).
   Guns hit air and ground; ground takes 50 %.
 - **Weapons — two fire keys** (2026-10-25, owner: switching was too hectic): every
   secondary has a **role** — *air*: AIM-9, AIM-54; *ground*: rockets, Mk 82, AGM-65. **AIR** (R / K,
@@ -194,7 +196,7 @@ None.
   takes 80). ECM −25 % bullet damage. 0.6 s invulnerability after any hit (blink).
   Hull ≤ 0 → explosion → mission failed. Damage control restores 40 % once below 25 %.
 - **Pickups** (drop roll per kill): cash 14 % (bounty × 0.5, min 25), repair 5 % (+25 % hull),
-  power 4 % (gun level +1 for 12 s, max 5), ammo 4 % (+50 % of each secondary's start ammo).
+  power 4 % (gun level +1 for 12 s, max 5; levels 6–7 lift to 8, doc 37), ammo 4 % (+50 % of each secondary's start ammo).
   Pickups drift down with the scroll; magnet pulls within 160 px.
 - **Timeline** (`generateTimeline`): seeded by mission number; deterministic; events sorted by
   `t`; waves every lerp(3.2 s → 1.5 s by difficulty) with jitter; formations: line, V, column,

@@ -6,7 +6,7 @@ import {
   EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
-import { secondaryAllowedOn } from '../data/weapons';
+import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
@@ -25,7 +25,11 @@ export interface SaveData {
   ownedPlanes: PlaneId[];
   selectedPlane: PlaneId;
   gunLevel: GunLevel;
+  /** Second gun of the new jets, 0 = none (doc 37). */
+  gun2Level: number;
   ownedSecondaries: SecondaryId[];
+  /** Weapons bought a second time: twin pods on the new jets (doc 37). */
+  twinSecondaries: SecondaryId[];
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
   progress: Record<string, ProgressEntry>;
@@ -58,7 +62,9 @@ export function defaultSave(): SaveData {
     ownedPlanes: ['f16'],
     selectedPlane: 'f16',
     gunLevel: 1,
+    gun2Level: 0,
     ownedSecondaries: [],
+    twinSecondaries: [],
     loadout: perPlane(emptyLoadout),
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
@@ -141,8 +147,10 @@ export function parseSave(raw: unknown): SaveData | null {
     money: int(raw.money, 0, 1e9, START_MONEY),
     ownedPlanes,
     selectedPlane: selected,
-    gunLevel: int(raw.gunLevel, 1, 5, 1) as GunLevel,
+    gunLevel: int(raw.gunLevel, 1, MAX_GUN_LEVEL, 1) as GunLevel,
+    gun2Level: int(raw.gun2Level, 0, MAX_GUN2_LEVEL, 0),
     ownedSecondaries,
+    twinSecondaries: ids(raw.twinSecondaries, SECONDARY_IDS).filter((id) => ownedSecondaries.includes(id)),
     loadout: perPlane((p) => parseLoadout(rawLoadout[p], p, ownedSecondaries)),
     equipment: parseEquipment(raw.equipment),
     progress,

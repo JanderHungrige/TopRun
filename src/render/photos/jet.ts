@@ -11,12 +11,12 @@ import { pixelize } from '../pixel/quantize';
 
 /** Airframe length and centre in side-view units (the afterburner flame not counted). */
 const METRICS: Readonly<Record<PlaneId, { len: number; cx: number; cy: number }>> = {
-  f16: { len: 113, cx: 0, cy: -26 },
-  f14: { len: 127, cx: -2, cy: -31 },
-  sr71: { len: 158, cx: 7, cy: -27 },
-  a10: { len: 114, cx: 1.6, cy: -24 },
-  f35: { len: 112, cx: -2, cy: -25 },
-  tornado: { len: 116, cx: 0, cy: -26 },
+  f16: { len: 114, cx: 12, cy: -21.5 },
+  f14: { len: 131, cx: 16, cy: -19.4 },
+  sr71: { len: 147, cx: 21, cy: -15.3 },
+  a10: { len: 116, cx: 1, cy: -17.8 },
+  f35: { len: 115, cx: 12, cy: -19.4 },
+  tornado: { len: 117, cx: 16, cy: -23.2 },
 };
 
 export interface JetPose {

@@ -44,4 +44,4 @@ export function drawPlaneSide(
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -54, f14: -62, sr71: -66, a10: -31, f35: -56, tornado: -57 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41 };

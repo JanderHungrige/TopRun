@@ -62,17 +62,17 @@ function autopilot(target: number, burner: boolean): FlybyState {
 describe('Tower Flyby', () => {
   describe('jet geometry', () => {
     it('finds the lowest hull point: the ventral fin when level, the nose when diving, the tail when climbing', () => {
-      expect(lowestPoint('f16', 100, 0)).toBeCloseTo(100 + 7.4 * 1.1, 5);
+      expect(lowestPoint('f16', 100, 0)).toBeCloseTo(100 + 6.3 * 1.1, 5); // ventral fin (real-dimension side view, doc 04)
       const down = -MAX_PITCH;
-      expect(lowestPoint('f16', 100, down)).toBeLessThan(100 + 7.4 * 1.1);
-      expect(lowestPoint('f16', 100, MAX_PITCH)).toBeCloseTo(100 + (-37.8 * Math.sin(MAX_PITCH) + 7.4 * Math.cos(MAX_PITCH)) * 1.1, 5);
-      expect(lowestPoint('sr71', 0, 0)).toBeCloseTo(11.4 * 1.1, 5);
+      expect(lowestPoint('f16', 100, down)).toBeLessThan(100 + 6.3 * 1.1);
+      expect(lowestPoint('f16', 100, MAX_PITCH)).toBeCloseTo(100 + (-43.9 * Math.sin(MAX_PITCH) + 12 * Math.cos(MAX_PITCH)) * 1.1, 5); // nozzle
+      expect(lowestPoint('sr71', 0, 0)).toBeCloseTo(5.2 * 1.1, 5); // nacelles
     });
 
     it('measures the horizontal span from the hull', () => {
       const s = jetSpan('f16', 0);
-      expect(s.front).toBeCloseTo(52 * 1.1, 5);
-      expect(s.back).toBeCloseTo(56 * 1.1, 5);
+      expect(s.front).toBeCloseTo(69 * 1.1, 5);
+      expect(s.back).toBeCloseTo(45.4 * 1.1, 5);
       expect(jetSpan('sr71', 0).front).toBeGreaterThan(s.front);
     });
 

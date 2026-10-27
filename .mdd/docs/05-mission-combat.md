@@ -166,11 +166,25 @@ None.
   when moving sideways; the F-14 sweeps its wings back while moving forward. Shadow on terrain.
 - **Gun** fires while FIRE is held (or always, with autofire setting / touch). Pattern per gun level.
   Guns hit air and ground; ground takes 50 %.
-- **Weapons — two keys, no switching** (2026-10-25, owner: switching was too hectic): every
+- **Weapons — two fire keys** (2026-10-25, owner: switching was too hectic): every
   secondary has a **role** — *air*: AIM-9, AIM-54; *ground*: rockets, Mk 82, AGM-65. **AIR** (R / K,
-  gamepad B) fires the first mounted air weapon that has ammo, **GROUND** (Q / L, gamepad LB/RB) the
-  first mounted ground weapon with ammo (`slotFor(secondaries, role)`, mount order). One shared
-  cooldown. Homing weapons pick the nearest valid target in a forward cone; with no target they fly
+  gamepad B) fires the first mounted air weapon that has ammo, **GROUND** (Q / L, gamepad RB) the
+  selected ground weapon (`slotFor(secondaries, role, pick)`: the picked slot while it has ammo, else
+  the first of that role with ammo in mount order). One shared cooldown.
+- **Ground weapon switch, clearly shown** (2026-10-27, owner: "Zuni and Mk 82 mounted, GROUND fires only
+  one — what is the switch button? show it more clearly"): an optional **SWITCH** key — keyboard **X / O**,
+  gamepad **LB**, joystick its own button (setup step "Switch ground weapon"), touch / mouse a tap on the
+  **STORES** screen — picks the next ground weapon with ammo (`nextPick`, wraps, mount order). Nobody has
+  to switch: without it GROUND behaves exactly as before. `canSwitch` = at least two ground weapons with
+  ammo; otherwise the key answers with the "denied" buzz. Shown three ways:
+  - the GROUND and AIR buttons name the weapon they fire next with its ammo (`MK-82` / `×6`) under a
+    small AIR / GROUND header, instead of only "GROUND";
+  - the STORES screen marks the picked weapon (inverted row) and shows `SWITCH [X]` on its bottom line
+    (`TAP = SWITCH` on touch), bright when `canSwitch`, dim otherwise, with the key cap on its bezel
+    (no arrow glyph: the typewriter font has none and the fallback reads like "≠");
+  - on every switch a green `<WEAPON> READY` callout rises over the jet for 1.2 s, with a short click.
+  The pick is per mission (`Player.groundPick`, −1 = none yet); a picked weapon that runs dry falls back
+  to the first ground weapon with ammo. Air weapons keep firing in mount order (no air switch). Homing weapons pick the nearest valid target in a forward cone; with no target they fly
   straight.
 - **Flares**: FLARE drops a flare (if any left); every enemy missile within 260 px retargets
   to the flare. Enemy missiles otherwise home on the player (turn rate limited, 5 s life).
@@ -207,14 +221,15 @@ None.
   - **Left console**: name plate (jet + callsign) · **RADAR** scope (circular, sweeping beam) ·
     **HULL** analog dial (green > 60 %, amber 30–60 %, red < 30 %) with digital readout · **CANNON**
     level lamps 1–5 + power-up lamp/timer · **STORES** screen (mounted weapons, ammo, selected one
-    bracketed) · buttons **AIR** (R) and **GROUND** (Q). Stores rows are tagged A / G and the next
-    weapon of each role is bracketed.
+    bracketed) · buttons **AIR** (R) and **GROUND** (Q), each naming its next weapon + ammo. Stores rows
+    are tagged A / G and the next weapon of each role is inverted; tapping STORES switches the ground
+    weapon (see above).
   - **Right console**: mission screen (number, name, objective + progress, kills, cash, route, boss
     hull when present) · **warning panel** (MISSILE, LOW HULL, BOSS, POWER, ECM, DMG CTRL lamps) ·
     big buttons **FLARE** (F, with count) and **SPECIAL** (E, with recharge ring) · **PAUSE**.
   - **Key caps** (2026-10-25, owner): every console button carries a clearly readable key cap with its
     key — keyboard R / Q / F / E / P, gamepad B / RB / X / Y / ☰, joystick the bound button number
-    (BTN n); none on touch.
+    (BTN n); none on touch. The STORES bezel carries the SWITCH key (X, gamepad LB, joystick BTN n).
   - **Buttons light up only when usable** (`buttonStates`): air and ground each `none` (no weapon
     of that role mounted) | `empty` | `cooldown` | `ready`; flare `none` (no dispenser) | `empty` |
     `ready`; special `ready | cooldown (progress 0..1) | active`. Every button is clickable/tappable on

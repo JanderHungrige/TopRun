@@ -1,5 +1,5 @@
 import type { ButtonStates } from '../../game/cockpit';
-import { GREEN, RED, flareButton, keyCap, pauseButton, pushButton, specialButton } from './buttons';
+import { GREEN, RED, flareButton, keyCap, pauseButton, specialButton, weaponButton } from './buttons';
 import { attitudeLive, cannonLive, hullLive } from './gauges';
 import { lampsLive } from './lamps';
 import { LEFT, RIGHT } from './layout';
@@ -65,12 +65,13 @@ export function drawLeftConsole(ctx: CanvasRenderingContext2D, v: LeftConsoleVie
   radarLive(ctx, LEFT.radar, v.radar.contacts, v.radar.early, v.labels.early, t);
   hullLive(ctx, LEFT.hull, v.hull);
   cannonLive(ctx, LEFT.cannon, v.cannon, t);
-  storesLive(ctx, LEFT.stores, v.stores, v.labels.noStores);
+  storesLive(ctx, LEFT.stores, v.stores, v.labels.noStores, v.swap);
   const status = (st: ButtonStates['air']): string => (st === 'empty' ? v.labels.empty : st === 'none' ? v.labels.none : '');
-  pushButton(ctx, LEFT.airBtn, v.buttons.air, RED, v.labels.air, status(v.buttons.air), t);
-  pushButton(ctx, LEFT.groundBtn, v.buttons.ground, GREEN, v.labels.ground, status(v.buttons.ground), t);
+  weaponButton(ctx, LEFT.airBtn, v.buttons.air, RED, v.labels.air, v.weapons.air, status(v.buttons.air), t);
+  weaponButton(ctx, LEFT.groundBtn, v.buttons.ground, GREEN, v.labels.ground, v.weapons.ground, status(v.buttons.ground), t);
   keyCap(ctx, LEFT.airBtn, v.keys.air);
   keyCap(ctx, LEFT.groundBtn, v.keys.ground);
+  if (v.swap) keyCap(ctx, LEFT.stores, v.keys.switch);
   ctx.restore();
 }
 

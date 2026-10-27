@@ -13,6 +13,8 @@ export interface CockpitLabels {
   noStores: string;
   air: string;
   ground: string;
+  switch: string;
+  switchTap: string;
   flare: string;
   special: string;
   pause: string;
@@ -30,6 +32,12 @@ export interface CockpitLabels {
   warnDmgCtrl: string;
 }
 
+/** A weapon a key fires next. */
+export interface Armed {
+  short: string;
+  ammo: number;
+}
+
 export interface LeftConsoleView {
   plane: PlaneId;
   planeName: string;
@@ -40,8 +48,12 @@ export interface LeftConsoleView {
   /** Mounted weapons; `role` A/G tag, `next` = the one the AIR / GROUND key fires next. */
   stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; role: WeaponRole; next: boolean }>;
   buttons: { air: ButtonStates['air']; ground: ButtonStates['ground'] };
-  /** Key caps on the buttons for the current input device ('' = none, e.g. touch). */
-  keys: { air: string; ground: string };
+  /** What AIR / GROUND fire next, named on the buttons (doc 05); null when nothing of that role has ammo. */
+  weapons: { air: Armed | null; ground: Armed | null };
+  /** The ground-weapon SWITCH line on the STORES screen, bright when there is something to switch to. */
+  swap: { text: string; ready: boolean } | null;
+  /** Key caps on the buttons and the STORES bezel for the current input device ('' = none, e.g. touch). */
+  keys: { air: string; ground: string; switch: string };
   labels: CockpitLabels;
 }
 

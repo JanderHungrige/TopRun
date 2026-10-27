@@ -28,6 +28,10 @@ export class Player {
   readonly secondaries: SecondarySlot[];
   /** Fired any missile, rocket or bomb this sortie (doc 24, Gunslinger). */
   firedSecondary = false;
+  /** Ground weapon picked with SWITCH: index into `secondaries`, −1 = none yet (doc 05). */
+  groundPick = -1;
+  /** Seconds left of the "<WEAPON> READY" callout after a switch. */
+  switchFlash = 0;
   flares: number;
   specialCooldown = 0;
   specialActive = 0;
@@ -84,6 +88,7 @@ export class Player {
     this.specialActive = Math.max(0, this.specialActive - dt);
     this.powerTimer = Math.max(0, this.powerTimer - dt);
     this.rollSpin = Math.max(0, this.rollSpin - dt);
+    this.switchFlash = Math.max(0, this.switchFlash - dt);
   }
 
 

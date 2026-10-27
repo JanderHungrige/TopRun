@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { derivePlayerStats, slotFor } from '../../src/game/loadout';
+import { canSwitch, derivePlayerStats, nextPick, slotFor } from '../../src/game/loadout';
+import type { SecondaryId } from '../../src/data/types';
 import { SECONDARIES, SECONDARY_ROLES } from '../../src/data/weapons';
 import { defaultSave, type SaveData } from '../../src/game/save';
 
@@ -76,6 +77,43 @@ describe('Loadout', () => {
       expect(slotFor(secs, 'ground')).toBe(2);
       expect(slotFor([{ id: 'aim9', ammo: 0 }], 'air')).toBe(-1);
       expect(slotFor([], 'ground')).toBe(-1);
+    });
+  });
+
+  describe('ground weapon switch (doc 05)', () => {
+    const zuniMk82 = (): Array<{ id: SecondaryId; ammo: number }> =>
+      [{ id: 'rockets', ammo: 5 }, { id: 'aim9', ammo: 6 }, { id: 'mk82', ammo: 6 }];
+
+    it('fires the picked weapon while it has ammo, else falls back to mount order', () => {
+      const secs = zuniMk82();
+      expect(slotFor(secs, 'ground', 2)).toBe(2);
+      expect(slotFor(secs, 'ground', -1)).toBe(0);
+      expect(slotFor(secs, 'ground', 1)).toBe(0); // the AIM-9 is not a ground weapon
+      expect(slotFor(secs, 'ground', 7)).toBe(0);
+      secs[2] = { id: 'mk82', ammo: 0 };
+      expect(slotFor(secs, 'ground', 2)).toBe(0);
+    });
+
+    it('steps to the next ground weapon with ammo and wraps around', () => {
+      const secs = [...zuniMk82(), { id: 'agm65' as const, ammo: 4 }];
+      expect(nextPick(secs, 'ground', -1)).toBe(2);
+      expect(nextPick(secs, 'ground', 2)).toBe(3);
+      expect(nextPick(secs, 'ground', 3)).toBe(0);
+      secs[2] = { id: 'mk82', ammo: 0 };
+      expect(nextPick(secs, 'ground', 0)).toBe(3);
+    });
+
+    it('stays put when there is nothing to switch to', () => {
+      expect(nextPick([{ id: 'mk82', ammo: 6 }, { id: 'aim9', ammo: 6 }], 'ground', -1)).toBe(0);
+      expect(nextPick([{ id: 'aim9', ammo: 6 }], 'ground', -1)).toBe(-1);
+      expect(nextPick([], 'ground', -1)).toBe(-1);
+    });
+
+    it('can switch only with two ground weapons that have ammo', () => {
+      expect(canSwitch(zuniMk82(), 'ground')).toBe(true);
+      expect(canSwitch([{ id: 'rockets', ammo: 5 }, { id: 'mk82', ammo: 0 }], 'ground')).toBe(false);
+      expect(canSwitch([{ id: 'mk82', ammo: 6 }, { id: 'aim9', ammo: 6 }], 'ground')).toBe(false);
+      expect(canSwitch([], 'ground')).toBe(false);
     });
   });
 });

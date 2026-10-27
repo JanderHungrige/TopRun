@@ -155,29 +155,32 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
 
 ## Business Rules
 
-- **Input actions**: `up, down, left, right, fire, secondary (air weapon), groundWeapon, flare, special, confirm, back, pause, mute, skip, hangar`.
-  (2026-10-25, owner: weapon switching was too hectic — two weapon keys instead of fire + switch, doc 05.)
-  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); R/K air weapon; Q/L ground weapon; F flare;
+- **Input actions**: `up, down, left, right, fire, secondary (air weapon), groundWeapon, weaponSwitch, flare, special, confirm, back, pause, mute, skip, hangar`.
+  (2026-10-25, owner: weapon switching was too hectic — two weapon keys instead of fire + switch, doc 05.
+  2026-10-27, owner: an optional, clearly shown `weaponSwitch` for the ground weapon on top, doc 05.)
+  - Keyboard: arrows/WASD move; Space/J fire (Space is also confirm); R/K air weapon; Q/L ground weapon; X/O switch ground weapon; F flare;
     E special; Enter confirm; Esc/Backspace back (Esc also pauses); P pause; M mute; S skip launch (also down);
     H hangar.
     **No Shift key** (2026-10-25): Windows opens its Sticky Keys prompt ("Einrastfunktion") when Shift
     is pressed five times in a row, and hectic players spam the missile key — a web page cannot
     suppress that system dialog, so the missile moved from Shift to **R** (K stays). Ctrl is not used
     either (Ctrl+W etc. would close the tab).
-  - Gamepad (standard mapping): left stick/d-pad move; A fire+confirm; B air weapon+back; X flare; Y special; LB/RB ground weapon; Start pause.
+  - Gamepad (standard mapping): left stick/d-pad move; A fire+confirm; B air weapon+back; X flare; Y special; RB ground weapon; LB switch ground weapon; Start pause.
   - Joystick / HOTAS: see **Joystick** below.
   - Touch: drag anywhere in the playfield moves the plane relatively; autofire on while touching;
-    on-screen buttons for air / ground / flare / special / pause (the cockpit consoles, doc 05).
+    on-screen buttons for air / ground / flare / special / pause (the cockpit consoles, doc 05); a tap on
+    the STORES screen switches the ground weapon.
   - `pressed(action)` is true only on the first update tick after the key goes down.
 - **Joystick / HOTAS** (USB flight sticks via the Gamepad API, 2026-10-25):
   - Every connected controller is read each tick. Which mapping applies to it:
     1. the saved **joystick profile** if any of its bindings names this device (`pad.id`);
     2. else the **standard gamepad** mapping above when the browser reports `mapping: 'standard'`;
     3. else the **default joystick** mapping: axis 0 = left/right, axis 1 = forward/back, button 0
-       (trigger) = fire, 1 = missile, 2 = flare, 3 = special, 4 = switch, 5 = pause, no throttle.
+       (trigger) = fire, 1 = missile, 2 = flare, 3 = special, 4 = switch, 5 = pause, 6 = cycle, no throttle.
   - Joystick actions → game actions: **fire** → fire + confirm, **missile** → secondary (air weapon) + back,
     **flare**, **special** (E: lock & launch on the carrier), **switch** → groundWeapon (the ground-weapon
-    key; the profile key name stays `switch` so saved setups keep working), **pause**.
+    key; the profile key name stays `switch` so saved setups keep working), **cycle** → weaponSwitch
+    (switch ground weapon, 2026-10-27; setups saved before have none until the setup is run again), **pause**.
     The stick also drives menu up/down/left/right (digital threshold 0.55 like the gamepad stick).
   - Stick axes use a 0.12 dead zone (flight sticks centre precisely; the gamepad keeps 0.3).
     Forward = up the screen, back = down.
@@ -197,7 +200,7 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     4. "Throttle: move it end to end, leave it at FULL, pull the trigger" → on the trigger, the
        non-stick axis with the largest travel (≥ 0.8) during the step is the throttle; the end it rests
        at is full. No such axis → "no throttle movement detected", step stays.
-    5–9. "Press the button for MISSILE / FLARE / SPECIAL / SWITCH / PAUSE".
+    5–10. "Press the button for MISSILE / FLARE / SPECIAL / GROUND WEAPON / SWITCH GROUND WEAPON / PAUSE".
     A button already used in this setup is refused ("already used for …"). **S / SKIP** skips a step
     (stick axes keep the default, throttle and buttons stay unbound), **Esc / CANCEL** leaves without
     saving, **Del / CLEAR** deletes the saved profile. After PAUSE the profile is saved and the screen

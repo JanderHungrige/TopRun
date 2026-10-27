@@ -1,7 +1,7 @@
 import { approach } from '../../core/math';
 import type { Scene } from '../../core/scene';
 import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types';
-import { derivePlayerStats } from '../../game/loadout';
+import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
 import { bossTitle, missionName, objectiveText } from '../../i18n/content';
@@ -19,6 +19,7 @@ import { updatePickups } from './pickups';
 import { Player } from './player';
 import { WingmanRadio } from './radio';
 import { updateCombat } from './projectiles';
+import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
 import { PF_H, PF_W, PF_X, World } from './world';
 
@@ -106,6 +107,7 @@ export class MissionScene implements Scene {
     if (input.held('fire') || autofire) firePlayerGun(this.world, p, this.game.audio);
     if (input.held('secondary')) fireSecondary(this.world, p, this.game.audio, 'air');
     if (input.held('groundWeapon')) fireSecondary(this.world, p, this.game.audio, 'ground');
+    if (input.pressed('weaponSwitch')) switchGroundWeapon(p, this.game.audio);
     if (input.pressed('flare')) dropFlare(this.world, p, this.game.audio);
     if (input.pressed('special')) this.activateSpecial();
     this.cockpitClicks();
@@ -123,6 +125,7 @@ export class MissionScene implements Scene {
     };
     press(LEFT.airBtn, b.air === 'ready', () => fireSecondary(this.world, p, a, 'air'));
     press(LEFT.groundBtn, b.ground === 'ready', () => fireSecondary(this.world, p, a, 'ground'));
+    press(LEFT.stores, canSwitch(p.secondaries, 'ground'), () => switchGroundWeapon(p, a));
     press(RIGHT.flareBtn, b.flare === 'ready', () => dropFlare(this.world, p, a));
     press(RIGHT.specialBtn, b.special.state === 'ready', () => this.activateSpecial());
   }
@@ -252,6 +255,7 @@ export class MissionScene implements Scene {
     clipPlayfield(ctx);
     if (w.shake > 0) ctx.translate((Math.random() - 0.5) * w.shake, (Math.random() - 0.5) * w.shake);
     renderWorld(ctx, w, this.player, this.t);
+    drawSwitchCallout(ctx, this.player);
     ctx.restore();
     this.renderBanner(ctx);
     this.radio.render(ctx);

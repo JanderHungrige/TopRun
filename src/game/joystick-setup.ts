@@ -5,9 +5,9 @@ import {
 // JOYSTICK setup screen logic (doc 01): detects the stick axes, throttle and buttons step by step
 // from raw controller frames. Pure state machine.
 
-export type SetupStep = 'right' | 'back' | 'fire' | 'throttle' | 'missile' | 'flare' | 'special' | 'switch' | 'pause' | 'done';
+export type SetupStep = 'right' | 'back' | 'fire' | 'throttle' | 'missile' | 'flare' | 'special' | 'switch' | 'cycle' | 'pause' | 'done';
 export const SETUP_STEPS: readonly Exclude<SetupStep, 'done'>[] = Object.freeze([
-  'right', 'back', 'fire', 'throttle', 'missile', 'flare', 'special', 'switch', 'pause',
+  'right', 'back', 'fire', 'throttle', 'missile', 'flare', 'special', 'switch', 'cycle', 'pause',
 ] as const);
 
 /** How far an axis must move from where it was when the step started to count as the stick. */
@@ -69,7 +69,7 @@ function nextStep(step: SetupStep): SetupStep {
 }
 
 export function createSetup(frames: readonly PadFrame[]): SetupState {
-  const buttons = { fire: null, missile: null, flare: null, special: null, switch: null, pause: null };
+  const buttons = { fire: null, missile: null, flare: null, special: null, switch: null, cycle: null, pause: null };
   const blank: SetupState = {
     step: 'right', x: null, y: null, throttle: null, buttons, baseline: {}, lo: {}, hi: {},
     prevButtons: pressedKeys(frames), error: null,
@@ -161,6 +161,7 @@ export function stepSetup(s: SetupState, frames: readonly PadFrame[], skip: bool
     case 'flare':
     case 'special':
     case 'switch':
+    case 'cycle':
     case 'pause': return detectButton(t, t.step, edges, frames);
     case 'done': return t;
     default: throw new Error(`unhandled: ${t.step satisfies never}`);

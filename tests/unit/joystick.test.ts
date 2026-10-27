@@ -18,7 +18,7 @@ const profile = (): JoyProfile => ({
   throttle: { pad: STICK, index: 2, invert: true },
   buttons: {
     fire: { pad: STICK, index: 0 }, missile: { pad: STICK, index: 1 }, flare: { pad: STICK, index: 4 },
-    special: { pad: STICK, index: 7 }, switch: null, pause: { pad: STICK, index: 11 },
+    special: { pad: STICK, index: 7 }, switch: null, cycle: { pad: STICK, index: 9 }, pause: { pad: STICK, index: 11 },
   },
 });
 
@@ -44,6 +44,17 @@ describe('Joystick', () => {
       expect(out.buttons).toEqual([[0, ['fire', 'confirm']]]);
       expect(out.stick).toEqual({ x: 0, y: -1 });
       expect(out.throttle).toBeNull();
+    });
+
+    it('splits the shoulder buttons: RB fires the ground weapon, LB switches it (doc 05)', () => {
+      expect(padInputs(frame('Xbox Controller', [0, 0], [5], true), null).buttons).toEqual([[5, ['groundWeapon']]]);
+      expect(padInputs(frame('Xbox Controller', [0, 0], [4], true), null).buttons).toEqual([[4, ['weaponSwitch']]]);
+    });
+
+    it('maps the switch button: default joystick button 7, and the profile binding', () => {
+      expect(defaultProfile(STICK).buttons.cycle).toEqual({ pad: STICK, index: 6 });
+      expect(padInputs(frame('Other Stick', [0, 0], [6]), null).buttons).toEqual([[6, ['weaponSwitch']]]);
+      expect(padInputs(frame(STICK, [0, 0, 0], [9]), profile()).buttons).toEqual([[9, ['weaponSwitch']]]);
     });
 
     it('applies the default joystick mapping to an unknown non-standard stick', () => {
@@ -100,6 +111,13 @@ describe('Joystick', () => {
     it('treats missing buttons as unbound', () => {
       const { pause: _pause, ...rest } = profile().buttons;
       expect(parseJoyProfile({ ...profile(), buttons: rest })?.buttons.pause).toBeNull();
+    });
+
+    it('keeps a setup saved before the switch button existed, switch unbound', () => {
+      const { cycle: _cycle, ...old } = profile().buttons;
+      const p = parseJoyProfile({ ...profile(), buttons: old });
+      expect(p?.buttons.cycle).toBeNull();
+      expect(p?.buttons.missile).toEqual({ pad: STICK, index: 1 });
     });
 
     it('is stored in the device settings, default none', () => {
@@ -170,10 +188,12 @@ describe('Joystick', () => {
 
     it('skips steps and builds a complete profile', () => {
       let s = createSetup(rest());
-      for (let i = 0; i < 9; i++) s = stepSetup(s, rest(), true);
+      for (let i = 0; i < 10; i++) s = stepSetup(s, rest(), true);
       expect(s.step).toBe('done');
       const p = setupProfile(s, STICK);
-      expect(p).toEqual({ ...defaultProfile(STICK), buttons: { fire: null, missile: null, flare: null, special: null, switch: null, pause: null } });
+      expect(p).toEqual({
+        ...defaultProfile(STICK), buttons: { fire: null, missile: null, flare: null, special: null, switch: null, cycle: null, pause: null },
+      });
       expect(parseJoyProfile(p)).toEqual(p);
     });
   });

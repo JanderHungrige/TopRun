@@ -76,6 +76,24 @@ export function pushButton(
   }
 }
 
+/** AIR / GROUND (doc 05): small role header, the weapon the key fires next, its ammo; role + status when dark. */
+export function weaponButton(
+  ctx: CanvasRenderingContext2D, r: Rect, state: CapState, col: CapColor, role: string, armed: { short: string; ammo: number } | null,
+  status: string, t: number,
+): void {
+  if (!armed) {
+    pushButton(ctx, r, state, col, role, status, t);
+    return;
+  }
+  const lit = capFace(ctx, r, state, col, t);
+  const c = cap(r);
+  const cx = c.x + c.w / 2;
+  const o = { align: 'center' as const, color: lit.ink, mono: false };
+  screenText(ctx, role, cx, c.y + 12, { ...o, size: 9, maxW: c.w - 50, weight: 800, spacing: 1 });
+  screenText(ctx, armed.short, cx, c.y + c.h / 2 + 3, { ...o, size: 17, maxW: c.w - 12, weight: 900, spacing: 0.5 });
+  screenText(ctx, `×${armed.ammo}`, cx, c.y + c.h - 11, { ...o, size: 12, maxW: c.w - 14, weight: 800 });
+}
+
 /** Flare button: legend on top, big remaining count in the middle. */
 export function flareButton(ctx: CanvasRenderingContext2D, r: Rect, state: CapState, label: string, count: number, status: string, t: number): void {
   const lit = capFace(ctx, r, state, AMBER, t);

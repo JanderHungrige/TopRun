@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LOOK_PARTS, lookFromKey, lookKey, lookOptions, type AvatarLook } from '../../src/game/avatar-look';
 import { AVATAR_IDS } from '../../src/game/profiles';
-import { CUSTOM_KEYS, customFrames, fixedFrames } from '../../src/render/portraits/assets';
+import { CUSTOM_KEYS, customFrames, customUrls, fixedFrames } from '../../src/render/portraits/assets';
 
 // Doc 33: the owner's portrait images keep to the contract the renderer relies on — 240 × 288 indexed PNGs with at
 // most 64 colours, named after a character, a preset or a builder pick, talk / blink frames only next to a base
@@ -84,5 +84,10 @@ describe('portrait images', () => {
     expect(picks.length).toBe(256);
     expect(picks.filter((p) => !CUSTOM_KEYS.includes(lookKey(p))).map(lookKey)).toEqual([]);
     expect(CUSTOM_KEYS.length).toBe(256);
+  });
+
+  it('can list just face 1 of every pick, the half the builder preloads', () => {
+    expect(customUrls().length).toBe(256);
+    expect(customUrls((k) => k.endsWith('-f1')).length).toBe(128);
   });
 });

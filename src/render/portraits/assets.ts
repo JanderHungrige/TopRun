@@ -33,5 +33,6 @@ const urls = (f: FrameSet | null): string[] => (f ? [f.base, f.talk, f.half, f.b
 /** Every image of the fixed cast and the presets (preloaded at boot). */
 export const fixedUrls = (ids: readonly string[]): string[] => ids.flatMap((id) => urls(fixedFrames(id)));
 
-/** Every builder image (preloaded when the builder opens). */
-export const customUrls = (): string[] => CUSTOM_KEYS.flatMap((k) => urls(customFrames(k)));
+/** The builder images whose portrait name passes `keep` (all of them by default). */
+export const customUrls = (keep: (key: string) => boolean = () => true): string[] =>
+  CUSTOM_KEYS.filter(keep).flatMap((k) => urls(customFrames(k)));

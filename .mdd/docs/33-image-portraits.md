@@ -89,7 +89,9 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
 ## Rendering (`src/render/portraits/image.ts`)
 
 - `HTMLImageElement`s are created and cached per URL; `preloadPortraits()` (called at boot) loads the six fixed
-  characters (and their talk / blink frames). Custom picks load on first use; the builder preloads the set.
+  characters (and their talk / blink frames). Custom picks load on first use; the builder and NEW PILOT preload
+  face 1 of every pick (128 images, ≈ 3 MB — all 256 would double what a new visitor downloads from the small
+  server; owner, 2026-10-27), face 2 loads when first shown. NEW PILOT's card-4 teaser cycles face-1 portraits only.
 - `drawImagePortrait(ctx, frames, box, state)` places the image like `drawBust` placed portraits: **cover-fit,
   bottom-aligned, centred, clipped** to the box, `imageSmoothingEnabled = false`, the target rectangle snapped to
   whole device pixels — a box of exactly the image's size (the NEW PILOT cards, 240 × 288) shows it 1 : 1 in

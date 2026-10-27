@@ -88,7 +88,7 @@ export class NewPilotScene implements Scene {
   }
 
   private teaser(): AvatarLook {
-    return randomLook(this.teaserSeed + Math.floor(this.time / 2.4));
+    return { ...randomLook(this.teaserSeed + Math.floor(this.time / 2.4)), face: 'f1' }; // only face 1 is preloaded
   }
 
   /** Card 4's look: the built one, or the current random teaser. */

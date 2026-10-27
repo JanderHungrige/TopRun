@@ -36,8 +36,8 @@ export function avatarFrames(face: PilotFace): FrameSet | null {
   return key === null ? null : customFrames(key);
 }
 
-/** Starts loading the builder's portraits (the builder and NEW PILOT call this). */
-export const preloadCustomPortraits = (): void => preloadImages(customUrls());
+/** Starts loading face 1 of every builder pick (the builder and NEW PILOT call this); face 2 loads on first use. */
+export const preloadCustomPortraits = (): void => preloadImages(customUrls((k) => k.endsWith('-f1')));
 
 function seedOf(face: PilotFace): number {
   if (typeof face === 'string') return SEED[face];

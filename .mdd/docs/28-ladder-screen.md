@@ -108,7 +108,8 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 - Buttons: BACK, REFRESH, SHOW MY PILOT: ON/OFF (active pilot only; OFF deletes the entry and
   stops posting, ON posts at once). While sharing is off, every visit retries the DELETE, so an
   opt-out that hit a network error still lands. Keyboard: ←/→ between buttons, ↑/↓ scroll, Esc back.
-- A small info line: "Callsign, avatar, flag and rating are visible to everyone with the game's link."
+- A small info line: "Callsign, avatar, flag and rating are public; with the callsign anyone can load the pilot."
+  (cloud pilots, doc 34)
 
 ## Ranks elsewhere
 

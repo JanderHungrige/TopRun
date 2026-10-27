@@ -5,6 +5,7 @@ import { UI_EN_HONOURS } from './ui-en-honours';
 import { UI_EN_OFFDUTY } from './ui-en-offduty';
 import { UI_EN_AVATAR } from './ui-en-avatar';
 import { UI_EN_CODE } from './ui-en-code';
+import { UI_EN_CLOUD } from './ui-en-cloud';
 import { UI_EN_JOYSTICK } from './ui-en-joystick';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
@@ -50,7 +51,7 @@ export const UI_EN = {
   'pilots.deleteText': 'Money, jets and medals of this pilot will be lost.',
   'pilots.back': 'BACK',
   'pilots.newPilot': 'NEW PILOT',
-  'pilots.hint': '↑/↓ choose  ·  ENTER fly  ·  E look  ·  R pilot code  ·  DEL delete  ·  ESC back',
+  'pilots.hint': '↑/↓ choose  ·  ENTER fly  ·  E look  ·  R load pilot  ·  DEL delete  ·  ESC back',
   'newPilot.title': 'NEW PILOT',
   'newPilot.callsign': 'CALLSIGN',
   'newPilot.placeholder': 'YOUR CALLSIGN',
@@ -261,6 +262,7 @@ export const UI_EN = {
   ...UI_EN_HANGAR,
   ...UI_EN_AVATAR,
   ...UI_EN_CODE,
+  ...UI_EN_CLOUD,
   ...UI_EN_JOYSTICK,
 } as const;
 

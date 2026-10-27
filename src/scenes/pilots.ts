@@ -1,6 +1,9 @@
-import { formatMoney } from '../core/math';
+import { fetchCloudSave } from '../core/ladder-api';
+import { formatMoney, formatPoints } from '../core/math';
 import type { Scene } from '../core/scene';
+import { cloudIsAhead } from '../game/cloud-pilot';
 import { MAX_PROFILES, profileSummary, type Profile } from '../game/profiles';
+import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { drawPilotAvatar, pilotAccent, pilotFace } from '../render/avatars';
@@ -14,8 +17,15 @@ const CARD_W = 380;
 const CARD_H = 230;
 const BACK: Button = { id: 'back', label: '', x: 250, y: 632, w: 200, h: 50 };
 const NEW: Button = { id: 'new', label: '', x: 470, y: 632, w: 300, h: 50 };
-/** Back up / restore a pilot as text or a file (doc 08). */
-const CODE: Button = { id: 'code', label: '', x: 790, y: 632, w: 240, h: 50 };
+/** Bring a pilot from another device by callsign (doc 34); the pilot code is switched off for now (doc 08). */
+const LOAD: Button = { id: 'load', label: '', x: 790, y: 632, w: 240, h: 50 };
+const OFFER_LOAD: Button = { id: 'offerLoad', label: '', x: 430, y: 404, w: 200, h: 46, primary: true };
+const OFFER_KEEP: Button = { id: 'offerKeep', label: '', x: 650, y: 404, w: 200, h: 46 };
+/** How long a pilot pick waits for the cloud before it simply flies (doc 34). */
+const CLOUD_WAIT_MS = 2500;
+
+interface Offer { p: Profile; save: SaveData; cloud: number; local: number }
+const rating = (s: SaveData): number => pilotStanding(s).rating;
 const CONFIRM_YES: Button = { id: 'yes', label: '', x: 450, y: 404, w: 180, h: 46, primary: true };
 const CONFIRM_NO: Button = { id: 'no', label: '', x: 650, y: 404, w: 180, h: 46 };
 
@@ -30,6 +40,10 @@ export class PilotsScene implements Scene {
   private time = 0;
   private focus = 0;
   private confirmDelete: Profile | null = null;
+  /** The pilot whose cloud save is being checked, and the offer when another device is further (doc 34). */
+  private checking: Profile | null = null;
+  private offer: Offer | null = null;
+  private gone = false;
 
   constructor(private readonly game: GameContext) {}
 
@@ -37,14 +51,42 @@ export class PilotsScene implements Scene {
     this.game.music.play('menu');
   }
 
+  exit(): void {
+    this.gone = true;
+  }
+
   private get list(): readonly Profile[] {
     return this.game.profiles;
   }
 
+  /** Asks the cloud first (doc 34): when another device is further, offer that progress before anything posts. */
   private fly(p: Profile): void {
     this.game.audio.play('uiSelect');
+    const link = p.save.ladder;
+    if (!link?.share) return this.takeOff(p);
+    this.checking = p;
+    void fetchCloudSave(link.id, CLOUD_WAIT_MS).then((cloud) => {
+      if (this.gone || this.checking !== p) return;
+      this.checking = null;
+      if (cloud && cloudIsAhead(p.save, cloud, rating)) this.offer = { p, save: cloud, cloud: rating(cloud), local: rating(p.save) };
+      else this.takeOff(p);
+    });
+  }
+
+  private takeOff(p: Profile, save?: SaveData): void {
     this.game.selectProfile(p.id);
+    if (save) this.game.setSave(save);
     this.game.go({ to: 'map' });
+  }
+
+  private updateOffer(o: Offer): void {
+    const input = this.game.input;
+    if (input.taps.some((tap) => hit(tap, OFFER_LOAD)) || input.pressed('confirm')) return this.takeOff(o.p, o.save);
+    if (input.taps.some((tap) => hit(tap, OFFER_KEEP))) return this.takeOff(o.p);
+    if (input.pressed('back')) {
+      this.offer = null;
+      this.game.audio.play('uiBack');
+    }
   }
 
   private move(d: number): void {
@@ -57,11 +99,13 @@ export class PilotsScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     const input = this.game.input;
+    if (this.checking) return;
+    if (this.offer) return this.updateOffer(this.offer);
     if (this.confirmDelete) return this.updateConfirm();
     for (const tap of input.taps) {
       if (hit(tap, BACK)) return this.leave('title');
       if (hit(tap, NEW) && this.list.length < MAX_PROFILES) return this.leave('newPilot');
-      if (hit(tap, CODE)) return this.openCode();
+      if (hit(tap, LOAD)) return this.openLoad();
       const i = this.list.findIndex((_, k) => hit(tap, cardRect(k)));
       const p = this.list[i];
       if (!p) continue;
@@ -77,7 +121,7 @@ export class PilotsScene implements Scene {
     if (p && input.pressed('confirm')) return this.fly(p);
     if (p && input.pressed('delete')) return this.askDelete(p);
     if (p && input.pressed('special')) return this.editLook(p);
-    if (input.pressed('secondary')) return this.openCode();
+    if (input.pressed('secondary')) return this.openLoad();
     if (input.pressed('back')) this.leave('title');
   }
 
@@ -86,9 +130,9 @@ export class PilotsScene implements Scene {
     this.game.go({ to: 'avatarBuilder', target: { kind: 'pilot', profileId: p.id } });
   }
 
-  private openCode(): void {
+  private openLoad(): void {
     this.game.audio.play('uiSelect');
-    this.game.go({ to: 'pilotCode', from: 'pilots' });
+    this.game.go({ to: 'pilotLoad', from: 'pilots' });
   }
 
   private leave(to: 'title' | 'newPilot'): void {
@@ -127,9 +171,28 @@ export class PilotsScene implements Scene {
     this.list.forEach((p, i) => this.renderCard(ctx, p, i));
     drawButton(ctx, { ...BACK, label: t('pilots.back') }, false, this.time);
     drawButton(ctx, { ...NEW, label: t('pilots.newPilot'), enabled: this.list.length < MAX_PROFILES }, false, this.time);
-    drawButton(ctx, { ...CODE, label: t('pilots.code'), hint: 'R' }, false, this.time);
+    drawButton(ctx, { ...LOAD, label: t('cloud.load'), hint: 'R' }, false, this.time);
     text(ctx, t('pilots.hint'), 640, 706, { size: 13, align: 'center', color: COLORS.faint });
     if (this.confirmDelete) this.renderConfirm(ctx, this.confirmDelete);
+    if (this.checking) this.renderNotice(ctx, t('cloud.checking'));
+    if (this.offer) this.renderOffer(ctx, this.offer);
+  }
+
+  private renderNotice(ctx: CanvasRenderingContext2D, line: string): void {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, 1280, 720);
+    text(ctx, line, 640, 360, { size: 22, type: true, align: 'center', color: COLORS.dim });
+  }
+
+  private renderOffer(ctx: CanvasRenderingContext2D, o: Offer): void {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(0, 0, 1280, 720);
+    drawPanel(ctx, { x: 380, y: 270, w: 520, h: 206 }, { edge: COLORS.gold });
+    text(ctx, t('cloud.aheadTitle'), 640, 318, { size: 24, display: true, align: 'center', color: COLORS.gold, maxWidth: 480 });
+    const line = t('cloud.aheadText', { cloud: formatPoints(o.cloud), local: formatPoints(o.local) });
+    text(ctx, line, 640, 356, { size: 15, align: 'center', color: COLORS.ink, maxWidth: 480 });
+    drawButton(ctx, { ...OFFER_LOAD, label: t('cloud.aheadLoad') }, true, this.time);
+    drawButton(ctx, { ...OFFER_KEEP, label: t('cloud.aheadKeep') }, false, this.time);
   }
 
   private renderCard(ctx: CanvasRenderingContext2D, p: Profile, i: number): void {

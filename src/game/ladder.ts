@@ -14,6 +14,8 @@ export const MAX_BODY = 2048;
 export const WRITES_PER_MIN = 30;
 
 const ID = /^[A-Za-z0-9_-]{22,40}$/;
+/** A ladder entry id (the public half of a pilot's ladder identity). */
+export const isLadderId = (v: unknown): v is string => typeof v === 'string' && ID.test(v);
 const SECRET = /^[A-Za-z0-9_-]{32,64}$/;
 const STAT_KEYS = ['stars', 'medals', 'kills', 'golds', 'silvers', 'bronzes'] as const;
 

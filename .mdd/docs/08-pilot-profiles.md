@@ -181,6 +181,11 @@ None.
 
 ## Keeping saves: persistent storage and the pilot code (owner, 2026-10-26)
 
+> **Switched off (2026-10-27, owner):** moving a pilot to another device now works by callsign — LOAD PILOT
+> (doc 34) loads the cloud save the ladder service keeps. The PILOT CODE buttons (pilot list, key R; NEW PILOT)
+> and so the code and the ID card are hidden for now ("they only confuse"); the scene and the code format stay
+> in the code, unreachable, so they can come back.
+
 Saves live only in this browser's localStorage, per site address. They vanish in private windows, with
 "clear site data on exit", after Safari's 7 days without a visit, and when the game moves to another address
 (toprun → topgun). Two lightweight answers, no accounts and no server:

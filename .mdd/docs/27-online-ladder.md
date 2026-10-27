@@ -78,6 +78,8 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
 
 ## API
 
+> Cloud saves and the callsign lookup (`/api/ladder/save`, `/api/ladder/pilots`) are doc 34.
+
 - `GET /api/ladder` → `{ pilots: [{ callsign, avatar, country, rating, rank, updatedAt }], updatedAt }` — every
   entry (≤ 1 000) by rating (ties: whoever reached that rating first, `ratedAt`). Never contains ids or
   secrets. `Cache-Control: no-store`.

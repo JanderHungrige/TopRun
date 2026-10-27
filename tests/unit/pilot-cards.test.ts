@@ -10,10 +10,11 @@ describe('NEW PILOT cards (doc 08)', () => {
     expect(rows).toEqual([
       ['pilot1', 'pilot2', 'pilot3', 'pilot4', 'pilot10'],
       ['pilot5', 'pilot6', 'pilot7', 'pilot8', 'pilot9'],
-      ['pilot12', 'pilot13', 'pilot15', 'pilot14', 'own'],
-      ['pilot11', 'pilot16', 'pilot17', 'pilot18'],
+      ['pilot12', 'pilot13', 'pilot15', 'pilot14', 'pilot11'],
+      ['pilot16', 'pilot17', 'pilot18', 'own'],
     ]);
-    expect(cardCell(CARD_ORDER.indexOf('own'))).toEqual({ row: 2, col: 4 });
+    expect(CARD_ORDER.at(-1)).toBe('own');
+    expect(cardCell(CARD_ORDER.indexOf('own'))).toEqual({ row: 3, col: 3 });
   });
 
   it('shows every preset exactly once, plus CREATE YOUR OWN', () => {

@@ -98,10 +98,11 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > **Four rows, nineteen cards (2026-10-27, owner):** nine more presets `pilot10`–`pilot18` and a new photo for
 > `pilot5` (photos the owner supplied; "alle sind einverstanden": everyone shown agreed). The order is the owner's and
 > fixed in `CARD_ORDER` (`src/game/pilot-cards.ts`, pure): row 1 = pilot1–4, pilot10; row 2 = pilot5–9; row 3 =
-> pilot12, pilot13, pilot15, pilot14, CREATE YOUR OWN; row 4 = pilot11, pilot16, pilot17, pilot18. Four rows of five
+> pilot12, pilot13, pilot15, pilot14, pilot11; row 4 = pilot16, pilot17, pilot18, CREATE YOUR OWN (owner, same day:
+> "CREATE YOUR OWN at the very end, the others move up"). Four rows of five
 > do not fit under the callsign field, so NEW PILOT splits in two: a left column with the title, the callsign field, a
 > large preview of the selected card and START / BACK / PILOT CODE; the card grid (135 × 162, 8 px gaps) fills the
-> right. CREATE YOUR OWN sits in row 3 now, so ↑ on it moves up a row like on any card; ↓ on it opens the builder
+> right. CREATE YOUR OWN is the last card now, so ↑ on it moves up a row like on any card; ↓ on it opens the builder
 > (no card sits below it), as do ENTER before a look exists, a tap and gamepad Y.
 
 ## Architecture

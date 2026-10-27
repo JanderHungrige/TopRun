@@ -25,7 +25,7 @@ files from an nginx container behind the owner's reverse proxy.
 - Characters talk only through `SpeechBox` + `src/game/dialogue-scripts.ts`; lines may use `{callsign}`.
 - Never ship real photos of people (repo and site are public). Character portraits are generated pixel-art
   illustrations — 240×288 indexed PNGs in `src/assets/portraits/`, made with the owner's ComfyUI workflows
-  (doc 33); the pilot presets (`pilot1–18`) are drawn after photos the owner supplied, with the consent of the people
+  (doc 33); the pilot presets (`pilot1–19`) are drawn after photos the owner supplied, with the consent of the people
   shown, every other face is original. Never add photos or source photos to the repo. The hangar's item pictures are generated
   pixel art too (`src/assets/items/`, doc 02).
 - Apart from those portraits and item pictures, art is drawn in code and audio is synthesized with WebAudio.

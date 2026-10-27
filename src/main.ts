@@ -124,6 +124,7 @@ class Game implements GameContext {
 
   selectProfile(id: string): void {
     this.commit(selectProfile(this.store, id, Date.now()));
+    this.ladder.poke(); // an entry catches up (e.g. its avatar) as soon as its pilot is picked
   }
 
   deleteProfile(id: string): void {

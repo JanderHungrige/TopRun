@@ -65,7 +65,9 @@ dropped that day (names only) and came back on 2026-10-27 (owner: "add the avata
 - After every `setSave()` the game pokes `LadderSync`; 2.5 s later (debounced) it posts the active
   pilot's `{ id, secret, callsign, avatar, stats }` if `share` is on and the submission differs from
   the last one accepted this session. That covers debriefs, minigame bests and hangar purchases
-  without touching those scenes.
+  without touching those scenes. Choosing a pilot (`selectProfile`, the CONTINUE list) pokes it too, so
+  an entry catches up as soon as its pilot is picked — e.g. the avatar that older entries lack (owner,
+  2026-10-27: "are the avatars filled in when the players log in?").
 - Stats: `pilotStats(save)` = `ladderStats(save, tiers, medals, kills)` — stars summed over
   progress, minigame tiers from the registry (`minigameTiers(save)`: each built game's
   personal-best medal), medals = `earnedMedals(save, goldCount(save)).length` (doc 24), kills =

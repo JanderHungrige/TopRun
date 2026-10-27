@@ -96,7 +96,7 @@ describe('Online ladder rules', () => {
         looks++;
       }
     expect(looks).toBe(256);
-    for (const bad of ['pilot0', 'pilot19', 'pilot01', 'PILOT1', 'kid-male-fair-blond-short', 'kid-male-fair-blond-short-f3',
+    for (const bad of ['pilot0', 'pilot20', 'pilot01', 'PILOT1', 'kid-male-fair-blond-short', 'kid-male-fair-blond-short-f3',
       'adult-male-green-blond-short-f1', 'https://x.y/a.png', '', 7, null, {}]) expect(parseAvatar(bad)).toBeNull();
   });
 });

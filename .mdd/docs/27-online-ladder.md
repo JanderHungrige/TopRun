@@ -92,7 +92,7 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
     Known id → updated only if `secret` matches (constant-time compare); else 403.
   - Callsign validated with the game's callsign rules.
   - `avatar` (owner, 2026-10-27: "add the avatars back to the ladder"): the pilot's portrait as a short
-    key — a preset id `pilot1`…`pilot18` or a builder look `<age>-<gender>-<skin>-<hair>-<length>-<face>`
+    key — a preset id `pilot1`…`pilot19` or a builder look `<age>-<gender>-<skin>-<hair>-<length>-<face>`
     (doc 29). Checked against those two fixed patterns (`parseAvatar`); anything else, or a missing
     field (older clients, entries stored before), becomes `null` and the row shows a silhouette. It is
     only ever mapped to a bundled portrait, never used as a URL or path.

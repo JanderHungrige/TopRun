@@ -11,8 +11,8 @@ export type PilotCard = AvatarId | 'own';
 export const CARD_ORDER: readonly PilotCard[] = Object.freeze([
   'pilot1', 'pilot2', 'pilot3', 'pilot4', 'pilot10',
   'pilot5', 'pilot6', 'pilot7', 'pilot8', 'pilot9',
-  'pilot12', 'pilot13', 'pilot15', 'pilot14', 'pilot11',
-  'pilot16', 'pilot17', 'pilot18', 'own',
+  'pilot12', 'pilot13', 'pilot15', 'pilot19', 'pilot14',
+  'pilot11', 'pilot16', 'pilot17', 'pilot18', 'own',
 ] as const);
 
 export const cardCell = (i: number, cols = NEW_PILOT_COLS): { row: number; col: number } =>

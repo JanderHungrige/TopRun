@@ -18,7 +18,8 @@ export type PilotFace = AvatarId | AvatarLook;
 /** One accent colour per preset for UI (card borders, the ladder). */
 export const AVATAR_COLORS: Readonly<Record<AvatarId, string>> = {
   pilot1: '#f2a531', pilot2: '#4fb0e6', pilot3: '#e2574c', pilot4: '#8fd16a', pilot5: '#c9a46a', pilot6: '#e88b5a', pilot7: '#f6d55c',
-  pilot8: '#b88ad8', pilot9: '#6ad1c8',
+  pilot8: '#b88ad8', pilot9: '#6ad1c8', pilot10: '#e6c27a', pilot11: '#9c7a5a', pilot12: '#d96b8f', pilot13: '#5fa8e0',
+  pilot14: '#d9824a', pilot15: '#b5d65a', pilot16: '#9fb8c8', pilot17: '#f0a0b8', pilot18: '#a08ad0',
 };
 /** A builder pick's accent, by hair colour. */
 const HAIR_ACCENT: Readonly<Record<HairColor, string>> = { black: '#8fa6c8', brown: '#c98f55', blond: '#f2c94c', red: '#e2683c' };
@@ -26,6 +27,8 @@ const HAIR_ACCENT: Readonly<Record<HairColor, string>> = { black: '#8fa6c8', bro
 /** Per-avatar phase so a row of portraits never blinks or bobs in sync. */
 const SEED: Readonly<Record<AvatarId, number>> = {
   pilot1: 5.7, pilot2: 6.9, pilot3: 8.2, pilot4: 9.6, pilot5: 10.4, pilot6: 11.3, pilot7: 12.7, pilot8: 13.5, pilot9: 14.9,
+  pilot10: 15.8, pilot11: 16.6, pilot12: 17.9, pilot13: 18.7, pilot14: 19.5, pilot15: 20.8, pilot16: 21.4, pilot17: 22.6,
+  pilot18: 23.3,
 };
 
 /** The player's face for a profile: the builder pick if one was made, else the preset. */

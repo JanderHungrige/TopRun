@@ -16,8 +16,8 @@ describe('Ladder client side and write limit', () => {
   it('sums campaign stars and counts minigame medal tiers', () => {
     const save = { ...defaultSave(), progress: { m1: { stars: 3 }, m2: { stars: 2 } } };
     expect(ladderStats(save, ['gold', null, 'silver', 'gold', 'bronze'], 4, 120))
-      .toEqual({ stars: 5, medals: 4, kills: 120, golds: 2, silvers: 1, bronzes: 1 });
-    expect(ladderStats(defaultSave(), [], 0, 0)).toEqual({ stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 });
+      .toEqual({ stars: 5, medals: 4, kills: 120, golds: 2, silvers: 1, bronzes: 1, score: 0 });
+    expect(ladderStats(defaultSave(), [], 0, 0)).toEqual({ stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 });
   });
 
   it('makes an id and secret from random bytes that the service accepts', () => {
@@ -26,7 +26,7 @@ describe('Ladder client side and write limit', () => {
     expect(who.id).toMatch(/^p_[A-Za-z0-9_-]{22}$/);
     expect(who.secret).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(ladderIdentity(bytes)).toEqual(who);
-    const stats = { stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 };
+    const stats = { stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 };
     expect(parseSubmission({ ...who, callsign: 'ICE', stats })).not.toBeNull();
     expect(() => ladderIdentity(new Uint8Array(10))).toThrow();
   });

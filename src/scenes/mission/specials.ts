@@ -65,6 +65,7 @@ function fireCannon(world: World, p: Player, dt: number): void {
     const a = (Math.random() * 2 - 1) * CANNON.jitter;
     const v = GUN_SPEED * 1.15;
     world.bullets.push({ kind: 'cannon', x: p.x - 1, y: p.y - 34, vx: Math.sin(a) * v, vy: -Math.cos(a) * v, damage, ttl: 1, dead: false });
+    if (world.targetsInView()) world.perf.shots += 1;
   }
   world.shake = Math.max(world.shake, 1.8);
 }

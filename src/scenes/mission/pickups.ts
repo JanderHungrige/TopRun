@@ -31,8 +31,10 @@ export function updatePickups(world: World, p: Player, dt: number, audio: AudioE
       k.x += (dx / d) * pull;
       k.y += (dy / d) * pull;
     }
-    if (d < 24) collect(world, p, k.kind, k.value, audio, k.x, k.y);
-    if (d < 24) k.dead = true;
+    if (d >= 24) continue;
+    collect(world, p, k.kind, k.value, audio, k.x, k.y);
+    world.perf.taken += 1;
+    k.dead = true;
   }
 }
 

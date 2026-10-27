@@ -5,7 +5,7 @@ import type { PostReply } from '../../src/game/ladder-stats';
 
 const base: Submission = {
   id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(43), callsign: 'ICE', avatar: 'pilot1', country: null,
-  stats: { stars: 3, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 },
+  stats: { stars: 3, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 },
 };
 
 function setup(reply: PostReply | null = { place: 1, rating: 300, rank: 'ensign' }) {

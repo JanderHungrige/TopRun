@@ -8,6 +8,7 @@ import { jetOnSale } from './jets';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 import { recordSortie } from './challenge';
+import { missionScore } from './score';
 import { recordMission } from './service-record';
 
 export type ShopItem =
@@ -168,9 +169,10 @@ export function applyResult(save: SaveData, mission: MissionDef, result: Mission
   if (result.success) {
     const prev = save.progress[mission.id];
     const better = !prev || stars >= prev.stars;
+    const score = Math.max(missionScore(result).total, prev?.score ?? 0);
     next.progress[mission.id] = better && now !== undefined
-      ? { stars: Math.max(stars, prev?.stars ?? 0), at: now, plane: save.selectedPlane, livery: save.livery[save.selectedPlane] }
-      : { ...(prev ?? {}), stars: Math.max(stars, prev?.stars ?? 0) };
+      ? { stars: Math.max(stars, prev?.stars ?? 0), at: now, plane: save.selectedPlane, livery: save.livery[save.selectedPlane], score }
+      : { ...(prev ?? {}), stars: Math.max(stars, prev?.stars ?? 0), score };
   }
   return { save: next, payout, stars };
 }

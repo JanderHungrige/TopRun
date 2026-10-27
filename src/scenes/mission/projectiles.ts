@@ -29,6 +29,7 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
   world.tally.killsByKind[e.kind] = (world.tally.killsByKind[e.kind] ?? 0) + 1;
   if (e.layer === 'ground') world.wrecks.push({ kind: e.kind, x: e.x, y: e.y });
   const drop = rollDrop(Math.random());
+  if (drop) world.perf.drops += 1;
   if (drop) world.pickups.push({ kind: drop, x: e.x, y: e.y, value: Math.max(25, Math.round(e.bounty * 0.5)), t: 0, dead: false });
 }
 
@@ -51,6 +52,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     for (const e of world.enemies) {
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
       damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer }), audio);
+      if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
       break;
@@ -58,6 +60,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     const boss = world.boss;
     const source = b.kind === 'cannon' ? 'cannon' : 'gun';
     if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source, targetLayer: boss.def.layer }), world, audio)) {
+      if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
     }

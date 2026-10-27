@@ -22,7 +22,8 @@ export interface LadderLink {
 export function ladderStats(save: SaveData, tiers: readonly (Medal | null)[], medals: number, kills: number): RatingStats {
   const count = (m: Medal): number => tiers.filter((t) => t === m).length;
   const stars = Object.values(save.progress).reduce((sum, p) => sum + p.stars, 0);
-  return { stars, medals, kills, golds: count('gold'), silvers: count('silver'), bronzes: count('bronze') };
+  const score = Object.values(save.progress).reduce((sum, p) => sum + (p.score ?? 0), 0);
+  return { stars, medals, kills, golds: count('gold'), silvers: count('silver'), bronzes: count('bronze'), score };
 }
 
 /** The avatar a pilot shows on the ladder: the built look's key, else the preset id. */

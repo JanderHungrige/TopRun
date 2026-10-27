@@ -16,7 +16,7 @@ const result = (over: Partial<MissionResult> = {}): MissionResult => ({
   objectiveDone: true, hullRatio: 0.9, collected: 0, bossKilled: false, ...over,
 });
 const sortie = (outcome: SortieEntry['outcome'], over: Partial<SortieEntry> = {}): SortieEntry =>
-  ({ mission: 'm01', outcome, hull: 0.9, kills: 0.9, kit: 10, level: 0, at: 0, ...over });
+  ({ mission: 'm01', outcome, hull: 0.9, kills: 0.9, kit: 10, level: 0, score: 0, at: 0, ...over });
 const run = (c: ChallengeState, list: readonly SortieEntry[], kit = 10, maxed = false): ChallengeState =>
   list.reduce((s, e) => nextChallenge(s, e, kit, maxed, false), c);
 const at = (level: number): ChallengeState => ({ ...freshChallenge(), level });
@@ -24,7 +24,8 @@ const at = (level: number): ChallengeState => ({ ...freshChallenge(), level });
 describe('Challenge level (doc 38)', () => {
   it('logs every sortie with its outcome, hull, kill share, kit and level', () => {
     const s = defaultSave();
-    expect(sortieOf(m1, result(), s, 5)).toEqual({ mission: 'm01', outcome: 'win', hull: 0.9, kills: 0.9, kit: kitScore(s), level: 0, at: 5 });
+    expect(sortieOf(m1, result(), s, 5)).toMatchObject({ mission: 'm01', outcome: 'win', hull: 0.9, kills: 0.9, kit: kitScore(s), level: 0, at: 5 });
+    expect(sortieOf(m1, result(), s, 5).score).toBeGreaterThan(0);
     expect(sortieOf(m1, result({ success: false, hullRatio: 0 }), s, 5).outcome).toBe('down');
     expect(sortieOf(m1, result({ success: false, aborted: true }), s, 5).outcome).toBe('abort');
   });
@@ -88,7 +89,7 @@ describe('Challenge level (doc 38)', () => {
   it('parses challenge, sorties and rookie from untrusted saves', () => {
     expect(parseChallenge({ level: 99, wins: -3, fails: 'x' })).toEqual({ level: 10, wins: 0, fails: 0, failKit: 0 });
     expect(parseSorties([{ mission: 'm01', outcome: 'win', hull: 3, kills: 0.5, kit: 1, level: 2, at: 1 }, { outcome: 'boom' }, 7]))
-      .toEqual([{ mission: 'm01', outcome: 'win', hull: 1, kills: 0.5, kit: 1, level: 2, at: 1 }]);
+      .toEqual([{ mission: 'm01', outcome: 'win', hull: 1, kills: 0.5, kit: 1, level: 2, score: 0, at: 1 }]);
     const back = parseSave(JSON.parse(JSON.stringify({ ...defaultSave(), rookie: true, challenge: at(4) })));
     expect(back?.rookie).toBe(true);
     expect(back?.challenge.level).toBe(4);

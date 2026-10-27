@@ -80,12 +80,14 @@ export const parseCountry = (v: unknown): string | null => (typeof v === 'string
 
 function parseStats(v: unknown): RatingStats | null {
   if (!isRecord(v)) return null;
-  const out: RatingStats = { stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 };
+  const out: RatingStats = { stars: 0, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 };
   for (const k of STAT_KEYS) {
     const n = v[k];
     if (typeof n !== 'number' || !Number.isFinite(n)) return null;
     out[k] = n;
   }
+  // The mission score came later (doc 39): a post without it counts 0, so older browsers still post.
+  if (typeof v.score === 'number' && Number.isFinite(v.score)) out.score = v.score;
   return out;
 }
 

@@ -1,6 +1,7 @@
 import { PLANES } from '../data/planes';
 import type { MissionDef, MissionResult } from '../data/types';
 import { gunCap } from './firepower';
+import { missionScore } from './score';
 import type { SaveData } from './save';
 
 // Challenge level (doc 38): a per-pilot step above today's game for pilots who win convincingly, that only steps
@@ -19,6 +20,8 @@ export interface SortieEntry {
   kit: number;
   /** Challenge level the sortie was flown at. */
   level: number;
+  /** Mission score of the sortie, 0 unless won (doc 39). */
+  score: number;
   at: number;
 }
 
@@ -49,7 +52,7 @@ export function kitScore(save: SaveData): number {
 export function sortieOf(mission: MissionDef, result: MissionResult, save: SaveData, now: number): SortieEntry {
   const outcome: SortieOutcome = result.success ? 'win' : result.aborted ? 'abort' : 'down';
   const kills = result.spawned > 0 ? Math.min(1, result.kills / result.spawned) : 1;
-  return { mission: mission.id, outcome, hull: result.hullRatio, kills, kit: kitScore(save), level: save.challenge.level, at: now };
+  return { mission: mission.id, outcome, hull: result.hullRatio, kills, kit: kitScore(save), level: save.challenge.level, score: missionScore(result).total, at: now };
 }
 
 export const convincing = (s: SortieEntry): boolean =>
@@ -114,7 +117,7 @@ export function parseSorties(v: unknown): SortieEntry[] {
     if (!outcome) continue;
     out.push({
       mission: e.mission, outcome, hull: num(e.hull, 0, 1, 0), kills: num(e.kills, 0, 1, 0), kit: num(e.kit, 0, 1e6, 0),
-      level: Math.round(num(e.level, 0, CHALLENGE.max, 0)), at: num(e.at, 0, 1e15, 0),
+      level: Math.round(num(e.level, 0, CHALLENGE.max, 0)), score: Math.round(num(e.score, 0, 1000, 0)), at: num(e.at, 0, 1e15, 0),
     });
   }
   return out;

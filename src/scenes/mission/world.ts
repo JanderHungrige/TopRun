@@ -130,6 +130,8 @@ export class World {
   shake = 0;
   /** Tornado nuke climbing to its burst point, and the burst itself (doc 36); `t` counts up. */
   nuke: { x: number; y: number; t: number } | null = null;
+  /** Mission-score measurements (doc 39): gun rounds fired / hitting, raw damage taken, pickups dropped / taken. */
+  perf = { shots: 0, hits: 0, damage: 0, drops: 0, taken: 0 };
   blast: { x: number; y: number; t: number } | null = null;
   private ids = 0;
 
@@ -152,6 +154,11 @@ export class World {
 
   addShake(amount: number): void {
     this.shake = Math.min(14, this.shake + amount);
+  }
+
+  /** Something to shoot at is on screen: only then do fired rounds count against accuracy (doc 39). */
+  targetsInView(): boolean {
+    return !!this.boss?.active || this.enemies.some((e) => !e.dead && e.y > 0 && e.y < PF_H);
   }
 
   /** Enemies still in play (on screen or about to enter). */

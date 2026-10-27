@@ -10,6 +10,8 @@ export interface RatingStats {
   golds: number;
   silvers: number;
   bronzes: number;
+  /** Sum of the best mission scores (doc 39); 0 for posts that leave it out. */
+  score: number;
 }
 
 export const RATING = Object.freeze({
@@ -17,6 +19,7 @@ export const RATING = Object.freeze({
   medal: 250, maxMedals: 18,
   kill: 2, maxKills: 2000,
   gold: 150, silver: 80, bronze: 40, games: 10,
+  scorePer: 10, maxScore: 60000, // + best mission scores ÷ 10, both maps (doc 39)
 });
 
 const whole = (v: number, hi: number): number => (Number.isFinite(v) ? Math.min(hi, Math.max(0, Math.floor(v))) : 0);
@@ -32,17 +35,18 @@ export function clampStats(s: RatingStats): RatingStats {
     golds,
     silvers,
     bronzes: whole(s.bronzes, RATING.games - golds - silvers),
+    score: whole(s.score, RATING.maxScore),
   };
 }
 
 export function pilotRating(stats: RatingStats): number {
   const s = clampStats(stats);
   return s.stars * RATING.star + s.medals * RATING.medal + s.kills * RATING.kill
-    + s.golds * RATING.gold + s.silvers * RATING.silver + s.bronzes * RATING.bronze;
+    + s.golds * RATING.gold + s.silvers * RATING.silver + s.bronzes * RATING.bronze + Math.floor(s.score / RATING.scorePer);
 }
 
 export const maxRating = (): number =>
-  pilotRating({ stars: RATING.maxStars, medals: RATING.maxMedals, kills: RATING.maxKills, golds: RATING.games, silvers: 0, bronzes: 0 });
+  pilotRating({ stars: RATING.maxStars, medals: RATING.maxMedals, kills: RATING.maxKills, golds: RATING.games, silvers: 0, bronzes: 0, score: RATING.maxScore });
 
 export function rankFor(rating: number): RankId {
   let rank: RankId = 'ensign';

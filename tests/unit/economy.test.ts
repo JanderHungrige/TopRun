@@ -125,7 +125,8 @@ describe('Economy', () => {
       expect(computeStars(result({ hullRatio: 0.9, kills: 16 }))).toBe(3);
       const first = applyResult(defaultSave(), m1, result({ hullRatio: 0.9, kills: 16 }));
       const replay = applyResult(first.save, m1, result());
-      expect(replay.save.progress.m01).toEqual({ stars: 3 });
+      expect(replay.save.progress.m01).toMatchObject({ stars: 3 });
+      expect(replay.save.progress.m01?.score).toBeGreaterThan(0); // best mission score (doc 39)
     });
   });
 });

@@ -1,18 +1,12 @@
-import { THEATERS } from './theaters';
-import type { EnemyKind, MissionDef, Objective, TheaterId } from './types';
+import { buildCampaign, intercept, patrol, strike, type MissionSeed } from './mission-build';
+import { MISSIONS_2 } from './missions-2';
+import type { CampaignId, MissionDef, TheaterId } from './types';
 
-interface MissionSeed {
-  name: string;
-  objective: Objective;
-  pool: readonly EnemyKind[];
-  briefing: string;
-}
+// Map 1 (doc 03): missions m01–m30 in five theaters. Map 2 (m31–m60) lives in missions-2.ts (doc 35).
 
-const patrol: Objective = { type: 'patrol' };
-const intercept = (count: number): Objective => ({ type: 'intercept', count });
-const strike = (target: EnemyKind, count: number): Objective => ({ type: 'strike', target, count });
+type Map1Theater = 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan';
 
-const SEEDS: Readonly<Record<TheaterId, readonly MissionSeed[]>> = {
+const SEEDS: Readonly<Record<Map1Theater, readonly MissionSeed[]>> = {
   pacific: [
     { name: 'First Sortie', objective: patrol, pool: ['drone', 'fishbed'], briefing: 'Welcome to the squadron, rookie. Fly the training range and stay alive. Range control reports target drones that have turned hostile.' },
     { name: 'Bandits at Angels 12', objective: intercept(12), pool: ['fishbed', 'drone'], briefing: 'A flight of MiG-21s is probing the fleet air-defence zone. Splash at least 12 bandits.' },
@@ -55,49 +49,18 @@ const SEEDS: Readonly<Record<TheaterId, readonly MissionSeed[]>> = {
   ],
 };
 
-const round100 = (v: number): number => Math.round(v / 100) * 100;
+const ORDER: readonly Map1Theater[] = ['pacific', 'gulf', 'arctic', 'canyon', 'leviathan'];
 
-function nodePosition(theater: TheaterId, k: number): { x: number; y: number } {
-  const { route, index } = THEATERS[theater];
-  const f = k / 5;
-  const dx = route.x1 - route.x0;
-  const dy = route.y1 - route.y0;
-  const len = Math.hypot(dx, dy) || 1;
-  const wiggle = Math.sin(k * 1.9 + index * 1.3) * 22;
-  return {
-    x: Math.round(route.x0 + dx * f + (-dy / len) * wiggle),
-    y: Math.round(route.y0 + dy * f + (dx / len) * wiggle),
-  };
-}
+/** Map 1: m01–m30. */
+export const MISSIONS: readonly MissionDef[] = Object.freeze(buildCampaign({
+  campaign: 1, first: 1, seeds: ORDER.map((id): [TheaterId, readonly MissionSeed[]] => [id, SEEDS[id]]), length: (n, boss) => (boss ? 45 + n : 70 + Math.round((n - 1) * 2.1)),
+}));
 
-function buildMissions(): MissionDef[] {
-  const order: readonly TheaterId[] = ['pacific', 'gulf', 'arctic', 'canyon', 'leviathan'];
-  const list: MissionDef[] = [];
-  order.forEach((theater) => {
-    SEEDS[theater].forEach((seed, k) => {
-      const n = list.length + 1;
-      const isBoss = seed.objective.type === 'boss';
-      const baseReward = round100(1200 + (n - 1) * 380);
-      list.push({
-        id: `m${String(n).padStart(2, '0')}`,
-        number: n,
-        name: seed.name,
-        theater,
-        briefing: seed.briefing,
-        objective: seed.objective,
-        difficulty: n,
-        reward: isBoss ? round100(baseReward * 1.5) : baseReward,
-        length: isBoss ? 45 + n : 70 + Math.round((n - 1) * 2.1),
-        pool: Object.freeze([...seed.pool]),
-        map: nodePosition(theater, k),
-      });
-    });
-  });
-  return list;
-}
+/** Both maps, m01–m60. */
+export const ALL_MISSIONS: readonly MissionDef[] = Object.freeze([...MISSIONS, ...MISSIONS_2]);
 
-export const MISSIONS: readonly MissionDef[] = Object.freeze(buildMissions());
+export const campaignMissions = (c: CampaignId): readonly MissionDef[] => (c === 1 ? MISSIONS : MISSIONS_2);
 
 export function missionById(id: string): MissionDef | undefined {
-  return MISSIONS.find((m) => m.id === id);
+  return ALL_MISSIONS.find((m) => m.id === id);
 }

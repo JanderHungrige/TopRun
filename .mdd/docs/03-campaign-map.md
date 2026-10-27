@@ -50,6 +50,9 @@ sister_projects: []
 
 ## Purpose
 
+> **Map 2 (2026-10-27, doc 35):** missions 31–60 on a second map behind the globe in the top bar, opened by
+> clearing mission 30. Everything below describes map 1, which stays unchanged.
+
 The strategic layer: a stylised world map with **30 missions** in **5 theaters**. The player
 picks an unlocked mission, reads its briefing, visits the hangar or launches. After the mission
 the debrief shows results, stars and the payout, then returns to the map.

@@ -1,7 +1,7 @@
 import { TAU } from '../core/math';
-import { MISSIONS } from '../data/missions';
-import { THEATERS } from '../data/theaters';
-import { THEATER_IDS, type MissionDef, type TheaterId } from '../data/types';
+import { campaignMissions } from '../data/missions';
+import { campaignTheaters, THEATERS } from '../data/theaters';
+import type { CampaignId, MissionDef, TheaterId } from '../data/types';
 import { isCleared, isUnlocked } from '../game/progress';
 import type { SaveData } from '../game/save';
 import { makeBlob } from '../render/terrain-art';
@@ -16,9 +16,18 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   arctic: { x: 560, y: 104 },
   canyon: { x: 720, y: 478 },
   leviathan: { x: 690, y: 548 },
+  // Map 2 mirrors map 1 left-to-right (doc 35).
+  northsea: { x: 626, y: 686 },
+  himalaya: { x: 766, y: 300 },
+  jungle: { x: 326, y: 104 },
+  nightfall: { x: 166, y: 478 },
+  thunderhead: { x: 196, y: 548 },
 };
 
-let cached: HTMLCanvasElement | null = null;
+/** Map 2 is a darker, colder sea (doc 35). */
+const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'] };
+
+const cached = new Map<CampaignId, HTMLCanvasElement>();
 
 function blobPath(g: CanvasRenderingContext2D, x: number, y: number, r: number, seed: number): void {
   const blob = makeBlob(seed, 18, 0.45);
@@ -42,7 +51,7 @@ interface Land {
 
 function theaterLand(id: TheaterId): Land[] {
   const th = THEATERS[id];
-  return MISSIONS.filter((m) => m.theater === id).map((m, i) => ({
+  return campaignMissions(th.campaign).filter((m) => m.theater === id).map((m, i) => ({
     x: m.map.x + (th.base === 'land' ? 0 : ((i * 37) % 50) - 25),
     y: m.map.y + (th.base === 'land' ? 0 : 26),
     r: th.base === 'land' ? 70 : 36 + (i % 3) * 10,
@@ -67,11 +76,11 @@ function drawLandmass(g: CanvasRenderingContext2D, id: TheaterId): void {
   }
 }
 
-function drawStatic(g: CanvasRenderingContext2D): void {
+function drawStatic(g: CanvasRenderingContext2D, c: CampaignId): void {
   const { x, y, w, h } = MAP_RECT;
   const sea = g.createLinearGradient(0, y, 0, y + h);
-  sea.addColorStop(0, '#123653');
-  sea.addColorStop(1, '#0b2235');
+  sea.addColorStop(0, SEA[c][0]);
+  sea.addColorStop(1, SEA[c][1]);
   g.fillStyle = sea;
   g.fillRect(x, y, w, h);
   g.strokeStyle = 'rgba(120,180,220,0.08)';
@@ -92,28 +101,29 @@ function drawStatic(g: CanvasRenderingContext2D): void {
   g.beginPath();
   g.rect(x, y, w, h);
   g.clip();
-  for (const id of THEATER_IDS) drawLandmass(g, id);
+  for (const id of campaignTheaters(c)) drawLandmass(g, id);
   g.restore();
 }
 
-function staticLayer(): HTMLCanvasElement {
-  if (cached) return cached;
-  const c = document.createElement('canvas');
-  c.width = 1280;
-  c.height = 720;
-  const g = c.getContext('2d');
-  if (g) drawStatic(g);
-  cached = c;
-  return c;
+function staticLayer(c: CampaignId): HTMLCanvasElement {
+  const hit = cached.get(c);
+  if (hit) return hit;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1280;
+  canvas.height = 720;
+  const g = canvas.getContext('2d');
+  if (g) drawStatic(g, c);
+  cached.set(c, canvas);
+  return canvas;
 }
 
-export function drawMapBase(ctx: CanvasRenderingContext2D): void {
-  ctx.drawImage(staticLayer(), 0, 0);
+export function drawMapBase(ctx: CanvasRenderingContext2D, c: CampaignId): void {
+  ctx.drawImage(staticLayer(c), 0, 0);
   const { x, y, w, h } = MAP_RECT;
   ctx.strokeStyle = COLORS.panelEdge;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(x, y, w, h);
-  for (const id of THEATER_IDS) {
+  for (const id of campaignTheaters(c)) {
     const l = LABELS[id];
     text(ctx, theaterName(id).toUpperCase(), l.x, l.y, {
       size: 12, display: true, align: 'center', color: 'rgba(255,255,255,0.7)', letterSpacing: 2, stroke: 'rgba(0,0,0,0.45)', strokeWidth: 3,
@@ -121,11 +131,12 @@ export function drawMapBase(ctx: CanvasRenderingContext2D): void {
   }
 }
 
-export function drawRoute(ctx: CanvasRenderingContext2D, save: SaveData, t: number): void {
+export function drawRoute(ctx: CanvasRenderingContext2D, save: SaveData, t: number, c: CampaignId): void {
+  const list = campaignMissions(c);
   ctx.lineWidth = 2.5;
-  for (let i = 1; i < MISSIONS.length; i++) {
-    const a = MISSIONS[i - 1];
-    const b = MISSIONS[i];
+  for (let i = 1; i < list.length; i++) {
+    const a = list[i - 1];
+    const b = list[i];
     if (!a || !b) continue;
     const done = isCleared(save, a);
     ctx.strokeStyle = done ? 'rgba(255,200,61,0.75)' : 'rgba(200,220,240,0.22)';

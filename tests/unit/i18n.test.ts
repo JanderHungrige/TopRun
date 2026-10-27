@@ -7,7 +7,7 @@ import { LINES_DE } from '../../src/i18n/lines-de';
 import { MISSIONS_DE } from '../../src/i18n/missions-de';
 import { BOSSES_DE, ENEMIES_DE, ENEMIES_EN_PLURAL, EQUIPMENT_DE, PLANES_DE, SECONDARIES_DE, THEATERS_DE } from '../../src/i18n/content-de';
 import { enemyName, missionBriefing, missionName, objectiveText } from '../../src/i18n/content';
-import { MISSIONS } from '../../src/data/missions';
+import { ALL_MISSIONS, MISSIONS } from '../../src/data/missions';
 import { ENEMIES } from '../../src/data/enemies';
 import { BOSSES } from '../../src/data/bosses';
 import { EQUIPMENT } from '../../src/data/equipment';
@@ -66,12 +66,12 @@ describe('Languages', () => {
   });
 
   describe('content', () => {
-    it('covers all 30 missions, theaters, planes, weapons, equipment, enemies and bosses in German', () => {
-      for (const m of MISSIONS) {
+    it('covers all 60 missions (both maps), theaters, planes, weapons, equipment, enemies and bosses in German', () => {
+      for (const m of ALL_MISSIONS) {
         expect(MISSIONS_DE[m.id]?.name, m.id).toBeTruthy();
         expect(MISSIONS_DE[m.id]?.briefing, m.id).toBeTruthy();
       }
-      expect(Object.keys(MISSIONS_DE)).toHaveLength(30);
+      expect(Object.keys(MISSIONS_DE)).toHaveLength(60);
       THEATER_IDS.forEach((id) => expect(THEATERS_DE[id].name).toBeTruthy());
       PLANE_IDS.forEach((id) => expect(PLANES_DE[id].description).toBeTruthy());
       SECONDARY_IDS.forEach((id) => expect(SECONDARIES_DE[id].description).toBeTruthy());

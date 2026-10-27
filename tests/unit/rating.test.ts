@@ -13,10 +13,11 @@ describe('Pilot rating', () => {
     expect(pilotRating({ ...zero, golds: 1, silvers: 1, bronzes: 1 })).toBe(150 + 80 + 40);
   });
 
-  it('caps every ingredient so grinding cannot dominate, max 19 000', () => {
+  it('caps every ingredient so grinding cannot dominate, max 28 000 with both maps (doc 35)', () => {
     expect(pilotRating({ ...zero, kills: 99999 })).toBe(4000);
     expect(pilotRating({ stars: 999, medals: 99, kills: 99999, golds: 99, silvers: 0, bronzes: 0 })).toBe(maxRating());
-    expect(maxRating()).toBe(19000);
+    expect(maxRating()).toBe(28000);
+    expect(pilotRating({ ...zero, stars: 180 })).toBe(18000);
   });
 
   it('clamps nonsense: negatives, fractions, NaN, more medals than games', () => {
@@ -25,12 +26,15 @@ describe('Pilot rating', () => {
   });
 
   it('maps ratings to naval ranks', () => {
-    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm']);
+    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend']);
     expect(rankFor(0)).toBe('ensign');
     expect(rankFor(799)).toBe('ensign');
     expect(rankFor(800)).toBe('ltjg');
     expect(rankFor(6500)).toBe('cdr');
     expect(rankFor(16500)).toBe('adm');
-    expect(rankFor(19000)).toBe('adm');
+    expect(rankFor(19999)).toBe('adm');
+    expect(rankFor(20000)).toBe('fadm');
+    expect(rankFor(25000)).toBe('legend');
+    expect(rankFor(28000)).toBe('legend');
   });
 });

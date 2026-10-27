@@ -15,9 +15,15 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
 
 export type SpecialId = 'roll' | 'wingman' | 'dash';
 
-export type TheaterId = 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan';
+/** Map 1 (m01–m30) or map 2 (m31–m60, doc 35). */
+export type CampaignId = 1 | 2;
+
+export type TheaterId =
+  | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
+  | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
+  'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
 ] as const);
 
 export type EnemyKind =
@@ -31,7 +37,9 @@ export type Behavior =
 
 export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak';
 
-export type BossId = 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan';
+export type BossId =
+  | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
+  | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 
@@ -44,6 +52,7 @@ export type Objective =
 export interface MissionDef {
   id: string;
   number: number;
+  campaign: CampaignId;
   name: string;
   theater: TheaterId;
   briefing: string;

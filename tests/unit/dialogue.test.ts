@@ -5,7 +5,7 @@ import {
 } from '../../src/game/dialogue-scripts';
 import { LINES_EN } from '../../src/i18n/lines-en';
 import { setLang } from '../../src/i18n/i18n';
-import { MISSIONS } from '../../src/data/missions';
+import { missionById, MISSIONS } from '../../src/data/missions';
 import type { MissionResult } from '../../src/data/types';
 
 afterEach(() => setLang('en'));
@@ -114,10 +114,20 @@ describe('Dialogue', () => {
       expect(debriefScript(input({ mission: m6, result: result({ bossKilled: true }) }))[3]?.params).toEqual({ theater: 'Persischer Golf' });
     });
 
-    it('ends the campaign with the finale after mission 30', () => {
+    it('ends the campaign with the finale after mission 30 and points to the globe (doc 35)', () => {
       const lines = debriefScript(input({ mission: m30, result: result({ bossKilled: true }), stars: 3, campaignDone: true }));
-      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale']);
+      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale', 'adm.globe']);
       expect(lines[3]?.gesture).toBe('salute');
+    });
+
+    it('sends map-2 bosses on within map 2 and ends map 2 with its own finale (doc 35)', () => {
+      const m36 = missionById('m36');
+      const m60 = missionById('m60');
+      if (!m36 || !m60) throw new Error('missing');
+      setLang('en');
+      expect(debriefScript(input({ mission: m36, result: result({ bossKilled: true }) }))[3]?.params).toEqual({ theater: 'Roof of the World' });
+      const lines = debriefScript(input({ mission: m60, result: result({ bossKilled: true }), stars: 3, campaignDone: true }));
+      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale2']);
     });
   });
 

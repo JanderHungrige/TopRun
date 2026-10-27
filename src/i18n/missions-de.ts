@@ -1,5 +1,7 @@
-// German mission names and briefings, keyed by mission id (m01 … m30).
-export const MISSIONS_DE: Readonly<Record<string, { name: string; briefing: string }>> = {
+import { MISSIONS_2_DE } from './missions-2-de';
+
+// German mission names and briefings, keyed by mission id (m01 … m30; map 2's m31 … m60 in missions-2-de.ts).
+const MISSIONS_1_DE: Readonly<Record<string, { name: string; briefing: string }>> = {
   m01: { name: 'Erster Einsatz', briefing: 'Willkommen in der Staffel, Frischling. Flieg das Übungsgebiet ab und bleib am Leben. Die Flugleitung meldet Zieldrohnen, die feindlich geworden sind.' },
   m02: { name: 'Banditen auf Angels 12', briefing: 'Ein Schwarm MiG-21 testet die Luftverteidigung der Flotte. Hol mindestens 12 Banditen vom Himmel.' },
   m03: { name: 'Inselradar', briefing: 'Ein feindlicher Horchposten auf der Atollkette verfolgt unseren Träger. Schalte 3 Radarstationen aus.' },
@@ -31,3 +33,5 @@ export const MISSIONS_DE: Readonly<Record<string, { name: string; briefing: stri
   m29: { name: 'Auge des Sturms', briefing: 'Die letzte Luftschlacht. 40 Abschüsse, und der Himmel gehört uns.' },
   m30: { name: 'Leviathan', briefing: 'LEVIATHAN, der feindliche Superträger. Beende diesen Krieg. Gute Jagd, Pilot.' },
 };
+
+export const MISSIONS_DE: Readonly<Record<string, { name: string; briefing: string }>> = { ...MISSIONS_1_DE, ...MISSIONS_2_DE };

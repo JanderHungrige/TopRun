@@ -37,12 +37,13 @@ service compute the same value.
 
 | Ingredient | Points | Cap |
 |------------|--------|-----|
-| campaign star | 100 | 90 stars → 9 000 |
+| campaign star | 100 | 180 stars (both maps, doc 35; was 90) → 18 000 |
 | medal (doc 24) | 250 | 18 medals → 4 500 |
 | kill | 2 | 2 000 kills → 4 000 (grinding replays can't dominate) |
 | minigame gold / silver / bronze (best per game) | 150 / 80 / 40 | 10 games → 1 500 |
 
-`rating = 100·stars + 250·medals + 2·min(kills, 2000) + Σ minigame medal points` — max **19 000**.
+`rating = 100·stars + 250·medals + 2·min(kills, 2000) + Σ minigame medal points` — max **28 000** (19 000 before
+map 2, doc 35).
 Inputs are clamped to their caps and to non-negative integers.
 
 ## Naval ranks (owner choice)
@@ -57,6 +58,8 @@ Inputs are clamped to their caps and to non-negative integers.
 | Captain | 9 500 |
 | Rear Admiral | 13 000 |
 | Admiral | 16 500 |
+| Fleet Admiral (doc 35) | 20 000 |
+| Top Gun Legend (doc 35) | 25 000 |
 
 Names are generic naval ranks (EN/DE in the UI tables); shown on the ladder, the pilot list and
 later the locker uniform's shoulder boards (doc 29+).

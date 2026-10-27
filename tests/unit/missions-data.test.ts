@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { MISSIONS } from '../../src/data/missions';
-import { THEATERS } from '../../src/data/theaters';
+import { campaignTheaters, THEATERS } from '../../src/data/theaters';
 import { SEA_KINDS } from '../../src/data/enemies';
-import { THEATER_IDS } from '../../src/data/types';
 import { isUnlocked, nextMission } from '../../src/game/progress';
 import { defaultSave } from '../../src/game/save';
 
@@ -16,7 +15,7 @@ describe('Campaign data', () => {
     });
 
     it('has 5 theaters with 6 missions each and a boss as every 6th mission', () => {
-      for (const t of THEATER_IDS) expect(MISSIONS.filter((m) => m.theater === t)).toHaveLength(6);
+      for (const t of campaignTheaters(1)) expect(MISSIONS.filter((m) => m.theater === t)).toHaveLength(6);
       MISSIONS.forEach((m) => expect(m.objective.type === 'boss').toBe(m.number % 6 === 0));
       expect(new Set(MISSIONS.filter((m) => m.objective.type === 'boss').map((m) => m.theater)).size).toBe(5);
     });

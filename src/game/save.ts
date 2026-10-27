@@ -1,6 +1,6 @@
 import { maxEquipmentLevel } from '../data/equipment';
 import { LIVERY_IDS, type LiveryId } from '../data/liveries';
-import { MISSIONS } from '../data/missions';
+import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import {
   EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
@@ -111,7 +111,7 @@ function parseEntry(e: Record<string, unknown>): ProgressEntry {
 function parseProgress(v: unknown): Record<string, ProgressEntry> {
   const out: Record<string, ProgressEntry> = {};
   if (!isRecord(v)) return out;
-  for (const m of MISSIONS) {
+  for (const m of ALL_MISSIONS) {
     const entry = v[m.id];
     if (isRecord(entry)) out[m.id] = parseEntry(entry);
   }

@@ -27,4 +27,6 @@ export const UI_EN_LADDER = {
   'rank.capt': 'Captain',
   'rank.radm': 'Rear Admiral',
   'rank.adm': 'Admiral',
+  'rank.fadm': 'Fleet Admiral',
+  'rank.legend': 'Top Gun Legend',
 } as const;

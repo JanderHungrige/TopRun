@@ -1,9 +1,9 @@
 ---
 id: fair-challenge
 title: Fair Challenge
-status: planned
+status: in_progress
 version: 1
-hash: c8f7c908
+hash: 5933b394
 created: 2026-10-27
 ---
 
@@ -48,20 +48,21 @@ Three changes from playing the live game:
 - Tuned with the bot playtests (doc 35 method) per level, before it ships.
 
 ## Open Product Questions
-- [ ] Show the challenge level to the pilot (e.g. a small "+3" next to the threat on the briefing) or keep it hidden?
-- [ ] Mission score: replace the three star rules with score thresholds, or keep stars and add the score beside them?
-      Should the pilot rating (doc 26) use the score? (Existing ratings must not drop.)
-- [ ] With "no bonus for a higher level", a strong pilot at level 5 finds three stars harder than a beginner at
-      level 0 — accept, or measure stars relative to the level flown?
-- [ ] The son: today's game stays the floor, so mission 1 does not get easier for him. A separate "Rookie" option
-      chosen per pilot (slower bullets, more hull) outside the adaptive rules?
-- [ ] Paint jobs: Pacific's region camo (Seventies Navy) — available from the start, or after the first mission?
-- [ ] Side views: which reference proportions (public three-view dimensions only, no traced artwork)?
+- [x] Show the challenge level → yes, small: "+3" next to the threat on the briefing, and the admiral says when it
+      goes up (owner, 2026-10-27).
+- [x] Stars at a higher level → same rules as today: no bonus, no relief — three stars simply get harder (owner).
+- [x] The son → yes, a **Rookie** option per pilot (slower enemy bullets, more hull), outside the adaptive rules,
+      clearly labelled (owner).
+- [x] Mission score → **counts into the pilot rating**, "to make it more distinct. Most players just started, so just
+      roll it out to all. For current players it starts now" (owner): no protection for today's ratings; missions flown
+      before the release simply have no score until they are flown again.
+- [x] Pacific's region camo (Seventies Navy) → available from the start: the Pacific is open from mission 1.
+- [x] Side views → real proportions from public three-view dimensions only, no traced artwork.
 
 ## Waves
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
-| Wave 1 | waves/fair-challenge-wave-1.md | A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions ahead; each region's camo is ready when the region opens. | planned |
+| Wave 1 | waves/fair-challenge-wave-1.md | A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions ahead; each region's camo is ready when the region opens. | complete |
 | Wave 2 | waves/fair-challenge-wave-2.md | A pilot who wins three missions in a row with most of the hull left flies the next one at challenge level 1; seven deaths in a row after an upgrade bring it back down; level 0 is today's game. | planned |
 | Wave 3 | waves/fair-challenge-wave-3.md | The debrief shows a mission score built from kill share, damage avoided, accuracy and power-ups, with no bonus for the challenge level. | planned |
 | Wave 4 | waves/fair-challenge-wave-4.md | All six jets look like the real aircraft from the side on the carrier, in the hangar and in the minigames. | planned |

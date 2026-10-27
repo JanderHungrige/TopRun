@@ -28,17 +28,18 @@ const def = (id: LiveryId, name: string, unlock: LiveryUnlock): LiveryDef => ({ 
 
 export const LIVERIES: Readonly<Record<LiveryId, LiveryDef>> = Object.freeze({
   standard: def('standard', 'Factory Standard', null),
-  gullgray: def('gullgray', 'Seventies Navy', { theater: 'pacific', kind: 'boss' }),
+  gullgray: def('gullgray', 'Seventies Navy', { theater: 'pacific', kind: 'region' }),
   blackflag: def('blackflag', 'Black Flag', { theater: 'pacific', kind: 'stars' }),
-  desert: def('desert', 'Desert Camo', { theater: 'gulf', kind: 'boss' }),
+  desert: def('desert', 'Desert Camo', { theater: 'gulf', kind: 'region' }),
   sunburst: def('sunburst', 'Sunburst', { theater: 'gulf', kind: 'stars' }),
-  arctic: def('arctic', 'Arctic Splinter', { theater: 'arctic', kind: 'boss' }),
+  arctic: def('arctic', 'Arctic Splinter', { theater: 'arctic', kind: 'region' }),
   aggressor: def('aggressor', 'Aggressor Blue', { theater: 'arctic', kind: 'stars' }),
-  woodland: def('woodland', 'European Woodland', { theater: 'canyon', kind: 'boss' }),
+  woodland: def('woodland', 'European Woodland', { theater: 'canyon', kind: 'region' }),
   tiger: def('tiger', 'Tiger Stripes', { theater: 'canyon', kind: 'stars' }),
-  airshow: def('airshow', 'Air Show', { theater: 'leviathan', kind: 'boss' }),
+  airshow: def('airshow', 'Air Show', { theater: 'leviathan', kind: 'region' }),
   blackgold: def('blackgold', 'Black & Gold', { theater: 'leviathan', kind: 'stars' }),
-  // Map 2 (Second Front wave 4): a region camo ready when the region opens, and the 3★ reward.
+  // Map 2 (Second Front wave 4): a region camo ready when the region opens, and the 3★ reward. Map 1's region camos
+  // moved from the boss to the region's opening in Fair Challenge wave 1 (doc 09).
   seagrey: def('seagrey', 'North Sea Grey', { theater: 'northsea', kind: 'region' }),
   deepblue: def('deepblue', 'Deep Blue', { theater: 'northsea', kind: 'stars' }),
   snowrock: def('snowrock', 'Mountain Snow', { theater: 'himalaya', kind: 'region' }),

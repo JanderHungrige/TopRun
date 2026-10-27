@@ -28,20 +28,28 @@ const withProgress = (progress: Progress): SaveData => ({ ...defaultSave(), prog
 
 describe('Paint jobs', () => {
   describe('unlocks', () => {
-    it('has only the factory standard on a fresh save', () => {
-      expect(unlockedLiveries({})).toEqual(['standard']);
+    it('starts with the factory standard and the Pacific camo (the Pacific is open from mission 1)', () => {
+      expect(unlockedLiveries({})).toEqual(['standard', 'gullgray']);
       expect(isLiveryUnlocked({}, 'standard')).toBe(true);
-      expect(isLiveryUnlocked({}, 'gullgray')).toBe(false);
+      expect(isLiveryUnlocked({}, 'desert')).toBe(false);
     });
 
-    it('unlocks a theater scheme when its boss mission is cleared', () => {
-      expect(unlockedLiveries(cleared('pacific', 1, true))).toEqual(['standard']);
-      expect(unlockedLiveries(cleared('pacific', 1))).toEqual(['standard', 'gullgray']);
-      expect(unlockedLiveries({ ...cleared('pacific', 2), ...cleared('gulf', 1) })).toEqual(['standard', 'gullgray', 'desert']);
+    it('readies a region camo when its region opens, i.e. with the previous boss (Fair Challenge wave 1)', () => {
+      expect(unlockedLiveries(cleared('pacific', 1, true))).toEqual(['standard', 'gullgray']);
+      expect(unlockedLiveries(cleared('pacific', 1))).toEqual(['standard', 'gullgray', 'desert']);
+      expect(unlockedLiveries({ ...cleared('pacific', 2), ...cleared('gulf', 1) })).toEqual(['standard', 'gullgray', 'desert', 'arctic']);
+    });
+
+    it('never takes a camo away: a beaten boss means its region was open', () => {
+      for (const th of ['pacific', 'gulf', 'arctic', 'canyon', 'leviathan'] as const) {
+        const camo = LIVERY_IDS.find((id) => LIVERIES[id].unlock?.theater === th && LIVERIES[id].unlock?.kind === 'region');
+        const upTo = MISSIONS.slice(0, MISSIONS.findIndex((m) => m.theater === th && m.objective.type === 'boss') + 1);
+        expect(camo && isLiveryUnlocked(Object.fromEntries(upTo.map((m) => [m.id, { stars: 1 }])), camo), th).toBe(true);
+      }
     });
 
     it('unlocks the rare scheme only with 3 stars on every mission of the theater', () => {
-      expect(unlockedLiveries(cleared('pacific', 3))).toEqual(['standard', 'gullgray', 'blackflag']);
+      expect(unlockedLiveries(cleared('pacific', 3))).toEqual(['standard', 'gullgray', 'blackflag', 'desert']);
       const oneShort = cleared('pacific', 3);
       const first = theater('pacific')[0]!;
       oneShort[first.id] = { stars: 2 };
@@ -49,25 +57,25 @@ describe('Paint jobs', () => {
       expect(isLiveryUnlocked(cleared('pacific', 3, true), 'blackflag')).toBe(false);
     });
 
-    it('every theater has exactly one boss and one stars scheme', () => {
+    it('every theater has exactly one region camo and one stars scheme', () => {
       const theaters = new Set(MISSIONS.map((m) => m.theater));
       for (const th of theaters) {
         const kinds = LIVERY_IDS.map((id) => LIVERIES[id].unlock).filter((u) => u?.theater === th).map((u) => u?.kind).sort();
-        expect(kinds).toEqual(['boss', 'stars']);
+        expect(kinds).toEqual(['region', 'stars']);
       }
     });
 
     it('lists what a mission newly unlocked, in data order', () => {
       const before = cleared('pacific', 3, true);
       const after = cleared('pacific', 3);
-      expect(newlyUnlocked(before, after)).toEqual(['gullgray', 'blackflag']);
+      expect(newlyUnlocked(before, after)).toEqual(['blackflag', 'desert']);
       expect(newlyUnlocked(after, after)).toEqual([]);
     });
   });
 
   describe('applying', () => {
     it('applies an unlocked livery to one jet only and refuses a locked one', () => {
-      const save = withProgress(cleared('gulf', 1));
+      const save = withProgress(cleared('pacific', 1));
       expect(canApplyLivery(save, 'desert')).toEqual({ ok: true });
       const next = applyLivery(save, 'f14', 'desert');
       expect(liveryOf(next, 'f14')).toBe('desert');
@@ -77,7 +85,7 @@ describe('Paint jobs', () => {
     });
 
     it('hands the selected jet livery to the mission stats', () => {
-      const save = { ...applyLivery(withProgress(cleared('pacific', 1)), 'f16', 'gullgray'), selectedPlane: 'f16' as const };
+      const save = { ...applyLivery(withProgress({}), 'f16', 'gullgray'), selectedPlane: 'f16' as const };
       expect(derivePlayerStats(save).livery).toBe('gullgray');
       expect(derivePlayerStats(defaultSave()).livery).toBe('standard');
     });
@@ -93,7 +101,7 @@ describe('Paint jobs', () => {
     });
 
     it('keeps unlocked liveries and drops ones the progress has not earned', () => {
-      const parsed = parseSave(raw({ f16: 'desert', f14: 'tiger', sr71: 'standard' }, cleared('gulf', 1)));
+      const parsed = parseSave(raw({ f16: 'desert', f14: 'tiger', sr71: 'standard' }, cleared('pacific', 1)));
       expect(parsed?.livery).toEqual({ f16: 'desert', f14: 'standard', sr71: 'standard', a10: 'standard', f35: 'standard', tornado: 'standard' });
     });
   });

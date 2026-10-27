@@ -1,7 +1,9 @@
 import { RANK_IDS, type RankId } from '../data/ranks';
+import { lookFromKey, lookKey, PRESET_LOOKS, type AvatarLook } from './avatar-look';
 import { validateCallsign } from './callsign';
-import { PUBLIC_TOP, type PublicPilot } from './ladder';
+import { parseAvatar, PUBLIC_TOP, type PublicPilot } from './ladder';
 import type { Medal } from './minigames/core';
+import type { AvatarId } from './profiles';
 import type { RatingStats } from './rating';
 import type { SaveData } from './save';
 
@@ -19,6 +21,17 @@ export function ladderStats(save: SaveData, tiers: readonly (Medal | null)[], me
   const count = (m: Medal): number => tiers.filter((t) => t === m).length;
   const stars = Object.values(save.progress).reduce((sum, p) => sum + p.stars, 0);
   return { stars, medals, kills, golds: count('gold'), silvers: count('silver'), bronzes: count('bronze') };
+}
+
+/** The avatar a pilot shows on the ladder: the built look's key, else the preset id. */
+export const ladderAvatar = (avatar: AvatarId, look: AvatarLook | null): string => (look ? lookKey(look) : avatar);
+
+const isPreset = (key: string): key is AvatarId => Object.hasOwn(PRESET_LOOKS, key);
+
+/** A ladder avatar back to a portrait (a preset or a builder look); null for none or an unknown key. */
+export function ladderFace(avatar: string | null): AvatarId | AvatarLook | null {
+  if (avatar === null) return null;
+  return isPreset(avatar) ? avatar : lookFromKey(avatar);
 }
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -76,7 +89,7 @@ function parsePilot(v: unknown): PublicPilot | null {
   const { callsign, rating, rank, updatedAt } = v;
   if (typeof callsign !== 'string' || validateCallsign(callsign, []) !== 'ok') return null;
   if (!isCount(rating) || !isRank(rank) || !isCount(updatedAt)) return null;
-  return { callsign, rating, rank, updatedAt };
+  return { callsign, avatar: parseAvatar(v.avatar), rating, rank, updatedAt };
 }
 
 /** The service's GET answer (untrusted network JSON) → view; bad rows are dropped, a bad answer is null. */

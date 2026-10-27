@@ -1,7 +1,10 @@
 import { formatPoints } from '../core/math';
 import type { PublicPilot } from '../game/ladder';
+import { ladderFace } from '../game/ladder-stats';
 import { t } from '../i18n/i18n';
 import { drawPanel, type Rect } from '../ui/widgets';
+import { drawPilotAvatar, pilotAccent } from './avatars';
+import { drawPlaceholder } from './portraits/image';
 import { drawRankBoard, RANK_KEY } from './ranks';
 import { COLORS, text } from './text';
 
@@ -19,6 +22,25 @@ const ROW_H = 36;
 const HEAD_Y = TABLE.y + 30;
 const FIRST_Y = TABLE.y + 54;
 const COL = { place: TABLE.x + 70, board: TABLE.x + 100, rank: TABLE.x + 136, pilot: TABLE.x + 420, rating: TABLE.x + TABLE.w - 30 };
+/** The avatar thumbnail left of the callsign: a face crop of the 240 × 288 portrait drawn at a fifth. */
+const THUMB_W = 28;
+const NAME_X = COL.pilot + THUMB_W + 12;
+
+/** The pilot's face in a row's thumbnail, or a dark silhouette for an entry without an avatar. */
+function drawThumb(ctx: CanvasRenderingContext2D, avatar: string | null, y: number): void {
+  const box: Rect = { x: COL.pilot, y, w: THUMB_W, h: ROW_H - 4 };
+  const face = ladderFace(avatar);
+  if (!face) return drawPlaceholder(ctx, box, { t: 0 }, true);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(box.x, box.y, box.w, box.h);
+  ctx.clip();
+  drawPilotAvatar(ctx, face, { x: box.x - 10, y: box.y - 6, w: 48, h: 57.6 }, { t: 0 }); // head ≈ x 50–190, y 30–190
+  ctx.restore();
+  ctx.strokeStyle = pilotAccent(face);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(box.x, box.y, box.w, box.h);
+}
 
 /** One ladder row with its top edge at `y`; the player's own row is highlighted. */
 export function drawLadderRow(ctx: CanvasRenderingContext2D, row: LadderRow, y: number): void {
@@ -36,7 +58,8 @@ export function drawLadderRow(ctx: CanvasRenderingContext2D, row: LadderRow, y: 
   text(ctx, `#${row.place}`, COL.place, mid, { size: podium ? 20 : 17, display: podium, align: 'right', baseline: 'middle', color: podium ? COLORS.gold : COLORS.dim });
   drawRankBoard(ctx, p.rank, COL.board, y + 2, 1.15);
   text(ctx, t(RANK_KEY[p.rank]), COL.rank, mid, { size: 15, baseline: 'middle', color: COLORS.dim, maxWidth: COL.pilot - COL.rank - 40 });
-  text(ctx, p.callsign, COL.pilot, mid, { size: 20, display: true, italic: true, baseline: 'middle', color: ink, maxWidth: 300 });
+  drawThumb(ctx, p.avatar, y);
+  text(ctx, p.callsign, NAME_X, mid, { size: 20, display: true, italic: true, baseline: 'middle', color: ink, maxWidth: 300 });
   text(ctx, formatPoints(p.rating), COL.rating, mid, { size: 20, display: true, align: 'right', baseline: 'middle', color: row.you ? COLORS.gold : COLORS.green });
 }
 

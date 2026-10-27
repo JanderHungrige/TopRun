@@ -78,11 +78,11 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
 
 ## API
 
-- `GET /api/ladder` → `{ pilots: [{ callsign, rating, rank, updatedAt }], updatedAt }` — every
+- `GET /api/ladder` → `{ pilots: [{ callsign, avatar, rating, rank, updatedAt }], updatedAt }` — every
   entry (≤ 1 000) by rating (ties: whoever reached that rating first, `ratedAt`). Never contains ids or
   secrets. `Cache-Control: no-store`.
-- `POST /api/ladder` body `{ id, secret, callsign, stats }` (JSON, ≤ 2 KB; unknown fields such as an
-  old `avatar` are ignored):
+- `POST /api/ladder` body `{ id, secret, callsign, avatar, stats }` (JSON, ≤ 2 KB; unknown fields are
+  ignored):
   - `id`: random pilot id (22–40 chars `[A-Za-z0-9_-]`), `secret`: random 32–64 chars, both created
     in the browser and kept in the pilot's profile (doc 28).
   - `stats` = `RatingStats` (doc 26); the service **computes the rating itself** from the stats
@@ -90,7 +90,12 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
   - New id → entry created (max 1 000 entries; above that the lowest-rated, then stalest entries
     are pruned — never the one just posted).
     Known id → updated only if `secret` matches (constant-time compare); else 403.
-  - Callsign validated with the game's callsign rules. No avatars (owner, 2026-10-25: names only).
+  - Callsign validated with the game's callsign rules.
+  - `avatar` (owner, 2026-10-27: "add the avatars back to the ladder"): the pilot's portrait as a short
+    key — a preset id `pilot1`…`pilot18` or a builder look `<age>-<gender>-<skin>-<hair>-<length>-<face>`
+    (doc 29). Checked against those two fixed patterns (`parseAvatar`); anything else, or a missing
+    field (older clients, entries stored before), becomes `null` and the row shows a silhouette. It is
+    only ever mapped to a bundled portrait, never used as a URL or path.
   - 200 → `{ place, rating, rank }`; 400 malformed; 403 wrong secret; 413 too large;
     415 not JSON; 429 rate.
 - `DELETE /api/ladder` body `{ id, secret }` → `{ removed }` (opt-out, doc 28).
@@ -98,7 +103,7 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
 
 ## Business Rules
 
-- The store keeps `{ id, secretHash (sha-256), callsign, stats, rating, ratedAt, updatedAt }`;
+- The store keeps `{ id, secretHash (sha-256), callsign, avatar, stats, rating, ratedAt, updatedAt }`;
   `ladder.json` is written atomically (temp file + rename) at most once per second (debounced),
   and flushed on SIGTERM. An unreadable file is moved aside (`ladder.json.corrupt-<ms>`) and the
   service starts empty instead of crash-looping.

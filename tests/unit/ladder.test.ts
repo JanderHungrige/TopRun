@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applySubmission, emptyTable, MAX_ENTRIES, parseSubmission, parseTable, PUBLIC_TOP, publicLadder, removeEntry,
+  applySubmission, emptyTable, MAX_ENTRIES, parseAvatar, parseSubmission, parseTable, PUBLIC_TOP, publicLadder, removeEntry,
   type LadderTable, type Submission,
 } from '../../src/game/ladder';
+import { AVATAR_IDS } from '../../src/game/profiles';
+import { AGES, FACES, GENDERS, HAIRS, LENGTHS, lookKey, SKINS } from '../../src/game/avatar-look';
 
 const ID = 'p_0123456789abcdefghijkl';
 const SECRET = 's'.repeat(40);
 const hash = (s: string): string => `h:${s}`;
 const sub = (over: Partial<Submission> = {}): Submission => ({
-  id: ID, secret: SECRET, callsign: 'MAVERICK',
+  id: ID, secret: SECRET, callsign: 'MAVERICK', avatar: 'pilot7',
   stats: { stars: 10, medals: 2, kills: 100, golds: 1, silvers: 0, bronzes: 0 }, ...over,
 });
 const post = (t: LadderTable, s: Submission, now = 1000) => applySubmission(t, s, hash(s.secret), now);
@@ -19,7 +21,10 @@ describe('Online ladder rules', () => {
     expect(parseSubmission({ ...sub(), id: 'x' })).toBeNull();
     expect(parseSubmission({ ...sub(), secret: 'short' })).toBeNull();
     expect(parseSubmission({ ...sub(), callsign: '<script>' })).toBeNull();
-    expect(parseSubmission({ ...sub(), avatar: 'pilot1' })).toEqual(sub());
+    expect(parseSubmission({ ...sub(), avatar: 'pilot12' })).toEqual(sub({ avatar: 'pilot12' }));
+    expect(parseSubmission({ ...sub(), avatar: '../../etc/passwd' })).toEqual(sub({ avatar: null }));
+    const { avatar: _old, ...noAvatar } = sub();
+    expect(parseSubmission(noAvatar)).toEqual(sub({ avatar: null }));
     expect(parseSubmission({ ...sub(), stats: { stars: 'many' } })).toBeNull();
     expect(parseSubmission(null)).toBeNull();
     expect(parseSubmission({ ...sub(), callsign: '  maverick ' })?.callsign).toBe('MAVERICK');
@@ -53,8 +58,8 @@ describe('Online ladder rules', () => {
     add('p_cccccccccccccccccccccc', 'VIPER', 30, 4);
     const pub = publicLadder(t);
     expect(pub.map((p) => p.callsign)).toEqual(['GOOSE', 'VIPER', 'ICE']);
-    expect(pub[0]).toEqual({ callsign: 'GOOSE', rating: 5000, rank: 'lcdr', updatedAt: 6 });
-    expect(JSON.stringify(pub)).not.toMatch(/secret|p_aaaa|h:|avatar/);
+    expect(pub[0]).toEqual({ callsign: 'GOOSE', avatar: 'pilot7', rating: 5000, rank: 'lcdr', updatedAt: 6 });
+    expect(JSON.stringify(pub)).not.toMatch(/secret|p_aaaa|h:/);
   });
 
   it('keeps at most MAX_ENTRIES, dropping the lowest-rated', () => {
@@ -78,7 +83,20 @@ describe('Online ladder rules', () => {
     expect(parseTable(JSON.parse(JSON.stringify(r.table)))).toEqual(r.table);
     expect(parseTable({ version: 1, pilots: [{ id: 'bad' }, r.table.pilots[0]] }).pilots).toHaveLength(1);
     expect(parseTable('garbage')).toEqual(emptyTable());
-    const old = { ...r.table.pilots[0], avatar: 'pilot2' };
-    expect(parseTable({ version: 1, pilots: [old] }).pilots[0]).not.toHaveProperty('avatar');
+    const { avatar: _gone, ...old } = r.table.pilots[0] ?? {};
+    expect(parseTable({ version: 1, pilots: [old] }).pilots[0]?.avatar).toBeNull();
+  });
+
+  it('takes as avatar only a preset id or a builder look key (doc 27)', () => {
+    for (const id of AVATAR_IDS) expect(parseAvatar(id)).toBe(id);
+    let looks = 0;
+    for (const age of AGES) for (const gender of GENDERS) for (const skin of SKINS) for (const hair of HAIRS)
+      for (const length of LENGTHS) for (const face of FACES) {
+        expect(parseAvatar(lookKey({ age, gender, skin, hair, length, face }))).not.toBeNull();
+        looks++;
+      }
+    expect(looks).toBe(256);
+    for (const bad of ['pilot0', 'pilot19', 'pilot01', 'PILOT1', 'kid-male-fair-blond-short', 'kid-male-fair-blond-short-f3',
+      'adult-male-green-blond-short-f1', 'https://x.y/a.png', '', 7, null, {}]) expect(parseAvatar(bad)).toBeNull();
   });
 });

@@ -109,6 +109,9 @@ export const PLAYER_LOOKS: Readonly<Record<AvatarId, PersonLook>> = Object.freez
     tone('#2c3d68', '#43588f', '#1f2b4c')),
   pilot18: sporty({ style: 'long', base: '#8a7660', light: '#ad9a82', shadow: '#62523e', brow: '#5e4c3a' }, '#5f7f98',
     tone('#647044', '#7d8a56', '#4a5330')),
+  /** The curly-haired blond boy with the gap-toothed grin (2026-10-27). */
+  pilot19: sporty({ style: 'messy', base: '#dcbf7e', light: '#f2dcaa', shadow: '#ad9152', brow: '#b0925a' }, '#4a3020',
+    tone('#e8c33a', '#f6dc6a', '#b8962a')),
 });
 
 export const RIVAL_LOOK: PersonLook = Object.freeze<PersonLook>({

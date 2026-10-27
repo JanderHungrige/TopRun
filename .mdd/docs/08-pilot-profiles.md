@@ -105,6 +105,10 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > right. CREATE YOUR OWN is the last card now, so ↑ on it moves up a row like on any card; ↓ on it opens the builder
 > (no card sits below it), as do ENTER before a look exists, a tap and gamepad Y.
 
+> **pilot19 (2026-10-27, owner):** the curly-haired blond boy with the gap-toothed grin, "second to last in row 3,
+> shift the rest": row 3 = pilot12, pilot13, pilot15, pilot19, pilot14; row 4 = pilot11, pilot16, pilot17, pilot18,
+> CREATE YOUR OWN — four full rows of five.
+
 ## Architecture
 
 ```

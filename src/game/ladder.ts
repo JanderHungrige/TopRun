@@ -61,7 +61,7 @@ const isTime = (v: unknown): v is number => typeof v === 'number' && Number.isFi
 
 /** Avatar keys (doc 27): a preset id or a builder look (doc 29). Patterns, because profiles.ts and avatar-look.ts
  *  pull in the game; a test pins them to AVATAR_IDS and every builder look. */
-const PRESET_AVATAR = /^pilot([1-9]|1[0-8])$/;
+const PRESET_AVATAR = /^pilot([1-9]|1[0-9])$/;
 const LOOK_AVATAR = /^(kid|adult)-(female|male)-(fair|olive|brown|dark)-(black|brown|blond|red)-(short|long)-(f1|f2)$/;
 
 /** Untrusted avatar → the same key when it names a known portrait, else null. */

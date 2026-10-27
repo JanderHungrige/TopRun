@@ -12,13 +12,16 @@ export interface CombatHooks {
 
 const canHit = (hits: SecondaryHits, e: Enemy): boolean => hits === 'any' || (hits === 'air') === (e.layer === 'air');
 
-export function killEnemy(world: World, e: Enemy, audio: AudioEngine): void {
+/** `quiet`: no sound or shake of its own (the nuke kills the whole screen under one blast, doc 36). */
+export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = false): void {
   if (e.dead) return;
   e.dead = true;
   const size = e.radius < 20 ? 'small' : e.radius < 45 ? 'large' : 'huge';
   world.particles.explosion(e.x, e.y, size, e.layer === 'ground');
-  audio.play(size === 'small' ? 'explosionSmall' : 'explosionLarge', { pan: (e.x / PF_W) * 2 - 1 });
-  world.addShake(size === 'small' ? 1.5 : 4);
+  if (!quiet) {
+    audio.play(size === 'small' ? 'explosionSmall' : 'explosionLarge', { pan: (e.x / PF_W) * 2 - 1 });
+    world.addShake(size === 'small' ? 1.5 : 4);
+  }
   world.collected += e.bounty;
   world.particles.popup(e.x, e.y - e.radius, `+$${e.bounty}`, '#5be37d');
   world.tally.kills += 1;
@@ -47,13 +50,14 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     }
     for (const e of world.enemies) {
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
-      damageEnemy(world, e, applyDamage(b.damage, { source: 'gun', targetLayer: e.layer }), audio);
+      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer }), audio);
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
       break;
     }
     const boss = world.boss;
-    if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source: 'gun', targetLayer: boss.def.layer }), world, audio)) {
+    const source = b.kind === 'cannon' ? 'cannon' : 'gun';
+    if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source, targetLayer: boss.def.layer }), world, audio)) {
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
     }
@@ -110,7 +114,7 @@ function steerMissile(world: World, m: Missile, p: Player, dt: number): void {
     tx = m.decoy.x;
     ty = m.decoy.y;
   } else if (m.target === 'player') {
-    if (p.alive) {
+    if (p.alive && !p.stealthed) {
       tx = p.x;
       ty = p.y;
     }

@@ -3,9 +3,12 @@ import type { LiveryId } from '../../data/liveries';
 import type { PlaneId } from '../../data/types';
 import { INNER_R, OUTER_R, type Zone } from '../../game/minigames/formation';
 import { drawPlaneTop } from '../draw-planes';
+import { a10Silhouette } from '../planes/a10-top';
 import { f14Silhouette } from '../planes/f14-top';
 import { f16Silhouette } from '../planes/f16-top';
+import { f35Silhouette } from '../planes/f35-top';
 import { sr71Silhouette } from '../planes/sr71-top';
+import { tornadoSilhouette } from '../planes/tornado-top';
 import { COLORS } from '../text';
 
 // Formation Flying (doc 14): the two jets with their shadows, the slot ghost with its rings, the prediction pip.
@@ -15,8 +18,10 @@ export const JET_SCALE = 1.35;
 export const SWEEP = 0.25;
 const SHADOW = { x: 26, y: 40 };
 /** Where the smoke leaves each jet (tail) and its wingtips, in plane units from its centre. */
-export const TAIL: Readonly<Record<PlaneId, number>> = { f16: 30, f14: 30, sr71: 36 };
-export const WINGTIP: Readonly<Record<PlaneId, Vec>> = { f16: { x: 25, y: 11 }, f14: { x: 33, y: 8 }, sr71: { x: 28, y: 22 } };
+export const TAIL: Readonly<Record<PlaneId, number>> = { f16: 30, f14: 30, sr71: 36, a10: 30, f35: 33, tornado: 32 };
+export const WINGTIP: Readonly<Record<PlaneId, Vec>> = {
+  f16: { x: 25, y: 11 }, f14: { x: 33, y: 8 }, sr71: { x: 28, y: 22 }, a10: { x: 33, y: 2 }, f35: { x: 24, y: 11 }, tornado: { x: 26, y: 11 },
+};
 
 export interface JetPose {
   x: number;
@@ -63,6 +68,9 @@ function silhouette(plane: PlaneId): Path2D {
     case 'f16': return f16Silhouette();
     case 'f14': return f14Silhouette(SWEEP);
     case 'sr71': return sr71Silhouette();
+    case 'a10': return a10Silhouette();
+    case 'f35': return f35Silhouette();
+    case 'tornado': return tornadoSilhouette(SWEEP);
     default: throw new Error(`unhandled: ${plane satisfies never}`);
   }
 }

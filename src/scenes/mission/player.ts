@@ -1,6 +1,7 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
 import { gunLevelDef } from '../../data/weapons';
+import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
 
@@ -38,6 +39,8 @@ export class Player {
   powerTimer = 0;
   damageControlUsed = false;
   dashVX = 0;
+  /** A-10 GAU-8 burst: seconds to the next round (doc 36). */
+  cannonT = 0;
   rollSpin = 0;
   wingman: { x: number; y: number; fireT: number } | null = null;
   alive = true;
@@ -65,7 +68,12 @@ export class Player {
   }
 
   get invulnerable(): boolean {
-    return this.invuln > 0 || (this.specialActive > 0 && this.stats.plane.special !== 'wingman');
+    return this.invuln > 0 || (this.specialActive > 0 && specialRules(this.stats.plane.special).invulnerable);
+  }
+
+  /** F-35 stealth running: enemies hold fire and stop homing (doc 36). */
+  get stealthed(): boolean {
+    return this.alive && this.specialActive > 0 && specialRules(this.stats.plane.special).stealth;
   }
 
 

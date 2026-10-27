@@ -116,7 +116,7 @@ describe('Dialogue', () => {
 
     it('ends the campaign with the finale after mission 30 and points to the globe (doc 35)', () => {
       const lines = debriefScript(input({ mission: m30, result: result({ bossKilled: true }), stars: 3, campaignDone: true }));
-      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale', 'adm.globe']);
+      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale', 'adm.globe', 'adm.newJets']);
       expect(lines[3]?.gesture).toBe('salute');
     });
 
@@ -134,7 +134,7 @@ describe('Dialogue', () => {
   describe('event lines', () => {
     it('chief, shooter and wingman lines map every event to a known line key', () => {
       const all = [...Object.values(CHIEF_EVENTS), ...Object.values(SHOOTER_EVENTS), ...Object.values(WINGMAN_EVENTS)];
-      expect(all.length).toBe(14 + 11 + 14);
+      expect(all.length).toBe(15 + 11 + 14);
       for (const e of all) expect(LINES_EN[e.key], e.key).toBeDefined();
       expect(wingmanStart({ type: 'strike', target: 'sam', count: 4 })).toMatchObject({ key: 'wing.startStrike', params: { n: 4, targets: 'SAM Sites' } });
       expect(wingmanStart({ type: 'boss', boss: 'leviathan' })).toMatchObject({ key: 'wing.startBoss', params: { boss: 'LEVIATHAN' } });

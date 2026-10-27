@@ -110,6 +110,9 @@ picture exists or while it loads, the old vector icon is drawn instead.
 | f16 | F-16 Fighting Falcon | starter | 100 | 330 | 2 | 1.0 | Barrel Roll — 0.7 s invulnerable dodge + side dash (5 s) |
 | f14 | F-14 Tomcat | 22,000 | 160 | 290 | 4 | 1.2 | Wingman — AI Tomcat flies alongside firing for 8 s (25 s) |
 | sr71 | SR-71 Blackbird | 65,000 | 130 | 400 | 3 | 1.4 | Mach 3 Dash — 3 s invulnerable ram, 3× scroll (20 s) |
+| a10 | A-10 Warthog | 90,000 | 220 | 270 | 4 | 1.5 | GAU-8 Burst — 3 s cannon, full damage on ground (16 s) — map 2, doc 36 |
+| f35 | F-35 Lightning II | 140,000 | 170 | 360 | 4 | 1.3 | Stealth — 8 s, enemies hold fire (18 s) — map 2, doc 36 |
+| tornado | Tornado | 75,000 | 190 | 350 | 4 | 1.3 | Nuclear Strike — clears the screen (55 s); loses hull with age — map 2, doc 36 |
 
 ### Gun (M61 Vulcan, global upgrade)
 

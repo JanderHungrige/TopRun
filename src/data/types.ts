@@ -1,7 +1,8 @@
 // Shared ids and data shapes used across features. Pure types + frozen id lists.
 
-export type PlaneId = 'f16' | 'f14' | 'sr71';
-export const PLANE_IDS: readonly PlaneId[] = Object.freeze(['f16', 'f14', 'sr71'] as const);
+/** The three map-1 jets, then the three sold once map 2 is open (doc 36). */
+export type PlaneId = 'f16' | 'f14' | 'sr71' | 'a10' | 'f35' | 'tornado';
+export const PLANE_IDS: readonly PlaneId[] = Object.freeze(['f16', 'f14', 'sr71', 'a10', 'f35', 'tornado'] as const);
 
 export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
@@ -13,7 +14,7 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
   'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet', 'radar',
 ] as const);
 
-export type SpecialId = 'roll' | 'wingman' | 'dash';
+export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke';
 
 /** Map 1 (m01–m30) or map 2 (m31–m60, doc 35). */
 export type CampaignId = 1 | 2;

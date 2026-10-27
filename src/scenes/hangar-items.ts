@@ -7,6 +7,7 @@ import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
+import { jetOnSale } from '../game/jets';
 import { isLiveryUnlocked } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import {
@@ -20,8 +21,9 @@ export interface Tab {
   items: readonly ShopItem[];
 }
 
-export const TABS: readonly Tab[] = [
-  { name: 'hangar.tabJets', items: PLANE_IDS.map((id) => ({ type: 'plane', id })) },
+/** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36). */
+export const tabs = (save: SaveData): readonly Tab[] => [
+  { name: 'hangar.tabJets', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
   { name: 'hangar.tabWeapons', items: [{ type: 'gun' }, ...SECONDARY_IDS.map((id) => ({ type: 'secondary' as const, id }))] },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
   { name: 'hangar.tabPaint', items: LIVERY_IDS.map((id) => ({ type: 'livery', id })) },

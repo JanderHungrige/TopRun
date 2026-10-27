@@ -13,7 +13,7 @@ import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { itemAction, itemName, TABS } from './hangar-items';
+import { itemAction, itemName, tabs } from './hangar-items';
 
 const BACK_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 
@@ -36,7 +36,7 @@ export class HangarScene implements Scene {
   }
 
   private get items(): readonly ShopItem[] {
-    return TABS[this.tab]?.items ?? [];
+    return tabs(this.game.save)[this.tab]?.items ?? [];
   }
 
   private get item(): ShopItem | undefined {
@@ -51,7 +51,7 @@ export class HangarScene implements Scene {
   }
 
   private tabButtons(): Button[] {
-    return TABS.map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 135, y: 76, w: 130, h: 42, primary: i === this.tab }));
+    return tabs(this.game.save).map((tab, i) => ({ id: `tab${i}`, label: t(tab.name), x: 24 + i * 135, y: 76, w: 130, h: 42, primary: i === this.tab }));
   }
 
   update(dt: number): void {
@@ -93,7 +93,7 @@ export class HangarScene implements Scene {
   }
 
   private setTab(i: number): void {
-    const n = TABS.length;
+    const n = tabs(this.game.save).length;
     const next = ((i % n) + n) % n;
     if (next !== this.tab) this.game.audio.play('uiMove');
     this.tab = next;

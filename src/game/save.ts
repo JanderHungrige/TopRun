@@ -1,7 +1,7 @@
 import { maxEquipmentLevel } from '../data/equipment';
 import { LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
-import { PLANES } from '../data/planes';
+import { perPlane, PLANES } from '../data/planes';
 import {
   EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
@@ -59,10 +59,10 @@ export function defaultSave(): SaveData {
     selectedPlane: 'f16',
     gunLevel: 1,
     ownedSecondaries: [],
-    loadout: { f16: emptyLoadout('f16'), f14: emptyLoadout('f14'), sr71: emptyLoadout('sr71') },
+    loadout: perPlane(emptyLoadout),
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
-    livery: { f16: 'standard', f14: 'standard', sr71: 'standard' },
+    livery: perPlane((): LiveryId => 'standard'),
     minigames: {},
     ladder: null,
     record: emptyRecord(),
@@ -143,11 +143,7 @@ export function parseSave(raw: unknown): SaveData | null {
     selectedPlane: selected,
     gunLevel: int(raw.gunLevel, 1, 5, 1) as GunLevel,
     ownedSecondaries,
-    loadout: {
-      f16: parseLoadout(rawLoadout.f16, 'f16', ownedSecondaries),
-      f14: parseLoadout(rawLoadout.f14, 'f14', ownedSecondaries),
-      sr71: parseLoadout(rawLoadout.sr71, 'sr71', ownedSecondaries),
-    },
+    loadout: perPlane((p) => parseLoadout(rawLoadout[p], p, ownedSecondaries)),
     equipment: parseEquipment(raw.equipment),
     progress,
     livery: parseLiveries(raw.livery, progress),

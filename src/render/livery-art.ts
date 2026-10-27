@@ -67,6 +67,15 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   sr71: look('#262a31', STANDARD_SWATCH, {
     under: '#22252b', ink: 'rgba(0,0,0,0.75)', panel: 'rgba(150,165,185,0.16)', gloss: 0.9,
   }),
+  // Map-2 jets (doc 36): A-10 two-tone grey, F-35 dark radar grey, Tornado grey-green splinter — no insignia.
+  a10: look('#8c959c', STANDARD_SWATCH, { under: '#9ba3a9', twoTone: '#737c84', radome: '#7c858c', gloss: 0.6 }),
+  f35: look('#6a7178', STANDARD_SWATCH, {
+    under: '#646b72', twoTone: '#5a6067', radome: '#5f656c', ink: 'rgba(12,16,20,0.6)', panel: 'rgba(12,16,20,0.2)', gloss: 0.45,
+  }),
+  tornado: look('#6d7259', STANDARD_SWATCH, {
+    under: '#8f9499', camo: { kind: 'splinter', colors: ['#3d4136', '#56654b'], cover: [0.34, 0.3], size: 1.2, seed: 41 },
+    ink: 'rgba(14,16,12,0.6)', panel: 'rgba(14,16,12,0.24)', gloss: 0.55,
+  }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

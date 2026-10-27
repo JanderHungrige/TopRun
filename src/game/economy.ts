@@ -3,6 +3,7 @@ import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { EquipmentId, GunLevel, MissionDef, MissionResult, PlaneId, SecondaryId, TakeoffRating } from '../data/types';
 import { gunLevelDef, MAX_GUN_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { jetOnSale } from './jets';
 import type { SaveData } from './save';
 import { recordMission } from './service-record';
 
@@ -14,7 +15,8 @@ export type ShopItem =
   /** Paint jobs are unlocked by the campaign, never bought (doc 09). */
   | { type: 'livery'; id: LiveryId };
 
-export type BuyFailure = 'insufficient-funds' | 'already-owned' | 'max-level' | 'unknown-item';
+/** `locked`: a map-2 jet before map 2 is open (doc 36). */
+export type BuyFailure = 'insufficient-funds' | 'already-owned' | 'max-level' | 'unknown-item' | 'locked';
 export type MountFailure = 'not-owned' | 'bad-slot' | 'restricted-plane' | 'plane-not-owned';
 
 export type Check<F> = { ok: true } | { ok: false; reason: F };
@@ -44,6 +46,7 @@ function knownItem(item: ShopItem): boolean {
 
 export function canBuy(save: SaveData, item: ShopItem): Check<BuyFailure> {
   if (!knownItem(item)) return { ok: false, reason: 'unknown-item' };
+  if (item.type === 'plane' && !jetOnSale(save, item.id)) return { ok: false, reason: 'locked' };
   const price = priceOf(save, item);
   if (price === null) {
     const owned = item.type === 'plane' || item.type === 'secondary';

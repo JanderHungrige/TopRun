@@ -62,7 +62,7 @@ export const UI_EN = {
   'newPilot.invalid': 'Letters, digits, space and - only',
   'newPilot.taken': 'That callsign is already taken',
   'newPilot.full': 'Hangar full: delete a pilot first',
-  'newPilot.hint': 'Type a callsign, pick a look with ←/→ (↓ builds your own), press ENTER',
+  'newPilot.hint': 'Type a callsign, pick a look with the arrows, press ENTER',
   // Map
   'map.title': 'THEATER OF OPERATIONS',
   'map.progress': '{done}/30 MISSIONS  ·  ★ {stars}/90',

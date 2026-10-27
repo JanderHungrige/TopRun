@@ -86,6 +86,15 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > portrait by age, skin, hair colour and hair length (`SaveData.look` = that pick; old looks migrate on load).
 > `drawPilotAvatar` keeps its API; the procedural avatars are retired.
 
+> **Second row of presets (2026-10-27, owner):** "more pilots on the start page — from now on simply a second row
+> under the first 4 + own avatar". Five more presets `pilot5`–`pilot9` (photos the owner supplied, same workflow as
+> pilot4). NEW PILOT lays its cards out in rows of five (`NEW_PILOT_COLS`): row 1 = pilot1–4 + CREATE YOUR OWN
+> (unchanged), row 2 = pilot5–9; later presets append to row 2 and then open a new row (`cardOrder`, pure,
+> `src/game/pilot-cards.ts`). Two rows need smaller cards: 180 × 216 (¾ of 240 × 288) with 10 px gaps, the callsign
+> field moves up. ←/→ walk all cards (wrapping), ↑/↓ change row in the same column (clamped to the last card).
+> ↓ no longer opens the builder (it moves down a row): ↑ on CREATE YOUR OWN (top row, where ↑ has nothing else to
+> do), ENTER on it before a look exists, a tap, or gamepad Y do. E cannot: the callsign field is focused and takes it.
+
 ## Architecture
 
 ```
@@ -94,7 +103,8 @@ game/profiles.ts       ProfileStore: emptyStore, parseStore, migrateLegacy, crea
                        selectProfile, deleteProfile, updateActiveSave, updateSettings,
                        profileSummary, loadStore/persistStore (localStorage IO)
 scenes/pilots.ts       CONTINUE screen: profile cards (avatar, callsign, progress), select, EDIT LOOK (doc 29), delete (confirm)
-scenes/new-pilot.ts    NEW PILOT screen: callsign field + 3 avatars + CREATE YOUR OWN (doc 29) + START
+game/pilot-cards.ts    NEW PILOT card order + grid moves: cardOrder(), cardGrid(), moveCard() (pure)
+scenes/new-pilot.ts    NEW PILOT screen: callsign field + preset cards in rows of five + CREATE YOUR OWN (doc 29) + START
 ui/text-field.ts       a real DOM <input> laid over the canvas (mobile keyboards, IME, a11y); value setter, ↑/↓ hook
 render/avatars/        drawPilotAvatar(ctx, face, box, { t, mouth, mood, selected }), pilotFace, pilotAccent;
                        drawAvatar(ctx, id, …) stays as an alias

@@ -64,7 +64,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'newPilot.invalid': 'Nur Buchstaben, Ziffern, Leerzeichen und -',
   'newPilot.taken': 'Dieser Rufname ist schon vergeben',
   'newPilot.full': 'Hangar voll: lösche erst einen Piloten',
-  'newPilot.hint': 'Rufnamen tippen, Aussehen mit ←/→ wählen (↓ selbst gestalten), ENTER drücken',
+  'newPilot.hint': 'Rufnamen tippen, Aussehen mit den Pfeiltasten wählen, ENTER drücken',
   // Map
   'map.title': 'EINSATZGEBIET',
   'map.progress': '{done}/30 MISSIONEN  ·  ★ {stars}/90',

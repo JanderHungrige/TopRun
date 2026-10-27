@@ -1,6 +1,7 @@
 import type { Scene } from '../core/scene';
 import { cycleLook, LOOK_PARTS, PRESET_LOOKS, randomLook, sameLook, type AvatarLook } from '../game/avatar-look';
-import { AVATAR_IDS, type Profile } from '../game/profiles';
+import { cardOrder } from '../game/pilot-cards';
+import type { Profile } from '../game/profiles';
 import type { BuilderTarget, GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { preloadCustomPortraits } from '../render/avatars';
@@ -9,8 +10,8 @@ import { arrowRect, barButtons, drawBuilder, rowRect, type BarButton } from './a
 
 const ROWS = LOOK_PARTS.length;
 const BAR_ROW = ROWS;
-/** NEW PILOT's own-look card comes after the presets. */
-const OWN_CARD = AVATAR_IDS.length;
+/** NEW PILOT's own-look card closes its first row (doc 08). */
+const OWN_CARD = cardOrder().indexOf('own');
 
 /**
  * AVATAR BUILDER (docs 29, 33): one row per trait (age, skin, hair colour, hair length) with ◀ ▶, the generated

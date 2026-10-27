@@ -8,8 +8,10 @@ import { defaultSettings, parseSettings, type Settings } from './settings';
 export const STORE_KEY = 'toprun.profiles.v1';
 export const MAX_PROFILES = 6;
 
-export type AvatarId = 'pilot1' | 'pilot2' | 'pilot3' | 'pilot4';
-export const AVATAR_IDS: readonly AvatarId[] = Object.freeze(['pilot1', 'pilot2', 'pilot3', 'pilot4'] as const);
+export type AvatarId = 'pilot1' | 'pilot2' | 'pilot3' | 'pilot4' | 'pilot5' | 'pilot6' | 'pilot7' | 'pilot8' | 'pilot9';
+export const AVATAR_IDS: readonly AvatarId[] = Object.freeze([
+  'pilot1', 'pilot2', 'pilot3', 'pilot4', 'pilot5', 'pilot6', 'pilot7', 'pilot8', 'pilot9',
+] as const);
 
 export interface Profile {
   id: string;

@@ -1,31 +1,34 @@
 import type { Scene } from '../core/scene';
 import { lookPreset, randomLook, type AvatarLook } from '../game/avatar-look';
 import { CALLSIGN_MAX, filterCallsignInput, validateCallsign, type CallsignCheck } from '../game/callsign';
-import { cardCell, cardOrder, moveCard, NEW_PILOT_COLS } from '../game/pilot-cards';
+import { CARD_ORDER, cardCell, moveCard, NEW_PILOT_COLS } from '../game/pilot-cards';
 import { MAX_PROFILES, type AvatarId } from '../game/profiles';
 import type { GameContext, NewPilotDraft } from '../game/state';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
-import { drawPilotAvatar, preloadCustomPortraits, type PilotFace } from '../render/avatars';
+import { drawPilotAvatar, pilotAccent, preloadCustomPortraits, type PilotFace } from '../render/avatars';
 import { drawSunset } from '../render/backdrop';
 import { COLORS, text } from '../render/text';
 import { TextField } from '../ui/text-field';
 import { drawButton, drawPanel, hit, type Button, type Rect } from '../ui/widgets';
 
-const FIELD: Rect = { x: 390, y: 96, w: 500, h: 56 };
-/** Rows of five cards at ¾ of the 240 × 288 portraits, so two rows fit (doc 08). */
-const CARD_W = 180;
-const CARD_H = 216;
-const CARD_Y = 186;
-const CARD_GAP = 10;
-/** Row 1: pilot1–4 + CREATE YOUR OWN (doc 29); row 2: the next presets. */
-const ORDER = cardOrder();
+/** Left column (doc 08): title, callsign, a 1:1 preview of the picked card, the buttons. */
+const COL_X = 268;
+const FIELD: Rect = { x: 48, y: 110, w: 440, h: 54 };
+const PREVIEW: Rect = { x: COL_X - 120, y: 200, w: 240, h: 288 };
+const START: Button = { id: 'start', label: '', x: 48, y: 506, w: 440, h: 48, primary: true };
+const BACK: Button = { id: 'back', label: '', x: 48, y: 566, w: 212, h: 44 };
+/** Restore a pilot from a pilot code on a fresh device (doc 08). */
+const CODE: Button = { id: 'code', label: '', x: 276, y: 566, w: 212, h: 44 };
+/** Right: four rows of five cards at 135 × 162 (the portraits' 5:6), CREATE YOUR OWN closing row 3 (doc 08). */
+const CARD_W = 135;
+const CARD_H = 162;
+const CARD_GAP = 8;
+const GRID_X = 1280 - 24 - (CARD_W * NEW_PILOT_COLS + CARD_GAP * (NEW_PILOT_COLS - 1));
+const GRID_Y = 24;
+const ORDER = CARD_ORDER;
 const OWN = ORDER.indexOf('own');
 const CARDS = ORDER.length;
-const BACK: Button = { id: 'back', label: '', x: 250, y: 640, w: 200, h: 46 };
-const START: Button = { id: 'start', label: '', x: 470, y: 640, w: 320, h: 46, primary: true };
-/** Restore a pilot from a pilot code on a fresh device (doc 08). */
-const CODE: Button = { id: 'code', label: '', x: 810, y: 640, w: 220, h: 46 };
 
 const ERRORS: Readonly<Record<Exclude<CallsignCheck, 'ok'>, UiKey>> = {
   'too-short': 'newPilot.tooShort',
@@ -36,8 +39,7 @@ const ERRORS: Readonly<Record<Exclude<CallsignCheck, 'ok'>, UiKey>> = {
 
 const cardRect = (i: number): Rect => {
   const { row, col } = cardCell(i);
-  const left = 640 - (CARD_W * NEW_PILOT_COLS + CARD_GAP * (NEW_PILOT_COLS - 1)) / 2;
-  return { x: left + col * (CARD_W + CARD_GAP), y: CARD_Y + row * (CARD_H + CARD_GAP), w: CARD_W, h: CARD_H };
+  return { x: GRID_X + col * (CARD_W + CARD_GAP), y: GRID_Y + row * (CARD_H + CARD_GAP), w: CARD_W, h: CARD_H };
 };
 
 /** NEW PILOT: type a callsign, pick a preset avatar or build your own, report for duty (docs 08, 29). */
@@ -90,7 +92,7 @@ export class NewPilotScene implements Scene {
   }
 
   private move(dx: number, dy: number): void {
-    if (dy < 0 && this.avatar === OWN) return this.openBuilder(); // ↑ on CREATE YOUR OWN (top row) builds a look
+    if (dy > 0 && this.avatar === OWN) return this.openBuilder(); // ↓ on CREATE YOUR OWN (nothing below it) builds a look
     this.pick(moveCard(this.avatar, dx, dy, CARDS));
   }
 
@@ -168,14 +170,24 @@ export class NewPilotScene implements Scene {
     drawSunset(ctx, this.time);
     ctx.fillStyle = 'rgba(4,8,16,0.55)';
     ctx.fillRect(0, 0, 1280, 720);
-    text(ctx, t('newPilot.title'), 640, 54, { size: 40, display: true, italic: true, align: 'center', color: COLORS.gold, stroke: '#000', strokeWidth: 6 });
+    text(ctx, t('newPilot.title'), COL_X, 56, { size: 40, display: true, italic: true, align: 'center', color: COLORS.gold, stroke: '#000', strokeWidth: 6 });
     this.renderField(ctx);
+    this.renderPreview(ctx);
     for (let i = 0; i < CARDS; i++) this.renderCard(ctx, i);
     const ok = this.check() === 'ok' && !this.full;
-    drawButton(ctx, { ...BACK, label: t('newPilot.back') }, false, this.time);
     drawButton(ctx, { ...START, label: t('newPilot.start'), enabled: ok }, ok, this.time);
+    drawButton(ctx, { ...BACK, label: t('newPilot.back') }, false, this.time);
     drawButton(ctx, { ...CODE, label: t('pilots.code') }, false, this.time);
-    text(ctx, t('newPilot.hint'), 640, 708, { size: 13, align: 'center', color: COLORS.faint });
+    text(ctx, t('newPilot.hint'), COL_X, 640, { size: 13, align: 'center', color: COLORS.faint, maxWidth: FIELD.w + 30 });
+  }
+
+  /** The picked card 1:1, so the small grid cards never have to carry the likeness alone. */
+  private renderPreview(ctx: CanvasRenderingContext2D): void {
+    const face = this.face(this.avatar);
+    drawPilotAvatar(ctx, face, PREVIEW, { t: this.time, mood: 'happy' });
+    ctx.strokeStyle = pilotAccent(face);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(PREVIEW.x - 1, PREVIEW.y - 1, PREVIEW.w + 2, PREVIEW.h + 2);
   }
 
   private renderCard(ctx: CanvasRenderingContext2D, i: number): void {
@@ -185,22 +197,22 @@ export class NewPilotScene implements Scene {
     const box = { ...r, y: r.y + lift };
     drawPilotAvatar(ctx, this.face(i), box, { t: this.time + i, mood: selected ? 'happy' : 'neutral', selected });
     if (i !== OWN) return;
-    const band: Rect = { x: box.x + 8, y: box.y + box.h - 48, w: box.w - 16, h: 40 };
+    const band: Rect = { x: box.x + 5, y: box.y + box.h - 38, w: box.w - 10, h: 33 };
     drawPanel(ctx, band, { fill: 'rgba(6,10,18,0.86)', edge: selected ? COLORS.gold : COLORS.panelEdge, radius: 6 });
     const title = this.look ? t('avatar.yours') : t('avatar.create');
-    text(ctx, title, band.x + band.w / 2, band.y + 18, { size: 15, display: true, italic: true, align: 'center', color: COLORS.gold, maxWidth: band.w - 12 });
-    text(ctx, t(this.look ? 'avatar.edit' : 'avatar.open'), band.x + band.w / 2, band.y + 34, { size: 11, align: 'center', color: COLORS.dim, maxWidth: band.w - 12 });
+    text(ctx, title, band.x + band.w / 2, band.y + 14, { size: 12, display: true, italic: true, align: 'center', color: COLORS.gold, maxWidth: band.w - 8 });
+    text(ctx, t(this.look ? 'avatar.edit' : 'avatar.open'), band.x + band.w / 2, band.y + 27, { size: 9, align: 'center', color: COLORS.dim, maxWidth: band.w - 8 });
   }
 
   private renderField(ctx: CanvasRenderingContext2D): void {
     this.field.layout();
     const dx = this.shake > 0 ? Math.sin(this.shake * 60) * 8 : 0;
-    text(ctx, t('newPilot.callsign'), 640, 86, { size: 13, align: 'center', color: COLORS.dim, letterSpacing: 2 });
+    text(ctx, t('newPilot.callsign'), COL_X, 98, { size: 13, align: 'center', color: COLORS.dim, letterSpacing: 2 });
     drawPanel(ctx, { ...FIELD, x: FIELD.x + dx }, {
       fill: 'rgba(8,14,24,0.9)', edge: this.field.focused ? COLORS.gold : COLORS.panelEdge, radius: 10,
     });
     const msg = this.full ? 'newPilot.full' : this.error;
-    if (msg) text(ctx, t(msg), 640, 176, { size: 15, align: 'center', color: COLORS.red });
-    else text(ctx, t('newPilot.avatar'), 640, 176, { size: 13, align: 'center', color: COLORS.dim, letterSpacing: 2 });
+    if (msg) text(ctx, t(msg), COL_X, 186, { size: 15, align: 'center', color: COLORS.red, maxWidth: FIELD.w + 30 });
+    else text(ctx, t('newPilot.avatar'), COL_X, 186, { size: 13, align: 'center', color: COLORS.dim, letterSpacing: 2 });
   }
 }

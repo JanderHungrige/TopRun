@@ -1,16 +1,19 @@
-import { AVATAR_IDS, type AvatarId } from './profiles';
+import type { AvatarId } from './profiles';
 
-// NEW PILOT's card grid (doc 08): rows of five; the first row ends with CREATE YOUR OWN, later presets fill the
-// rows below it (owner, 2026-10-27: "from now on simply a second row under the first 4 + own avatar"). Pure.
+// NEW PILOT's card grid (doc 08): rows of five in the owner's order (2026-10-27) — CREATE YOUR OWN closes row 3,
+// row 4 holds the last four presets. Pure.
 
 export const NEW_PILOT_COLS = 5;
 
 export type PilotCard = AvatarId | 'own';
 
-/** Presets in order with CREATE YOUR OWN closing the first row. */
-export function cardOrder(ids: readonly AvatarId[] = AVATAR_IDS, cols = NEW_PILOT_COLS): PilotCard[] {
-  return [...ids.slice(0, cols - 1), 'own', ...ids.slice(cols - 1)];
-}
+/** Every preset once plus CREATE YOUR OWN, row by row as the owner placed them. */
+export const CARD_ORDER: readonly PilotCard[] = Object.freeze([
+  'pilot1', 'pilot2', 'pilot3', 'pilot4', 'pilot10',
+  'pilot5', 'pilot6', 'pilot7', 'pilot8', 'pilot9',
+  'pilot12', 'pilot13', 'pilot15', 'pilot14', 'own',
+  'pilot11', 'pilot16', 'pilot17', 'pilot18',
+] as const);
 
 export const cardCell = (i: number, cols = NEW_PILOT_COLS): { row: number; col: number } =>
   ({ row: Math.floor(i / cols), col: i % cols });

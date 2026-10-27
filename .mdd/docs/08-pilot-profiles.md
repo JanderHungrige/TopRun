@@ -95,6 +95,15 @@ profile. On the start menu, CONTINUE shows the list of pilots to choose from.
 > ↓ no longer opens the builder (it moves down a row): ↑ on CREATE YOUR OWN (top row, where ↑ has nothing else to
 > do), ENTER on it before a look exists, a tap, or gamepad Y do. E cannot: the callsign field is focused and takes it.
 
+> **Four rows, nineteen cards (2026-10-27, owner):** nine more presets `pilot10`–`pilot18` and a new photo for
+> `pilot5` (photos the owner supplied; "alle sind einverstanden": everyone shown agreed). The order is the owner's and
+> fixed in `CARD_ORDER` (`src/game/pilot-cards.ts`, pure): row 1 = pilot1–4, pilot10; row 2 = pilot5–9; row 3 =
+> pilot12, pilot13, pilot15, pilot14, CREATE YOUR OWN; row 4 = pilot11, pilot16, pilot17, pilot18. Four rows of five
+> do not fit under the callsign field, so NEW PILOT splits in two: a left column with the title, the callsign field, a
+> large preview of the selected card and START / BACK / PILOT CODE; the card grid (135 × 162, 8 px gaps) fills the
+> right. CREATE YOUR OWN sits in row 3 now, so ↑ on it moves up a row like on any card; ↓ on it opens the builder
+> (no card sits below it), as do ENTER before a look exists, a tap and gamepad Y.
+
 ## Architecture
 
 ```
@@ -103,8 +112,8 @@ game/profiles.ts       ProfileStore: emptyStore, parseStore, migrateLegacy, crea
                        selectProfile, deleteProfile, updateActiveSave, updateSettings,
                        profileSummary, loadStore/persistStore (localStorage IO)
 scenes/pilots.ts       CONTINUE screen: profile cards (avatar, callsign, progress), select, EDIT LOOK (doc 29), delete (confirm)
-game/pilot-cards.ts    NEW PILOT card order + grid moves: cardOrder(), cardGrid(), moveCard() (pure)
-scenes/new-pilot.ts    NEW PILOT screen: callsign field + preset cards in rows of five + CREATE YOUR OWN (doc 29) + START
+game/pilot-cards.ts    NEW PILOT card order + grid moves: CARD_ORDER, cardCell(), moveCard() (pure)
+scenes/new-pilot.ts    NEW PILOT screen: left column (callsign, preview, START) + card grid of fives incl. CREATE YOUR OWN (doc 29)
 ui/text-field.ts       a real DOM <input> laid over the canvas (mobile keyboards, IME, a11y); value setter, ↑/↓ hook
 render/avatars/        drawPilotAvatar(ctx, face, box, { t, mouth, mood, selected }), pilotFace, pilotAccent;
                        drawAvatar(ctx, id, …) stays as an alias

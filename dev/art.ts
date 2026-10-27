@@ -133,8 +133,8 @@ function zside(planeArg: string | undefined, liveryArg: string | undefined, t: n
   drawPlaneSide(ctx, plane, cssW * 0.75, cssH * 0.85, 0.75, { t, throttle: 0.8, gear: 0, pitch: 0.06, livery: id });
 }
 
-/** One jet in all liveries at 1:1 pixels: #gal/<plane> (top view ×2.2) or #gals/<plane> (side view ×1.9). */
-function gallery(planeArg: string | undefined, side: boolean, t: number): void {
+/** One jet in all liveries at 1:1 pixels: #gal/<plane>[/<from>] (top view ×2.2) or #gals/<plane>[/<from>] (side view ×1.9). */
+function gallery(planeArg: string | undefined, side: boolean, t: number, from = 0): void {
   const plane = PLANE_IDS.find((p) => p === planeArg) ?? 'f16';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = side ? '#7fa7c9' : '#1d6596';
@@ -142,7 +142,7 @@ function gallery(planeArg: string | undefined, side: boolean, t: number): void {
   const cols = side ? 3 : 4;
   const cw = cssW / cols;
   const ch = side ? 128 : 210;
-  LIVERY_IDS.forEach((id, i) => {
+  LIVERY_IDS.slice(from).forEach((id, i) => {
     const x = cw * ((i % cols) + 0.5);
     const y = 20 + ch * Math.floor(i / cols);
     label(id, x - cw * 0.45, y, 'left');
@@ -190,7 +190,7 @@ function frame(): void {
     return;
   }
   if (view === 'gal' || view === 'gals') {
-    gallery(arg, view === 'gals', t);
+    gallery(arg, view === 'gals', t, Number(arg2 ?? 0));
     return;
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

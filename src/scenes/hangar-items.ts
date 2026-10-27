@@ -1,7 +1,7 @@
 import { formatMoney } from '../core/math';
 import { BOSSES } from '../data/bosses';
 import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
-import { MISSIONS } from '../data/missions';
+import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { gunLevelDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
@@ -9,7 +9,7 @@ import { canBuy, priceOf, type ShopItem } from '../game/economy';
 import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
 import { jetOnSale } from '../game/jets';
 import { mapTwoOpen } from '../game/progress';
-import { isLiveryUnlocked } from '../game/liveries';
+import { isLiveryUnlocked, liveryOnShow } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import {
   equipmentDescription, equipmentName, liveryName, planeDescription, secondaryDescription, secondaryName, theaterName,
@@ -33,7 +33,7 @@ export const tabs = (save: SaveData): readonly Tab[] => [
     ],
   },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
-  { name: 'hangar.tabPaint', items: LIVERY_IDS.map((id) => ({ type: 'livery', id })) },
+  { name: 'hangar.tabPaint', items: LIVERY_IDS.filter((id) => liveryOnShow(save.progress, id)).map((id) => ({ type: 'livery', id })) },
 ];
 
 export type ActionKind = 'buy' | 'select' | 'mount' | 'paint' | 'none';
@@ -163,7 +163,8 @@ export function unlockText(id: LiveryId): string {
   if (!u) return '';
   const theater = theaterName(u.theater);
   if (u.kind === 'stars') return t('hangar.unlockStars', { theater });
-  const o = MISSIONS.find((m) => m.theater === u.theater && m.objective.type === 'boss')?.objective;
+  if (u.kind === 'region') return t('hangar.unlockRegion', { theater });
+  const o = ALL_MISSIONS.find((m) => m.theater === u.theater && m.objective.type === 'boss')?.objective;
   return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 

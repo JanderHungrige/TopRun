@@ -24,12 +24,19 @@ export function slotRects(hardpoints: number): Rect[] {
   return Array.from({ length: hardpoints }, (_, i) => ({ x: DETAIL.x + 24 + i * 112, y: DETAIL.y + 498, w: 102, h: 46 }));
 }
 
+/** Lists longer than this (the 21 paint jobs with map 2, doc 09) run in two columns. */
+const ONE_COLUMN = 12;
+
 /** Rows shrink so long lists (7 equipment items) stay above the crew chief. */
-export const rowHeight = (count: number): number => Math.min(LIST.row, Math.floor(412 / Math.max(1, count)));
+export const rowHeight = (count: number): number =>
+  Math.min(LIST.row, Math.floor(412 / Math.max(1, count > ONE_COLUMN ? Math.ceil(count / 2) : count)));
 
 export function rowRect(i: number, count: number): Rect {
   const h = rowHeight(count);
-  return { x: LIST.x, y: LIST.y + i * h, w: LIST.w, h: h - 8 };
+  if (count <= ONE_COLUMN) return { x: LIST.x, y: LIST.y + i * h, w: LIST.w, h: h - 8 };
+  const half = Math.ceil(count / 2);
+  const w = (LIST.w - 8) / 2;
+  return { x: LIST.x + (i < half ? 0 : w + 8), y: LIST.y + (i % half) * h, w, h: h - 6 };
 }
 
 function padlock(ctx: CanvasRenderingContext2D, x: number, y: number): void {
@@ -73,15 +80,30 @@ export function drawList(ctx: CanvasRenderingContext2D, save: SaveData, items: r
     const r = rowRect(i, items.length);
     const active = i === focus;
     drawPanel(ctx, r, { fill: active ? 'rgba(40,70,105,0.92)' : 'rgba(14,24,36,0.85)', edge: active ? COLORS.gold : COLORS.panelEdge, radius: 8 });
+    const status = itemStatus(save, item);
+    const statusColor = statusIsOwned(save, item) ? COLORS.green : COLORS.gold;
+    if (r.w < LIST.w / 2) return narrowRow(ctx, save, item, r, active, status, statusColor, t);
     drawThumb(ctx, save, item, r.x + 48, r.y + r.h / 2, t);
     // Short rows (the 11 paint jobs) show one line; the unlock condition is in the detail panel.
     const compact = r.h < 44;
     const line = compact ? r.y + r.h / 2 + 6 : r.y + 26;
-    const status = itemStatus(save, item);
-    text(ctx, status, r.x + r.w - 14, line, { size: 13, align: 'right', color: statusIsOwned(save, item) ? COLORS.green : COLORS.gold });
+    text(ctx, status, r.x + r.w - 14, line, { size: 13, align: 'right', color: statusColor });
     text(ctx, itemName(item), r.x + 100, line, { size: compact ? 15 : 16, display: true, color: active ? COLORS.gold : COLORS.ink, maxWidth: r.w - 250 });
     if (!compact) text(ctx, subtitle(save, item), r.x + 100, r.y + 46, { size: 12, color: COLORS.dim, maxWidth: r.w - 116 });
   });
+}
+
+/** A row of the two-column list (doc 09): small thumbnail, the name over its status. */
+function narrowRow(
+  ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem, r: Rect, active: boolean, status: string, color: string, t: number,
+): void {
+  ctx.save();
+  ctx.translate(r.x + 34, r.y + r.h / 2);
+  ctx.scale(0.75, 0.75);
+  drawThumb(ctx, save, item, 0, 0, t);
+  ctx.restore();
+  text(ctx, itemName(item), r.x + 66, r.y + r.h / 2 - 2, { size: 13, display: true, color: active ? COLORS.gold : COLORS.ink, maxWidth: r.w - 76 });
+  text(ctx, status, r.x + 66, r.y + r.h / 2 + 12, { size: 11, color, maxWidth: r.w - 76 });
 }
 
 function subtitle(save: SaveData, item: ShopItem): string {

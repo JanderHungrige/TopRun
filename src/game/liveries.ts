@@ -1,5 +1,6 @@
 import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
-import { MISSIONS } from '../data/missions';
+import { ALL_MISSIONS, campaignMissions } from '../data/missions';
+import type { TheaterId } from '../data/types';
 import { PLANE_IDS, type PlaneId } from '../data/types';
 import type { Check } from './economy';
 import type { SaveData } from './save';
@@ -8,12 +9,34 @@ import type { SaveData } from './save';
 
 type Progress = SaveData['progress'];
 
+/** The theater's first mission is playable: the mission before it in its campaign is cleared (doc 03/35). */
+export function regionOpen(progress: Progress, theater: TheaterId): boolean {
+  const first = ALL_MISSIONS.find((m) => m.theater === theater);
+  if (!first) return false;
+  const list = campaignMissions(first.campaign);
+  const i = list.indexOf(first);
+  const prev = i > 0 ? list[i - 1] : first.campaign === 2 ? campaignMissions(1).at(-1) : undefined;
+  return prev === undefined || progress[prev.id] !== undefined;
+}
+
 export function isLiveryUnlocked(progress: Progress, id: LiveryId): boolean {
   const unlock = LIVERIES[id].unlock;
   if (!unlock) return true;
-  const missions = MISSIONS.filter((m) => m.theater === unlock.theater);
-  if (unlock.kind === 'boss') return missions.some((m) => m.objective.type === 'boss' && progress[m.id] !== undefined);
-  return missions.every((m) => (progress[m.id]?.stars ?? 0) >= 3);
+  const missions = ALL_MISSIONS.filter((m) => m.theater === unlock.theater);
+  switch (unlock.kind) {
+    case 'boss': return missions.some((m) => m.objective.type === 'boss' && progress[m.id] !== undefined);
+    case 'stars': return missions.every((m) => (progress[m.id]?.stars ?? 0) >= 3);
+    case 'region': return regionOpen(progress, unlock.theater);
+    default: throw new Error(`unhandled: ${unlock.kind satisfies never}`);
+  }
+}
+
+/** Map-2 paint jobs show in the PAINT tab only once map 2 is open (doc 09). */
+export function liveryOnShow(progress: Progress, id: LiveryId): boolean {
+  const unlock = LIVERIES[id].unlock;
+  if (!unlock) return true;
+  const campaign = ALL_MISSIONS.find((m) => m.theater === unlock.theater)?.campaign ?? 1;
+  return campaign === 1 || regionOpen(progress, 'northsea');
 }
 
 export const unlockedLiveries = (progress: Progress): LiveryId[] => LIVERY_IDS.filter((id) => isLiveryUnlocked(progress, id));

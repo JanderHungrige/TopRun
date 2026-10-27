@@ -7,7 +7,7 @@ status: planned
 depends_on: none
 demo_state: "A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions ahead; each region's camo is ready when the region opens."
 created: 2026-10-27
-hash: 8934a689
+hash: ac4378a8
 ---
 
 # Wave 1: Region paint jobs before the region
@@ -23,3 +23,5 @@ A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions 
 
 ## Open Research
 - Which liveries are region camos (boss unlocks) and which stay star rewards; retroactive for existing pilots (unlocks are derived from progress, doc 09).
+- Map 2 already follows the rule (Second Front wave 4: `region` unlock kind, `regionOpen`); this wave moves map 1's
+  boss camos (gull grey, desert, arctic, woodland, air show) to `region`.

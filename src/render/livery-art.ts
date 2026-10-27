@@ -80,6 +80,47 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';
 
+/** Map 2 (doc 09, Second Front wave 4): a region camo per theater and its 3★ reward. Generic schemes, no insignia. */
+const MAP2_LOOKS = {
+  seagrey: look('#7d8a8e', ['#7d8a8e', '#5b686e', '#97a3a3'], {
+    under: '#a9b3b5', camo: { kind: 'blobs', colors: ['#5b686e', '#8f9f98'], cover: [0.36, 0.3], size: 1.1, seed: 53 },
+    ink: 'rgba(20,28,32,0.55)', panel: 'rgba(20,28,32,0.22)', gloss: 0.7,
+  }),
+  deepblue: look('#1e3556', ['#1e3556', '#f2f2ee', '#d6ad45'], {
+    under: '#2a456b', tips: ['#f2f2ee'], trim: '#d6ad45', tail: tail('band', '#1e3556', '#f2f2ee'),
+    ink: 'rgba(5,10,20,0.7)', panel: 'rgba(200,215,235,0.14)', gloss: 1.5,
+  }),
+  snowrock: look('#e8ebee', ['#e8ebee', '#8c8478', '#b9bcc0'], {
+    camo: { kind: 'splinter', colors: ['#8c8478', '#b9bcc0'], cover: [0.3, 0.32], size: 1.2, seed: 61 },
+    ink: 'rgba(40,40,44,0.55)', panel: 'rgba(40,40,44,0.2)', gloss: 0.7,
+  }),
+  polarred: look('#f1f3f4', ['#f1f3f4', '#e2452b', '#b9bfc6'], {
+    tips: ['#e2452b'], band: { kind: 'solid', colors: ['#e2452b', '#e2452b'] }, stabs: '#e2452b', tail: tail('solid', '#e2452b'),
+    ink: 'rgba(40,44,50,0.5)', panel: 'rgba(40,44,50,0.18)', gloss: 1.3,
+  }),
+  jungle: look('#7a6b4e', ['#7a6b4e', '#3d5a32', '#5c7341'], {
+    under: '#9a8f78', camo: { kind: 'blobs', colors: ['#3d5a32', '#5c7341'], cover: [0.38, 0.34], size: 1.1, seed: 71 },
+    ink: 'rgba(16,20,10,0.6)', panel: 'rgba(16,20,10,0.22)', gloss: 0.55,
+  }),
+  emerald: look('#1f6b4a', ['#1f6b4a', '#d6ad45', '#8a6a1f'], {
+    trim: '#d6ad45', tail: tail('gold', '#d6ad45', '#8a6a1f'), ink: 'rgba(8,30,20,0.7)', panel: 'rgba(214,230,200,0.14)', gloss: 1.6,
+  }),
+  nightops: look('#2f3846', ['#2f3846', '#232a35', '#3e4858'], {
+    camo: { kind: 'splinter', colors: ['#232a35', '#3e4858'], cover: [0.36, 0.3], size: 1.15, seed: 83 },
+    ink: 'rgba(0,0,0,0.7)', panel: 'rgba(170,185,205,0.12)', gloss: 0.5,
+  }),
+  nighthawk: look('#16181c', ['#16181c', '#3a3f46', '#5b636e'], {
+    stripes: ['#3a3f46'], tail: tail('chevrons', '#16181c', '#3a3f46'), ink: 'rgba(0,0,0,0.8)', panel: DARK_PANEL, gloss: 0.4,
+  }),
+  stormgrey: look('#5d6670', ['#5d6670', '#4a525b', '#a3242c'], {
+    under: '#7d868f', twoTone: '#4a525b', tail: tail('band', '#5d6670', '#a3242c'), ink: 'rgba(10,12,16,0.6)', gloss: 0.6,
+  }),
+  legend: look('#c9ced4', ['#c9ced4', '#d6ad45', '#f2e6b8'], {
+    stripes: ['#d6ad45', '#f2e6b8'], tail: tail('sweep', '#c9ced4', '#d6ad45', '#8a6a1f'), trim: '#d6ad45',
+    ink: 'rgba(60,64,70,0.6)', panel: 'rgba(60,64,70,0.18)', gloss: 1.9,
+  }),
+} satisfies Record<string, Look>;
+
 const LOOKS: Readonly<Record<Exclude<LiveryId, 'standard'>, Look>> = {
   gullgray: look('#c3c4bb', ['#c3c4bb', '#f2f2ee', '#c62828'], {
     under: '#f2f2ee', tail: tail('chevrons', '#c62828', '#f5f5f0'), tips: ['#d23a2a', '#f3c21d', '#d23a2a'],
@@ -118,6 +159,7 @@ const LOOKS: Readonly<Record<Exclude<LiveryId, 'standard'>, Look>> = {
   blackgold: look('#15161a', ['#15161a', '#d6ad45', '#8a6a1f'], {
     tail: tail('gold', '#d6ad45', '#8a6a1f'), stabs: '#d6ad45', trim: '#d6ad45', ink: 'rgba(120,95,35,0.8)', panel: 'rgba(214,173,69,0.14)', gloss: 1.7,
   }),
+  ...MAP2_LOOKS,
 };
 
 export function liveryLook(plane: PlaneId, livery: LiveryId): Look {

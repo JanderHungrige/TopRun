@@ -3,7 +3,7 @@ id: 09-paint-jobs
 title: Paint Jobs - Reward Liveries for the Player Jets
 edition: TopRun
 depends_on: [02-hangar-economy, 03-campaign-map, 06-talking-characters, 07-i18n]
-relates: [02-hangar-economy, 03-campaign-map, 04-carrier-takeoff, 05-mission-combat, 06-talking-characters]
+relates: [02-hangar-economy, 03-campaign-map, 04-carrier-takeoff, 05-mission-combat, 06-talking-characters, 35-second-map, 36-new-jets]
 source_files:
   - src/data/liveries.ts
   - src/game/liveries.ts
@@ -12,17 +12,20 @@ source_files:
   - src/render/planes/tail-art.ts
   - src/render/planes/paint-pass.ts
   - src/i18n/liveries-de.ts
+  - src/scenes/hangar-items.ts
+  - src/scenes/hangar-panels.ts
 routes: []
 models:
   - "SaveData.livery: Record<PlaneId, LiveryId> (per pilot, inside the profile store, doc 08)"
 test_files:
   - tests/unit/liveries.test.ts
+  - tests/unit/liveries-2.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-25
+last_synced: 2026-10-27
 status: complete
 phase: all
 mdd_version: 11
-tags: [paint-jobs, liveries, camouflage, rewards, unlocks, hangar, debrief, f-14, f-16, sr-71]
+tags: [paint-jobs, liveries, camouflage, rewards, unlocks, hangar, debrief, f-14, f-16, sr-71, second-front, region-camo]
 path: Game/PaintJobs
 integration_contracts:
   - function: "drawPlaneTop(ctx, id, x, y, scale, { livery }) / drawPlaneSide(..., { livery })"
@@ -63,6 +66,30 @@ real squadron or team names, insignia, national markings or logos.
 | airshow | Air Show | Flugshow | boss Leviathan (LEVIATHAN) | white with sweeping red and blue stripes (demo-team style, no logos) |
 | blackgold | Black & Gold | Schwarz-Gold | 3★ Leviathan | gloss black with gold trim lines and gold tails |
 
+### Map 2 (Second Front wave 4, owner 2026-10-27)
+
+"Camo/paints for the new jets and new camos to unlock in general." Ten more, shown in the PAINT tab only once
+map 2 is open. Each map-2 theater has a **region camo that unlocks when the region opens** — its first mission
+becomes playable (the previous theater's boss beaten; North Sea: mission 30 cleared) — so the pilot flies it where it
+fits (owner: "the desert camo comes after winning the desert … let's shift it to just before the region starts";
+map 1 follows in the Fair Challenge initiative). The rare one stays the 3★ reward.
+
+| id | EN name | DE name | Unlock | Look |
+|----|---------|---------|--------|------|
+| seagrey | North Sea Grey | Nordsee-Grau | region North Sea opens | grey, slate and sea-green soft blobs |
+| deepblue | Deep Blue | Tiefseeblau | 3★ North Sea | gloss navy blue, white wingtip bands, gold pinstripes |
+| snowrock | Mountain Snow | Bergschnee | region Roof of the World opens | white with rock-brown and grey splinter |
+| polarred | Polar Red | Polarrot | 3★ Roof of the World | white with high-visibility red wingtips, nose band, tails |
+| jungle | Jungle | Dschungel | region Green Hell opens | tan with two jungle greens, soft blobs |
+| emerald | Emerald | Smaragd | 3★ Green Hell | gloss emerald green, gold trim and gold tails |
+| nightops | Night Ops | Nachteinsatz | region Desert Night opens | dark slate and navy splinter, low gloss |
+| nighthawk | Night Hawk | Nachtfalke | 3★ Desert Night | matte black with dark-grey stripes and chevrons |
+| stormgrey | Storm Ghost | Sturmgeist | region Operation Thunderhead opens | two-tone storm grey, dark-red tail band |
+| legend | Top Gun Legend | Top-Gun-Legende | 3★ Operation Thunderhead | polished silver with gold sweep stripes and gold trim |
+
+- PAINT tab with map 2 open: 21 rows in two columns (name and status stacked); the unlock line reads
+  "Unlocks when {theater} opens".
+
 ## Architecture
 
 ```
@@ -84,7 +111,7 @@ ignore the livery.
 ```ts
 type LiveryId = 'standard' | 'gullgray' | 'blackflag' | 'desert' | 'sunburst' | 'arctic' | 'aggressor'
               | 'woodland' | 'tiger' | 'airshow' | 'blackgold';
-type LiveryUnlock = { theater: TheaterId; kind: 'boss' | 'stars' } | null;   // null = always
+type LiveryUnlock = { theater: TheaterId; kind: 'boss' | 'stars' | 'region' } | null;   // null = always
 SaveData.livery: Record<PlaneId, LiveryId>   // default: every jet 'standard'
 PlayerStats.livery: LiveryId                 // the selected jet's livery, for the mission renderer
 ```
@@ -92,6 +119,8 @@ PlayerStats.livery: LiveryId                 // the selected jet's livery, for t
 Unlocks are **derived from campaign progress**, never stored, so they cannot drift out of sync:
 - `boss` — the theater's boss mission (its 6th) is in `progress` (cleared).
 - `stars` — all six missions of the theater are in `progress` with 3 stars.
+- `region` — the theater's first mission is unlocked (doc 03/35 unlock rules: the mission before it in its
+  campaign is cleared; the first theater of map 2 needs mission 30). Both maps' missions count (`ALL_MISSIONS`).
 
 ## Business Rules
 

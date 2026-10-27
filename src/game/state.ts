@@ -7,6 +7,7 @@ import type { MedalId } from '../data/medals';
 import type { MinigameId } from '../data/minigames';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarLook } from './avatar-look';
+import type { PilotMatch } from './ladder-cloud';
 import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
 import type { SaveData } from './save';
 import type { Settings } from './settings';
@@ -22,6 +23,7 @@ export type Route =
   | { to: 'pilots' }
   /** Back up / restore a pilot as text or a file (doc 08); BACK returns to `from`. */
   | { to: 'pilotCode'; from: 'pilots' | 'newPilot' }
+  | { to: 'pilotLoad'; from: 'pilots' | 'newPilot' }
   | { to: 'newPilot'; draft?: NewPilotDraft }
   | { to: 'avatarBuilder'; target: BuilderTarget }
   | { to: 'joystick' }
@@ -64,6 +66,8 @@ export interface GameContext {
   createProfile(callsign: string, avatar: AvatarId): CreateResult;
   /** Adds or replaces a pilot restored from a pilot code (doc 08); it becomes active. */
   importProfile(profile: Profile): ImportResult;
+  /** Adds or replaces a pilot loaded from the cloud by callsign (doc 34); it becomes active. */
+  loadCloudPilot(match: PilotMatch, save: SaveData): ImportResult;
   selectProfile(id: string): void;
   deleteProfile(id: string): void;
   go(route: Route): void;

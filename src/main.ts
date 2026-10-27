@@ -1,6 +1,7 @@
 import { AudioEngine } from './core/audio';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
+import { CloudSync, type CloudUpload } from './core/cloud-sync';
 import { LadderSync } from './core/ladder-sync';
 import { requestPersistence } from './core/persist';
 import { startLoop } from './core/loop';
@@ -11,7 +12,9 @@ import {
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type ImportResult, type Profile,
   type ProfileStore,
 } from './game/profiles';
+import { cloudProfile } from './game/cloud-pilot';
 import type { Submission } from './game/ladder';
+import type { PilotMatch } from './game/ladder-cloud';
 import { deviceCountry, withLadderCountry } from './game/ladder-country';
 import { ladderAvatar, withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
@@ -36,6 +39,7 @@ import { moduleFor } from './scenes/minigames/registry';
 import { MinigameScene } from './scenes/minigames/shell';
 import { pilotStats } from './scenes/pilot-rating';
 import { PilotCodeScene } from './scenes/pilot-code';
+import { PilotLoadScene } from './scenes/pilot-load';
 import { PilotsScene } from './scenes/pilots';
 import { TakeoffScene } from './scenes/takeoff';
 import { TitleScene } from './scenes/title';
@@ -49,6 +53,8 @@ class Game implements GameContext {
   readonly audio: AudioEngine;
   readonly music: Music;
   readonly ladder = new LadderSync(() => this.ladderSubmission());
+  /** The active pilot's cloud save (doc 34), uploaded after the ladder post. */
+  private readonly cloud = new CloudSync(() => this.cloudUpload(), () => this.ladder.flush());
 
   constructor(readonly input: Input, private readonly scenes: SceneManager, readonly dom: { host: HTMLElement; viewport: () => Viewport }) {
     const st = this.store.settings;
@@ -86,12 +92,25 @@ class Game implements GameContext {
     }
     const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
     this.commit(updateActiveSave(this.store, withLadderCountry(linked, this.localCountry())));
-    this.ladder.poke();
+    this.sync();
   }
 
   /** The device's country for the ladder flag (doc 28): its time zone, else its language region. */
   private localCountry(): string | null {
     return deviceCountry(Intl.DateTimeFormat().resolvedOptions().timeZone, navigator.languages ?? [navigator.language]);
+  }
+
+  /** The ladder entry and the cloud save may have changed (docs 28, 34). */
+  private sync(): void {
+    this.ladder.poke();
+    this.cloud.poke();
+  }
+
+  /** The active pilot's whole save for the cloud, while it is shown on the ladder (doc 34). */
+  private cloudUpload(): CloudUpload | null {
+    const p = activeProfile(this.store);
+    const link = p?.save.ladder;
+    return p && link?.share ? { id: link.id, secret: link.secret, save: p.save } : null;
   }
 
   /** What the active pilot reports to the online ladder; null while not shared (doc 28). */
@@ -124,9 +143,14 @@ class Game implements GameContext {
     if (r.ok) {
       this.commit(r.store);
       requestPersistence();
-      this.ladder.poke();
+      this.sync();
     }
     return r;
+  }
+
+  /** A pilot loaded from the cloud (doc 34): replaces the one with the same ladder entry, else joins; becomes active. */
+  loadCloudPilot(match: PilotMatch, save: SaveData): ImportResult {
+    return this.importProfile(cloudProfile(match, save, this.store.profiles, newProfileId(), Date.now()));
   }
 
   selectProfile(id: string): void {
@@ -134,7 +158,7 @@ class Game implements GameContext {
     const save = activeProfile(this.store)?.save;
     // An entry catches up as soon as its pilot is picked: its avatar, and a flag it has none of yet (doc 28).
     if (save?.ladder?.country === null) this.setSave(save); // setSave pokes the ladder too
-    else this.ladder.poke();
+    else this.sync();
   }
 
   deleteProfile(id: string): void {
@@ -155,6 +179,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'title': return new TitleScene(game);
     case 'pilots': return new PilotsScene(game);
     case 'pilotCode': return new PilotCodeScene(game, route.from);
+    case 'pilotLoad': return new PilotLoadScene(game, route.from);
     case 'newPilot': return new NewPilotScene(game, route.draft);
     case 'avatarBuilder': return new AvatarBuilderScene(game, route.target);
     case 'joystick': return new JoystickSetupScene(game);

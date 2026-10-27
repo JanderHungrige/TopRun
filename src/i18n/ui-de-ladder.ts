@@ -16,7 +16,7 @@ export const UI_DE_LADDER = {
   'ladder.refresh': 'AKTUALISIEREN',
   'ladder.shareOn': 'MEIN PILOT SICHTBAR: AN',
   'ladder.shareOff': 'MEIN PILOT SICHTBAR: AUS',
-  'ladder.public': 'Rufzeichen, Avatar, Flagge und Wertung sieht jeder, der den Link zum Spiel hat.',
+  'ladder.public': 'Rufname, Avatar, Flagge und Wertung sind öffentlich; mit dem Rufnamen kann jeder den Piloten laden.',
   'ladder.hint': '↑/↓ blättern  ·  ←/→ Knöpfe  ·  ESC zurück',
   'ladder.page': '{from}–{to} von {total}',
   'rank.ensign': 'Leutnant zur See',

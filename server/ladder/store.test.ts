@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { applySubmission, emptyTable, parseTable } from '../../src/game/ladder.ts';
-import { openStore } from './store.ts';
+import { LADDER, openStore } from './store.ts';
 
 let dir = '';
 beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), 'ladder-')); });
@@ -17,20 +17,20 @@ const sub = {
 describe('Ladder store', () => {
   it('starts empty without a file, writes on flush, and reads it back', async () => {
     const file = join(dir, 'ladder.json');
-    const store = await openStore(file, 60_000);
+    const store = await openStore(file, LADDER, 60_000);
     expect(store.get()).toEqual(emptyTable());
     const r = applySubmission(store.get(), sub, 'hash', 5);
     if (!r.ok) throw new Error('setup');
     store.set(r.table);
     await store.flush();
     expect(parseTable(JSON.parse(await readFile(file, 'utf8')))).toEqual(r.table);
-    expect((await openStore(file)).get()).toEqual(r.table);
+    expect((await openStore(file, LADDER)).get()).toEqual(r.table);
     expect(await readdir(dir)).toEqual(['ladder.json']);
   });
 
   it('writes on its own after the debounce delay', async () => {
     const file = join(dir, 'ladder.json');
-    const store = await openStore(file, 10);
+    const store = await openStore(file, LADDER, 10);
     const r = applySubmission(store.get(), sub, 'hash', 5);
     if (!r.ok) throw new Error('setup');
     store.set(r.table);
@@ -41,7 +41,7 @@ describe('Ladder store', () => {
   it('moves an unreadable file aside instead of crashing or overwriting it', async () => {
     const file = join(dir, 'ladder.json');
     await writeFile(file, '{ broken', 'utf8');
-    const store = await openStore(file);
+    const store = await openStore(file, LADDER);
     expect(store.get()).toEqual(emptyTable());
     const names = await readdir(dir);
     expect(names).toHaveLength(1);

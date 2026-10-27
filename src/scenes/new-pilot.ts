@@ -18,8 +18,8 @@ const FIELD: Rect = { x: 48, y: 110, w: 440, h: 54 };
 const PREVIEW: Rect = { x: COL_X - 120, y: 200, w: 240, h: 288 };
 const START: Button = { id: 'start', label: '', x: 48, y: 506, w: 440, h: 48, primary: true };
 const BACK: Button = { id: 'back', label: '', x: 48, y: 566, w: 212, h: 44 };
-/** Restore a pilot from a pilot code on a fresh device (doc 08). */
-const CODE: Button = { id: 'code', label: '', x: 276, y: 566, w: 212, h: 44 };
+/** Bring a pilot from another device by callsign (doc 34); the pilot code is switched off for now (doc 08). */
+const LOAD: Button = { id: 'load', label: '', x: 276, y: 566, w: 212, h: 44 };
 /** Right: four rows of five cards at 135 × 162 (the portraits' 5:6), CREATE YOUR OWN last (doc 08). */
 const CARD_W = 135;
 const CARD_H = 162;
@@ -147,9 +147,9 @@ export class NewPilotScene implements Scene {
       if (card !== undefined) this.pick(card);
       if (hit(tap, BACK)) return this.back();
       if (hit(tap, START)) return this.submit();
-      if (hit(tap, CODE)) {
+      if (hit(tap, LOAD)) {
         this.game.audio.play('uiSelect');
-        return this.game.go({ to: 'pilotCode', from: 'newPilot' });
+        return this.game.go({ to: 'pilotLoad', from: 'newPilot' });
       }
     }
     if (input.pressed('left')) this.move(-1, 0);
@@ -177,7 +177,7 @@ export class NewPilotScene implements Scene {
     const ok = this.check() === 'ok' && !this.full;
     drawButton(ctx, { ...START, label: t('newPilot.start'), enabled: ok }, ok, this.time);
     drawButton(ctx, { ...BACK, label: t('newPilot.back') }, false, this.time);
-    drawButton(ctx, { ...CODE, label: t('pilots.code') }, false, this.time);
+    drawButton(ctx, { ...LOAD, label: t('cloud.load') }, false, this.time);
     text(ctx, t('newPilot.hint'), COL_X, 640, { size: 13, align: 'center', color: COLORS.faint, maxWidth: FIELD.w + 30 });
   }
 

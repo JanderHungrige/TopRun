@@ -5,6 +5,7 @@ import { UI_DE_HONOURS } from './ui-de-honours';
 import { UI_DE_OFFDUTY } from './ui-de-offduty';
 import { UI_DE_AVATAR } from './ui-de-avatar';
 import { UI_DE_CODE } from './ui-de-code';
+import { UI_DE_CLOUD } from './ui-de-cloud';
 import { UI_DE_JOYSTICK } from './ui-de-joystick';
 import type { UiKey } from './ui-en';
 
@@ -52,7 +53,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'pilots.deleteText': 'Geld, Jets und Orden dieses Piloten gehen verloren.',
   'pilots.back': 'ZURÜCK',
   'pilots.newPilot': 'NEUER PILOT',
-  'pilots.hint': '↑/↓ wählen  ·  ENTER fliegen  ·  E Aussehen  ·  R Pilotencode  ·  ENTF löschen  ·  ESC zurück',
+  'pilots.hint': '↑/↓ wählen  ·  ENTER fliegen  ·  E Aussehen  ·  R Pilot laden  ·  ENTF löschen  ·  ESC zurück',
   'newPilot.title': 'NEUER PILOT',
   'newPilot.callsign': 'RUFNAME',
   'newPilot.placeholder': 'DEIN RUFNAME',
@@ -263,5 +264,6 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   ...UI_DE_HANGAR,
   ...UI_DE_AVATAR,
   ...UI_DE_CODE,
+  ...UI_DE_CLOUD,
   ...UI_DE_JOYSTICK,
 };

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY tsconfig.json tsconfig.server.json vite.config.ts ./
-COPY src/game/ladder.ts src/game/rating.ts src/game/callsign.ts ./src/game/
+COPY src/game/ladder.ts src/game/ladder-cloud.ts src/game/rating.ts src/game/callsign.ts ./src/game/
 COPY src/data/ranks.ts src/data/countries.ts ./src/data/
 COPY server ./server
 RUN npx tsc -p tsconfig.server.json && npx vitest run server
@@ -20,9 +20,9 @@ ENV NODE_ENV=production PORT=8090 LADDER_FILE=/data/ladder.json
 WORKDIR /srv
 # Only for "type": "module"; nothing is installed.
 COPY package.json ./
-COPY --from=check /app/src/game/ladder.ts /app/src/game/rating.ts /app/src/game/callsign.ts ./src/game/
+COPY --from=check /app/src/game/ladder.ts /app/src/game/ladder-cloud.ts /app/src/game/rating.ts /app/src/game/callsign.ts ./src/game/
 COPY --from=check /app/src/data/ranks.ts /app/src/data/countries.ts ./src/data/
-COPY --from=check /app/server/ladder/main.ts /app/server/ladder/http.ts /app/server/ladder/store.ts /app/server/ladder/log.ts ./server/ladder/
+COPY --from=check /app/server/ladder/main.ts /app/server/ladder/http.ts /app/server/ladder/cloud-http.ts /app/server/ladder/reply.ts /app/server/ladder/store.ts /app/server/ladder/log.ts ./server/ladder/
 # A new named volume copies this directory, so the unprivileged user owns /data.
 RUN mkdir -p /data && chown node:node /data
 USER node

@@ -20,7 +20,7 @@ const START: Button = { id: 'start', label: '', x: 48, y: 506, w: 440, h: 48, pr
 const BACK: Button = { id: 'back', label: '', x: 48, y: 566, w: 212, h: 44 };
 /** Restore a pilot from a pilot code on a fresh device (doc 08). */
 const CODE: Button = { id: 'code', label: '', x: 276, y: 566, w: 212, h: 44 };
-/** Right: four rows of five cards at 135 × 162 (the portraits' 5:6), CREATE YOUR OWN closing row 3 (doc 08). */
+/** Right: four rows of five cards at 135 × 162 (the portraits' 5:6), CREATE YOUR OWN last (doc 08). */
 const CARD_W = 135;
 const CARD_H = 162;
 const CARD_GAP = 8;

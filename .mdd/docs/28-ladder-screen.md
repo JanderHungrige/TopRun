@@ -48,8 +48,8 @@ sister_projects: []
 
 The game side of the online ladder (doc 27): every friend's pilot on one list with rating and naval
 rank (doc 26), as the LADDER area of the hangar base (doc 30), kept up to date without the player
-doing anything. Owner (2026-10-25): many people may join, so names only — no avatars — and your own
-pilot is always visible and highlighted.
+doing anything. Owner (2026-10-25): your own pilot is always visible and highlighted. Avatars were
+dropped that day (names only) and came back on 2026-10-27 (owner: "add the avatars back to the ladder").
 
 ## Ladder identity (per pilot)
 
@@ -63,7 +63,7 @@ pilot is always visible and highlighted.
 ## Posting (automatic)
 
 - After every `setSave()` the game pokes `LadderSync`; 2.5 s later (debounced) it posts the active
-  pilot's `{ id, secret, callsign, stats }` if `share` is on and the submission differs from
+  pilot's `{ id, secret, callsign, avatar, stats }` if `share` is on and the submission differs from
   the last one accepted this session. That covers debriefs, minigame bests and hangar purchases
   without touching those scenes.
 - Stats: `pilotStats(save)` = `ladderStats(save, tiers, medals, kills)` — stars summed over
@@ -76,7 +76,10 @@ pilot is always visible and highlighted.
 
 - Opened from the hangar base's LADDER area (route `ladder`); BACK / Esc returns to `base`. Not on
   the title menu any more. Header "ONLINE LADDER", backdrop like the pilot list.
-- Table: place, rank board + rank name, callsign, rating — no avatars. 10 rows per page, ↑/↓ scroll
+- Table: place, rank board + rank name, avatar, callsign, rating. The avatar is a small face crop of the
+  pilot's portrait (`ladderAvatar`: the builder look's key when the pilot built one, else the preset;
+  `ladderFace` maps it back), drawn left of the callsign; an entry without one shows a dark silhouette.
+  10 rows per page, ↑/↓ scroll
   a row, the ▲/▼ buttons right of the table a page (mouse, touch, or focus + ENTER).
 - **Your row is always visible and highlighted:** the active pilot's row is found by the place from
   the last post (`place − 1`, callsign must match; otherwise by callsign). When it is not on the
@@ -88,7 +91,7 @@ pilot is always visible and highlighted.
 - Buttons: BACK, REFRESH, SHOW MY PILOT: ON/OFF (active pilot only; OFF deletes the entry and
   stops posting, ON posts at once). While sharing is off, every visit retries the DELETE, so an
   opt-out that hit a network error still lands. Keyboard: ←/→ between buttons, ↑/↓ scroll, Esc back.
-- A small info line: "Callsign and rating are visible to everyone with the game's link."
+- A small info line: "Callsign, avatar and rating are visible to everyone with the game's link."
 
 ## Ranks elsewhere
 

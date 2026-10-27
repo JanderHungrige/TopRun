@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { defaultSave, parseSave } from '../../src/game/save';
 import {
-  ladderIdentity, ladderStats, parseLadderLink, parseLadderView, parsePostReply, withLadderLink,
+  ladderAvatar, ladderFace, ladderIdentity, ladderStats, parseLadderLink, parseLadderView, parsePostReply, withLadderLink,
 } from '../../src/game/ladder-stats';
 import { parseSubmission, takeWrite, WRITES_PER_MIN } from '../../src/game/ladder';
 import { RATING } from '../../src/game/rating';
@@ -65,14 +65,28 @@ describe('Ladder client side and write limit', () => {
   });
 
   it('reads the ladder from the network defensively', () => {
-    const ok = { callsign: 'GOOSE', rating: 5000, rank: 'lcdr', updatedAt: 9 };
+    const ok = { callsign: 'GOOSE', avatar: 'pilot3', rating: 5000, rank: 'lcdr', updatedAt: 9 };
     expect(parseLadderView({ pilots: [ok, { ...ok, callsign: '<b>x</b>' }, { ...ok, rank: 'pope' }, 7], updatedAt: 9 }))
       .toEqual({ pilots: [ok], updatedAt: 9 });
+    expect(parseLadderView({ pilots: [{ ...ok, avatar: 'javascript:alert(1)' }], updatedAt: 9 })?.pilots[0]?.avatar).toBeNull();
+    const { avatar: _a, ...older } = ok;
+    expect(parseLadderView({ pilots: [older], updatedAt: 9 })?.pilots[0]?.avatar).toBeNull();
     expect(parseLadderView('<!doctype html>')).toBeNull();
     expect(parseLadderView({ pilots: 'x', updatedAt: 1 })).toBeNull();
     expect(parsePostReply({ place: 2, rating: 1690, rank: 'ltjg' })).toEqual({ place: 2, rating: 1690, rank: 'ltjg' });
     expect(parsePostReply({ place: 0, rating: 1, rank: 'ltjg' })).toBeNull();
     expect(parsePostReply({ error: 'secret' })).toBeNull();
+  });
+
+  it("reports the pilot's avatar and maps it back to a portrait (doc 28)", () => {
+    const look = { age: 'adult', gender: 'female', skin: 'fair', hair: 'red', length: 'long', face: 'f2' } as const;
+    expect(ladderAvatar('pilot14', null)).toBe('pilot14');
+    expect(ladderAvatar('pilot2', look)).toBe('adult-female-fair-red-long-f2');
+    expect(parseSubmission({ id: 'p_0123456789abcdefghijkl', secret: 's'.repeat(43), callsign: 'ACE',
+      avatar: ladderAvatar('pilot2', look), stats: ladderStats(defaultSave(), [], 0, 0) })?.avatar).toBe('adult-female-fair-red-long-f2');
+    expect(ladderFace('pilot14')).toBe('pilot14');
+    expect(ladderFace('adult-female-fair-red-long-f2')).toEqual(look);
+    expect(ladderFace(null)).toBeNull();
   });
 
   it('counts the earned medals and the service-record kills (doc 24)', () => {

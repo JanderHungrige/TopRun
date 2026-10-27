@@ -1,7 +1,8 @@
 import { deletePilot, fetchLadder } from '../core/ladder-api';
 import { formatPoints } from '../core/math';
 import type { Scene } from '../core/scene';
-import type { LadderLink, LadderView, PostReply } from '../game/ladder-stats';
+import type { PublicPilot } from '../game/ladder';
+import { ladderAvatar, type LadderLink, type LadderView, type PostReply } from '../game/ladder-stats';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { drawSunset } from '../render/backdrop';
@@ -155,7 +156,10 @@ export class LadderScene implements Scene {
     if (pilot) return own >= this.top && own < this.top + ROWS_PER_PAGE ? null : { place: own + 1, pilot, you: true };
     const p = this.game.profile;
     if (!this.mine || !p || !this.link?.share) return null;
-    return { place: this.mine.place, pilot: { callsign: p.callsign, rating: this.mine.rating, rank: this.mine.rank, updatedAt: 0 }, you: true };
+    const local: PublicPilot = {
+      callsign: p.callsign, avatar: ladderAvatar(p.avatar, p.save.look), rating: this.mine.rating, rank: this.mine.rank, updatedAt: 0,
+    };
+    return { place: this.mine.place, pilot: local, you: true };
   }
 
   private statusLine(): string {

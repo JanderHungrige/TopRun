@@ -20,6 +20,8 @@ export interface Submission {
   id: string;
   secret: string;
   callsign: string;
+  /** The pilot's portrait key (`parseAvatar`); null when missing or unknown. */
+  avatar: string | null;
   stats: RatingStats;
 }
 
@@ -27,6 +29,7 @@ export interface LadderEntry {
   id: string;
   secretHash: string;
   callsign: string;
+  avatar: string | null;
   stats: RatingStats;
   rating: number;
   /** When the current rating was first reached (earlier wins a tie). */
@@ -41,6 +44,7 @@ export interface LadderTable {
 
 export interface PublicPilot {
   callsign: string;
+  avatar: string | null;
   rating: number;
   rank: RankId;
   updatedAt: number;
@@ -54,6 +58,15 @@ export const emptyTable = (): LadderTable => ({ version: 1, pilots: [] });
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isTime = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+
+/** Avatar keys (doc 27): a preset id or a builder look (doc 29). Patterns, because profiles.ts and avatar-look.ts
+ *  pull in the game; a test pins them to AVATAR_IDS and every builder look. */
+const PRESET_AVATAR = /^pilot([1-9]|1[0-8])$/;
+const LOOK_AVATAR = /^(kid|adult)-(female|male)-(fair|olive|brown|dark)-(black|brown|blond|red)-(short|long)-(f1|f2)$/;
+
+/** Untrusted avatar → the same key when it names a known portrait, else null. */
+export const parseAvatar = (v: unknown): string | null =>
+  typeof v === 'string' && (PRESET_AVATAR.test(v) || LOOK_AVATAR.test(v)) ? v : null;
 
 function parseStats(v: unknown): RatingStats | null {
   if (!isRecord(v)) return null;
@@ -86,7 +99,7 @@ export function parseSubmission(v: unknown): Submission | null {
   const callsign = parseCallsign(v.callsign);
   const stats = parseStats(v.stats);
   if (callsign === null || stats === null) return null;
-  return { ...who, callsign, stats };
+  return { ...who, callsign, avatar: parseAvatar(v.avatar), stats };
 }
 
 /** Compares two hashes without an early exit, so timing reveals nothing. */
@@ -121,7 +134,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
   const stats = clampStats(sub.stats);
   const rating = pilotRating(stats);
   const entry: LadderEntry = {
-    id: sub.id, secretHash, callsign: sub.callsign, stats, rating,
+    id: sub.id, secretHash, callsign: sub.callsign, avatar: sub.avatar, stats, rating,
     ratedAt: prev && prev.rating === rating ? prev.ratedAt : now,
     updatedAt: now,
   };
@@ -132,7 +145,7 @@ export function applySubmission(table: LadderTable, sub: Submission, secretHash:
 /** The top of the ladder without ids or secrets. */
 export function publicLadder(table: LadderTable): PublicPilot[] {
   return [...table.pilots].sort(byRank).slice(0, PUBLIC_TOP).map((p) => ({
-    callsign: p.callsign, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
+    callsign: p.callsign, avatar: p.avatar, rating: p.rating, rank: rankFor(p.rating), updatedAt: p.updatedAt,
   }));
 }
 
@@ -157,7 +170,7 @@ function parseEntry(v: unknown): LadderEntry | null {
   if (typeof id !== 'string' || !ID.test(id) || typeof secretHash !== 'string' || secretHash.length === 0) return null;
   if (callsign === null || stats === null || !isTime(ratedAt) || !isTime(updatedAt)) return null;
   const clamped = clampStats(stats);
-  return { id, secretHash, callsign, stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
+  return { id, secretHash, callsign, avatar: parseAvatar(v.avatar), stats: clamped, rating: pilotRating(clamped), ratedAt, updatedAt };
 }
 
 /** Stored ladder.json → table; malformed and duplicate entries are dropped. */

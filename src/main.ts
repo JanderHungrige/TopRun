@@ -12,7 +12,7 @@ import {
   type ProfileStore,
 } from './game/profiles';
 import type { Submission } from './game/ladder';
-import { withLadderLink } from './game/ladder-stats';
+import { ladderAvatar, withLadderLink } from './game/ladder-stats';
 import { defaultSave, type SaveData } from './game/save';
 import { toggleAllSound, type Settings } from './game/settings';
 import type { GameContext, Route } from './game/state';
@@ -93,7 +93,7 @@ class Game implements GameContext {
     const p = activeProfile(this.store);
     const link = p?.save.ladder;
     if (!p || !link?.share) return null;
-    return { id: link.id, secret: link.secret, callsign: p.callsign, stats: pilotStats(p.save) };
+    return { id: link.id, secret: link.secret, callsign: p.callsign, avatar: ladderAvatar(p.avatar, p.save.look), stats: pilotStats(p.save) };
   }
 
   setSettings(next: Settings): void {

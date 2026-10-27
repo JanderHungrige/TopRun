@@ -42,8 +42,9 @@ sister_projects: []
 ## Purpose
 
 Rewards for campaign progress that the player can *see*: realistic military paint schemes for the
-F-14, F-16 and SR-71. Beating a theater's boss unlocks a scheme; three stars on every mission of a
-theater unlocks a rare one. The admiral announces each new scheme in the debrief, the player picks
+jets. Each theater's camo is ready when the theater opens, so it is flown where it fits (owner,
+2026-10-27, Fair Challenge wave 1 — it used to unlock with the theater's boss, i.e. just as the pilot left
+the desert for the ice); three stars on every mission of a theater unlocks a rare one. The admiral announces each new scheme in the debrief, the player picks
 one per jet in the hangar, and the jet wears it in the mission, on the carrier and in the hangar.
 
 ## Liveries
@@ -55,15 +56,15 @@ real squadron or team names, insignia, national markings or logos.
 | id | EN name | DE name | Unlock | Look (all jets) |
 |----|---------|---------|--------|-----------------|
 | standard | Factory Standard | Werkslackierung | always | today's per-jet scheme: F-16 two-tone gray, F-14 low-vis gray, SR-71 black; A-10 two-tone grey, F-35 dark radar grey, Tornado grey-green splinter (doc 36, no insignia) |
-| gullgray | Seventies Navy | Siebziger-Navy | boss Pacific (IRONCLAD) | glossy light gull gray, high-visibility tail: red with white chevrons, colourful wingtip bands |
+| gullgray | Seventies Navy | Siebziger-Navy | region Pacific (from the start) | glossy light gull gray, high-visibility tail: red with white chevrons, colourful wingtip bands |
 | blackflag | Black Flag | Schwarze Flagge | 3★ Pacific | gray body, gloss-black tails with a white skull & crossbones, black/yellow nose stripe |
-| desert | Desert Camo | Wüstentarnung | boss Gulf (SANDSTORM) | sand, brown and tan soft-edged camouflage blobs |
+| desert | Desert Camo | Wüstentarnung | region Gulf opens (IRONCLAD beaten) | sand, brown and tan soft-edged camouflage blobs |
 | sunburst | Sunburst | Sonnenaufgang | 3★ Gulf | light gray, red-orange sunburst rays on the tails, red nose band |
-| arctic | Arctic Splinter | Arktis-Splitter | boss Arctic (BLACKJACK) | white, light gray and pale-blue angular splinter camouflage |
+| arctic | Arctic Splinter | Arktis-Splitter | region Arctic opens (SANDSTORM beaten) | white, light gray and pale-blue angular splinter camouflage |
 | aggressor | Aggressor Blue | Aggressor-Blau | 3★ Arctic | dark-blue, mid-blue and blue-gray splinter (adversary-squadron style) |
-| woodland | European Woodland | Waldtarnung | boss Canyon (TYPHOON) | dark green and dark gray wraparound camouflage |
+| woodland | European Woodland | Waldtarnung | region Canyon opens (BLACKJACK beaten) | dark green and dark gray wraparound camouflage |
 | tiger | Tiger Stripes | Tigerstreifen | 3★ Canyon | gray body, orange-and-black tiger stripes over tails, wingtips and nose |
-| airshow | Air Show | Flugshow | boss Leviathan (LEVIATHAN) | white with sweeping red and blue stripes (demo-team style, no logos) |
+| airshow | Air Show | Flugshow | region Leviathan opens (TYPHOON beaten) | white with sweeping red and blue stripes (demo-team style, no logos) |
 | blackgold | Black & Gold | Schwarz-Gold | 3★ Leviathan | gloss black with gold trim lines and gold tails |
 
 ### Map 2 (Second Front wave 4, owner 2026-10-27)
@@ -87,6 +88,8 @@ map 1 follows in the Fair Challenge initiative). The rare one stays the 3★ rew
 | stormgrey | Storm Ghost | Sturmgeist | region Operation Thunderhead opens | two-tone storm grey, dark-red tail band |
 | legend | Top Gun Legend | Top-Gun-Legende | 3★ Operation Thunderhead | polished silver with gold sweep stripes and gold trim |
 
+- Map 1 follows the same rule since Fair Challenge wave 1: no camo is lost — a beaten boss means the region was
+  open, so every pilot keeps what they had and some get the next region's camo early.
 - PAINT tab with map 2 open: 21 rows in two columns (name and status stacked); the unlock line reads
   "Unlocks when {theater} opens".
 

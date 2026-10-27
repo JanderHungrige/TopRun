@@ -3,11 +3,11 @@ id: fair-challenge-wave-1
 title: "Wave 1: Region paint jobs before the region"
 initiative: fair-challenge
 initiative_version: 1
-status: planned
+status: complete
 depends_on: none
 demo_state: "A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions ahead; each region's camo is ready when the region opens."
 created: 2026-10-27
-hash: ac4378a8
+hash: fa914dc9
 ---
 
 # Wave 1: Region paint jobs before the region
@@ -19,7 +19,7 @@ A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions 
 ## Features
 | # | Feature | Doc | Status | Depends on |
 |---|---------|-----|--------|------------|
-| 1 | region-camo | 09-paint-jobs (update) | planned | — |
+| 1 | region-camo | 09-paint-jobs (update) | complete | — |
 
 ## Open Research
 - Which liveries are region camos (boss unlocks) and which stay star rewards; retroactive for existing pilots (unlocks are derived from progress, doc 09).

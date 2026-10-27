@@ -163,7 +163,7 @@ export class MapScene implements Scene {
     text(ctx, '▲'.repeat(threat) + '△'.repeat(5 - threat), x + 70, PANEL.y + 129, { size: 14, color: m.campaign === 2 ? '#c27bff' : COLORS.red });
     const cleared = isCleared(s, m);
     text(ctx, t('map.reward'), x + 180, PANEL.y + 128, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
-    text(ctx, formatMoney(cleared ? m.reward * 0.5 : m.reward) + (cleared ? `  ${t('map.replay')}` : ''), x + 244, PANEL.y + 129, { size: 14, color: COLORS.green });
+    text(ctx, formatMoney(cleared ? m.reward * 0.5 : m.reward) + (cleared ? `  ${t('map.replay')}` : ''), x + 244, PANEL.y + 129, { size: 14, color: COLORS.green, maxWidth: PANEL.w - 264 });
     const h = paragraph(ctx, missionBriefing(m), x, PANEL.y + 164, PANEL.w - 40, { size: 15, color: COLORS.ink, type: true });
     let y = PANEL.y + 182 + h;
     text(ctx, t('map.contacts'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
@@ -182,5 +182,8 @@ export class MapScene implements Scene {
     const level = s.gun2Level > 0 && doubleFirepower(s.selectedPlane) ? `${jetGunLevel(s.selectedPlane, s.gunLevel)} + ${s.gun2Level}` : String(jetGunLevel(s.selectedPlane, s.gunLevel));
     text(ctx, t('map.gunLevel', { plane: PLANES[s.selectedPlane].name, level }), x, y + 22, { size: 15, color: COLORS.ink, maxWidth: PANEL.w - 40 });
     text(ctx, weapons, x, y + 44, { size: 13, color: COLORS.dim, maxWidth: PANEL.w - 40 });
+    // Challenge level / Rookie (doc 38), small under the jet.
+    const tag = s.rookie ? t('pilots.rookie') : s.challenge.level > 0 ? t('map.challenge', { level: s.challenge.level }) : '';
+    if (tag) text(ctx, tag, x, y + 70, { size: 13, display: true, color: s.rookie ? COLORS.green : COLORS.gold });
   }
 }

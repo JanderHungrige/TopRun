@@ -3,7 +3,7 @@ id: fair-challenge
 title: Fair Challenge
 status: in_progress
 version: 1
-hash: 5933b394
+hash: 1228b34c
 created: 2026-10-27
 ---
 
@@ -63,6 +63,6 @@ Three changes from playing the live game:
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/fair-challenge-wave-1.md | A pilot who beats SANDSTORM unlocks the Arctic Splinter for the Arctic missions ahead; each region's camo is ready when the region opens. | complete |
-| Wave 2 | waves/fair-challenge-wave-2.md | A pilot who wins three missions in a row with most of the hull left flies the next one at challenge level 1; seven deaths in a row after an upgrade bring it back down; level 0 is today's game. | planned |
+| Wave 2 | waves/fair-challenge-wave-2.md | A pilot who wins three missions in a row with most of the hull left flies the next one at challenge level 1; seven deaths in a row after an upgrade bring it back down; level 0 is today's game. | complete |
 | Wave 3 | waves/fair-challenge-wave-3.md | The debrief shows a mission score built from kill share, damage avoided, accuracy and power-ups, with no bonus for the challenge level. | planned |
 | Wave 4 | waves/fair-challenge-wave-4.md | All six jets look like the real aircraft from the side on the carrier, in the hangar and in the minigames. | planned |

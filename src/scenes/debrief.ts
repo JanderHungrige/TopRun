@@ -49,6 +49,7 @@ export class DebriefScene implements Scene {
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
+    const levelBefore = game.save.challenge.level;
     const golds = goldCount(game.save);
     const medalsBefore = earnedMedals(game.save, golds);
     const applied = applyResult(game.save, mission, result, Date.now());
@@ -77,6 +78,7 @@ export class DebriefScene implements Scene {
     this.admiral.say(debriefScript({
       mission, result, stars: applied.stars, totalText: formatMoney(applied.payout.total), campaignDone: this.finale,
       liveries: this.liveries.map((id) => ({ name: liveryName(id), rare: LIVERIES[id].unlock?.kind === 'stars' })),
+      challengeUp: applied.save.challenge.level > levelBefore,
     }));
   }
 

@@ -246,3 +246,8 @@ inserted as HTML). The text field is a plain `<input>` with `maxlength`, no auto
 ## Bugs
 
 (none yet — populated by /mdd bug when issues are reported)
+
+## Rookie (doc 38)
+
+Each pilot card on CONTINUE has a **ROOKIE** switch (tap or F). `GameContext.setRookie(profileId, on)` writes it into
+that pilot's save through the profile store (`setProfileRookie` + `persistStore`), without making it the active pilot.

@@ -30,6 +30,8 @@ export interface DebriefInput {
   campaignDone: boolean;
   /** Paint jobs this mission unlocked (doc 09), names already in the player's language. */
   liveries?: ReadonlyArray<{ name: string; rare: boolean }>;
+  /** The pilot's challenge level went up with this mission (doc 38). */
+  challengeUp?: boolean;
 }
 
 function opening(r: MissionResult, stars: number): LineRef {
@@ -62,6 +64,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   for (const l of d.liveries ?? []) {
     lines.push(ref('admiral', l.rare ? 'adm.liveryRare' : 'adm.livery', 'happy', l.rare ? 'thumbsUp' : 'point', { livery: l.name }));
   }
+  if (d.challengeUp) lines.push(ref('admiral', 'adm.challengeUp', 'stern', 'point'));
   const list = campaignMissions(m.campaign);
   if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id) {
     lines.push(ref('admiral', m.campaign === 1 ? 'adm.finale' : 'adm.finale2', 'happy', 'salute'));

@@ -60,6 +60,10 @@ export const LINES_EN = {
   'adm.globe': [
     "But it isn't over. A second front has opened. Check the globe on your map, {callsign}.",
   ],
+  'adm.challengeUp': [
+    "The enemy has noticed you, {callsign}. They're sending their best now. Stay sharp.",
+    "Word gets around, {callsign}. Expect stiffer resistance from here on.",
+  ],
   'adm.newJets': [
     "And the hangar has three new birds for the second front: the A-10, the F-35 and the old Tornado.",
   ],

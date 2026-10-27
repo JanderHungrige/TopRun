@@ -8,6 +8,7 @@ import {
 } from '../data/types';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
+import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
@@ -43,6 +44,12 @@ export interface SaveData {
   record: ServiceRecord;
   /** Own avatar from the builder (doc 29); null = the preset profile.avatar. */
   look: AvatarLook | null;
+  /** Challenge level and its streaks (doc 38). */
+  challenge: ChallengeState;
+  /** The last 20 sorties (doc 38). */
+  sorties: SortieEntry[];
+  /** Rookie: easier enemies, more hull, no adaptive challenge (doc 38). */
+  rookie: boolean;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -73,6 +80,9 @@ export function defaultSave(): SaveData {
     ladder: null,
     record: emptyRecord(),
     look: null,
+    challenge: freshChallenge(),
+    sorties: [],
+    rookie: false,
   };
 }
 
@@ -159,6 +169,9 @@ export function parseSave(raw: unknown): SaveData | null {
     ladder: parseLadderLink(raw.ladder),
     record: parseRecord(raw.record),
     look: isRecord(raw.look) ? parseLook(raw.look) : null,
+    challenge: parseChallenge(raw.challenge),
+    sorties: parseSorties(raw.sorties),
+    rookie: raw.rookie === true,
   };
 }
 

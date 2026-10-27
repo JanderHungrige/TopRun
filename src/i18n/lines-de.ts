@@ -62,6 +62,10 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.globe': [
     'Aber es ist noch nicht vorbei. Eine zweite Front hat sich geöffnet. Sieh dir den Globus auf deiner Karte an, {callsign}.',
   ],
+  'adm.challengeUp': [
+    'Der Feind ist auf dich aufmerksam geworden, {callsign}. Ab jetzt schicken sie ihre Besten. Bleib wach.',
+    'Das spricht sich rum, {callsign}. Rechne ab jetzt mit härterem Widerstand.',
+  ],
   'adm.newJets': [
     'Und im Hangar stehen drei neue Vögel für die zweite Front: die A-10, die F-35 und der alte Tornado.',
   ],

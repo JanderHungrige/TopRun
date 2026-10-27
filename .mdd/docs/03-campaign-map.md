@@ -149,3 +149,8 @@ None (static data, local state).
 ## Bugs
 
 (none yet — populated by /mdd bug when issues are reported)
+
+## Challenge level on the mission panel (doc 38)
+
+Under YOUR JET the panel shows "CHALLENGE +3" (gold) when the pilot's challenge level is above 0, or "ROOKIE" (green).
+The reward line is clipped to the panel (German "(Wiederholung)" used to run past its edge).

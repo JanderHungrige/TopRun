@@ -74,7 +74,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 
 | File | Use |
 |------|-----|
-| `pilot5.png` … `pilot9.png` | NEW PILOT's second row (2026-10-27, doc 08): five more presets from photos the owner supplied — same crop / workflow / 64-colour grid as pilot4, two seeds each (7, 11), the owner's pick shipped; photos never in the repo, deleted from the ComfyUI input after the runs. Hair colour words matter: 'dark-blond' came out brown, 'strawberry-blond' copper-red, 'ash-blond' grey or near-black; 'sandy-blond' / 'medium-blond, the colour of wet sand, lighter ends' matched (pilot5 and pilot6 are those third tries) |
+| `pilot5.png` … `pilot9.png` | NEW PILOT's second row (2026-10-27, doc 08): five more presets from photos the owner supplied — same crop / workflow / 64-colour grid as pilot4, two seeds each (7, 11), the owner's pick shipped; photos never in the repo, deleted from the ComfyUI input after the runs. Hair colour words matter: 'dark-blond' came out brown, 'strawberry-blond' copper-red, 'ash-blond' grey or near-black; 'sandy-blond' / 'medium-blond, the colour of wet sand, lighter ends' matched (pilot5 and pilot6 are those third tries). Owner's picks: seed 7 for pilot8 and pilot9, seed 11 for pilot7 |
 | `pilot1.png` … `pilot4.png` | the four preset pilots (pilot4, the grown-up, added 2026-10-26 from the owner's own selfie with the owner's consent: cropped to 5:6 locally, 'Top Gun pixel pilot portrait' on the M1 with a 'preserve the man's real face' identity block; the photo stays out of the repo and is deleted from the ComfyUI input) |
 | `admiral.png` (+ `-talk`, `-half`) | the admiral — no blink frame (dark sunglasses) |
 | `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |

@@ -4,6 +4,7 @@ import { THEATERS } from '../data/theaters';
 import { LIVERIES, type LiveryId } from '../data/liveries';
 import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import { debriefScript } from '../game/dialogue-scripts';
+import { missionScore } from '../game/score';
 import { applyResult, type Payout } from '../game/economy';
 import { newlyUnlocked } from '../game/liveries';
 import { offerAfterMission } from '../game/minigames/core';
@@ -37,6 +38,9 @@ export class DebriefScene implements Scene {
   private readonly payout: Payout;
   private readonly stars: number;
   private readonly newBest: boolean;
+  /** Mission score of this sortie and the best one before it (doc 39). */
+  private readonly score: number;
+  private readonly bestBefore: number;
   private readonly finale: boolean;
   private readonly buttons: ButtonGroup;
   private readonly admiral: SpeechBox;
@@ -50,6 +54,8 @@ export class DebriefScene implements Scene {
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
     const levelBefore = game.save.challenge.level;
+    this.bestBefore = game.save.progress[mission.id]?.score ?? 0;
+    this.score = missionScore(result).total;
     const golds = goldCount(game.save);
     const medalsBefore = earnedMedals(game.save, golds);
     const applied = applyResult(game.save, mission, result, Date.now());
@@ -145,12 +151,20 @@ export class DebriefScene implements Scene {
       ['debrief.kills', t('debrief.killsValue', { kills: r.kills, spawned: r.spawned }), COLORS.ink],
       ['debrief.hull', `${Math.round(r.hullRatio * 100)}%`, r.hullRatio >= 0.7 ? COLORS.green : r.hullRatio > 0.3 ? COLORS.amber : COLORS.red],
       ['debrief.launch', t(TAKEOFF_LABEL[r.takeoff]), r.takeoff === 'perfect' ? COLORS.gold : COLORS.ink],
+      ['debrief.score', this.scoreText(), this.score > this.bestBefore ? COLORS.gold : COLORS.ink],
     ];
     text(ctx, t('debrief.debrief'), STATS.x + 22, STATS.y + 34, { size: 13, color: COLORS.dim, letterSpacing: 2 });
     rows.forEach(([k, v, c], i) => {
-      text(ctx, t(k), STATS.x + 22, STATS.y + 74 + i * 36, { size: 14, color: COLORS.dim, maxWidth: 130, type: true });
-      text(ctx, v, STATS.x + 160, STATS.y + 74 + i * 36, { size: 14, color: c, maxWidth: STATS.w - 180, type: true });
+      text(ctx, t(k), STATS.x + 22, STATS.y + 70 + i * 30, { size: 14, color: COLORS.dim, maxWidth: 130, type: true });
+      text(ctx, v, STATS.x + 160, STATS.y + 70 + i * 30, { size: 14, color: c, maxWidth: STATS.w - 180, type: true });
     });
+  }
+
+  /** "734 (best 812)", or "834  NEW BEST"; a dash when the mission was not won (doc 39). */
+  private scoreText(): string {
+    if (!this.result.success) return '—';
+    if (this.score > this.bestBefore) return t('debrief.scoreNew', { score: this.score });
+    return t('debrief.scoreValue', { score: this.score, best: this.bestBefore });
   }
 
   private renderPayout(ctx: CanvasRenderingContext2D): void {

@@ -9,7 +9,7 @@ const SECRET = 's'.repeat(40);
 const id = (n: number): string => `p_${String(n).padStart(22, '0')}`;
 const sub = (n: number, callsign: string, stars: number): Submission => ({
   id: id(n), secret: SECRET, callsign, avatar: 'pilot3', country: 'DE',
-  stats: { stars, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 },
+  stats: { stars, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 },
 });
 function ladder(...subs: Submission[]): LadderTable {
   let t = emptyTable();

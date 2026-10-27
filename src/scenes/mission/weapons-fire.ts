@@ -20,6 +20,7 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
       damage, ttl: 1, dead: false,
     });
   }
+  if (world.targetsInView()) world.perf.shots += gun.pattern.length;
   audio.play('gun', { volume: 0.5, pan: (p.x / 320 - 1) * 0.5 });
 }
 
@@ -37,6 +38,7 @@ function fireSecondGun(world: World, p: Player): void {
       vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false,
     });
   }
+  if (world.targetsInView()) world.perf.shots += gun.pattern.length;
 }
 
 export function fireWingman(world: World, p: Player, dt: number): void {

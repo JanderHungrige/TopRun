@@ -87,7 +87,8 @@ src/game/ladder.ts — the pure rules (validation, upsert, ranking), shared by s
   are ignored):
   - `id`: random pilot id (22–40 chars `[A-Za-z0-9_-]`), `secret`: random 32–64 chars, both created
     in the browser and kept in the pilot's profile (doc 28).
-  - `stats` = `RatingStats` (doc 26); the service **computes the rating itself** from the stats
+  - `stats` = `RatingStats` (doc 26; `score` is optional — a post without it counts 0, doc 39); the service
+    **computes the rating itself** from the stats
     (clamped to the caps), so a client cannot post an arbitrary number. The caps and ranks are doc 26's shared
     code: map 2 (doc 35) raised them to 180 stars / 28 000 and added Fleet Admiral and Top Gun Legend, so the
     service must roll out with the game (auto-deploy rolls the ladder first; an older service would clamp

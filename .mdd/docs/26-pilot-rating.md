@@ -41,9 +41,10 @@ service compute the same value.
 | medal (doc 24) | 250 | 18 medals → 4 500 |
 | kill | 2 | 2 000 kills → 4 000 (grinding replays can't dominate) |
 | minigame gold / silver / bronze (best per game) | 150 / 80 / 40 | 10 games → 1 500 |
+| best mission scores (doc 39) | ÷ 10 | 60 missions × 1 000 → 6 000 |
 
-`rating = 100·stars + 250·medals + 2·min(kills, 2000) + Σ minigame medal points` — max **28 000** (19 000 before
-map 2, doc 35).
+`rating = 100·stars + 250·medals + 2·min(kills, 2000) + Σ minigame medal points + ⌊Σ best mission scores ÷ 10⌋` —
+max **34 000** (28 000 before the mission score, doc 39; 19 000 before map 2, doc 35).
 Inputs are clamped to their caps and to non-negative integers.
 
 ## Naval ranks (owner choice)

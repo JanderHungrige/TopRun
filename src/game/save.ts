@@ -58,6 +58,8 @@ export interface ProgressEntry {
   at?: number;
   plane?: PlaneId;
   livery?: LiveryId;
+  /** Best mission score, 0–1000 (doc 39); missing until the mission is won after this release. */
+  score?: number;
 }
 
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
@@ -121,6 +123,7 @@ function parseEntry(e: Record<string, unknown>): ProgressEntry {
   if (plane) out.plane = plane;
   const livery = LIVERY_IDS.find((l) => l === e.livery);
   if (livery) out.livery = livery;
+  if (typeof e.score === 'number' && Number.isFinite(e.score) && e.score > 0) out.score = Math.min(1000, Math.round(e.score));
   return out;
 }
 

@@ -178,6 +178,7 @@ export class MissionScene implements Scene {
     const p = this.player;
     const w = this.world;
     if (!p.alive || p.invulnerable) return;
+    w.perf.damage += amount;
     const died = p.damage(amount);
     w.particles.sparks(p.x, p.y, 8, '#ffb070', 200);
     if (died) {
@@ -236,6 +237,7 @@ export class MissionScene implements Scene {
       spawned: w.spawned + (w.boss ? 1 : 0), objectiveDone: objectiveMet(this.mission.objective, w.tally, this.player.alive),
       hullRatio: this.player.hullRatio, collected: w.collected, bossKilled: w.tally.bossKilled,
       usedSecondaries: this.player.firedSecondary,
+      perf: { ...w.perf, damage: w.perf.damage / this.player.maxHull },
     };
     this.game.go({ to: 'debrief', mission: this.mission, result });
   }

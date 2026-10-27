@@ -79,6 +79,17 @@ export interface MissionResult {
   bossKilled: boolean;
   /** Fired any missile, rocket or bomb (doc 24, Gunslinger). Missing = true. */
   usedSecondaries?: boolean;
+  /** Measurements for the mission score (doc 39); missing in older results. */
+  perf?: SortiePerf;
+}
+
+/** Gun rounds fired and hitting, damage taken as a share of maximum hull, pickups dropped and collected (doc 39). */
+export interface SortiePerf {
+  shots: number;
+  hits: number;
+  damage: number;
+  drops: number;
+  taken: number;
 }
 
 /** 1–5 from the start; 6–8 once map 2 is open (doc 37). */

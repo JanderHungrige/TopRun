@@ -11,7 +11,7 @@ const SECRET = 's'.repeat(40);
 const hash = (s: string): string => `h:${s}`;
 const sub = (over: Partial<Submission> = {}): Submission => ({
   id: ID, secret: SECRET, callsign: 'MAVERICK', avatar: 'pilot7', country: 'DE',
-  stats: { stars: 10, medals: 2, kills: 100, golds: 1, silvers: 0, bronzes: 0 }, ...over,
+  stats: { stars: 10, medals: 2, kills: 100, golds: 1, silvers: 0, bronzes: 0, score: 0 }, ...over,
 });
 const post = (t: LadderTable, s: Submission, now = 1000) => applySubmission(t, s, hash(s.secret), now);
 
@@ -34,7 +34,7 @@ describe('Online ladder rules', () => {
   });
 
   it('computes the rating on the server side from the stats', () => {
-    const r = post(emptyTable(), sub({ stats: { stars: 999, medals: 99, kills: 1e9, golds: 99, silvers: 0, bronzes: 0 } }));
+    const r = post(emptyTable(), sub({ stats: { stars: 999, medals: 99, kills: 1e9, golds: 99, silvers: 0, bronzes: 0, score: 0 } }));
     expect(r.ok && r.entry.rating).toBe(28000);
   });
 
@@ -57,7 +57,7 @@ describe('Online ladder rules', () => {
   it('ranks publicly by rating, ties by who got there first, without ids or secrets', () => {
     let t = emptyTable();
     const add = (id: string, callsign: string, stars: number, now: number) => {
-      const r = post(t, sub({ id, callsign, stats: { stars, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 } }), now);
+      const r = post(t, sub({ id, callsign, stats: { stars, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 } }), now);
       if (r.ok) t = r.table;
     };
     add('p_aaaaaaaaaaaaaaaaaaaaaa', 'ICE', 30, 5);
@@ -73,7 +73,7 @@ describe('Online ladder rules', () => {
     let t = emptyTable();
     for (let i = 0; i < MAX_ENTRIES + 3; i++) {
       const id = `p_${String(i).padStart(22, '0')}`;
-      const r = post(t, sub({ id, stats: { stars: i % 90, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0 } }), i);
+      const r = post(t, sub({ id, stats: { stars: i % 90, medals: 0, kills: 0, golds: 0, silvers: 0, bronzes: 0, score: 0 } }), i);
       if (r.ok) t = r.table;
     }
     expect(t.pilots).toHaveLength(MAX_ENTRIES);

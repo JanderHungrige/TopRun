@@ -54,7 +54,7 @@ describe('uniform layout', () => {
     }
   });
 
-  it('sits at chest height (a third down the tunic) and tucks a full rack under the collar', () => {
+  it('sits at chest height (a third down the tunic), rows hang over each other a little, a full rack tucks under the collar', () => {
     // The tunic in the locker picture runs from the shoulders (≈ 200) to the hem (≈ 688): the breast line is high.
     expect(C.pocketTop).toBeLessThan(200 + (688 - 200) * 0.4);
     const full = uniformLayout(MEDAL_IDS);
@@ -64,7 +64,10 @@ describe('uniform layout', () => {
     expect(r1 && r2 && r1.y1 > r2.y0).toBe(true);
     expect(r2?.y1).toBeLessThanOrEqual(C.pocketTop);
     const two = uniformLayout(['victory', 'ace', 'topace', 'giant', 'untouchable', 'gunslinger']);
-    expect(rowSpan(two, 'medal', 0).y1).toBeLessThanOrEqual(rowSpan(two, 'medal', 1).y0);
+    // court-mounted: the upper row hangs over the lower one by about rowOverlap of its height, never covering it
+    const [a, b] = [rowSpan(two, 'medal', 0), rowSpan(two, 'medal', 1)];
+    expect(a.y1 - b.y0).toBeGreaterThan(0);
+    expect(a.y1 - b.y0).toBeLessThanOrEqual((b.y1 - b.y0) * (C.rowOverlap + 0.1));
   });
 
   it('stands the ribbon bars on the name plate, centred on the right breast', () => {
@@ -88,7 +91,7 @@ describe('uniform layout', () => {
       const span = rowSpan(l, 'medal', r);
       expect(Math.abs((span.x0 + span.x1) / 2 - mid), `row ${r}`).toBeLessThan(0.5);
     }
-    expect(rowSpan(l, 'medal', 0).y1).toBeLessThanOrEqual(rowSpan(l, 'medal', 1).y0);
+    expect(rowSpan(l, 'medal', 0).y0).toBeLessThan(rowSpan(l, 'medal', 1).y0 - 10);
   });
 
   it('describes each shape like the medal art paints it', () => {

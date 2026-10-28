@@ -36,20 +36,21 @@ function miniBossBars(ctx: CanvasRenderingContext2D, world: World): void {
   }
 }
 
-/** A gun round; uranium ammo (doc 43) burns a hot white-green with a green glow. */
-function tracer(ctx: CanvasRenderingContext2D, b: Bullet): void {
+/** A gun round; uranium ammo (doc 43) burns a hot white-green inside a flickering green shimmer. */
+function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
   const du = (b.ground ?? 0.5) > 0.5;
   if (du) {
-    ctx.fillStyle = 'rgba(150,255,170,0.45)';
-    ctx.fillRect(b.x - 2.5, b.y - 8, 5, 14);
-  }
-  ctx.fillStyle = du ? '#eaffd8' : '#fff6b0';
+    const k = 0.5 + 0.5 * Math.sin(t * 40 + b.x * 0.7 + b.y * 0.13); // each round flickers on its own
+    ctx.fillStyle = `rgba(130,255,150,${(0.3 + 0.45 * k).toFixed(2)})`;
+    ctx.fillRect(b.x - 2.5 - 1.5 * k, b.y - 9, 5 + 3 * k, 16);
+    ctx.fillStyle = k > 0.75 ? '#b4ffc4' : '#eaffd8';
+  } else ctx.fillStyle = '#fff6b0';
   ctx.fillRect(b.x - 1.5, b.y - 7, 3, 12);
 }
 
 function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
   for (const b of world.bullets) {
-    if (b.kind === 'gun' || b.kind === 'wingman') tracer(ctx, b);
+    if (b.kind === 'gun' || b.kind === 'wingman') tracer(ctx, b, world.t);
     else if (b.kind === 'cannon') {
       ctx.fillStyle = '#ffb347';
       ctx.fillRect(b.x - 2, b.y - 9, 4, 16);

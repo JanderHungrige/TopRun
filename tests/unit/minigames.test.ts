@@ -20,19 +20,29 @@ describe('Minigames core', () => {
     it('unlocks playable games after their mission, in data order', () => {
       expect(unlockedMinigames({}, ALL)).toEqual([]);
       expect(unlockedMinigames(upTo(1), ALL)).toEqual(['pushups']);
-      expect(unlockedMinigames(upTo(6), ALL)).toEqual(['pushups', 'flyby', 'formation', 'volleyball']);
+      expect(unlockedMinigames(upTo(6), ALL)).toEqual(['pushups', 'flyby', 'formation', 'volleyball', 'darts', 'highfive']);
       expect(unlockedMinigames(upTo(6), ['flyby'])).toEqual(['flyby']);
       expect(unlockedMinigames(upTo(30), ALL)).toEqual([...MINIGAME_IDS]);
     });
 
     it('lists what a mission newly unlocked', () => {
       expect(newlyUnlockedMinigames(upTo(2), upTo(3), ALL)).toEqual(['flyby']);
-      expect(newlyUnlockedMinigames(upTo(3), upTo(4), ALL)).toEqual([]);
+      expect(newlyUnlockedMinigames(upTo(3), upTo(4), ALL)).toEqual(['highfive']);
+      expect(newlyUnlockedMinigames(upTo(12), upTo(13), ALL)).toEqual([]);
     });
 
-    it('spreads the ten unlocks over the campaign', () => {
+    it('spreads the twenty unlocks over map 1, one game per mission at most', () => {
       const after = MINIGAME_IDS.map((id) => MINIGAMES[id].unlockAfter);
-      expect(after).toEqual([1, 3, 5, 6, 9, 12, 15, 18, 21, 24]);
+      expect(after.slice(0, 10)).toEqual([1, 3, 5, 6, 9, 12, 15, 18, 21, 24]);
+      expect(MINIGAME_IDS.slice(10)).toEqual(['darts', 'highfive', 'targetpod', 'pool', 'ranks', 'parachute', 'airshow', 'deck', 'canyon', 'dogfight']);
+      expect(after.slice(10)).toEqual([2, 4, 7, 8, 10, 11, 14, 16, 20, 27]);
+      expect(new Set(after).size).toBe(20);
+      expect(after.every((n) => n >= 1 && n <= 30)).toBe(true);
+    });
+
+    it('sorts the new games into flying and off duty', () => {
+      const flying = MINIGAME_IDS.slice(10).filter((id) => MINIGAMES[id].kind === 'flying');
+      expect(flying).toEqual(['targetpod', 'parachute', 'airshow', 'canyon', 'dogfight']);
     });
   });
 
@@ -46,11 +56,12 @@ describe('Minigames core', () => {
     });
 
     it('otherwise offers an unlocked game every third mission, deterministically', () => {
-      expect(offer(4)).toBeNull();
-      const o = offer(27);
+      expect(offer(13)).toBeNull();
+      expect(offer(4)).toEqual({ id: 'highfive', isNew: true });
+      const o = offer(30);
       expect(o?.isNew).toBe(false);
-      expect(unlockedMinigames(upTo(27), ALL)).toContain(o?.id);
-      expect(offer(27)).toEqual(o);
+      expect(unlockedMinigames(upTo(30), ALL)).toContain(o?.id);
+      expect(offer(30)).toEqual(o);
     });
 
     it('offers nothing when switched off, nothing playable, or replaying a cleared mission', () => {

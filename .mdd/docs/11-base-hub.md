@@ -31,6 +31,13 @@ sister_projects: []
 
 # 11 — BASE Hub
 
+> **2026-10-28 update — twenty cards (initiative `off-duty-minigames-2`, wave 1).** The rec room shows **four rows of
+> five compact cards** (228 × 102 logical, 14 px apart, 12 px between rows; rows at y 104, 218, 332, 446): the icon
+> at 0.85 scale on the left, the name (display 15, left-aligned) and below it the status (best / "After mission n" /
+> COMING SOON) on the right, the medal of the best in the bottom-right corner, the padlock over a locked icon. The
+> first ten keep rows 1–2; the ten new games fill rows 3–4 in unlock order. ↑ / ↓ move a row (±5), ← / → one card;
+> taps and ENTER as before.
+
 > **Update (2026-10-25, doc 30 — hangar base):** BASE (`{ to: 'base' }`) is now the animated pixel-art hangar
 > (`HangarBaseScene`, doc 30). The hub below became the **rec room** behind the hangar's FUN MISSIONS area:
 > route `{ to: 'recRoom' }` → `BaseHubScene`. Its MAP button is now **BASE** (`hbase.back`), and ESC / Backspace /

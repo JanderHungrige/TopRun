@@ -7,7 +7,7 @@ type LayerSfx =
   | 'gun' | 'missile' | 'rocket' | 'bombDrop' | 'explosionSmall' | 'explosionLarge' | 'explosionHuge'
   | 'hit' | 'playerHit' | 'pickup' | 'cash' | 'powerup' | 'flare' | 'catapult' | 'warning'
   | 'uiMove' | 'uiSelect' | 'uiBack' | 'buy' | 'denied' | 'enemyShot' | 'enemyMissile' | 'special' | 'splash'
-  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe';
+  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap';
 /** Procedural babble syllables (see sfx-voice.ts). */
 type VoiceSfx = 'voice' | 'radioVoice';
 export type SfxName = LayerSfx | VoiceSfx;
@@ -127,6 +127,8 @@ const SFX: Record<LayerSfx, Layer[]> = {
   // chalkboard (doc 40): a dry scratch of chalk on slate, the soft swish of a sponge
   chalk: [hiss('bandpass', 3400, 2400, 0.05, 0.12, { q: 2.2, a: 0.004 }), hiss('highpass', 6000, 5000, 0.03, 0.05, { at: 0.02 })],
   wipe: [hiss('lowpass', 1500, 500, 0.14, 0.16, { a: 0.03 }), hiss('bandpass', 900, 700, 0.1, 0.06, { q: 0.8, at: 0.04 })],
+  // Two palms meeting (doc 42): a short bright slap.
+  clap: [hiss('bandpass', 1900, 1100, 0.07, 0.42, { q: 1.3, a: 0.002 }), hiss('highpass', 5200, 3600, 0.035, 0.18)],
   // push-to-talk squelch: key click, ~120 ms band-limited noise burst that cuts off sharply, release tick
   radioClick: [
     tone('square', 2400, 1500, 0.006, 0.12, { a: 0.001 }),
@@ -143,7 +145,7 @@ export const SPAM: Partial<Record<SfxName, number>> = {
 export const GAP: Partial<Record<SfxName, number>> = {
   missile: 0.06, explosionLarge: 0.06, explosionHuge: 0.15, pickup: 0.04, cash: 0.04, uiMove: 0.03,
   flare: 0.08, splash: 0.08, bombDrop: 0.08, warning: 1.4, playerHit: 0.08,
-  voice: 0.055, radioVoice: 0.055, radioClick: 0.05, chalk: 0.06, wipe: 0.1,
+  voice: 0.055, radioVoice: 0.055, radioClick: 0.05, chalk: 0.06, wipe: 0.1, clap: 0.05,
 };
 
 /** Impacts and launches: played into the low-shelf impact bus (doc 01 Audio). UI sounds never are. */

@@ -42,6 +42,10 @@ export interface Enemy {
   targetY: number;
   dead: boolean;
   counted: boolean;
+  /** Stealth fighter: seconds it stays visible after firing (doc 44). */
+  revealT: number;
+  /** Backfire: seconds to its next drone launch (doc 44). */
+  escortT: number;
 }
 
 /** `cannon`: A-10 GAU-8 rounds (doc 36). */
@@ -130,6 +134,8 @@ export class World {
   collected = 0;
   scrollMul = 1;
   shake = 0;
+  /** A jammer is on screen: radar static, player missiles turn slower (doc 44). */
+  jammed = false;
   /** Tornado nuke climbing to its burst point, and the burst itself (doc 36); `t` counts up. */
   nuke: { x: number; y: number; t: number } | null = null;
   /** Mission-score measurements (doc 39): gun rounds fired / hitting, raw damage taken, pickups dropped / taken. */

@@ -52,6 +52,8 @@ export class WingmanRadio {
     const strikeOrIntercept = m.objective.type === 'strike' || m.objective.type === 'intercept';
     if (strikeOrIntercept && p.alive && objectiveMet(m.objective, world.tally, true)) this.once('objectiveDone', true);
     if (p.alive && p.hullRatio < HULL_LOW) this.once('hullLow', true);
+    if (world.jammed) this.once('jammer', true);
+    if (world.enemies.some((e) => e.def.stealth && !e.dead && e.y > 40)) this.once('stealth');
     this.box.update(dt, input);
   }
 

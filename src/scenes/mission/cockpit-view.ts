@@ -12,6 +12,7 @@ import { bossTitle, missionName, objectiveText, planeSpecialName } from '../../i
 import { t } from '../../i18n/i18n';
 import type { Armed, CockpitLabels, LeftConsoleView, RightConsoleView } from '../../render/cockpit/types';
 import type { Player } from './player';
+import { hidden } from './projectiles';
 import { PF_W, type World } from './world';
 
 // Builds what the cockpit consoles show from the running mission (doc 05).
@@ -68,8 +69,10 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
     plane: p.stats.plane.id, planeName: PLANES[p.stats.plane.id].name, callsign,
     radar: {
       early: p.stats.earlyWarning,
+      jammed: w.jammed,
       contacts: radarContacts({
-        player: { x: p.x, y: p.y }, enemies: w.enemies, boss,
+        player: { x: p.x, y: p.y }, enemies: w.enemies.map((e) => ({ x: e.x, y: e.y, layer: e.layer, dead: e.dead, hidden: hidden(e, p) })),
+        boss, jammed: w.jammed,
         missiles: w.missiles.map((m) => ({ x: m.x, y: m.y, enemy: m.kind === 'enemy' })),
         upcoming: upcomingSpawns(w),
       }, p.stats.radarLevel),

@@ -5,13 +5,35 @@ import { NUKE } from '../../game/jets';
 import { flame } from '../../render/shapes';
 import type { Player } from './player';
 import { drawPickups } from './pickups';
+import { hidden } from './projectiles';
+import { isMiniBoss } from '../../data/reinforcements';
 import { PF_H, PF_W, type Bullet, type Enemy, type World } from './world';
 
 const SHADOW_DX = 16;
 const SHADOW_DY = 26;
 
-function drawEnemyUnit(ctx: CanvasRenderingContext2D, e: Enemy, t: number): void {
+function drawEnemyUnit(ctx: CanvasRenderingContext2D, e: Enemy, t: number, alpha = 1): void {
+  ctx.save();
+  ctx.globalAlpha = alpha;
   drawEnemy(ctx, e.kind, e.x, e.y, { t: t + e.phase, flash: e.flash > 0, heading: e.heading, aim: e.aim, bank: Math.max(-1, Math.min(1, -e.vx / 200)) });
+  ctx.restore();
+}
+
+/** A cloaked stealth fighter is only a faint shimmer (doc 44). */
+const veil = (e: Enemy, p: Player, t: number): number => (hidden(e, p) ? 0.14 + 0.06 * Math.sin(t * 9 + e.phase) : 1);
+
+/** A thin red health bar over every mini-boss (doc 44). */
+function miniBossBars(ctx: CanvasRenderingContext2D, world: World): void {
+  for (const e of world.enemies) {
+    if (e.dead || !isMiniBoss(e.kind) || e.y < -e.radius) continue;
+    const w = e.radius * 1.6;
+    const x = e.x - w / 2;
+    const y = e.y - e.radius - 14;
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(x - 1, y - 1, w + 2, 6);
+    ctx.fillStyle = '#ff5a48';
+    ctx.fillRect(x, y, w * Math.max(0, e.hp / e.maxHp), 4);
+  }
 }
 
 /** A gun round; uranium ammo (doc 43) burns a hot white-green with a green glow. */
@@ -159,10 +181,11 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, p: Play
   if (world.boss?.def.layer === 'ground') world.boss.render(ctx);
   drawBombs(ctx, world);
   for (const e of world.enemies) {
-    if (e.layer === 'air') drawEnemy(ctx, e.kind, e.x + SHADOW_DX, e.y + SHADOW_DY, { t, shadow: true, heading: e.heading });
+    if (e.layer === 'air' && !hidden(e, p)) drawEnemy(ctx, e.kind, e.x + SHADOW_DX, e.y + SHADOW_DY, { t, shadow: true, heading: e.heading });
   }
   drawPickups(ctx, world);
-  for (const e of world.enemies) if (e.layer === 'air') drawEnemyUnit(ctx, e, t);
+  for (const e of world.enemies) if (e.layer === 'air') drawEnemyUnit(ctx, e, t, veil(e, p, t));
+  miniBossBars(ctx, world);
   if (world.boss?.def.layer === 'air') world.boss.render(ctx);
   drawShots(ctx, world);
   drawPlayer(ctx, p, t);

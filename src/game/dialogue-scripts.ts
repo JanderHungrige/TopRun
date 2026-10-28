@@ -137,6 +137,8 @@ export function shooterLine(ev: ShooterEvent): LineRef {
 export type WingmanEvent =
   | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'halfway' | 'objectiveDone'
   | 'bossWarning' | 'hullLow' | 'special' | 'victory'
+  /** First jammer / stealth fighter of the sortie (doc 44). */
+  | 'jammer' | 'stealth'
   | 'base' | 'baseLocked' | 'offer' | 'offerNew';
 
 export const WINGMAN_EVENTS: Readonly<Record<WingmanEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
@@ -148,6 +150,8 @@ export const WINGMAN_EVENTS: Readonly<Record<WingmanEvent, { key: LineKey; mood:
   objectiveDone: { key: 'wing.objectiveDone', mood: 'happy', gesture: 'thumbsUp' },
   bossWarning: { key: 'wing.bossWarning', mood: 'worried', gesture: 'point' },
   hullLow: { key: 'wing.hullLow', mood: 'worried', gesture: 'none' },
+  jammer: { key: 'wing.jammer', mood: 'worried', gesture: 'point' },
+  stealth: { key: 'wing.stealth', mood: 'stern', gesture: 'point' },
   special: { key: 'wing.special', mood: 'happy', gesture: 'thumbsUp' },
   victory: { key: 'wing.victory', mood: 'happy', gesture: 'thumbsUp' },
   base: { key: 'wing.base', mood: 'happy', gesture: 'none' },

@@ -1,6 +1,8 @@
 import type { AudioEngine } from '../../core/audio';
 import { isAir } from '../../data/enemies';
 import type { SecondaryHits } from '../../data/weapons';
+import { isMiniBoss } from '../../data/reinforcements';
+import { cloaked, JAM } from '../../game/adversaries';
 import { applyDamage, circleHit, COLLISION_DAMAGE_TO_ENEMY, PLAYER_DAMAGE, rollDrop, steerHoming } from '../../game/combat';
 import { PLAYER_RADIUS, type Player } from './player';
 import { PF_H, PF_W, type Enemy, type Missile, type World } from './world';
@@ -31,7 +33,12 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
   const drop = rollDrop(Math.random());
   if (drop) world.perf.drops += 1;
   if (drop) world.pickups.push({ kind: drop, x: e.x, y: e.y, value: Math.max(25, Math.round(e.bounty * 0.5)), t: 0, dead: false });
+  // A downed mini-boss always leaves a repair kit and a power-up (doc 44).
+  if (isMiniBoss(e.kind)) for (const [kind, dx] of [['repair', -18], ['power', 18]] as const) world.pickups.push({ kind, x: e.x + dx, y: e.y, value: 0, t: 0, dead: false });
 }
+
+/** A stealth fighter the player cannot see: no missile lock, no radar contact (doc 44). */
+export const hidden = (e: Enemy, p: Player): boolean => cloaked(!!e.def.stealth, e.revealT, Math.hypot(e.x - p.x, e.y - p.y));
 
 export function damageEnemy(world: World, e: Enemy, amount: number, audio: AudioEngine): void {
   e.hp -= amount;
@@ -51,7 +58,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     }
     for (const e of world.enemies) {
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
-      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground }), audio);
+      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground, armor: e.def.armor }), audio);
       if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
@@ -95,7 +102,7 @@ function pickTarget(world: World, m: Missile, p: Player): Missile['target'] {
   let best: Enemy | null = null;
   let bestD = Infinity;
   for (const e of world.enemies) {
-    if (e.dead || !canHit(m.hits, e) || e.y > p.y || e.y < -20) continue;
+    if (e.dead || !canHit(m.hits, e) || e.y > p.y || e.y < -20 || hidden(e, p)) continue;
     const d = Math.hypot(e.x - m.x, e.y - m.y);
     if (d < bestD) {
       bestD = d;
@@ -123,13 +130,15 @@ function steerMissile(world: World, m: Missile, p: Player, dt: number): void {
     }
   } else if (m.target === 'boss') {
     if (world.boss?.active) ({ x: tx, y: ty } = world.boss.aimPoint());
-  } else if (m.target && !m.target.dead) {
+  } else if (m.target && !m.target.dead && !hidden(m.target, p)) {
     tx = m.target.x;
     ty = m.target.y;
   } else if (m.kind !== 'rocket') {
     m.target = pickTarget(world, m, p);
   }
-  if (tx !== null && m.turnRate > 0) m.heading = steerHoming(m.heading, m.x, m.y, tx, ty, m.turnRate, dt);
+  // Jamming confuses the player's seekers, not the enemy's (doc 44).
+  const turn = m.kind !== 'enemy' && world.jammed ? m.turnRate * JAM.missileTurn : m.turnRate;
+  if (tx !== null && turn > 0) m.heading = steerHoming(m.heading, m.x, m.y, tx, ty, turn, dt);
 }
 
 function updateMissiles(world: World, p: Player, dt: number, hooks: CombatHooks): void {

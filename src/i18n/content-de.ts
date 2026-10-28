@@ -79,7 +79,7 @@ export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; descript
   },
   radar: {
     name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen auf dem Schirm, bevor sie da sind.',
-    levelText: ['Banditen 4 s früher auf dem Radar', 'Banditen 7 s früher auf dem Radar, Reichweite 1.400 px'],
+    levelText: ['Banditen 4 s früher auf dem Radar', 'Banditen 7 s früher auf dem Radar, Reichweite 1.400 px, zeigt Tarnkappenjäger'],
   },
 };
 
@@ -89,6 +89,8 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   drone: 'Attack Drones', fishbed: 'MiG-21 Fishbeds', fulcrum: 'MiG-29 Fulcrums', flanker: 'Su-27 Flankers',
   hind: 'Mi-24 Hinds', bear: 'Tu-95 Bears', aa: 'AA Guns', sam: 'SAM Sites', tank: 'Battle Tanks',
   radar: 'Radar Stations', depot: 'Fuel Depots', boat: 'Patrol Boats', destroyer: 'Destroyers',
+  shilka: 'ZSU-23-4 Shilkas', bunker: 'Hardened Bunkers', foxbat: 'MiG-25 Foxbats', jammer: 'Il-22 Jammers',
+  frigate: 'Missile Frigates', felon: 'Su-57 Felons', backfire: 'Tu-22M Backfires', fortress: 'AA Fortresses', cruiser: 'Missile Cruisers',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -105,6 +107,15 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   depot: ['Treibstofflager', 'Treibstofflager'],
   boat: ['Patrouillenboot', 'Patrouillenboote'],
   destroyer: ['Zerstörer', 'Zerstörer'],
+  shilka: ['Schilka-Flakpanzer', 'Schilka-Flakpanzer'],
+  bunker: ['Betonbunker', 'Betonbunker'],
+  foxbat: ['MiG-25 Foxbat', 'MiG-25 Foxbats'],
+  jammer: ['Il-22-Störflugzeug', 'Il-22-Störflugzeuge'],
+  frigate: ['Raketenfregatte', 'Raketenfregatten'],
+  felon: ['Su-57 Felon', 'Su-57 Felons'],
+  backfire: ['Tu-22M Backfire', 'Tu-22M Backfires'],
+  fortress: ['Flakfestung', 'Flakfestungen'],
+  cruiser: ['Raketenkreuzer', 'Raketenkreuzer'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {

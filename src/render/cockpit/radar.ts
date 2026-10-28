@@ -116,6 +116,25 @@ function earlyTag(ctx: CanvasRenderingContext2D, d: Dial, R: number, label: stri
   screenText(ctx, label, d.cx, d.cy + R * 0.62, { size: 9, align: 'center', maxW: 62, color: '#ffb23c', weight: 800 });
 }
 
+/** Jamming (doc 44): flickering noise over the whole scope. */
+export function radarJammed(ctx: CanvasRenderingContext2D, d: Dial, t: number): void {
+  const R = d.r * SCREEN;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(d.cx, d.cy, R, 0, TAU);
+  ctx.clip();
+  const seed = Math.floor(t * 20);
+  for (let i = 0; i < 140; i++) {
+    const h = Math.sin((seed + i) * 12.9898) * 43758.5453;
+    const k = h - Math.floor(h);
+    const a = k * TAU * 7;
+    const r = Math.sqrt((Math.sin(i * 78.233 + seed) * 0.5 + 0.5)) * R;
+    ctx.fillStyle = `rgba(${GREEN},${(0.25 + k * 0.55).toFixed(2)})`;
+    ctx.fillRect(d.cx + Math.cos(a) * r, d.cy + Math.sin(a) * r, 2 + k * 3, 1.5);
+  }
+  ctx.restore();
+}
+
 export function radarLive(
   ctx: CanvasRenderingContext2D, d: Dial, contacts: readonly Contact[], early: boolean, earlyLabel: string, t: number,
 ): void {

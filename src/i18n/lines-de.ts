@@ -227,6 +227,14 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Dicker Brocken im Anflug! Das ist {boss}!',
     'Achtung! {boss} direkt voraus!',
   ],
+  'wing.jammer': [
+    'Störflugzeug auf dem Schirm! Mein Radar zeigt nur Schnee. Hol es zuerst runter!',
+    'Ein Störflieger stört uns. Die Raketen sind halb blind, bis er unten ist!',
+  ],
+  'wing.stealth': [
+    'Tarnkappenjäger da draußen! Achte auf das Flimmern, Raketen schalten nicht auf.',
+    'Eine Felon in der Gegend. Auf dem Radar unsichtbar. Augen auf, Kanone bereit!',
+  ],
   'wing.hullLow': [
     'Du ziehst eine Rauchfahne! Vorsicht!',
     'Dich hat es schwer erwischt! Schnapp dir ein Reparaturset!',

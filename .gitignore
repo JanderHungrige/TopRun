@@ -13,3 +13,6 @@ deploy/.state/
 .mdd/audits/
 # MDD active jobs (ephemeral — deleted on completion)
 .mdd/jobs/
+
+# Python bytecode from dev/ tools
+__pycache__/

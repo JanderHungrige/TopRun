@@ -28,8 +28,8 @@ describe('Medal ceremony timeline', () => {
     expect(startCeremony(0).stage).toBe('done');
   });
 
-  it('walks the admiral in, pins, salutes and returns to attention (first medal, ~8 s)', () => {
-    expect(sceneLength(0)).toBe(8);
+  it('walks the admiral in, pins, salutes, the crew salutes after them, all back to attention (first medal, ~9 s)', () => {
+    expect(sceneLength(0)).toBe(8.9);
     expect(beatAt(0, 0)).toMatchObject({ walk: 0, reach: 0, pinned: false, salute: 0 });
     expect(beatAt(0, 1.5).walking).toBe(true);
     expect(beatAt(0, 2.8)).toMatchObject({ walk: 1, walking: false, back: 0 });
@@ -37,8 +37,9 @@ describe('Medal ceremony timeline', () => {
     expect(beatAt(0, FIRST.pin - 0.01).pinned).toBe(false);
     expect(beatAt(0, FIRST.pin).pinned).toBe(true);
     expect(beatAt(0, 4.5).reach).toBe(0);
-    expect(beatAt(0, 5.5)).toMatchObject({ salute: 1, back: 1 });
-    expect(beatAt(0, 7.5)).toMatchObject({ salute: 0, pinned: true, back: 1 });
+    expect(beatAt(0, 5.5)).toMatchObject({ salute: 1, back: 1, crew: 0 });
+    expect(beatAt(0, 7.5)).toMatchObject({ salute: 0, crew: 1, pinned: true, back: 1 });
+    expect(beatAt(0, 8.6)).toMatchObject({ salute: 0, crew: 0 });
   });
 
   it('gives further medals a quick pin without the walk or the salute', () => {

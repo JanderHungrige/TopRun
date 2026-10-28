@@ -1,6 +1,6 @@
 ---
 id: deploy-toprun
-title: Deploy TopRun to topgun.questenterprise.de (GHCR + host cron)
+title: Deploy TopGun to topgun.questenterprise.de (GHCR + host cron)
 type: ops
 platform: docker-compose + github-actions + cron
 environments: [production]
@@ -47,7 +47,7 @@ known_issues:
   - "The host never pulls the repo by itself: changes to deploy/compose.app.yml or deploy/*.sh only arrive with a manual `git pull` in /opt/toprun (Step 2b)."
 ---
 
-# Deploy TopRun to topgun.questenterprise.de
+# Deploy TopGun to topgun.questenterprise.de
 
 ## Overview
 Push-to-deploy with no SSH from CI, the same mechanism as battlefuel, 3dmap2, ninanatur and

@@ -9,6 +9,7 @@ import { LANDING } from './landing';
 import { MOTORBIKE } from './motorbike';
 import { PIANO } from './piano';
 import { PUSHUPS } from './pushups';
+import { RANKS } from './ranks';
 import { REFUEL } from './refuel';
 import { TACTICS } from './tactics';
 import { VOLLEYBALL } from './volleyball';
@@ -25,6 +26,7 @@ export const PLAYABLE: readonly MinigameModule[] = [
   PIANO,
   LANDING,
   TACTICS,
+  RANKS,
 ];
 
 export const playableIds = (): MinigameId[] => PLAYABLE.map((m) => m.id);

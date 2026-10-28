@@ -21,7 +21,7 @@ are playable with bests and medals and are offered after missions 10 and 4.
 | # | Feature | Doc | Status | Depends on |
 |---|---------|-----|--------|------------|
 | 1 | rec-room-twenty (ten new ids, unlocks along map 1, four rows of compact cards, "coming soon" for unbuilt games) | .mdd/docs/10-minigames-core.md, .mdd/docs/11-base-hub.md | complete | — |
-| 2 | rank-quiz (US and German navy / army ranks, text only) | — | planned | rec-room-twenty |
+| 2 | rank-quiz (US and German navy / army ranks, text only) | .mdd/docs/41-rank-quiz.md | complete | rec-room-twenty |
 | 3 | high-five (jump, slap up top, spin 180°, slap down low — timing with Duke) | — | planned | rec-room-twenty |
 
 ## Open Research

@@ -55,8 +55,9 @@ describe('Ladder client side and write limit', () => {
     expect(parseLadderLink({ ...ladderIdentity(BYTES), share: 'yes' })).toBeNull();
   });
 
-  it('reads the medal tier of every built minigame, which the rating caps at RATING.games', () => {
-    expect(PLAYABLE).toHaveLength(RATING.games);
+  it('reads the medal tier of every built minigame; the rating counts the best RATING.games of them (doc 10)', () => {
+    expect(PLAYABLE.length).toBeGreaterThanOrEqual(RATING.games);
+    expect(RATING.games).toBe(10);
     expect(minigameTiers(defaultSave())).toEqual(PLAYABLE.map(() => null));
     const first = PLAYABLE[0];
     if (!first) throw new Error('no minigames');

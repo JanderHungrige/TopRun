@@ -31,10 +31,11 @@ function drawSlot(ctx: CanvasRenderingContext2D, l: UniformLayout, i: number, G:
   else drawMedal(ctx, s.id, s.x, s.y, s.size, { px: G, ...(shine === undefined ? {} : { shine }) });
 }
 
-/** Wings, ribbons and medals; `selected` on top with a shine (−1 = none). */
+/** Wings, ribbons and medals, back to front (the last slot first: upper rows and senior medals end up in front);
+ *  `selected` on top with a shine (−1 = none). */
 export function drawRack(ctx: CanvasRenderingContext2D, l: UniformLayout, selected: number, G: number, t: number): void {
   drawWings(ctx, l.wings.x, l.wings.y, G);
-  for (let i = 0; i < l.slots.length; i++) if (i !== selected) drawSlot(ctx, l, i, G);
+  for (let i = l.slots.length - 1; i >= 0; i--) if (i !== selected) drawSlot(ctx, l, i, G);
   const sel = l.slots[selected];
   if (!sel) return;
   const u = (t % SHINE_PERIOD) / 1.1;

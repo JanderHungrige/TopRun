@@ -101,9 +101,10 @@ the **320 × 180 grid with 32 flat colours** — the same chunky look as the cer
   seams from beside the collar (x 504, top edge y 188 on the right; mirrored on the left) down to the sleeves
   (x ≈ 600, y ≈ 228) — measured column by column on the right shoulder (the tube light sits behind the left one); breast pockets x 320 … 400 (viewer's left) and 480 … 600 (viewer's right), flaps from
   y ≈ 330; tube light x 192 … 400 at y 188; the lit inside x 40 … 780.
-- **Shoulder boards** (owner: *"the shoulder insignia are not on the shoulder but hovering"*, then *"still not
-  perfectly aligned"*): they start beside the collar (centre 448 ± 56) with their top edge at y 188 and run 96 px out
-  to the sleeve along the seam's straight slope (dropping 40 px), 16 px deep, on the picture's 4-px grid. Before,
+- **Shoulder boards** (owner: *"the shoulder insignia are not on the shoulder but hovering"*, *"still not perfectly
+  aligned"*, then *"starting just slightly in the collar … shift them a mini bit up"*): they start one art px clear of
+  the collar (centre 448 ± 60) with their top edge at y 184 and run 92 px out to the sleeve along the seam's straight
+  slope (dropping 38 px), 16 px deep, on the picture's 4-px grid. Before,
   they hung at the old jacket's y 162; the first fix assumed centre 440 and started on the collar itself.
 - The code-drawn locker set, props and jacket (`set.ts`, `props.ts`, `jacket.ts`) and the jacket's sway are gone; the
   tube flicker and the dust motes stay, placed on the picture.
@@ -113,7 +114,7 @@ the **320 × 180 grid with 32 flat colours** — the same chunky look as the cer
 `uniformLayout(medals, chest = LOCKER_CHEST)` → `{ slots, wings, top }`:
 
 - Input: the earned medals in catalogue order (`earnedMedals(save, goldCount(save))`) and the chest frame
-  (`LOCKER_CHEST`, measured on the locker picture: left breast x 470 … 606, medals standing at 346 — just over the
+  (`LOCKER_CHEST`, measured on the locker picture: left breast x 464 … 584, medals standing at 346 — just over the
   pocket flap — with the collar limit at 226; medals 48 logical; right breast centre 360 with the ribbon bars standing
   at 300 on the name plate). The picture's chest is shorter than the old jacket's (≈ 120 px from shoulder to pocket):
   two rows of medals still stand clear, a full rack (3 + 5 + 5) is court-mounted under the collar. **Chest height** (owner,
@@ -125,8 +126,13 @@ the **320 × 180 grid with 32 flat colours** — the same chunky look as the cer
   below are full. Precedence reads like text (first medal at the top row's viewer-left).
 - Medals stand on the pocket and fill upward (row height = tallest art in the row + gap), the wings above them.
   When the rows would reach past the collar limit (a full rack of 3 + 5 + 5), the upper rows tuck behind the
-  lower ones by the same step, like a court-mounted rack, so the wings stay at or below the limit; later (lower)
-  rows are drawn in front and win the hit test.
+  lower ones by the same step, like a court-mounted rack, so the wings stay at or below the limit.
+- **Court-mounted always** (owner, 2026-10-28: *"move them closer together on both axes. They are allowed to overlap
+  (they do on real uniforms). If the top row overlaps a bit the second row, and the second the third row, it should
+  look nice"*): every upper row hangs over the one below by `rowOverlap` (30 %) of its height, the breast is narrowed
+  to x 464 … 584 (inside the pocket, off the sleeve — the rack had reached onto the arm), so the medals of a row
+  overlap; the rack is drawn back to front from the last slot, so upper rows and the senior medal of a row are in front,
+  and the hit test takes the frontmost (earliest) slot.
   Each medal's width comes from its shape's painted art (`MEDAL_ART`, checked against `paintMedal` in the test);
   a row wider than the breast closes its gaps (slight overlap) and is centred.
 - Each slot: `id`, `kind`, `row` (within its block), the draw anchor (`x`, `y` — medal: top centre of the brooch;

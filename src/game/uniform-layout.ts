@@ -1,9 +1,10 @@
 import { MEDALS, type MedalId, type MedalShape } from '../data/medals';
 
-// Locker (doc 31): where every earned medal sits on the dress-whites jacket, like real full dress — the hanging
-// medals in rows on the left breast, standing on the pocket flap and filling up (the wings badge on top); the
-// ribbon-only awards (the campaign ribbons) as ribbon bars on the right breast above the name plate. The top row
-// of each block holds the remainder and is centred; precedence reads like text. Pure — the scene draws it.
+// Locker (doc 31): where every earned medal sits on the dress-whites tunic, like real full dress — the hanging
+// medals in court-mounted rows on the left breast (each row hanging a little over the one below, medals in a row
+// overlapping), standing on the pocket flap and filling up (the wings badge on top); the ribbon-only awards (the
+// campaign ribbons) as ribbon bars on the right breast above the name plate. The top row of each block holds the
+// remainder and is centred; precedence reads like text, and the senior medal is in front. Pure — the scene draws it.
 
 export interface Box { x: number; y: number; w: number; h: number }
 export type SlotKind = 'ribbon' | 'medal';
@@ -45,6 +46,8 @@ export interface ChestFrame {
   medalsPerRow: number;
   /** Gap between medals, rows and the wings. */
   gap: number;
+  /** Share of a row's height the row above always hangs over it (court-mounted, like a real full-dress rack). */
+  rowOverlap: number;
   wingsH: number;
   /** Viewer's left (wearer's right) breast: the ribbon bars stand on the name plate. */
   ribbonCentre: number;
@@ -56,7 +59,7 @@ export interface ChestFrame {
 
 /** The tunic in the locker picture (src/render/locker/plate.ts): its breast pockets, collar and shoulders, measured. */
 export const LOCKER_CHEST: ChestFrame = {
-  left: 470, right: 606, pocketTop: 346, minTop: 226, medalSize: 48, medalsPerRow: 5, gap: 4, wingsH: 18,
+  left: 464, right: 584, pocketTop: 346, minTop: 226, medalSize: 48, medalsPerRow: 5, gap: 4, rowOverlap: 0.3, wingsH: 18,
   ribbonCentre: 360, ribbonBottom: 300, ribbonW: 40, ribbonH: 13, ribbonsPerRow: 3,
 };
 
@@ -110,9 +113,10 @@ const rowHeight = (ids: readonly MedalId[], c: ChestFrame): number => Math.max(0
 
 function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlot[]; top: number } {
   const rows = rackRows(ids, c.medalsPerRow);
-  const natural = rows.reduce((sum, row) => sum + rowHeight(row, c) + c.gap, 0);
+  const overlap = (r: number): number => Math.round(c.rowOverlap * rowHeight(rows[r] ?? [], c));
+  const natural = rows.reduce((sum, row, r) => sum + rowHeight(row, c) + c.gap - (r < rows.length - 1 ? overlap(r + 1) : 0), 0);
   const room = c.pocketTop - c.gap - c.minTop - c.wingsH;
-  // Too tall for the chest: the upper rows tuck behind the ones below by the same step (a court-mounted rack).
+  // Still too tall for the chest: every upper row tucks further over the one below by the same step.
   const tuck = natural > room && rows.length > 1 ? Math.ceil((natural - room) / (rows.length - 1)) : 0;
   const out: UniformSlot[][] = [];
   let cursor = c.pocketTop - c.gap;
@@ -120,7 +124,7 @@ function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlo
     const row = rows[r] ?? [];
     const top = Math.round(cursor - rowHeight(row, c));
     out.unshift(medalRow(row, r, top, c));
-    cursor = top - c.gap + (r > 0 ? tuck : 0);
+    cursor = top - c.gap + (r > 0 ? tuck + overlap(r) : 0);
   }
   return { slots: out.flat(), top: cursor };
 }
@@ -176,14 +180,11 @@ export function moveSlot(layout: UniformLayout, index: number, dir: SlotDir): nu
   }
 }
 
-/** The slot under a point: the selected one first (it is drawn on top), then the later (topmost) ones. */
+/** The slot under a point: the selected one first (it is drawn on top), then the earlier ones — the rack is drawn
+ *  back to front from the last slot, so upper rows and senior medals are in front. */
 export function slotAt(layout: UniformLayout, p: { x: number; y: number }, selected = -1): number {
   const inside = (b: Box): boolean => p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
   const sel = layout.slots[selected];
   if (sel && inside(sel.box)) return selected;
-  for (let i = layout.slots.length - 1; i >= 0; i--) {
-    const s = layout.slots[i];
-    if (s && inside(s.box)) return i;
-  }
-  return -1;
+  return layout.slots.findIndex((s) => inside(s.box));
 }

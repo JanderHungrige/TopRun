@@ -11,7 +11,7 @@ export const PLATE_G = 4;
 /** The tunic: its centre line (the buttons; the collar runs x 388 … 508) and its shoulder seams — where the boards
  *  start beside the collar (centre ± collarHalf), their top edge there, how far they run out to the sleeve and how
  *  much the seam drops over that run (measured column by column on the right shoulder, mirrored for the left). */
-export const TUNIC = { centreX: 448, collarHalf: 56, boardTop: 188, boardLen: 96, boardDrop: 40 } as const;
+export const TUNIC = { centreX: 448, collarHalf: 60, boardTop: 184, boardLen: 92, boardDrop: 38 } as const;
 /** The name plate above the viewer's-left breast pocket: its centre x and top. */
 export const NAME_PLATE = { cx: 360, y: 306 } as const;
 /** The lit inside of the locker (dimmed while the tube flickers off) and the tube light under the shelf. */

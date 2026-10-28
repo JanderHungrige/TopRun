@@ -2,6 +2,7 @@ import { BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
 import type { LiveryId } from '../../data/liveries';
 import type { PlaneId } from '../../data/types';
 import type { Walker } from '../../game/base-hangar';
+import type { Cells } from '../../game/chalkboard';
 import type { PilotFace } from '../avatars';
 import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
@@ -11,6 +12,7 @@ import { Pix } from '../pixel/raster';
 import { drawAmbientBack, drawAmbientFront, drawBrackets } from './ambient';
 import { drawBoardTiles, paintBoardFrame } from './board';
 import { drawCast, drawCastShadows } from './cast';
+import { drawChalkMini, paintChalkFrame } from './chalk';
 import { paintDoors } from './doors';
 import { jetGearCol, jetSprite } from './jet';
 import { drawLabels, type HangarText } from './labels';
@@ -24,7 +26,8 @@ import { paintNeon } from './sprites';
 // Hangar base (doc 30): the whole scene. Static art is painted once per art grid into two cached layers (back:
 // building, doors, rooms, board frame, light; front: the props in front of the jet) plus the cached jet sprite;
 // every frame composes back → ambient → jet → props → dust / steam / brackets / shadows on one art-resolution
-// canvas and blits it once with hard pixel edges; the figures and the readable labels go on top.
+// canvas and blits it once with hard pixel edges; the chalkboard's slate (doc 40), the figures and the readable labels
+// go on top.
 
 export type { HangarText } from './labels';
 
@@ -37,6 +40,8 @@ export interface HangarView {
   walker: Walker;
   /** The flip board's three rows. */
   board: readonly string[];
+  /** The shared chalkboard (doc 40): its cells (null until fetched) and their change count. */
+  chalk: { cells: Cells | null; version: number };
   text: HangarText;
 }
 
@@ -50,6 +55,7 @@ function backLayer(gr: Grid): HTMLCanvasElement | null {
     paintRooms(p);
     paintNeon(p, false);
     paintBoardFrame(p, gr.G);
+    paintChalkFrame(p, gr.G);
     paintPropShadows(p);
     paintShellFront(p);
     return toCanvas(p);
@@ -102,6 +108,7 @@ export function drawHangar(ctx: CanvasRenderingContext2D, v: HangarView): void {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(sc.canvas, m.a ? (Math.round(m.e) - m.e) / m.a : 0, m.d ? (Math.round(m.f) - m.f) / m.d : 0, gr.W * gr.G, gr.H * gr.G);
   ctx.restore();
+  drawChalkMini(ctx, v.chalk.cells, v.chalk.version);
   drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face });
   drawLabels(ctx, v.focus, v.text);
 }

@@ -33,6 +33,7 @@ import { HangarBaseScene } from './scenes/hangar-base';
 import { JoystickSetupScene } from './scenes/joystick-setup';
 import { LadderScene } from './scenes/ladder';
 import { LockerScene } from './scenes/locker';
+import { ChalkboardScene } from './scenes/chalkboard';
 import { PhotoWallScene } from './scenes/photo-wall';
 import { MinigameOfferScene } from './scenes/minigame-offer';
 import { moduleFor } from './scenes/minigames/registry';
@@ -194,6 +195,7 @@ function createScene(game: GameContext, route: Route): Scene {
     case 'recRoom': return new BaseHubScene(game);
     case 'locker': return new LockerScene(game);
     case 'photoWall': return new PhotoWallScene(game);
+    case 'chalkboard': return new ChalkboardScene(game);
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
     case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
     case 'minigame': {

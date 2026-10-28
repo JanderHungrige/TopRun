@@ -36,6 +36,8 @@ export type Route =
   | { to: 'recRoom' }
   | { to: 'locker' }
   | { to: 'photoWall' }
+  /** The shared chalkboard under the ladder (doc 40). */
+  | { to: 'chalkboard' }
   | { to: 'offer'; id: MinigameId; isNew: boolean }
   | { to: 'minigame'; id: MinigameId; from: 'recRoom' | 'offer' }
   /** Medal ceremony (doc 25), then on to `then`. */

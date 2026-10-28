@@ -16,8 +16,8 @@ function walkUntilStopped(w: Walker, speed: number, cap = 2000): { w: Walker; fr
 }
 
 describe('Hangar base areas', () => {
-  it('lists five areas left to right, each with a hotspot, a plate and a stand point inside the screen', () => {
-    expect(BASE_AREA_IDS).toEqual(['fun', 'locker', 'photos', 'ladder', 'exit']);
+  it('lists six areas left to right, each with a hotspot, a plate and a stand point inside the screen', () => {
+    expect(BASE_AREA_IDS).toEqual(['fun', 'locker', 'photos', 'ladder', 'chalk', 'exit']);
     let lastX = -Infinity;
     for (const id of BASE_AREA_IDS) {
       const a = BASE_AREAS[id];
@@ -49,6 +49,7 @@ describe('Hangar base areas', () => {
     expect(areaRoute('locker')).toEqual({ to: 'locker' });
     expect(areaRoute('photos')).toEqual({ to: 'photoWall' });
     expect(areaRoute('ladder')).toEqual({ to: 'ladder' });
+    expect(areaRoute('chalk')).toEqual({ to: 'chalkboard' });
     expect(areaRoute('exit')).toEqual({ to: 'map' });
   });
 
@@ -67,16 +68,21 @@ describe('Hangar base navigation', () => {
     expect(neighbour('fun', 'right')).toBe('locker');
     expect(neighbour('locker', 'right')).toBe('photos');
     expect(neighbour('photos', 'right')).toBe('ladder');
-    expect(neighbour('ladder', 'right')).toBe('exit');
+    expect(neighbour('ladder', 'right')).toBe('chalk');
+    expect(neighbour('chalk', 'right')).toBe('exit');
     expect(neighbour('exit', 'right')).toBe('exit');
-    expect(neighbour('exit', 'left')).toBe('ladder');
+    expect(neighbour('exit', 'left')).toBe('chalk');
     expect(neighbour('locker', 'left')).toBe('fun');
     expect(neighbour('fun', 'left')).toBe('fun');
   });
 
-  it('↑ goes from the floor to the nearest wall area, ↓ from the wall to the nearest floor area', () => {
-    const up: Record<BaseAreaId, BaseAreaId> = { fun: 'photos', locker: 'photos', photos: 'photos', ladder: 'ladder', exit: 'ladder' };
-    const down: Record<BaseAreaId, BaseAreaId> = { fun: 'fun', locker: 'locker', photos: 'locker', ladder: 'exit', exit: 'exit' };
+  it('↑ / ↓ go to the nearest area in any row above / below (wall, chalkboard, floor; a tie: the nearer row)', () => {
+    const up: Record<BaseAreaId, BaseAreaId> = {
+      fun: 'photos', locker: 'photos', photos: 'photos', ladder: 'ladder', chalk: 'ladder', exit: 'chalk',
+    };
+    const down: Record<BaseAreaId, BaseAreaId> = {
+      fun: 'fun', locker: 'locker', photos: 'locker', ladder: 'chalk', chalk: 'exit', exit: 'exit',
+    };
     for (const id of BASE_AREA_IDS) {
       expect(neighbour(id, 'up'), `${id} up`).toBe(up[id]);
       expect(neighbour(id, 'down'), `${id} down`).toBe(down[id]);

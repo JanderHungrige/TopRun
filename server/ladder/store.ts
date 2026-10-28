@@ -1,9 +1,10 @@
 import { readFile, rename, writeFile } from 'node:fs/promises';
+import { emptyBoardTable, parseBoardTable, type BoardTable } from '../../src/game/chalkboard-room.ts';
 import { emptyTable, parseTable, type LadderTable } from '../../src/game/ladder.ts';
 import { emptySaves, parseSaves, type SaveTable } from '../../src/game/ladder-cloud.ts';
 import { log } from './log.ts';
 
-// A table in memory, persisted to one JSON file (docs 27, 34): atomic writes (temp file + rename), at most one
+// A table in memory, persisted to one JSON file (docs 27, 34, 40): atomic writes (temp file + rename), at most one
 // per `delayMs`. A write failure rejects unhandled and crashes the process.
 
 export interface Store<T> {
@@ -22,6 +23,7 @@ export interface Codec<T> {
 
 export const LADDER: Codec<LadderTable> = { empty: emptyTable, parse: parseTable };
 export const SAVES: Codec<SaveTable> = { empty: emptySaves, parse: parseSaves };
+export const BOARD: Codec<BoardTable> = { empty: emptyBoardTable, parse: parseBoardTable };
 
 const errCode = (err: unknown): string | undefined =>
   typeof err === 'object' && err !== null && 'code' in err && typeof err.code === 'string' ? err.code : undefined;

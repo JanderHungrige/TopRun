@@ -1,3 +1,4 @@
+import { boardIdentity, boardLink } from '../core/chalkboard-link';
 import type { Scene } from '../core/scene';
 import { BASE_AREA_IDS, BASE_AREAS, RUN_SPEED, WALK_SPEED, type BaseAreaId } from '../data/base-areas';
 import {
@@ -16,11 +17,14 @@ import { pilotStanding } from './pilot-rating';
 let lastOpened: BaseAreaId | null = null;
 
 const NAME_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.fun', locker: 'hbase.locker', photos: 'hbase.photos', ladder: 'hbase.ladder', exit: 'hbase.exit',
+  fun: 'hbase.fun', locker: 'hbase.locker', photos: 'hbase.photos', ladder: 'hbase.ladder', chalk: 'hbase.chalk', exit: 'hbase.exit',
 };
 const HINT_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.hint.fun', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', ladder: 'hbase.hint.ladder', exit: 'hbase.hint.exit',
+  fun: 'hbase.hint.fun', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', ladder: 'hbase.hint.ladder',
+  chalk: 'hbase.hint.chalk', exit: 'hbase.hint.exit',
 };
+/** How often the hangar asks for the chalkboard (doc 40). */
+const BOARD_POLL_MS = 20_000;
 const DIRS: readonly NavDir[] = ['left', 'right', 'up', 'down'];
 
 /**
@@ -58,12 +62,14 @@ export class HangarBaseScene implements Scene {
   }
 
   enter(): void {
+    boardLink().refresh();
     this.game.music.play('menu');
     if (this.greet) this.wingman.say(baseLine('base'));
   }
 
   update(dt: number): void {
     this.time += dt;
+    boardLink().tick(performance.now(), BOARD_POLL_MS, boardIdentity(this.game.save));
     this.wingman.update(dt, this.game.input);
     if (!this.opening && !this.left) this.handleInput();
     this.walker = stepWalker(this.walker, dt, this.opening ? RUN_SPEED : WALK_SPEED);
@@ -125,9 +131,11 @@ export class HangarBaseScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     const save = this.game.save;
+    const sync = boardLink().sync;
     drawHangar(ctx, {
       t: this.time, focus: this.focus, plane: save.selectedPlane, livery: save.livery[save.selectedPlane],
       face: faceOf(this.game.profile), walker: this.walker, board: this.board, text: this.text(),
+      chalk: { cells: sync.known ? sync.view : null, version: sync.version },
     });
     this.wingman.render(ctx);
   }

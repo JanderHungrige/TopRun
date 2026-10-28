@@ -28,7 +28,7 @@ models:
 test_files:
   - tests/unit/firepower.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-27
+last_synced: 2026-10-28
 status: complete
 phase: all
 mdd_version: 11
@@ -42,6 +42,13 @@ sister_projects: []
 ---
 
 # 37 — Double Firepower
+
+> **2026-10-28 update (Deep Arsenal, doc 43):** the gun has levels 1–10. Map 1 sells 1–7, and the map-2 levels
+> moved up to 8–10 (level 6 and 8 unchanged, level 7 trimmed to 1,120 DPS, new 9 = 1,870 and 10 = 2,244). The new
+> jets' main gun counts up to 7 and the second gun goes to 7 (levels 1–7: 15,000 · 8,000 · 15,000 · 25,000 · 40,000 ·
+> 60,000 · 90,000), so two level-7 guns match one level-10 gun. Power-ups lift up to the top of the table. Armour
+> level 4 is sold on map 1, and armour, flares, ECM and damage control have further levels (doc 43). Prices below
+> are the ones from this doc.
 
 ## Purpose
 

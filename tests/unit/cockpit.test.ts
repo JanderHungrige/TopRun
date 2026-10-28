@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  buttonStates, EARLY_RANGE, RADAR_RANGE, radarContacts, warningLights,
+  buttonStates, EARLY_RANGE, RADAR_RANGE, radarContacts, radarRange, warningLights,
   type ButtonInput, type RadarInput, type WarningInput,
 } from '../../src/game/cockpit';
 
@@ -28,7 +28,7 @@ describe('Cockpit', () => {
           { x: 320, y: -400, layer: 'air', dead: false },
           { x: 100, y: 100, layer: 'air', dead: true },
         ],
-      }), false);
+      }), 0);
       expect(c).toEqual([
         { x: 0, y: -0.5, kind: 'air' },
         { x: 0.5, y: 0, kind: 'ground' },
@@ -36,7 +36,7 @@ describe('Cockpit', () => {
     });
 
     it('ignores upcoming spawns without the early-warning radar', () => {
-      const c = radarContacts(radar({ upcoming: [{ dt: 1, x: 320 }] }), false);
+      const c = radarContacts(radar({ upcoming: [{ dt: 1, x: 320 }] }), 0);
       expect(c).toEqual([]);
     });
 
@@ -45,7 +45,7 @@ describe('Cockpit', () => {
         enemies: [{ x: 320, y: -400, layer: 'air', dead: false }],
         upcoming: [{ dt: 1, x: 320 }, { dt: 5, x: 320 }, { dt: -1, x: 320 }],
       });
-      const c = radarContacts(input, true);
+      const c = radarContacts(input, 1);
       expect(c).toHaveLength(2);
       expect(c[0]).toEqual({ x: 0, y: -1000 / EARLY_RANGE, kind: 'air' });
       expect(c[1]?.kind).toBe('upcoming');
@@ -53,11 +53,17 @@ describe('Cockpit', () => {
       expect(EARLY_RANGE).toBeGreaterThan(RADAR_RANGE);
     });
 
+    it('looks 7 s ahead and further with radar level 2 (doc 43)', () => {
+      const input = radar({ upcoming: [{ dt: 1, x: 320 }, { dt: 5, x: 320 }, { dt: 8, x: 320 }] });
+      expect(radarContacts(input, 2).map((x) => x.kind)).toEqual(['upcoming', 'upcoming']);
+      expect(radarRange(2)).toBeGreaterThan(EARLY_RANGE);
+    });
+
     it('marks the boss and enemy missiles', () => {
       const c = radarContacts(radar({
         boss: { x: 320, y: 200 },
         missiles: [{ x: 300, y: 500, enemy: true }, { x: 330, y: 500, enemy: false }],
-      }), false);
+      }), 0);
       expect(c.map((x) => x.kind)).toEqual(['boss', 'missile']);
     });
   });

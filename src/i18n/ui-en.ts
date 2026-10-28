@@ -7,6 +7,7 @@ import { UI_EN_AVATAR } from './ui-en-avatar';
 import { UI_EN_CODE } from './ui-en-code';
 import { UI_EN_CLOUD } from './ui-en-cloud';
 import { UI_EN_JOYSTICK } from './ui-en-joystick';
+import { UI_EN_ARSENAL } from './ui-en-arsenal';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
   // Title
@@ -108,12 +109,12 @@ export const UI_EN = {
   'hangar.f14OnlyNote': 'Switch to the F-14 to mount it',
   'hangar.needMore': 'Need {amount} more',
   'hangar.gunName': 'M61 Vulcan Cannon',
-  'hangar.gunDesc': 'Six-barrel 20 mm rotary cannon. Each upgrade adds barrels, rate of fire or damage. Guns deal half damage to ground targets.',
+  'hangar.gunDesc': 'Six-barrel 20 mm rotary cannon. Each upgrade adds barrels, rate of fire or damage. Guns deal half damage to ground targets; uranium ammo pierces armour.',
   'hangar.gunSub': 'Primary weapon upgrade',
   'hangar.gun2Name': 'Second Gun',
   'hangar.gun2Desc': 'A second rotary cannon in the wing roots of the A-10, F-35 and Tornado. Fires together with the main gun and levels up on its own.',
   'hangar.gun2Sub': 'A-10 · F-35 · Tornado',
-  'hangar.gunNewJets': 'The A-10, F-35 and Tornado fly the main gun at level 5 at most; they carry the second gun instead.',
+  'hangar.gunNewJets': 'The A-10, F-35 and Tornado fly the main gun at level 7 at most; they carry the second gun instead.',
   'hangar.buyTwin': 'TWIN PODS {price}',
   'hangar.twinOwned': 'TWIN PODS OWNED',
   'hangar.twinInfo': 'Twin pods: double ammo on the A-10, F-35, Tornado.',
@@ -151,7 +152,7 @@ export const UI_EN = {
   'hangar.notAllowed': 'Not allowed on this jet',
   'hangar.cannotBuy': 'Cannot buy',
   'hangar.hintTouch': 'Tap a hardpoint to clear it or to mount the selected weapon',
-  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · R unmount · ESC map · B base',
+  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · U upgrade · R unmount · ESC map · B base',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'CARRIER LAUNCH',
@@ -284,6 +285,7 @@ export const UI_EN = {
   ...UI_EN_CODE,
   ...UI_EN_CLOUD,
   ...UI_EN_JOYSTICK,
+  ...UI_EN_ARSENAL,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

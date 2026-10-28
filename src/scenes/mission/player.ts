@@ -1,5 +1,6 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
+import type { WeaponStats } from '../../game/arsenal';
 import { gunLevelDef, MAX_GUN2_LEVEL } from '../../data/weapons';
 import { powerCap } from '../../game/firepower';
 import { specialRules } from '../../game/jets';
@@ -15,6 +16,8 @@ export interface SecondarySlot {
   start: number;
   /** Twin pods: both fire per trigger (doc 37). */
   twin: boolean;
+  /** The numbers of the weapon's mark (doc 43). */
+  weapon: WeaponStats;
 }
 
 /** Player jet state; behaviour that touches the world lives in weapons-fire.ts / mission-scene.ts. */
@@ -44,6 +47,8 @@ export class Player {
   specialActive = 0;
   powerTimer = 0;
   damageControlUsed = false;
+  /** Damage-control repairs left this mission (doc 43: two at the top level). */
+  damageControlLeft: number;
   dashVX = 0;
   /** A-10 GAU-8 burst: seconds to the next round (doc 36). */
   cannonT = 0;
@@ -58,11 +63,12 @@ export class Player {
     this.hull = stats.maxHull;
     this.speed = stats.speed;
     this.flares = stats.flares;
-    this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin }));
+    this.damageControlLeft = stats.damageControlUses;
+    this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin, weapon: s.weapon }));
   }
 
   get gunLevel(): number {
-    return Math.min(powerCap(this.stats.plane.id, this.stats.gunLevel), this.stats.gunLevel + (this.powerTimer > 0 ? 1 : 0));
+    return Math.min(powerCap(this.stats.plane.id), this.stats.gunLevel + (this.powerTimer > 0 ? 1 : 0));
   }
 
   /** Second gun level, power-up included; 0 = no second gun. */
@@ -117,9 +123,10 @@ export class Player {
     if (!this.alive || this.invulnerable) return false;
     this.hull -= amount;
     this.invuln = INVULN_AFTER_HIT;
-    if (this.hull < this.maxHull * 0.25 && this.stats.damageControl && !this.damageControlUsed && this.hull > 0) {
-      this.damageControlUsed = true;
-      this.hull += this.maxHull * 0.4;
+    if (this.hull < this.maxHull * 0.25 && this.damageControlLeft > 0 && this.hull > 0) {
+      this.damageControlLeft -= 1;
+      this.damageControlUsed = this.damageControlLeft === 0;
+      this.hull += this.maxHull * this.stats.damageControlRestore;
     }
     if (this.hull <= 0) {
       this.hull = 0;

@@ -1,5 +1,6 @@
 import type { AudioEngine } from '../../core/audio';
 import { TAU } from '../../core/math';
+import { atLevel, MAGNET_PULL, MAGNET_REACH } from '../../data/equipment';
 import type { DropKind } from '../../game/combat';
 import { t } from '../../i18n/i18n';
 import { text } from '../../render/text';
@@ -14,7 +15,7 @@ const STYLE: Readonly<Record<DropKind, { color: string; label: string }>> = {
 };
 
 export function updatePickups(world: World, p: Player, dt: number, audio: AudioEngine): void {
-  const reach = p.stats.magnet ? 160 : 46;
+  const reach = atLevel(MAGNET_REACH, p.stats.magnetLevel);
   for (const k of world.pickups) {
     k.t += dt;
     k.y += (world.scrollSpeed * 0.6 + 20) * dt;
@@ -27,7 +28,7 @@ export function updatePickups(world: World, p: Player, dt: number, audio: AudioE
     const dy = p.y - k.y;
     const d = Math.hypot(dx, dy);
     if (d < reach && d > 1) {
-      const pull = (p.stats.magnet ? 420 : 260) * dt;
+      const pull = atLevel(MAGNET_PULL, p.stats.magnetLevel) * dt;
       k.x += (dx / d) * pull;
       k.y += (dy / d) * pull;
     }

@@ -51,7 +51,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     }
     for (const e of world.enemies) {
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
-      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer }), audio);
+      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground }), audio);
       if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
@@ -59,7 +59,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     }
     const boss = world.boss;
     const source = b.kind === 'cannon' ? 'cannon' : 'gun';
-    if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source, targetLayer: boss.def.layer }), world, audio)) {
+    if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source, targetLayer: boss.def.layer, ground: b.ground }), world, audio)) {
       if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
@@ -77,7 +77,7 @@ function updateEnemyBullets(world: World, p: Player, dt: number, hooks: CombatHo
       b.dead = true;
       world.particles.explosion(b.x, b.y, 'small');
       hooks.audio.play('explosionSmall', { volume: 0.4 });
-      if (p.alive && Math.hypot(p.x - b.x, p.y - b.y) < 42) hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.flak, { source: 'flak', ecm: p.stats.ecm }));
+      if (p.alive && Math.hypot(p.x - b.x, p.y - b.y) < 42) hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.flak, { source: 'flak', ecm: p.stats.ecmBullet }));
       continue;
     }
     if (b.y > PF_H + 20 || b.y < -40 || b.x < -20 || b.x > PF_W + 20 || b.ttl <= 0) {
@@ -86,7 +86,7 @@ function updateEnemyBullets(world: World, p: Player, dt: number, hooks: CombatHo
     }
     if (b.kind === 'enemy' && p.alive && circleHit(b.x, b.y, 4, p.x, p.y, PLAYER_RADIUS - 3)) {
       b.dead = true;
-      hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.bullet, { source: 'enemyBullet', ecm: p.stats.ecm }));
+      hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.bullet, { source: 'enemyBullet', ecm: p.stats.ecmBullet }));
     }
   }
 }

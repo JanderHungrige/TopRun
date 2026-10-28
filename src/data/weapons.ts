@@ -20,36 +20,48 @@ export const GUN_LEVELS: readonly GunLevelDef[] = Object.freeze([
   { level: 2, price: 2500, shotsPerSec: 10, damage: 10, pattern: [{ dx: -7, angle: 0 }, { dx: 7, angle: 0 }] },
   { level: 3, price: 6000, shotsPerSec: 13, damage: 11, pattern: [{ dx: -7, angle: 0 }, { dx: 7, angle: 0 }] },
   {
-    level: 4, price: 12000, shotsPerSec: 13, damage: 11,
+    level: 4, price: 14000, shotsPerSec: 13, damage: 11,
     pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: deg(-6) }, { dx: 6, angle: deg(6) }],
   },
   {
-    level: 5, price: 20000, shotsPerSec: 15, damage: 12,
+    level: 5, price: 26000, shotsPerSec: 15, damage: 12,
     pattern: [
       { dx: -5, angle: 0 }, { dx: 5, angle: 0 }, { dx: -9, angle: deg(-9) }, { dx: 9, angle: deg(9) },
     ],
   },
-  // Map 2 (doc 37): the old jets' path beyond level 5.
+  // Map 1 since doc 43 (were map 2 only, doc 37).
   {
-    level: 6, price: 30000, shotsPerSec: 17, damage: 13,
+    level: 6, price: 45000, shotsPerSec: 17, damage: 13,
     pattern: [{ dx: -5, angle: 0 }, { dx: 5, angle: 0 }, { dx: -9, angle: deg(-7) }, { dx: 9, angle: deg(7) }],
   },
   {
-    level: 7, price: 45000, shotsPerSec: 18, damage: 14,
+    level: 7, price: 70000, shotsPerSec: 16, damage: 14,
     pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-9) }, { dx: 10, angle: deg(9) }],
   },
+  // Map 2: the old jets' path beyond the map-1 top (docs 37, 43).
   {
-    level: 8, price: 65000, shotsPerSec: 20, damage: 15,
+    level: 8, price: 110000, shotsPerSec: 20, damage: 15,
     pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-7) }, { dx: 10, angle: deg(7) }],
+  },
+  {
+    level: 9, price: 160000, shotsPerSec: 22, damage: 17,
+    pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-8) }, { dx: 10, angle: deg(8) }],
+  },
+  {
+    level: 10, price: 230000, shotsPerSec: 22, damage: 17,
+    pattern: [
+      { dx: -4, angle: 0 }, { dx: 4, angle: 0 }, { dx: -8, angle: deg(-4) }, { dx: 8, angle: deg(4) },
+      { dx: -12, angle: deg(-10) }, { dx: 12, angle: deg(10) },
+    ],
   },
 ]);
 
-export const MAX_GUN_LEVEL: GunLevel = 8;
-/** The gun's cap before map 2 opens, and the cap of a new jet's main gun (doc 37). */
-export const MAP1_GUN_LEVEL: GunLevel = 5;
-/** Second gun of the new jets (doc 37): price of levels 1–5; it shares the gun's level table. */
-export const GUN2_PRICES: readonly number[] = Object.freeze([10000, 5000, 10000, 18000, 30000]);
-export const MAX_GUN2_LEVEL = 5;
+export const MAX_GUN_LEVEL: GunLevel = 10;
+/** The gun's cap before map 2 opens, and the cap of a new jet's main gun (docs 37, 43). */
+export const MAP1_GUN_LEVEL: GunLevel = 7;
+/** Second gun of the new jets (docs 37, 43): price of levels 1–7; it shares the gun's level table. */
+export const GUN2_PRICES: readonly number[] = Object.freeze([15000, 8000, 15000, 25000, 40000, 60000, 90000]);
+export const MAX_GUN2_LEVEL = 7;
 
 export function gunLevelDef(level: number): GunLevelDef {
   const clamped = Math.max(1, Math.min(MAX_GUN_LEVEL, Math.floor(level)));

@@ -2,7 +2,8 @@ import type { AudioEngine } from '../../core/audio';
 import type { EnemyWeapon, SecondaryId } from '../../data/types';
 import { gunLevelDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
-import { ECM_TURN_FACTOR, headingTo } from '../../game/combat';
+import { headingTo } from '../../game/combat';
+import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import type { Missile, World } from './world';
 
@@ -17,7 +18,7 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
   for (const b of gun.pattern) {
     world.bullets.push({
       kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(b.angle) * GUN_SPEED, vy: -Math.cos(b.angle) * GUN_SPEED,
-      damage, ttl: 1, dead: false,
+      damage, ttl: 1, dead: false, ground: p.stats.gunGround,
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -35,7 +36,7 @@ function fireSecondGun(world: World, p: Player): void {
   for (const b of gun.pattern) {
     world.bullets.push({
       kind: 'gun', x: p.x + p.gun2Side * 13 + b.dx * 0.6, y: p.y - 12, vx: Math.sin(b.angle) * GUN_SPEED,
-      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false,
+      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false, ground: p.stats.gunGround,
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -54,12 +55,13 @@ export function fireWingman(world: World, p: Player, dt: number): void {
   }
 }
 
-function playerMissile(p: Player, kind: Missile['kind'], dx: number, heading: number): Missile {
+/** A player missile or rocket with the numbers of its weapon's mark (doc 43). */
+function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: number, heading: number): Missile {
   if (kind === 'enemy') throw new Error('not a player missile');
-  const def = kind === 'rocket' ? SECONDARIES.rockets : SECONDARIES[kind];
+  const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind].hits;
   return {
-    kind, x: p.x + dx, y: p.y - 6, heading, speed: kind === 'rocket' ? def.speed : 180, maxSpeed: def.speed,
-    turnRate: def.turnRate, damage: def.damage, hits: def.hits, target: null, decoy: null, ttl: 3.2, dead: false,
+    kind, x: p.x + dx, y: p.y - 6, heading, speed: kind === 'rocket' ? w.speed : 180, maxSpeed: w.speed,
+    turnRate: w.turnRate, damage: w.damage, hits, target: null, decoy: null, ttl: 3.2, dead: false,
   };
 }
 
@@ -82,16 +84,16 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
   switch (def.behavior) {
     case 'homing': {
       const kind = homingKind(slot.id);
-      for (const s of pods) if (kind) world.missiles.push(playerMissile(p, kind, s === 0 ? 12 * p.sideToggle : 12 * s, 0));
+      for (const s of pods) if (kind) world.missiles.push(playerMissile(p, kind, slot.weapon, s === 0 ? 12 * p.sideToggle : 12 * s, 0));
       audio.play('missile');
       break;
     }
     case 'fan':
-      for (const s of pods) for (let i = -2; i <= 2; i++) world.missiles.push(playerMissile(p, 'rocket', s * 10 + i * 4, i * 0.09));
+      for (const s of pods) for (let i = -2; i <= 2; i++) world.missiles.push(playerMissile(p, 'rocket', slot.weapon, s * 10 + i * 4, i * 0.09));
       audio.play('rocket');
       break;
     case 'bomb':
-      for (const s of pods) world.bombs.push({ x: p.x + s * 16, y: p.y, t: 0, damage: def.damage, radius: def.radius, dead: false });
+      for (const s of pods) world.bombs.push({ x: p.x + s * 16, y: p.y, t: 0, damage: slot.weapon.damage, radius: slot.weapon.radius, dead: false });
       audio.play('bombDrop');
       break;
     default:
@@ -136,7 +138,7 @@ export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon
     case 'missile':
       world.missiles.push({
         kind: 'enemy', x: s.x, y: s.y, heading: aim, speed: 150, maxSpeed: 250 * s.bulletSpeedMul,
-        turnRate: 1.7 * (p.stats.ecm ? ECM_TURN_FACTOR : 1), damage: 22, hits: 'air', target: 'player', decoy: null, ttl: 5, dead: false,
+        turnRate: 1.7 * p.stats.ecmTurn, damage: 22, hits: 'air', target: 'player', decoy: null, ttl: 5, dead: false,
       });
       audio.play('enemyMissile', { volume: 0.6 });
       return;

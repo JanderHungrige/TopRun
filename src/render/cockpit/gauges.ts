@@ -116,15 +116,13 @@ function lamp(ctx: CanvasRenderingContext2D, x: number, y: number, rgb: string, 
 }
 
 export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: number; level2: number; powered: boolean; powerRatio: number }, t: number): void {
-  const level = Math.max(0, Math.min(8, Math.round(c.level)));
+  const level = Math.max(0, Math.min(10, Math.round(c.level)));
   const pulse = 0.85 + Math.sin(t * 7) * 0.15;
   for (let i = 0; i < 5; i++) {
     const y = r.y + LAMP_Y + 16;
-    if (i < level - 5) lamp(ctx, lampX(r, i), y, '96,214,255', '#5fd6ff', 1); // levels 6–8 (doc 37)
-    else if (i < level) {
-      if (c.powered && level === 5) lamp(ctx, lampX(r, i), y, '255,200,61', '#ffd84a', pulse);
-      else lamp(ctx, lampX(r, i), y, '98,240,138', '#62f08a', 1);
-    } else if (i === level && c.powered) lamp(ctx, lampX(r, i), y, '255,200,61', '#ffd84a', pulse);
+    if (i < level - 5) lamp(ctx, lampX(r, i), y, '96,214,255', '#5fd6ff', 1); // levels 6–10 (docs 37, 43)
+    else if (i < level) lamp(ctx, lampX(r, i), y, '98,240,138', '#62f08a', 1);
+    else if (i === level && c.powered) lamp(ctx, lampX(r, i), y, '255,200,61', '#ffd84a', pulse);
   }
   secondGunLamps(ctx, r, c.level2);
   const w = (r.w - 72) * Math.max(0, Math.min(1, c.powerRatio));
@@ -136,7 +134,7 @@ export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: n
   ctx.fillRect(r.x + 61, r.y + r.h - 25, Math.max(0, w - 2), 2);
 }
 
-/** Second gun (doc 37): five small lamps under the main row, lit up to its level. */
+/** Second gun (doc 37): five small lamps under the main row, lit up to its level; levels 6–7 cyan (doc 43). */
 function secondGunLamps(ctx: CanvasRenderingContext2D, r: Rect, level: number): void {
   if (level <= 0) return;
   const y = r.y + LAMP_Y + 36;
@@ -145,7 +143,7 @@ function secondGunLamps(ctx: CanvasRenderingContext2D, r: Rect, level: number): 
     ctx.beginPath();
     ctx.arc(lampX(r, i), y, 4.5, 0, TAU);
     ctx.fill();
-    ctx.fillStyle = i < level ? '#62f08a' : '#1a2420';
+    ctx.fillStyle = i < level - 5 ? '#5fd6ff' : i < level ? '#62f08a' : '#1a2420';
     ctx.beginPath();
     ctx.arc(lampX(r, i), y, 3.2, 0, TAU);
     ctx.fill();

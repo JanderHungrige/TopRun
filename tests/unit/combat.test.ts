@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyDamage, circleHit, rollDrop, scaleEnemy, steerHoming, headingTo } from '../../src/game/combat';
+import { applyDamage, circleHit, hitScale, rollDrop, scaleBossHp, scaleEnemy, steerHoming, headingTo } from '../../src/game/combat';
 import { emptyTally, isMissionOver, objectiveMet, objectiveProgress, type EndCheck } from '../../src/game/objectives';
 import { ENEMIES } from '../../src/data/enemies';
 
@@ -24,11 +24,18 @@ describe('Combat rules', () => {
       expect(applyDamage(140, { source: 'secondary', targetLayer: 'ground' })).toBe(140);
     });
 
-    it('reduces enemy bullet damage by 25% with ECM', () => {
-      expect(applyDamage(8, { source: 'enemyBullet', ecm: true })).toBe(6);
-      expect(applyDamage(8, { source: 'enemyBullet', ecm: false })).toBe(8);
-      expect(applyDamage(12, { source: 'flak', ecm: true })).toBe(9);
-      expect(applyDamage(22, { source: 'enemyMissile', ecm: true })).toBe(22);
+    it('reduces enemy bullet damage by the ECM share', () => {
+      expect(applyDamage(8, { source: 'enemyBullet', ecm: 0.75 })).toBe(6);
+      expect(applyDamage(8, { source: 'enemyBullet' })).toBe(8);
+      expect(applyDamage(12, { source: 'flak', ecm: 0.75 })).toBe(9);
+      expect(applyDamage(20, { source: 'flak', ecm: 0.55 })).toBe(11);
+      expect(applyDamage(22, { source: 'enemyMissile', ecm: 0.55 })).toBe(22);
+    });
+
+    it('lets uranium ammo raise the gun damage ground targets take (doc 43)', () => {
+      expect(applyDamage(10, { source: 'gun', targetLayer: 'ground', ground: 0.8 })).toBe(8);
+      expect(applyDamage(10, { source: 'gun', targetLayer: 'air', ground: 0.8 })).toBe(10);
+      expect(applyDamage(10, { source: 'cannon', targetLayer: 'ground', ground: 0.65 })).toBe(10);
     });
   });
 
@@ -37,10 +44,32 @@ describe('Combat rules', () => {
       const base = scaleEnemy(ENEMIES.fishbed, 1);
       expect(base).toEqual({ hp: 30, period: 2.2, period2: 0, bulletSpeedMul: 1, bounty: 30 });
       const late = scaleEnemy(ENEMIES.fishbed, 11);
-      expect(late.hp).toBe(48);
+      expect(late.hp).toBe(57); // 30 × (1 + 0.6 + 0.3), doc 43
       expect(late.period).toBeCloseTo(2.2 / 1.3, 5);
       expect(late.bounty).toBe(39);
       expect(late.bulletSpeedMul).toBeCloseTo(1.15, 5);
+    });
+  });
+
+  describe('threat curve (doc 43)', () => {
+    it('keeps the Pacific within a few percent of the old linear scaling and bends upwards later', () => {
+      const linear = (hp: number, d: number): number => hp * (1 + 0.06 * (d - 1));
+      expect(scaleEnemy(ENEMIES.bear, 6).hp / linear(320, 6)).toBeLessThan(1.07);
+      expect(scaleEnemy(ENEMIES.bear, 18).hp / linear(320, 18)).toBeCloseTo(1.43, 1);
+      expect(scaleEnemy(ENEMIES.bear, 30).hp / linear(320, 30)).toBeCloseTo(1.92, 1);
+      expect(scaleEnemy(ENEMIES.bear, 60).hp / linear(320, 60)).toBeCloseTo(3.3, 1);
+    });
+
+    it('scales boss HP with the same shape, a little gentler', () => {
+      expect(scaleBossHp(1000, 1)).toBe(1000);
+      expect(scaleBossHp(1000, 30)).toBe(Math.round(1000 * (1 + 0.05 * 29 + 0.002 * 29 * 29)));
+      expect(scaleBossHp(1000, 30) / scaleEnemy({ ...ENEMIES.bear, hp: 1000 }, 30).hp).toBeLessThan(1);
+    });
+
+    it('makes enemy hits hurt more at higher difficulty', () => {
+      expect(hitScale(1)).toBe(1);
+      expect(hitScale(6)).toBeCloseTo(1.1, 5);
+      expect(hitScale(60)).toBeCloseTo(2.18, 5);
     });
   });
 

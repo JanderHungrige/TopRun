@@ -5,7 +5,7 @@ import { NUKE } from '../../game/jets';
 import { flame } from '../../render/shapes';
 import type { Player } from './player';
 import { drawPickups } from './pickups';
-import { PF_H, PF_W, type Enemy, type World } from './world';
+import { PF_H, PF_W, type Bullet, type Enemy, type World } from './world';
 
 const SHADOW_DX = 16;
 const SHADOW_DY = 26;
@@ -14,12 +14,21 @@ function drawEnemyUnit(ctx: CanvasRenderingContext2D, e: Enemy, t: number): void
   drawEnemy(ctx, e.kind, e.x, e.y, { t: t + e.phase, flash: e.flash > 0, heading: e.heading, aim: e.aim, bank: Math.max(-1, Math.min(1, -e.vx / 200)) });
 }
 
+/** A gun round; uranium ammo (doc 43) burns a hot white-green with a green glow. */
+function tracer(ctx: CanvasRenderingContext2D, b: Bullet): void {
+  const du = (b.ground ?? 0.5) > 0.5;
+  if (du) {
+    ctx.fillStyle = 'rgba(150,255,170,0.45)';
+    ctx.fillRect(b.x - 2.5, b.y - 8, 5, 14);
+  }
+  ctx.fillStyle = du ? '#eaffd8' : '#fff6b0';
+  ctx.fillRect(b.x - 1.5, b.y - 7, 3, 12);
+}
+
 function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
   for (const b of world.bullets) {
-    if (b.kind === 'gun' || b.kind === 'wingman') {
-      ctx.fillStyle = '#fff6b0';
-      ctx.fillRect(b.x - 1.5, b.y - 7, 3, 12);
-    } else if (b.kind === 'cannon') {
+    if (b.kind === 'gun' || b.kind === 'wingman') tracer(ctx, b);
+    else if (b.kind === 'cannon') {
       ctx.fillStyle = '#ffb347';
       ctx.fillRect(b.x - 2, b.y - 9, 4, 16);
       ctx.fillStyle = '#fff3c4';

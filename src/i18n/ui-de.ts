@@ -7,6 +7,7 @@ import { UI_DE_AVATAR } from './ui-de-avatar';
 import { UI_DE_CODE } from './ui-de-code';
 import { UI_DE_CLOUD } from './ui-de-cloud';
 import { UI_DE_JOYSTICK } from './ui-de-joystick';
+import { UI_DE_ARSENAL } from './ui-de-arsenal';
 import type { UiKey } from './ui-en';
 
 // German UI strings. Record<UiKey, string>: the compiler rejects a missing key.
@@ -110,12 +111,12 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.f14OnlyNote': 'Wechsle zur F-14, um sie zu montieren',
   'hangar.needMore': 'Es fehlen {amount}',
   'hangar.gunName': 'M61 Vulcan-Kanone',
-  'hangar.gunDesc': 'Sechsläufige 20-mm-Gatling. Jede Stufe bringt mehr Läufe, Kadenz oder Schaden. Kanonen machen nur halben Schaden gegen Bodenziele.',
+  'hangar.gunDesc': 'Sechsläufige 20-mm-Gatling. Jede Stufe bringt mehr Läufe, Kadenz oder Schaden. Kanonen machen nur halben Schaden gegen Bodenziele; Uranmunition durchschlägt Panzerung.',
   'hangar.gunSub': 'Hauptwaffe aufrüsten',
   'hangar.gun2Name': 'Zweite Kanone',
   'hangar.gun2Desc': 'Eine zweite Maschinenkanone in den Flügelwurzeln von A-10, F-35 und Tornado. Feuert zusammen mit der Hauptkanone und wird eigenständig aufgerüstet.',
   'hangar.gun2Sub': 'A-10 · F-35 · Tornado',
-  'hangar.gunNewJets': 'A-10, F-35 und Tornado fliegen die Hauptkanone höchstens auf Stufe 5; dafür tragen sie die zweite Kanone.',
+  'hangar.gunNewJets': 'A-10, F-35 und Tornado fliegen die Hauptkanone höchstens auf Stufe 7; dafür tragen sie die zweite Kanone.',
   'hangar.buyTwin': 'ZWILLING {price}',
   'hangar.twinOwned': 'ZWILLING GEKAUFT',
   'hangar.twinInfo': 'Zwilling: doppelte Munition auf A-10, F-35, Tornado.',
@@ -153,7 +154,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.notAllowed': 'Passt nicht an diesen Jet',
   'hangar.cannotBuy': 'Nicht kaufbar',
   'hangar.hintTouch': 'Station antippen: leeren oder die gewählte Waffe montieren',
-  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · R abbauen · ESC Karte · B Basis',
+  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · U verbessern · R abbauen · ESC Karte · B Basis',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'KATAPULTSTART',
@@ -286,4 +287,5 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   ...UI_DE_CODE,
   ...UI_DE_CLOUD,
   ...UI_DE_JOYSTICK,
+  ...UI_DE_ARSENAL,
 };

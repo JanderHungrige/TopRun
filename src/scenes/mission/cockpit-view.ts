@@ -1,5 +1,6 @@
 import { formatMoney } from '../../core/math';
 import { BOSSES } from '../../data/bosses';
+import { atLevel, RADAR_AHEAD } from '../../data/equipment';
 import { PLANES } from '../../data/planes';
 import { SECONDARIES } from '../../data/weapons';
 import type { Device } from '../../core/input';
@@ -39,7 +40,7 @@ function upcomingSpawns(w: World): Array<{ dt: number; x: number }> {
   const out: Array<{ dt: number; x: number }> = [];
   for (let i = w.nextEvent; i < w.timeline.length; i++) {
     const ev = w.timeline[i];
-    if (!ev || ev.t - w.t > 4) break;
+    if (!ev || ev.t - w.t > atLevel(RADAR_AHEAD, RADAR_AHEAD.length - 1)) break;
     out.push({ dt: ev.t - w.t, x: ev.type === 'enemy' ? ev.x : PF_W / 2 });
   }
   return out;
@@ -71,7 +72,7 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
         player: { x: p.x, y: p.y }, enemies: w.enemies, boss,
         missiles: w.missiles.map((m) => ({ x: m.x, y: m.y, enemy: m.kind === 'enemy' })),
         upcoming: upcomingSpawns(w),
-      }, p.stats.earlyWarning),
+      }, p.stats.radarLevel),
     },
     hull: { ratio: p.hullRatio, value: Math.ceil(p.hull), max: p.maxHull },
     cannon: { level: p.gunLevel, level2: p.gun2Level, powered: p.powerTimer > 0, powerRatio: Math.min(1, p.powerTimer / 12) },

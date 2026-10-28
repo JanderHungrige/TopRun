@@ -8,19 +8,14 @@ import { dominantColors, snapToPalette } from '../pixel/quantize';
 import { Pix } from '../pixel/raster';
 import { drawRankBoard } from '../ranks';
 import { text } from '../text';
-import { CENTRE_X, POCKETS } from './jacket';
+import { NAME_PLATE, TUNIC } from './plate';
 
-// Locker (doc 31): what sits on the jacket besides the medals — the rank shoulder boards (the ladder's
+// Locker (doc 31): what sits on the tunic besides the medals — the rank shoulder boards (the ladder's
 // drawRankBoard art captured once, turned a quarter so the stripes sit at the shoulder end and the star at the
-// collar, foreshortened and stepped down the shoulder slope), the gold wings badge and the callsign name plate.
+// collar, foreshortened and stepped down the picture's shoulder line), the gold wings badge and the name plate.
 
 const BOARD_SRC = 48;
-const BOARD_LEN = 100;
-const BOARD_DEPTH = 18;
-const BOARD_DROP = 14;
-/** Collar end of each board (logical): the boards run outward from here along the shoulders. */
-const BOARD_TOP = 162;
-const BOARD_COLLAR = 34;
+const BOARD_DEPTH = 16;
 
 const boards = new SpriteCache(8);
 
@@ -39,9 +34,9 @@ function boardSource(rank: RankId): ImageData | null {
 function boardSprite(rank: RankId, G: number, mirror: boolean): HTMLCanvasElement | null {
   return boards.get(`${rank}|${G.toFixed(4)}|${mirror ? 1 : 0}`, () => {
     const src = boardSource(rank);
-    const L = Math.round(BOARD_LEN / G);
+    const L = Math.round(TUNIC.boardLen / G);
     const D = Math.max(4, Math.round(BOARD_DEPTH / G));
-    const drop = Math.round(BOARD_DROP / G);
+    const drop = Math.round(TUNIC.boardDrop / G);
     const out = makeCanvas(L, D + drop);
     const g = out.getContext('2d');
     if (!g || !src) return null;
@@ -49,7 +44,7 @@ function boardSprite(rank: RankId, G: number, mirror: boolean): HTMLCanvasElemen
     for (let u = 0; u < L; u++) {
       const along = u / Math.max(1, L - 1);
       const by = Math.min(BOARD_SRC - 1, Math.floor(along * BOARD_SRC));
-      const row0 = Math.round(drop * along * along);
+      const row0 = Math.round(drop * along); // the shoulder in the picture is a straight slope
       const col = mirror ? L - 1 - u : u;
       for (let r = 0; r < D; r++) {
         const bx = Math.min(BOARD_SRC - 1, Math.floor(((r + 0.5) / D) * BOARD_SRC));
@@ -68,14 +63,14 @@ const snap = (ctx: CanvasRenderingContext2D, x: number, y: number): [number, num
   return [m.a ? (Math.round(m.a * x + m.e) - m.e) / m.a : x, m.d ? (Math.round(m.d * y + m.f) - m.f) / m.d : y];
 };
 
-/** Both shoulder boards for the pilot's rank. */
-export function drawBoards(ctx: CanvasRenderingContext2D, rank: RankId, G: number, dx: number): void {
+/** Both shoulder boards for the pilot's rank, on the tunic's shoulders. */
+export function drawBoards(ctx: CanvasRenderingContext2D, rank: RankId, G: number): void {
   for (const mirror of [false, true]) {
     const art = boardSprite(rank, G, mirror);
     if (!art) continue;
     const w = art.width * G;
-    const x = mirror ? CENTRE_X - BOARD_COLLAR - w : CENTRE_X + BOARD_COLLAR;
-    const [sx, sy] = snap(ctx, x + dx, BOARD_TOP);
+    const x = mirror ? TUNIC.centreX - TUNIC.collarHalf - w : TUNIC.centreX + TUNIC.collarHalf;
+    const [sx, sy] = snap(ctx, x, TUNIC.boardTop);
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(art, sx, sy, w, art.height * G);
@@ -119,11 +114,11 @@ export function drawWings(ctx: CanvasRenderingContext2D, x: number, y: number, G
 }
 
 /** The name plate above the viewer's-left breast pocket. */
-export function drawNamePlate(ctx: CanvasRenderingContext2D, callsign: string, G: number, dx: number): void {
+export function drawNamePlate(ctx: CanvasRenderingContext2D, callsign: string, G: number): void {
   const w = 96;
   const h = 16;
-  const x = POCKETS.left.x + POCKETS.left.w / 2 - w / 2 + dx;
-  const y = POCKETS.y - h - 6;
+  const x = NAME_PLATE.cx - w / 2;
+  const y = NAME_PLATE.y;
   pixelRect(ctx, x - G, y - G, w + 2 * G, h + 2 * G, '#3a2406');
   pixelRect(ctx, x, y, w, h, '#14181c');
   pixelRect(ctx, x, y, w, G, '#454d55');

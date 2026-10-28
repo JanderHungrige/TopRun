@@ -24,20 +24,20 @@ export function brackets(ctx: CanvasRenderingContext2D, b: Box, G: number, t: nu
   }
 }
 
-function drawSlot(ctx: CanvasRenderingContext2D, l: UniformLayout, i: number, G: number, dx: number, shine?: number): void {
+function drawSlot(ctx: CanvasRenderingContext2D, l: UniformLayout, i: number, G: number, shine?: number): void {
   const s = l.slots[i];
   if (!s) return;
-  if (s.kind === 'ribbon') drawRibbonBar(ctx, s.id, s.x + dx, s.y, s.box.w, s.box.h, { px: G });
-  else drawMedal(ctx, s.id, s.x + dx, s.y, s.size, { px: G, ...(shine === undefined ? {} : { shine }) });
+  if (s.kind === 'ribbon') drawRibbonBar(ctx, s.id, s.x, s.y, s.box.w, s.box.h, { px: G });
+  else drawMedal(ctx, s.id, s.x, s.y, s.size, { px: G, ...(shine === undefined ? {} : { shine }) });
 }
 
 /** Wings, ribbons and medals; `selected` on top with a shine (−1 = none). */
-export function drawRack(ctx: CanvasRenderingContext2D, l: UniformLayout, selected: number, G: number, dx: number, t: number): void {
-  drawWings(ctx, l.wings.x + dx, l.wings.y, G);
-  for (let i = 0; i < l.slots.length; i++) if (i !== selected) drawSlot(ctx, l, i, G, dx);
+export function drawRack(ctx: CanvasRenderingContext2D, l: UniformLayout, selected: number, G: number, t: number): void {
+  drawWings(ctx, l.wings.x, l.wings.y, G);
+  for (let i = 0; i < l.slots.length; i++) if (i !== selected) drawSlot(ctx, l, i, G);
   const sel = l.slots[selected];
   if (!sel) return;
   const u = (t % SHINE_PERIOD) / 1.1;
-  drawSlot(ctx, l, selected, G, dx, sel.kind === 'medal' && u <= 1 ? u : undefined);
-  brackets(ctx, { ...sel.box, x: sel.box.x + dx }, G, t);
+  drawSlot(ctx, l, selected, G, sel.kind === 'medal' && u <= 1 ? u : undefined);
+  brackets(ctx, sel.box, G, t);
 }

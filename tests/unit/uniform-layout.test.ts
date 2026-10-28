@@ -55,8 +55,8 @@ describe('uniform layout', () => {
   });
 
   it('sits at chest height (a third down the tunic) and tucks a full rack under the collar', () => {
-    // The tunic runs from the shoulders (≈ 176) to the hem (632): the breast line is no longer at its middle.
-    expect(C.pocketTop).toBeLessThan(176 + (632 - 176) * 0.4);
+    // The tunic in the locker picture runs from the shoulders (≈ 200) to the hem (≈ 688): the breast line is high.
+    expect(C.pocketTop).toBeLessThan(200 + (688 - 200) * 0.4);
     const full = uniformLayout(MEDAL_IDS);
     expect(full.top).toBeGreaterThanOrEqual(C.minTop);
     const [r0, r1, r2] = [0, 1, 2].map((r) => rowSpan(full, 'medal', r));

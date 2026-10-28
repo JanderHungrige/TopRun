@@ -3,13 +3,15 @@ import {
   applySubmission, MAX_BODY, parseIdentity, parseSubmission, publicLadder, removeEntry, takeWrite, type LadderTable,
 } from '../../src/game/ladder.ts';
 import { pruneSaves, type SaveTable } from '../../src/game/ladder-cloud.ts';
+import type { BoardRoom, BoardTable } from '../../src/game/chalkboard-room.ts';
 import { rankFor } from '../../src/game/rating.ts';
+import { boardRoutes } from './board-http.ts';
 import { cloudRoute } from './cloud-http.ts';
 import { log } from './log.ts';
 import { fail, hashSecret, readJson, reply, send, type Reply } from './reply.ts';
 import type { Store } from './store.ts';
 
-// HTTP surface of the ladder service (docs 27, 34). Request bodies are untrusted and never logged.
+// HTTP surface of the ladder service (docs 27, 34, 40). Request bodies are untrusted and never logged.
 
 export const LADDER_PATH = '/api/ladder';
 export const HEALTH_PATH = '/api/ladder/health';
@@ -18,6 +20,9 @@ export { hashSecret };
 export interface Stores {
   ladder: Store<LadderTable>;
   saves: Store<SaveTable>;
+  /** The shared chalkboard (doc 40): its file and the room main.ts built from it (the owner's reset goes there). */
+  board: Store<BoardTable>;
+  room: BoardRoom;
 }
 
 const lastUpdate = (t: LadderTable): number => t.pilots.reduce((at, p) => Math.max(at, p.updatedAt), 0);
@@ -25,6 +30,7 @@ const lastUpdate = (t: LadderTable): number => t.pilots.reduce((at, p) => Math.m
 /** The request handler; `now` is injectable for tests. */
 export function ladderHandler(stores: Stores, now: () => number = Date.now): RequestListener {
   const { ladder, saves } = stores;
+  const board = boardRoutes({ ladder, board: stores.board, room: stores.room, now });
   const writes = new Map<string, number[]>();
   const allow = (id: string): boolean => {
     const t = now();
@@ -70,6 +76,8 @@ export function ladderHandler(stores: Stores, now: () => number = Date.now): Req
     if (url.pathname === HEALTH_PATH) return read ? reply(200, 'ok') : fail(405, 'method');
     const cloud = cloudRoute(req, url, { ladder, saves, allow, now });
     if (cloud) return cloud;
+    const chalk = board(req, url);
+    if (chalk) return chalk;
     if (url.pathname !== LADDER_PATH) return fail(404, 'not-found');
     if (read) return reply(200, { pilots: publicLadder(ladder.get()), updatedAt: lastUpdate(ladder.get()) });
     if (req.method === 'POST') return submit(req);

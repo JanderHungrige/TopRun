@@ -1,17 +1,27 @@
-// Hangar base UI strings (doc 30).
+// Hangar base (doc 30) and chalkboard (doc 40) UI strings.
 export const UI_EN_HANGAR = {
   'hbase.title': 'HOME BASE',
   'hbase.fun': 'FUN MISSIONS',
   'hbase.locker': 'LOCKER',
   'hbase.photos': 'PICTURE WALL',
   'hbase.ladder': 'LADDER',
+  'hbase.chalk': 'CHALKBOARD',
   'hbase.exit': 'EXIT · MAP',
   'hbase.hint.fun': 'Off-duty minigames: play for medals and bragging rights.',
   'hbase.hint.locker': 'Your dress whites with every medal you have earned.',
   'hbase.hint.photos': 'A photo for every mission you have cleared.',
   'hbase.hint.ladder': 'The online ladder: every pilot, ranked by rating.',
+  'hbase.hint.chalk': 'Leave a chalk message for every pilot, or wipe one away.',
   'hbase.hint.exit': 'Roll out: back to the campaign map.',
   'hbase.keys': '←/→/↑/↓ choose  ·  ENTER open  ·  ESC map',
   'hbase.points': '{n} PTS',
   'hbase.back': 'BASE',
+  'chalk.title': 'CHALKBOARD',
+  'chalk.loading': 'Fetching the board …',
+  'chalk.online': 'Every pilot sees this board',
+  'chalk.offline': 'Board offline: your strokes wait here',
+  'chalk.ladderOnly': 'Chalk is for pilots on the online ladder. Wiping is for everyone.',
+  'chalk.dry': 'A dry sponge only smears. Dip it in the bucket!',
+  'chalk.keys': 'Drag or hold SPACE: draw  ·  X tool  ·  E dip sponge  ·  ESC back',
+  'chalk.keysTouch': 'Tap a chalk or the sponge  ·  draw on the board  ·  tap the bucket to wet the sponge',
 } as const;

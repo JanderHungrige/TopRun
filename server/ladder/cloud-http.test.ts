@@ -1,6 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { BoardRoom, emptyBoardTable } from '../../src/game/chalkboard-room.ts';
 import { emptyTable, type LadderTable } from '../../src/game/ladder.ts';
 import { emptySaves, MAX_SAVE_BYTES, type SaveTable } from '../../src/game/ladder-cloud.ts';
 import { PILOTS_PATH, SAVE_PATH } from './cloud-http.ts';
@@ -27,7 +28,7 @@ let clock = 2_000_000;
 beforeEach(async () => {
   ladder = memory(emptyTable());
   saves = memory(emptySaves());
-  server = createServer(ladderHandler({ ladder, saves }, () => clock));
+  server = createServer(ladderHandler({ ladder, saves, board: memory(emptyBoardTable()), room: new BoardRoom(emptyBoardTable()) }, () => clock));
   await new Promise<void>((done) => server.listen(0, '127.0.0.1', () => done()));
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 });

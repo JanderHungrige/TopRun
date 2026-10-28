@@ -1,5 +1,5 @@
 import {
-  BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaId,
+  AREA_ROWS, BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaId,
 } from '../data/base-areas';
 import type { Route } from './state';
 
@@ -15,6 +15,7 @@ export function areaRoute(id: BaseAreaId): Route {
     case 'locker': return { to: 'locker' };
     case 'photos': return { to: 'photoWall' };
     case 'ladder': return { to: 'ladder' };
+    case 'chalk': return { to: 'chalkboard' };
     case 'exit': return { to: 'map' };
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
@@ -25,16 +26,19 @@ const centreX = (id: BaseAreaId): number => {
   return h.x + h.w / 2;
 };
 
-/** The nearest area (by hotspot centre x) in the other row, or null when there is none. */
-function otherRow(id: BaseAreaId): BaseAreaId | null {
-  const row = BASE_AREAS[id].row;
+/** The area in a row above (`step` −1) or below (+1) whose centre is nearest in x (a tie: the nearer row), or null. */
+function otherRow(id: BaseAreaId, step: -1 | 1): BaseAreaId | null {
+  const row = AREA_ROWS.indexOf(BASE_AREAS[id].row);
   let best: BaseAreaId | null = null;
   let bestD = Infinity;
+  let bestRows = Infinity;
   for (const other of BASE_AREA_IDS) {
-    if (BASE_AREAS[other].row === row) continue;
+    const rows = (AREA_ROWS.indexOf(BASE_AREAS[other].row) - row) * step;
+    if (rows <= 0) continue;
     const d = Math.abs(centreX(other) - centreX(id));
-    if (d < bestD) {
+    if (d < bestD || (d === bestD && rows < bestRows)) {
       bestD = d;
+      bestRows = rows;
       best = other;
     }
   }
@@ -43,16 +47,15 @@ function otherRow(id: BaseAreaId): BaseAreaId | null {
 
 /**
  * Where the highlight goes from `id`: ← / → one area along the left → right order (clamped at the ends);
- * ↑ from a floor area to the nearest wall area, ↓ from a wall area to the nearest floor area. Returns `id`
- * itself when the move goes nowhere.
+ * ↑ / ↓ to the nearest area (by x) in any row above / below. Returns `id` itself when the move goes nowhere.
  */
 export function neighbour(id: BaseAreaId, dir: NavDir): BaseAreaId {
   const i = BASE_AREA_IDS.indexOf(id);
   switch (dir) {
     case 'left': return BASE_AREA_IDS[Math.max(0, i - 1)] ?? id;
     case 'right': return BASE_AREA_IDS[Math.min(BASE_AREA_IDS.length - 1, i + 1)] ?? id;
-    case 'up': return BASE_AREAS[id].row === 'floor' ? otherRow(id) ?? id : id;
-    case 'down': return BASE_AREAS[id].row === 'wall' ? otherRow(id) ?? id : id;
+    case 'up': return otherRow(id, -1) ?? id;
+    case 'down': return otherRow(id, 1) ?? id;
     default: throw new Error(`unhandled: ${dir satisfies never}`);
   }
 }

@@ -69,6 +69,7 @@ minigame list from doc 11 moves behind the FUN MISSIONS area as the **rec room**
 | LOCKER | `locker` | left, floor row | a row of four steel lockers with vents and a bench; locker 3 stands ajar with the dress whites (gold buttons, ribbons) and a white cap inside, a flight helmet on the bench | `{ to: 'locker' }` |
 | PICTURE WALL | `photos` | left-centre, wall row | a framed corkboard with nine small pinned pictures (generic skies, sea, a jet silhouette — placeholders; the real photos are doc 32's) | `{ to: 'photoWall' }` |
 | LADDER | `ladder` | centre, high on the back wall above the jet, wall row | a big split-flap scoreboard: row 1 the board name, row 2 the pilot's callsign, row 3 the pilot's local rating; tiles flip through letters every few seconds | `{ to: 'ladder' }` |
+| CHALKBOARD | `chalk` | centre, under the ladder, row `mid` (doc 40) | a wooden-framed chalkboard with a ledge; the shared board drawn live at 1 px per cell | `{ to: 'chalkboard' }` |
 | EXIT · MAP | `exit` | right, floor row | the big sliding hangar doors, open onto a dusk airfield (sky, low sun, runway lights), red beacon, a green running-figure exit pictogram | `{ to: 'map' }` |
 
 Between them: steel I-beam pillars, a corrugated back wall, roof trusses with four hanging lamps and their light
@@ -85,11 +86,12 @@ plane × livery × grid; yellow wheel chocks at the main gear, a dithered floor 
 
 ## Navigation (pure, `src/game/base-hangar.ts` + table `src/data/base-areas.ts`)
 
-- Areas are ordered left → right: `fun, locker, photos, ladder, exit`. **← / →** move the highlight one area
+- Areas are ordered left → right: `fun, locker, photos, ladder, chalk, exit` (chalk: doc 40). **← / →** move the highlight one area
   (clamped at the ends, `uiMove`; nothing at an end).
-- Every area has a row: `wall` (photos, ladder) or `floor` (fun, locker, exit). **↑** from a floor area goes to the
-  wall area nearest in x, **↓** from a wall area to the nearest floor area; ↑ on the wall / ↓ on the floor does
-  nothing. (fun ↑ photos, locker ↑ photos, exit ↑ ladder; photos ↓ locker, ladder ↓ exit.)
+- Every area has a row: `wall` (photos, ladder), `mid` (chalk, doc 40) or `floor` (fun, locker, exit). **↑** / **↓**
+  go to the area whose centre is nearest in x in any row above / below (a tie: the nearer row); ↑ on the wall /
+  ↓ on the floor does nothing. (fun ↑ photos, locker ↑ photos, exit ↑ chalk, chalk ↑ ladder; photos ↓ locker,
+  ladder ↓ chalk, chalk ↓ exit.)
 - **ENTER / A / Space** opens the highlighted area (EXIT included: the pilot walks out through the doors);
   **ESC / Backspace / B** → the map at once (`uiBack`).
 - **Mouse**: hovering a hotspot highlights it (any non-touch pointer, only when it moved — a resting mouse never

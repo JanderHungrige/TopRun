@@ -72,9 +72,10 @@ export class DebriefScene implements Scene {
     const last = campaignMissions(mission.campaign).at(-1);
     this.finale = result.success && mission.id === last?.id && campaignComplete(applied.save, mission.campaign);
     this.buttons = new ButtonGroup([
-      { id: 'map', label: t('debrief.continue'), x: 380, y: 648, w: 220, h: 50, primary: true },
-      { id: 'retry', label: t('debrief.flyAgain'), x: 620, y: 648, w: 180, h: 50 },
-      { id: 'hangar', label: t('debrief.hangar'), x: 820, y: 648, w: 180, h: 50 },
+      { id: 'map', label: t('debrief.continue'), x: 341, y: 648, w: 220, h: 50, primary: true },
+      { id: 'retry', label: t('debrief.flyAgain'), x: 577, y: 648, w: 200, h: 50 },
+      { id: 'hangar', label: t('debrief.hangar'), x: 793, y: 648, w: 200, h: 50, hint: 'L' },
+      { id: 'base', label: t('debrief.base'), x: 1009, y: 648, w: 200, h: 50, hint: 'B' },
     ], 'horizontal');
     this.admiral = new SpeechBox(game.audio, {
       portrait: { x: 36, y: 136, w: 250, h: 300 },
@@ -97,16 +98,17 @@ export class DebriefScene implements Scene {
     const input = this.game.input;
     this.admiral.update(dt, input);
     if (input.pressed('hangar')) return this.leave('hangar');
+    if (input.pressed('base')) return this.leave('base');
     if (input.pressed('back')) return this.leave('map');
     const id = this.buttons.update(input);
     if (input.pressed('left') || input.pressed('right')) this.game.audio.play('uiMove');
-    if (id === 'map' || id === 'retry' || id === 'hangar') this.leave(id);
+    if (id === 'map' || id === 'retry' || id === 'hangar' || id === 'base') this.leave(id);
   }
 
-  private leave(to: 'map' | 'retry' | 'hangar'): void {
+  private leave(to: 'map' | 'retry' | 'hangar' | 'base'): void {
     this.game.audio.play('uiSelect');
     const next: Route = to === 'retry' ? { to: 'takeoff', mission: this.mission }
-      : to === 'hangar' ? { to: 'hangar' }
+      : to === 'hangar' || to === 'base' ? { to }
         : this.offer ? { to: 'offer', id: this.offer.id, isNew: this.offer.isNew }
           : { to: 'map', select: this.result.success ? nextMissionOn(this.game.save, this.mission.campaign).id : this.mission.id };
     this.game.go(this.medals.length > 0 ? { to: 'ceremony', medals: this.medals, then: next } : next);

@@ -30,7 +30,7 @@ test_files:
   - tests/unit/economy.test.ts
   - tests/unit/loadout.test.ts
 data_flow: greenfield
-last_synced: 2026-10-25
+last_synced: 2026-10-28
 status: complete
 phase: 3
 mdd_version: 11
@@ -54,6 +54,11 @@ sister_projects: []
 
 # 02 — Hangar & Economy
 
+> **2026-10-28 update (owner: *"merge hangar and base … The current Hangar becomes the Loadout"*):** the pixel-art
+> BASE (doc 30) is the hangar now, so this shop screen is shown as **LOADOUT** (in German too: AUSRÜSTUNG is already
+> the equipment tab; route and code keep the id `hangar`). Its single MAP button at the top right becomes two exits side by side: **BASE** (key B →
+> `{ to: 'base' }`) and **MAP** (ESC / Backspace → `{ to: 'map' }`); the money total moves left of them. The map's
+> mission panel and the debrief open it with the LOADOUT button (keys L or H).
 > **2026-10-25 update (paint jobs, doc 09):** `SaveData` gains `livery: Record<PlaneId, LiveryId>`
 > (default all `standard`, validated against the unlock rules), `PlayerStats` gains `livery`, and the
 > hangar gets a 4th tab **PAINT** (apply unlocked liveries to the selected jet, free). **Art detail pass:**

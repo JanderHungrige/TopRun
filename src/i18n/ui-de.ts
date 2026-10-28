@@ -86,10 +86,11 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'map.locked': 'GESPERRT — erst die vorige Mission schaffen',
   'map.best': 'BESTWERT',
   'map.launch': 'STARTEN',
-  'map.hangar': 'HANGAR',
+  'map.hangar': 'LOADOUT',
   // Hangar
-  'hangar.title': 'HANGAR',
+  'hangar.title': 'LOADOUT', // not AUSRÜSTUNG: that is the equipment tab
   'hangar.map': 'KARTE',
+  'hangar.base': 'BASIS',
   'hangar.tabJets': 'JETS',
   'hangar.tabWeapons': 'WAFFEN',
   'hangar.tabEquipment': 'AUSRÜSTUNG',
@@ -152,7 +153,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.notAllowed': 'Passt nicht an diesen Jet',
   'hangar.cannotBuy': 'Nicht kaufbar',
   'hangar.hintTouch': 'Station antippen: leeren oder die gewählte Waffe montieren',
-  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · R abbauen · ESC Karte',
+  'hangar.hintKeys': '←/→ Reiter · ↑/↓ Auswahl · ENTER kaufen/montieren · R abbauen · ESC Karte · B Basis',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'KATAPULTSTART',
@@ -257,7 +258,8 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'debrief.finale2': '🎖  ZWEITE FRONT GEWONNEN — TOP-GUN-LEGENDE  🎖',
   'debrief.continue': 'WEITER',
   'debrief.flyAgain': 'NOCHMAL',
-  'debrief.hangar': 'HANGAR',
+  'debrief.hangar': 'LOADOUT',
+  'debrief.base': 'BASIS',
   // Objectives
   'objective.patrol': 'Patrouille: bis zum Ende der Route überleben',
   'objective.intercept': 'Abfangen: {n} Flugzeuge abschießen',

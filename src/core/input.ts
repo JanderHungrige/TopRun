@@ -15,7 +15,8 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   Space: ['fire', 'confirm'], KeyJ: ['fire'], Enter: ['confirm'], NumpadEnter: ['confirm'],
   // 'secondary' = the AIR weapon key, 'groundWeapon' = the GROUND weapon key, 'weaponSwitch' picks the next ground weapon (doc 05).
   KeyR: ['secondary'], KeyK: ['secondary'], // never Shift: 5× Shift opens the Windows Sticky Keys prompt
-  KeyQ: ['groundWeapon'], KeyL: ['groundWeapon'], KeyX: ['weaponSwitch'], KeyO: ['weaponSwitch'], KeyF: ['flare'], KeyE: ['special'],
+  // L is also the LOADOUT key (action 'hangar', doc 02) on the map and the debrief; no mission reads 'hangar'.
+  KeyQ: ['groundWeapon'], KeyL: ['groundWeapon', 'hangar'], KeyX: ['weaponSwitch'], KeyO: ['weaponSwitch'], KeyF: ['flare'], KeyE: ['special'],
   Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
   KeyG: ['globe'], // the campaign map's globe: switch between map 1 and map 2 (doc 35)
 };

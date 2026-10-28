@@ -84,10 +84,11 @@ export const UI_EN = {
   'map.locked': 'LOCKED — clear the previous mission first',
   'map.best': 'BEST',
   'map.launch': 'LAUNCH',
-  'map.hangar': 'HANGAR',
+  'map.hangar': 'LOADOUT',
   // Hangar
-  'hangar.title': 'HANGAR',
+  'hangar.title': 'LOADOUT',
   'hangar.map': 'MAP',
+  'hangar.base': 'BASE',
   'hangar.tabJets': 'JETS',
   'hangar.tabWeapons': 'WEAPONS',
   'hangar.tabEquipment': 'EQUIPMENT',
@@ -150,7 +151,7 @@ export const UI_EN = {
   'hangar.notAllowed': 'Not allowed on this jet',
   'hangar.cannotBuy': 'Cannot buy',
   'hangar.hintTouch': 'Tap a hardpoint to clear it or to mount the selected weapon',
-  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · R unmount · ESC map',
+  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · R unmount · ESC map · B base',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'CARRIER LAUNCH',
@@ -255,7 +256,8 @@ export const UI_EN = {
   'debrief.finale2': '🎖  SECOND FRONT WON — TOP GUN LEGEND  🎖',
   'debrief.continue': 'CONTINUE',
   'debrief.flyAgain': 'FLY AGAIN',
-  'debrief.hangar': 'HANGAR',
+  'debrief.hangar': 'LOADOUT',
+  'debrief.base': 'BASE',
   // Objectives
   'objective.patrol': 'Patrol: survive to the end of the route',
   'objective.intercept': 'Intercept: shoot down {n} aircraft',

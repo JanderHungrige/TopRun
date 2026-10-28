@@ -50,8 +50,10 @@ export interface Beat {
   reach: number;
   /** The current medal is on the pilot's chest. */
   pinned: boolean;
-  /** Salute of pilot, admiral and crew: 0 = at attention … 1 = hand at the brow. */
+  /** Salute of pilot and admiral: 0 = at attention … 1 = hand at the brow. */
   salute: number;
+  /** The crew in the back salute once the two have finished (owner, 2026-10-28): 0 … 1. */
+  crew: number;
 }
 
 interface Timeline {
@@ -63,18 +65,20 @@ interface Timeline {
   stepBack: readonly [number, number];
   saluteUp: readonly [number, number] | null;
   saluteDown: readonly [number, number] | null;
+  crewUp: readonly [number, number] | null;
+  crewDown: readonly [number, number] | null;
   end: number;
 }
 
-/** The first medal: the admiral walks up, pins it, both salute (~8 s). */
+/** The first medal: the admiral walks up, pins it, both salute, then the crew in the back salute (~9 s). */
 export const FIRST: Timeline = {
   walk: [0.5, 2.5], stepIn: null, reachUp: [2.9, 3.6], pin: 3.6, reachDown: [3.6, 4.3], stepBack: [4.3, 4.7],
-  saluteUp: [4.7, 4.95], saluteDown: [6.6, 6.9], end: 8,
+  saluteUp: [4.7, 4.95], saluteDown: [6.6, 6.9], crewUp: [6.9, 7.15], crewDown: [8.2, 8.45], end: 8.9,
 };
 /** Every further medal: a quick pin, then its close-up. */
 export const MORE: Timeline = {
   walk: null, stepIn: [0, 0.3], reachUp: [0.3, 0.9], pin: 0.9, reachDown: [0.9, 1.5], stepBack: [1.5, 1.9],
-  saluteUp: null, saluteDown: null, end: 2.4,
+  saluteUp: null, saluteDown: null, crewUp: null, crewDown: null, end: 2.4,
 };
 
 export const timelineOf = (index: number): Timeline => (index === 0 ? FIRST : MORE);
@@ -101,6 +105,7 @@ export function beatAt(index: number, t: number): Beat {
     reach: ramp(t, tl.reachUp) - ramp(t, tl.reachDown),
     pinned: t >= tl.pin,
     salute: rampOrZero(t, tl.saluteUp) - rampOrZero(t, tl.saluteDown),
+    crew: rampOrZero(t, tl.crewUp) - rampOrZero(t, tl.crewDown),
   };
 }
 

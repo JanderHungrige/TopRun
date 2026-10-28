@@ -7,10 +7,14 @@ relates: [24-medals-core, 20-retro-look, 17-people-kit, 06-talking-characters]
 source_files:
   - src/game/ceremony.ts
   - src/scenes/ceremony.ts
+  - src/game/ceremony-stage.ts
+  - src/render/ceremony-stage.ts
+  - src/data/ceremony-layers.ts
+  - src/assets/ceremony/
+  - dev/ceremony-layers.py
+  - dev/ceremony_cutouts.py
   - src/render/ceremony-set.ts
-  - src/render/ceremony-ambient.ts
   - src/render/ceremony-looks.ts
-  - src/render/ceremony-cast.ts
   - src/render/ceremony-card.ts
   - src/render/medals/index.ts
   - src/render/medals/palette.ts
@@ -32,9 +36,11 @@ routes: []
 models: []
 test_files:
   - tests/unit/ceremony.test.ts
+  - tests/unit/ceremony-stage.test.ts
+  - tests/unit/ceremony-layers.test.ts
   - tests/unit/medal-art.test.ts
 data_flow: reads-existing
-last_synced: 2026-10-25
+last_synced: 2026-10-28
 status: complete
 phase: all
 mdd_version: 11
@@ -53,8 +59,8 @@ satisfies_contracts:
     status: done
     verified_at: "src/main.ts:117"
 known_issues:
-  - "People-kit faces are ~14 art px wide at the ceremony's figure size: expressions (the pilot's grin after the pin) barely read."
-  - "Figures stand and glide (bob) rather than step: the front figure has no leg animation."
+  - "Resolved 2026-10-28 (layered image ceremony): people-kit faces too small to read; figures gliding without steps."
+  - "A short-haired woman shows with the bun (drawn with short hair she read as the male pilot)."
 security_read_sites: []
 sister_projects: []
 ---
@@ -141,6 +147,9 @@ border, a light top row and a shaded bottom row (bars ≥ 5 rows); bars ≥ 7 ro
 
 ### Setting (pixel art, logical 1280 × 720, art pixel = whole device px ≈ 3 logical px)
 
+> Superseded 2026-10-28 for the scene stage by the layered image ceremony (section below); the close-up card and
+> letterbox described here are unchanged.
+
 - Letterbox bars (cut-scene look): "AWARD CEREMONY" and "MEDAL n OF m" on top, "ESC: SKIP" and a blinking
   "SPACE / TAP: CONTINUE ▶" below.
 - `ceremony-set.ts` (one cached layer): golden-hour sky (dusk ramp, dithered bands), a low sun with a banded
@@ -206,6 +215,62 @@ articles before `{medal}` because the names' genders differ) via `medalLine(inde
 citations via `medalName` / `medalCitation` (doc 24). The longest German name (`Leviathan-Feldzugsband`)
 fits at full size; the RPG box shrinks the admiral's longest German line with a 12-letter callsign.
 
+## Layered image ceremony (owner, 2026-10-28)
+
+Owner: *"Is this animation possible? How would you do it? One background and several character images layered, or a
+full animation?"* → **layered** (chosen over a full AI video: the real medal, several medals, skipping and the
+player's look keep working); *"the medal screen (where you see the medals with the explanations) can stay, I like
+it"*. Look: the owner picked **ceremony #2** — the generated key frame (ComfyUI "Top Gun pixel scene 16:9", run 2: an
+admiral in dark navy with gold aviators pinning a medal on a young pilot in dress whites, the crew in a row, the
+carrier island and a parked jet, golden-hour sun over the sea) on a **320 × 180 grid with flat colours** (4 logical
+px per art px — the chunky early-90s adventure-game look). Follow-ups the same day: *"the crew in the back a mix of
+deck crew (helmets and colourful vests) and officers"*, *"the plane on the right has a distorted back"*, *"the
+background crew salute … after the main characters saluted"*, *"check haircolour … the type (male/female, long/short
+hair) … not all skin colours, just white and black"*.
+
+The scene stage is composed from image layers instead of people-kit figures and a painted set:
+
+| Layer | Made with | Use |
+|-------|-----------|-----|
+| `plate` | "Top Gun ceremony layers (edit)": the officers removed, the jet redrawn whole; the crew row then patched with the helmet crop edit (deck crew in cranial helmets and coloured float vests, officers in white caps) | always |
+| `crewSalute` | "Top Gun ceremony crew salute (crop edit)": the crew row cropped, enlarged ×2.67 (too small for the editor at full frame), saluting; only the changed pixels | while the crew salutes |
+| admiral `walkA`, `walkB`, `stand`, `pin`, `salute` | full-frame pose edits with both officers on flat magenta, keyed and split (straight, stepped or by-eye cuts where hands meet) | swapped / moved by the timeline |
+| pilot `adult<Gender><Length>` × `attention`, `salute` | from the pose edits: short-haired man, man with long hair tied back, woman with a bun — always grown-ups (owner: *"Kids would like to be seen as adults. So let's just use adult characters."*; child-proportioned cut-outs were built and dropped) | the player's base |
+
+- **Pipeline** (`dev/ceremony-layers.py` + `dev/ceremony_cutouts.py`, run locally on the edits kept outside the repo; 120 KB of PNGs):
+  key the magenta (drop pink-tinted edge pixels, keep outlines), downscale by area to the grid, one shared palette for
+  every layer (40 median-cut colours + 8 reserved for the vests' saturated colours + 2 fixed golds for medals and
+  braid), crop each cut-out, and write `src/data/ceremony-layers.ts`: position, foot point, and for pilots the chest
+  point and the **skin and hair pixel masks** (skin = skin-coloured with a skin neighbour; hair = dark pixels behind the
+  face, per row, from the face's top row down past the jaw — further for long hair).
+- **Player's look** (`src/game/ceremony-stage.ts`, pure): base = gender × hair length of the builder pick or the
+  preset's look (`PRESET_LOOKS`, checked against all 19 portraits: pilot3 and pilot16 had wrong hair colours, now
+  brown); age is ignored — kids show as grown-ups; a missing cut-out falls back to the other hair length (a
+  short-haired woman shows with the bun), then the man (`pilotCutout`). Skin: two tones
+  only — fair and olive → light, brown and dark → dark (owner). The renderer recolours the masked pixels by luminance
+  rank onto the tone's / hair colour's ramp (cached per cut-out × look).
+- **Timeline** (`beatAt` → `stagePlan`): walking → walk A / B every 7 art px; reach > ½ → pin; salute > ½ → pilot
+  and admiral salute; **the crew salutes after them** (new beat `crew`: 6.9–7.15 up, 8.2–8.45 down; the first medal's
+  scene is now 8.9 s); the admiral slides in from off-screen right (foot x 372 → 199) and steps back 12 art px.
+- **Drawing** (`src/render/ceremony-stage.ts`): exactly 4 logical px per art px (fractional device px, hard edges —
+  whole device px zoomed the picture by up to a fifth on small windows), feet at y 676 above the letterbox; plate →
+  crew overlay → gulls → pilot → admiral on one 320 × 180 scratch, blitted once; earlier medals as a ribbon stack and
+  today's medals hanging at the pilot's chest point (`drawRibbonBar` / `drawMedal` on the grid), the pin sparkle there.
+- The close-up card, letterbox, admiral's lines, cues, input and audio are unchanged. The people-kit set and cast
+  (`ceremony-ambient.ts`, `ceremony-cast.ts`) are deleted; `ceremony-set.ts` keeps the card's 3-px grid,
+  `ceremony-looks.ts` the deck crew looks the hangar base uses.
+- Generated illustrations of nobody real; generic uniforms, no insignia, no flags.
+
+### Verification (2026-10-28)
+
+`npm run typecheck` clean; Vitest 77 files / 742 tests green (new `ceremony-stage.test.ts`: bases incl. presets,
+skin tones, kids shown grown-up, walk frames, pin, salute, crew salute after the main salute, further medals; `ceremony-layers.test.ts`:
+every layer file exists inside the grid, every base × pose resolves, pilot masks and chest points; `ceremony.test.ts`
+and `avatar-look.test.ts` updated for the 8.9 s scene and the corrected preset hair); production build OK. Browser
+(dev build, DE): the whole first medal stepped through — walk-in, pin, both salute, crew salute, close-up — and the
+looks swapped live: woman blond (golden bun), man dark skin black hair, woman red hair, man long hair; kid looks show
+the grown-up of their gender.
+
 ## Business Rules
 
 - The ceremony plays every medal in the order given (catalogue order from `newMedals`).
@@ -240,9 +305,9 @@ None (reads the active profile's avatar, callsign and save only).
 
 ## Known Issues
 
-- People-kit faces are ~14 art px wide at the ceremony's figure size: expressions (the pilot's grin after
-  the pin) barely read.
-- Figures stand and glide (bob) rather than step: the front figure has no leg animation.
+- A short-haired woman shows with the bun (drawn with short hair she read as the male pilot).
+- (Resolved 2026-10-28) people-kit faces too small to read and figures gliding without steps — the layered image
+  ceremony replaced them.
 
 ## Bugs
 

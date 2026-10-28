@@ -127,9 +127,9 @@ describe('avatar pick', () => {
     });
   });
 
-  it('files the presets under themselves and other picks by hair', () => {
+  it('files custom picks under a preset by hair (red: pilot3, the red accent)', () => {
     for (const id of AVATAR_IDS) expect(valid(PRESET_LOOKS[id])).toBe(true);
-    expect(lookPreset(PRESET_LOOKS.pilot3)).toBe('pilot3');
+    expect(lookPreset({ ...DEFAULT_LOOK, hair: 'red' })).toBe('pilot3');
     expect(lookPreset({ ...DEFAULT_LOOK, hair: 'blond', length: 'long' })).toBe('pilot2');
     expect(lookPreset({ ...DEFAULT_LOOK, hair: 'black' })).toBe('pilot1');
   });

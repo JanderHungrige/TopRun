@@ -1,16 +1,17 @@
 import type { Scene } from '../core/scene';
 import type { MedalId } from '../data/medals';
+import { PRESET_LOOKS, type AvatarLook } from '../game/avatar-look';
 import { beatAt, GUARD, sceneLength, startCeremony, stepCeremony, type CeremonyState, type CueId } from '../game/ceremony';
+import { pilotBase, skinTone, stagePlan, type PilotBase } from '../game/ceremony-stage';
 import { typewriter } from '../game/dialogue';
 import { medalLine } from '../game/dialogue-scripts';
 import { earnedMedals } from '../game/medals';
 import type { GameContext, Route } from '../game/state';
 import { medalCitation } from '../i18n/content';
 import { faceOf } from '../render/avatars/person';
-import { drawSet } from '../render/ceremony-ambient';
 import { drawCard, drawLetterbox, twinkle, type CardView } from '../render/ceremony-card';
-import { drawCast, pinPoint } from '../render/ceremony-cast';
-import type { Grid } from '../render/ceremony-set';
+import { artGrid, type Grid } from '../render/ceremony-set';
+import { drawChest, drawStage, pinSpot, preloadStage, type StageGrid } from '../render/ceremony-stage';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { goldCount } from './minigames/registry';
 
@@ -20,9 +21,9 @@ const CARD_OUT = 0.25;
 const SPARKLE = [1, 2, 3, 3, 2, 1, 1, 0] as const;
 
 /**
- * Medal ceremony (doc 25): a pixel-art cut-scene on the flight deck at golden hour. The admiral walks up, pins
- * each new medal on the pilot's dress whites and salutes; every medal then gets a close-up with its citation
- * while the admiral speaks. CONFIRM / tap moves on, BACK skips the rest; then on to `then`.
+ * Medal ceremony (doc 25): a pixel-art cut-scene on the flight deck at golden hour, layered from the generated key
+ * frame. The admiral walks up, pins each new medal on the pilot's dress whites and salutes; every medal then gets a
+ * close-up with its citation while the admiral speaks. CONFIRM / tap moves on, BACK skips the rest; then `then`.
  */
 export class CeremonyScene implements Scene {
   private state: CeremonyState;
@@ -36,10 +37,17 @@ export class CeremonyScene implements Scene {
   private readonly speech: SpeechBox;
   /** Medals earned before this ceremony, shown as ribbon bars on the pilot's chest. */
   private readonly earlier: MedalId[];
+  /** The player's look: which pilot cut-out stands there and the skin / hair it is recoloured to. */
+  private readonly look: AvatarLook;
+  private readonly base: PilotBase;
 
   constructor(private readonly game: GameContext, private readonly medals: readonly MedalId[], private readonly then: Route) {
     this.state = startCeremony(medals.length);
     this.earlier = earnedMedals(game.save, goldCount(game.save)).filter((id) => !medals.includes(id));
+    const face = faceOf(game.profile);
+    this.look = typeof face === 'string' ? PRESET_LOOKS[face] : face;
+    this.base = pilotBase(this.look);
+    preloadStage();
     this.speech = new SpeechBox(game.audio, {
       portrait: { x: 52, y: 556, w: 92, h: 110 },
       bubble: { x: 172, y: 562, w: 1058, h: 104 },
@@ -116,23 +124,24 @@ export class CeremonyScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     const st = this.state;
-    const g = drawSet(ctx, this.clock);
     const beat = beatAt(st.index, st.stage === 'scene' ? st.t : sceneLength(st.index));
     const pinned = this.medals.slice(0, Math.min(this.medals.length, st.index + (beat.pinned ? 1 : 0)));
-    drawCast(ctx, g, { beat, t: this.clock, avatar: faceOf(this.game.profile), earlier: this.earlier, pinned });
-    if (this.pinAge >= 0) this.sparkle(ctx, g, pinned.length);
-    this.renderCard(ctx, g);
+    const plan = stagePlan(beat);
+    const sg = drawStage(ctx, { plan, base: this.base, skin: skinTone(this.look.skin), hair: this.look.hair, t: this.clock });
+    drawChest(ctx, sg, this.base, this.earlier, pinned);
+    if (this.pinAge >= 0) this.sparkle(ctx, sg, pinned.length);
+    this.renderCard(ctx, artGrid(ctx));
     this.speech.render(ctx);
     const hint = (st.stage === 'scene' && st.age >= GUARD) || (st.stage === 'closeup' && this.typed());
     drawLetterbox(ctx, hint, this.clock, { n: Math.min(st.index + 1, this.medals.length), total: this.medals.length });
   }
 
-  private sparkle(ctx: CanvasRenderingContext2D, g: Grid, count: number): void {
+  private sparkle(ctx: CanvasRenderingContext2D, sg: StageGrid, count: number): void {
     const r = SPARKLE[Math.floor(this.pinAge * 10)];
     if (r === undefined || count === 0) return;
-    const p = pinPoint(count, count - 1);
-    twinkle(ctx, p.x - 6, p.y - 4, r, g.G, '#ffd76a');
-    twinkle(ctx, p.x + 9, p.y + 10, Math.max(0, r - 1), g.G, '#fff1b0');
+    const p = pinSpot(sg, this.base, count);
+    twinkle(ctx, p.x - 6, p.y - 4, r, sg.G, '#ffd76a');
+    twinkle(ctx, p.x + 9, p.y + 10, Math.max(0, r - 1), sg.G, '#fff1b0');
   }
 
   private renderCard(ctx: CanvasRenderingContext2D, g: Grid): void {

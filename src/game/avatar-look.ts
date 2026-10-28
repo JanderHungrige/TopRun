@@ -47,7 +47,7 @@ export const DEFAULT_LOOK: Readonly<AvatarLook> = Object.freeze({ age: 'kid', ge
 export const PRESET_LOOKS: Readonly<Record<AvatarId, Readonly<AvatarLook>>> = Object.freeze({
   pilot1: { age: 'kid', gender: 'female', skin: 'fair', hair: 'blond', length: 'long', face: 'f1' },
   pilot2: { age: 'kid', gender: 'female', skin: 'fair', hair: 'blond', length: 'long', face: 'f1' },
-  pilot3: { age: 'kid', gender: 'male', skin: 'fair', hair: 'red', length: 'short', face: 'f1' },
+  pilot3: { age: 'kid', gender: 'male', skin: 'fair', hair: 'brown', length: 'short', face: 'f1' },
   pilot4: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'short', face: 'f1' },
   pilot5: { age: 'kid', gender: 'male', skin: 'fair', hair: 'blond', length: 'short', face: 'f1' },
   pilot6: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'long', face: 'f1' },
@@ -60,7 +60,7 @@ export const PRESET_LOOKS: Readonly<Record<AvatarId, Readonly<AvatarLook>>> = Ob
   pilot13: { age: 'kid', gender: 'male', skin: 'olive', hair: 'black', length: 'short', face: 'f1' },
   pilot14: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'short', face: 'f1' },
   pilot15: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'short', face: 'f1' },
-  pilot16: { age: 'adult', gender: 'male', skin: 'fair', hair: 'blond', length: 'long', face: 'f1' },
+  pilot16: { age: 'adult', gender: 'male', skin: 'fair', hair: 'brown', length: 'long', face: 'f1' },
   pilot17: { age: 'adult', gender: 'female', skin: 'fair', hair: 'blond', length: 'long', face: 'f1' },
   pilot18: { age: 'adult', gender: 'female', skin: 'fair', hair: 'brown', length: 'long', face: 'f1' },
   pilot19: { age: 'kid', gender: 'male', skin: 'fair', hair: 'blond', length: 'short', face: 'f1' },

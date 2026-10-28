@@ -14,6 +14,7 @@ export function areaRoute(id: BaseAreaId): Route {
     case 'fun': return { to: 'recRoom' };
     case 'locker': return { to: 'locker' };
     case 'photos': return { to: 'photoWall' };
+    case 'jet': return { to: 'hangar' };
     case 'ladder': return { to: 'ladder' };
     case 'chalk': return { to: 'chalkboard' };
     case 'exit': return { to: 'map' };

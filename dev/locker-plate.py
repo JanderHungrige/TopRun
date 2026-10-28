@@ -9,8 +9,9 @@ import numpy as np
 from PIL import Image
 
 W, H, COLORS = 320, 180, 32
-# Logical px the picture moves left (a whole number of art px: 43 x 4) so the tunic's centre sits at x ~ 450.
-SHIFT = 172
+# Logical px the picture moves left (a whole number of art px: 24 x 4): the tunic's centre lands at x 524, its right
+# sleeve just left of the card panel, and the open door's edge with its vents stays in view (owner: option B).
+SHIFT = 96
 
 
 def main(src, dst):

@@ -17,10 +17,11 @@ import { pilotStanding } from './pilot-rating';
 let lastOpened: BaseAreaId | null = null;
 
 const NAME_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.fun', locker: 'hbase.locker', photos: 'hbase.photos', ladder: 'hbase.ladder', chalk: 'hbase.chalk', exit: 'hbase.exit',
+  fun: 'hbase.fun', locker: 'hbase.locker', photos: 'hbase.photos', jet: 'hbase.jet', ladder: 'hbase.ladder', chalk: 'hbase.chalk',
+  exit: 'hbase.exit',
 };
 const HINT_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.hint.fun', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', ladder: 'hbase.hint.ladder',
+  fun: 'hbase.hint.fun', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', jet: 'hbase.hint.jet', ladder: 'hbase.hint.ladder',
   chalk: 'hbase.hint.chalk', exit: 'hbase.hint.exit',
 };
 /** How often the hangar asks for the chalkboard (doc 40). */

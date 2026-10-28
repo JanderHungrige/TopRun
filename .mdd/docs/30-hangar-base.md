@@ -43,6 +43,8 @@ integration_contracts:
     when: "the FUN MISSIONS area opens the minigame list; its BACK / ESC returns to { to: 'base' }"
   - function: "Routes { to: 'ladder' }, { to: 'locker' }, { to: 'photoWall' } (docs 28, 31, 32)"
     when: "the LADDER, LOCKER and PICTURE WALL areas open them; they come back with { to: 'base' } and the pilot stands at the area last opened"
+  - function: "Route { to: 'hangar' } (doc 02)"
+    when: "the jet (area `jet`) opens the LOADOUT; its BASE button returns with { to: 'base' }"
 satisfies_contracts: []
 known_issues:
   - "The ladder screen (doc 28) still returns to the title screen, not to the base: its owner switches its BACK to { to: 'base' }."
@@ -52,6 +54,13 @@ sister_projects: []
 ---
 
 # 30 — Hangar Base
+
+> **2026-10-28 update — the jet opens the LOADOUT (owner: *"The Fighter jet in the base does not lead to the loadout.
+> Please add that."*).** The parked jet is an area of its own, `jet` (floor row, hotspot over the fuselage below
+> the chalkboard: x 530 … 1060, y 440 … 580; name plate "LOADOUT" on the floor in front of it; the pilot walks to
+> x 640). It opens `{ to: 'hangar' }` — the LOADOUT screen (doc 02), whose BASE button comes back here with the pilot
+> standing at the jet. Left → right order `fun, locker, photos, jet, ladder, chalk, exit`; ↑ from the jet → the
+> chalkboard, ↓ from the chalkboard → the jet (was: the exit).
 
 ## Purpose
 
@@ -70,6 +79,7 @@ minigame list from doc 11 moves behind the FUN MISSIONS area as the **rec room**
 | PICTURE WALL | `photos` | left-centre, wall row | a framed corkboard with nine small pinned pictures (generic skies, sea, a jet silhouette — placeholders; the real photos are doc 32's) | `{ to: 'photoWall' }` |
 | LADDER | `ladder` | centre, high on the back wall above the jet, wall row | a big split-flap scoreboard: row 1 the board name, row 2 the pilot's callsign, row 3 the pilot's local rating; tiles flip through letters every few seconds | `{ to: 'ladder' }` |
 | CHALKBOARD | `chalk` | centre, under the ladder, row `mid` (doc 40) | a wooden-framed chalkboard with a ledge; the shared board drawn live at 1 px per cell | `{ to: 'chalkboard' }` |
+| LOADOUT | `jet` | centre, floor row (2026-10-28) | the parked jet itself (below) | `{ to: 'hangar' }` (doc 02) |
 | EXIT · MAP | `exit` | right, floor row | the big sliding hangar doors, open onto a dusk airfield (sky, low sun, runway lights), red beacon, a green running-figure exit pictogram | `{ to: 'map' }` |
 
 Between them: steel I-beam pillars, a corrugated back wall, roof trusses with four hanging lamps and their light
@@ -86,12 +96,12 @@ plane × livery × grid; yellow wheel chocks at the main gear, a dithered floor 
 
 ## Navigation (pure, `src/game/base-hangar.ts` + table `src/data/base-areas.ts`)
 
-- Areas are ordered left → right: `fun, locker, photos, ladder, chalk, exit` (chalk: doc 40). **← / →** move the highlight one area
+- Areas are ordered left → right: `fun, locker, photos, jet, ladder, chalk, exit` (chalk: doc 40; jet: 2026-10-28). **← / →** move the highlight one area
   (clamped at the ends, `uiMove`; nothing at an end).
-- Every area has a row: `wall` (photos, ladder), `mid` (chalk, doc 40) or `floor` (fun, locker, exit). **↑** / **↓**
+- Every area has a row: `wall` (photos, ladder), `mid` (chalk, doc 40) or `floor` (fun, locker, jet, exit). **↑** / **↓**
   go to the area whose centre is nearest in x in any row above / below (a tie: the nearer row); ↑ on the wall /
-  ↓ on the floor does nothing. (fun ↑ photos, locker ↑ photos, exit ↑ chalk, chalk ↑ ladder; photos ↓ locker,
-  ladder ↓ chalk, chalk ↓ exit.)
+  ↓ on the floor does nothing. (fun ↑ photos, locker ↑ photos, jet ↑ chalk, exit ↑ chalk, chalk ↑ ladder; photos ↓
+  locker, ladder ↓ chalk, chalk ↓ jet.)
 - **ENTER / A / Space** opens the highlighted area (EXIT included: the pilot walks out through the doors);
   **ESC / Backspace / B** → the map at once (`uiBack`).
 - **Mouse**: hovering a hotspot highlights it (any non-touch pointer, only when it moved — a resting mouse never
@@ -127,7 +137,8 @@ pilot walks in from the doors to FUN MISSIONS, which is highlighted.
   callsign upper-cased, `hbase.points` with `pilotStanding(save).rating`); while a row flips, each tile cycles
   through random letters for 0.25–0.85 s (staggered left to right), then settles. Rows flip every ~7 s in turn.
 - Strings: `src/i18n/ui-en-hangar.ts` / `ui-de-hangar.ts` (`hbase.*`, spread into `UI_EN` / `UI_DE`):
-  `title`, `fun`, `locker`, `photos`, `ladder`, `exit`, `hint.<id>`, `keys`, `points`, `back`.
+  `title`, `fun`, `locker`, `photos`, `jet` (LOADOUT, both languages), `ladder`, `exit`, `hint.<id>`, `keys`, `points`,
+  `back`.
 
 ## Animation (idle, all in whole art pixels)
 

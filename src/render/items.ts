@@ -5,8 +5,9 @@ import { EQUIPMENT_IDS, SECONDARY_IDS } from '../data/types';
 // icon for the list rows, both transparent. Drawn at their own size, centred and never smoothed; callers fall back
 // to the vector icons (icons.ts) while a picture loads or where none exists.
 
-export type ItemId = SecondaryId | EquipmentId | 'gun';
-export const ITEM_IDS: readonly ItemId[] = Object.freeze([...SECONDARY_IDS, 'gun', ...EQUIPMENT_IDS]);
+/** `ammo`: the uranium ammo (doc 43). */
+export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo';
+export const ITEM_IDS: readonly ItemId[] = Object.freeze([...SECONDARY_IDS, 'gun', 'ammo', ...EQUIPMENT_IDS]);
 
 const FILES = import.meta.glob<string>('../assets/items/*.png', { eager: true, query: '?url', import: 'default' });
 

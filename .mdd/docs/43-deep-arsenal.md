@@ -25,6 +25,8 @@ source_files:
   - src/i18n/ui-en.ts
   - src/render/cockpit/gauges.ts
   - src/render/icons.ts
+  - src/render/items.ts
+  - dev/item-pictures.py
   - src/scenes/hangar-chief.ts
   - src/scenes/hangar-items.ts
   - src/scenes/hangar-panels.ts
@@ -110,8 +112,10 @@ second gun and the A-10's GAU-8 burst. Against ground and sea targets the gun do
 | 2 | +30 % | 80 % | 40,000 | map 1 |
 | 3 | +45 % | 100 % | 120,000 | map 2 |
 
-The GAU-8 burst already does full damage on the ground. It only gains the damage bonus. Tracers turn a hot
-white-green from level 1, so the ammo is visible.
+The GAU-8 burst already does full damage on the ground. It only gains the damage bonus. From level 1 the tracers
+turn a hot white-green inside a light green glow that flickers round by round (owner: "a light green shimmering
+colour"), so the ammo is visible. The shop shows a generated pixel picture (three 30 mm rounds with dark penetrator
+tips and a green ring, doc 02).
 
 ### Mk II / Mk III for every missile, rocket pod and bomb
 

@@ -72,7 +72,7 @@ function drawThumb(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
     case 'plane': drawPlaneTop(ctx, item.id, x, y, 0.9, { t, throttle: 0.3, sweep: 0.3, livery: save.livery[item.id] }); return;
     case 'gun': if (!drawItemPicture(ctx, 'gun', x, y, true)) drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', x, y, 0.8); return;
-    case 'ammo': drawWeaponIcon(ctx, 'ammo', x, y, 0.8); return;
+    case 'ammo': if (!drawItemPicture(ctx, 'ammo', x, y, true)) drawWeaponIcon(ctx, 'ammo', x, y, 0.8); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, x, y, true)) drawWeaponIcon(ctx, item.id, x, y, 0.7); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, x, y, true)) drawEquipmentIcon(ctx, item.id, x, y, 32); return;
     case 'livery': liveryThumb(ctx, save, item.id, x, y, t); return;
@@ -236,7 +236,7 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
     case 'livery': return showcase(ctx, save.selectedPlane, item.id, cx, cy, t);
     case 'gun': if (!drawItemPicture(ctx, 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', cx, cy, 3); return;
-    case 'ammo': drawWeaponIcon(ctx, 'ammo', cx, cy, 3); return;
+    case 'ammo': if (!drawItemPicture(ctx, 'ammo', cx, cy, false)) drawWeaponIcon(ctx, 'ammo', cx, cy, 3); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawWeaponIcon(ctx, item.id, cx, cy, 3); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawEquipmentIcon(ctx, item.id, cx, cy, 130); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);

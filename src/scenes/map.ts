@@ -17,7 +17,8 @@ import { drawGlobe, drawGlobeLocked, GLOBE } from './map-globe';
 import { drawMapBase, drawNode, drawRoute } from './map-render';
 
 const PANEL = { x: 882, y: 76, w: 378, h: 628 };
-const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
+/** The MENU button top right; BASE moved down next to LAUNCH and HANGAR (owner, 2026-10-28: one place). */
+const MENU_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 /** Left edge of the callsign and money in the top bar; the avatar sits just left of it. */
 const PILOT_X = 860;
 
@@ -60,8 +61,9 @@ export class MapScene implements Scene {
     const open = isUnlocked(this.game.save, this.selected);
     const y = PANEL.y + PANEL.h - 64;
     this.buttons = [
-      { id: 'launch', label: t('map.launch'), x: PANEL.x + 16, y, w: 170, h: 48, primary: true, enabled: open, hint: 'ENTER' },
-      { id: 'hangar', label: t('map.hangar'), x: PANEL.x + 196, y, w: 166, h: 48, hint: 'H' },
+      { id: 'launch', label: t('map.launch'), x: PANEL.x + 16, y, w: 128, h: 48, primary: true, enabled: open, hint: 'ENTER' },
+      { id: 'hangar', label: t('map.hangar'), x: PANEL.x + 152, y, w: 106, h: 48, hint: 'H' },
+      { id: 'base', label: t('map.base'), x: PANEL.x + 266, y, w: 100, h: 48, hint: 'B' },
     ];
   }
 
@@ -75,8 +77,7 @@ export class MapScene implements Scene {
     for (const tap of input.taps) {
       const b = this.buttons.find((x) => x.enabled !== false && hit(tap, x));
       if (b) return this.activate(b.id);
-      if (hit(tap, { x: 1150, y: 14, w: 110, h: 44 })) return this.activate('title');
-      if (hit(tap, BASE_BTN)) return this.activate('base');
+      if (hit(tap, MENU_BTN)) return this.activate('title');
       if (hit(tap, GLOBE)) return this.switchMap();
       const node = this.missions.find((m) => Math.hypot(tap.x - m.map.x, tap.y - m.map.y) < 22);
       if (node) this.select(node);
@@ -141,11 +142,10 @@ export class MapScene implements Scene {
     const pilot = this.game.profile;
     if (pilot) {
       drawPilotAvatar(ctx, pilotFace(pilot), { x: PILOT_X - 60, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
-      text(ctx, pilot.callsign, PILOT_X, 32, { size: 17, display: true, color: COLORS.gold, maxWidth: BASE_BTN.x - PILOT_X - 12 });
+      text(ctx, pilot.callsign, PILOT_X, 32, { size: 17, display: true, color: COLORS.gold, maxWidth: MENU_BTN.x - PILOT_X - 12 });
     }
-    text(ctx, formatMoney(s.money), PILOT_X, 60, { size: 20, display: true, color: COLORS.green, maxWidth: BASE_BTN.x - PILOT_X - 12 });
-    drawButton(ctx, { id: 'title', label: t('map.menu'), x: 1150, y: 14, w: 110, h: 44 }, false, this.t);
-    drawButton(ctx, { id: 'base', label: t('map.base'), ...BASE_BTN, hint: 'B' }, false, this.t);
+    text(ctx, formatMoney(s.money), PILOT_X, 60, { size: 20, display: true, color: COLORS.green, maxWidth: MENU_BTN.x - PILOT_X - 12 });
+    drawButton(ctx, { id: 'title', label: t('map.menu'), ...MENU_BTN }, false, this.t);
     if (campaignComplete(s, c)) text(ctx, t(c === 1 ? 'map.campaignComplete' : 'map.campaign2Complete'), 470, 66, { size: 13, color: COLORS.gold, maxWidth: GLOBE.x - 480 });
   }
 

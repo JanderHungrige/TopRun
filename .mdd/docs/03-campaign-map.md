@@ -64,7 +64,7 @@ data/theaters.ts   5 theaters: palette (sea, land, accent), map region polygon, 
 data/missions.ts   30 MissionDef: id, number, name, theater, briefing, objective,
                    difficulty 1–30, reward, length (s), enemy pool, boss?, map position
 game/progress.ts   isUnlocked / nextMission / totalStars / campaignComplete
-scenes/map.ts      selection + briefing panel + buttons (Hangar / Launch / Title)
+scenes/map.ts      selection + briefing panel + buttons (Launch / Hangar / Base in the panel, Menu top right)
 scenes/map-render.ts  draws ocean, theater regions, route line, mission nodes
 scenes/debrief.ts  result table, stars, payout breakdown, Continue
 ```
@@ -120,6 +120,8 @@ None.
   (difficulty as 1–5 chevrons), reward (with "replay ×0.5" when cleared), best stars,
   expected enemy types, current plane + loadout summary.
 - Buttons: HANGAR, LAUNCH (disabled when locked), TITLE. Keyboard: Enter = Launch,
+- Since 2026-10-28 (owner: *"move the base button also down. Less confusion with one place"*): the mission panel's
+  bottom row is LAUNCH · HANGAR · BASE (keys ENTER · H · B); only MENU stays at the top right.
   H = Hangar, Esc = Title.
 - Debrief: SUCCESS/FAILED banner, objective result, kills / spawned, hull %, takeoff rating,
   payout lines (base, takeoff bonus, hull bonus, collected or salvage), stars earned

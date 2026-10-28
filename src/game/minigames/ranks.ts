@@ -1,57 +1,50 @@
 import { createRng, type Rng } from '../../core/rng';
-import { FORCES, type Force } from '../../data/rank-quiz';
+import { RANK_CHARTS, type Chart, type QuizRank } from '../../data/rank-quiz';
 import type { Medals } from './core';
-import {
-  askCode, askGrade, askHigher, askNatoEquiv, askNext, askUsEquiv, shuffle, type Question, type QuestionKind,
-} from './ranks-ask';
 
-export { rankAt, type Question, type QuestionKind, type QuizRef } from './ranks-ask';
+// Rank Quiz (doc 41): a round is five different ranks of one chart; each question shows the insignia and offers four
+// names — the right one and three others, nearest in rank first (the hard ones). Points: 100 for a right answer plus
+// up to 50 for speed. Pure and deterministic for a seed.
 
-// Rank Quiz (doc 41): a round of ten seeded questions — two of most kinds, all four forces — and the points for an
-// answer: 100 for a right one plus up to 50 for speed. Pure and deterministic for a seed.
+export const RANK_QUIZ = Object.freeze({ questions: 5, options: 4, near: 3, time: 12, base: 100, bonus: 50 });
+export const RANKS_MEDALS: Medals = { bronze: 400, silver: 550, gold: 700 };
 
-export const RANK_QUIZ = Object.freeze({ questions: 10, time: 12, base: 100, bonus: 50 });
-export const RANKS_MEDALS: Medals = { bronze: 700, silver: 1000, gold: 1300 };
-
-const KINDS: readonly QuestionKind[] = ['higher', 'higher', 'next', 'next', 'grade', 'usEquiv', 'usEquiv', 'natoEquiv', 'natoEquiv', 'code'];
-const ATTEMPTS = 30;
-
-function ask(rng: Rng, kind: QuestionKind, force: Force): Question | null {
-  const us: Force = force === 'usa' ? 'usa' : force === 'usn' ? 'usn' : rng.pick(['usn', 'usa'] as const);
-  switch (kind) {
-    case 'higher': return askHigher(rng, force);
-    case 'next': return askNext(rng, force);
-    case 'grade': return askGrade(rng, us);
-    case 'usEquiv': return askUsEquiv(rng, us);
-    case 'natoEquiv': return askNatoEquiv(rng, force);
-    case 'code': return askCode(rng, force);
-    default: throw new Error(`unhandled: ${kind satisfies never}`);
-  }
+export interface Question {
+  /** The rank whose insignia is shown (index into its chart). */
+  index: number;
+  options: readonly string[];
+  /** Which option is right. */
+  answer: number;
 }
 
-const keyOf = (q: Question): string => `${q.kind}|${q.subject.force}|${q.subject.index}|${q.partner?.index ?? ''}|${q.target ?? ''}`;
+/** Fisher–Yates on a copy. */
+export function shuffle<T>(rng: Rng, items: readonly T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = rng.int(0, i);
+    const a = out[i];
+    const b = out[j];
+    if (a === undefined || b === undefined) continue;
+    out[i] = b;
+    out[j] = a;
+  }
+  return out;
+}
 
-/** Ten questions for a seed: the kinds shuffled, the forces taken in turn so that all four appear. */
-export function makeQuiz(seed: number): Question[] {
+function ask(rng: Rng, ranks: readonly QuizRank[], index: number): Question {
+  const all = ranks.map((_, i) => i).filter((i) => i !== index);
+  const near = shuffle(rng, all.filter((i) => Math.abs(i - index) <= RANK_QUIZ.near));
+  const far = shuffle(rng, all.filter((i) => Math.abs(i - index) > RANK_QUIZ.near));
+  const order = shuffle(rng, [index, ...[...near, ...far].slice(0, RANK_QUIZ.options - 1)]);
+  return { index, options: order.map((i) => ranks[i]?.name ?? ''), answer: order.indexOf(index) };
+}
+
+/** Five questions on five different ranks of the chart. */
+export function makeQuiz(chart: Chart, seed: number): Question[] {
   const rng = createRng(seed);
-  const kinds = shuffle(rng, KINDS);
-  const forces = shuffle(rng, FORCES);
-  const seen = new Set<string>();
-  return kinds.map((kind, n) => {
-    const force = forces[n % forces.length] ?? 'usn';
-    // A kind that keeps failing (too few options, only repeats) falls back to a 'higher' question.
-    let last: Question | null = null;
-    for (let a = 0; a < ATTEMPTS * 2; a++) {
-      const q = a < ATTEMPTS ? ask(rng, kind, force) : askHigher(rng, force);
-      last = q ?? last;
-      if (q && !seen.has(keyOf(q))) {
-        seen.add(keyOf(q));
-        return q;
-      }
-    }
-    if (!last) throw new Error(`no ${kind} question for ${force}`);
-    return last;
-  });
+  const ranks = RANK_CHARTS[chart];
+  const picks = shuffle(rng, ranks.map((_, i) => i)).slice(0, RANK_QUIZ.questions);
+  return picks.map((index) => ask(rng, ranks, index));
 }
 
 /** Points for an answer with `timeLeft` seconds on the clock. */

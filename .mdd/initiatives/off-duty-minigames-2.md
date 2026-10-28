@@ -2,8 +2,8 @@
 id: off-duty-minigames-2
 title: Off-Duty Minigames II
 status: active
-version: 2
-hash: d2aeacab
+version: 3
+hash: 37880092
 created: 2026-10-28
 ---
 
@@ -39,13 +39,15 @@ left, name, best and medal right) — the first ten keep their rows; `MinigameId
 grow by ten; the offers, medals (doc 24) and service record take the new ids like the old ones.
 
 Rules for content (public site): original art, music and text only — no film scenes, quotes, character names,
-real unit insignia, logos or flags. The rank quiz is **text only** (names, order, pay grade / NATO code,
-equivalents); no insignia drawings (owner rule: no real insignia). The high five is a celebration between the
+real unit insignia, logos or flags. **Owner exception (2026-10-28):** the rank quiz shows real **rank insignia**,
+redrawn in pixel art (doc 41) — pick one of four charts, study them all, name five. The high five is a celebration between the
 pilot and Duke on the flight deck; it borrows nothing beyond the gesture.
 
 ## Open Product Questions
 - [x] Size → two new rows: the owner's six + four ideas of mine (owner).
 - [x] Rank quiz forces → US (Navy, Army) and German (Marine, Heer), text only (owner; insignia rule).
+      **Reworked (owner, 2026-10-28):** show the rank symbol and ask its name; the charts kept apart (pick one of
+      four), first all of them, then five at random — real insignia allowed for this game (doc 41).
 - [x] Unlocks → along map 1, between the first ten (owner).
 - [x] The four extra games → Darts, Parachute, Air Show, Deck Handler (my picks within the owner's "6 + 4 more";
       the owner may swap any before its wave — a swap changes that wave and its card only).
@@ -56,7 +58,7 @@ pilot and Duke on the flight deck; it borrows nothing beyond the gesture.
 ## Waves
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
-| Wave 1 | waves/off-duty-minigames-2-wave-1.md | The rec room shows four rows (twenty cards, ten new locked until their mission); Rank Quiz and High Five are playable with bests and medals and are offered after missions 4 and 10. | planned |
+| Wave 1 | waves/off-duty-minigames-2-wave-1.md | The rec room shows four rows (twenty cards, ten new locked until their mission); Rank Quiz and High Five are playable with bests and medals and are offered after missions 4 and 10. | complete |
 | Wave 2 | waves/off-duty-minigames-2-wave-2.md | Pool and Darts are playable from the rec room. | planned |
 | Wave 3 | waves/off-duty-minigames-2-wave-3.md | Target Pod, Parachute and Canyon Run are playable. | planned |
 | Wave 4 | waves/off-duty-minigames-2-wave-4.md | Air Show and Deck Handler are playable. | planned |

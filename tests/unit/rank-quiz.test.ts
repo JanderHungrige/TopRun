@@ -1,117 +1,85 @@
 import { describe, expect, it } from 'vitest';
-import { FORCES, QUIZ_RANKS, type Force, type QuizRank } from '../../src/data/rank-quiz';
-import { answerPoints, makeQuiz, RANK_QUIZ, RANKS_MEDALS, rankAt, type Question } from '../../src/game/minigames/ranks';
+import { CHART_SAMPLE, CHARTS, RANK_CHARTS } from '../../src/data/rank-quiz';
+import { answerPoints, makeQuiz, RANK_QUIZ, RANKS_MEDALS } from '../../src/game/minigames/ranks';
 
-// Doc 41: the rank tables and the seeded ten-question rounds of the Rank Quiz.
+// Doc 41: the four rank charts and the seeded five-question rounds of the Rank Quiz.
 
-const codeNum = (c: string): number => Number(c.slice(3)) + (c.startsWith('OF') ? 100 : 0);
-const gradeNum = (g: string): number => Number(g.slice(2)) + (g.startsWith('O') ? 100 : 0);
+describe('rank charts', () => {
+  it('holds the four charts with the documented number of ranks', () => {
+    expect(CHARTS).toEqual(['usn', 'usa', 'marine', 'heer']);
+    expect(CHARTS.map((c) => RANK_CHARTS[c].length)).toEqual([19, 21, 26, 26]);
+    expect(RANK_CHARTS.usn[0]?.name).toBe('Seaman Recruit');
+    expect(RANK_CHARTS.heer.at(-1)?.name).toBe('General');
+  });
 
-/** Every option that would also be a right answer to the question. */
-function rightOptions(q: Question): string[] {
-  const subject = rankAt(q.subject);
-  const ranks = (f: Force): readonly QuizRank[] => QUIZ_RANKS[f];
-  switch (q.kind) {
-    case 'higher': {
-      const partner = q.partner ? rankAt(q.partner) : null;
-      return [q.subject.index > (q.partner?.index ?? -1) ? subject.name : partner?.name ?? ''];
-    }
-    case 'next': return [ranks(q.subject.force)[q.subject.index + 1]?.name ?? ''];
-    case 'grade': return [subject.grade ?? ''];
-    case 'code': return [subject.nato ?? ''];
-    case 'usEquiv': return ranks(q.target ?? 'usn').filter((x) => x.grade === subject.grade).map((x) => x.name);
-    case 'natoEquiv': return ranks(q.target ?? 'usn').filter((x) => x.nato === subject.nato).map((x) => x.name);
-    default: throw new Error(`unhandled: ${q.kind satisfies never}`);
-  }
-}
-
-describe('rank tables', () => {
-  it('lists each force lowest first with unique names', () => {
-    for (const f of FORCES) {
-      const list = QUIZ_RANKS[f];
-      expect(new Set(list.map((x) => x.name)).size).toBe(list.length);
-      const codes = list.flatMap((x) => (x.nato ? [codeNum(x.nato)] : []));
-      expect(codes).toEqual([...codes].sort((a, b) => a - b));
+  it('gives every rank of a chart its own name and its own insignia', () => {
+    for (const c of CHARTS) {
+      const ranks = RANK_CHARTS[c];
+      expect(new Set(ranks.map((x) => x.name)).size).toBe(ranks.length);
+      // An insignia that two ranks shared could not be named: every one is unique within its chart.
+      expect(new Set(ranks.map((x) => JSON.stringify(x.insignia))).size).toBe(ranks.length);
     }
   });
 
-  it('gives US ranks strictly rising pay grades and German ranks none', () => {
-    for (const f of ['usn', 'usa'] as const) {
-      const grades = QUIZ_RANKS[f].map((x) => gradeNum(x.grade ?? ''));
-      expect(grades.every((g, i) => i === 0 || g > (grades[i - 1] ?? 0))).toBe(true);
-    }
-    for (const f of ['marine', 'heer'] as const) expect(QUIZ_RANKS[f].every((x) => x.grade === null)).toBe(true);
-  });
-
-  it('knows the classic equivalents', () => {
-    const find = (f: Force, name: string): QuizRank | undefined => QUIZ_RANKS[f].find((x) => x.name === name);
-    expect(find('usn', 'Captain')?.nato).toBe(find('usa', 'Colonel')?.nato);
-    expect(find('marine', 'Fregattenkapitän')?.nato).toBe(find('usn', 'Commander')?.nato);
-    expect(find('heer', 'Hauptmann')?.nato).toBe('OF-2');
-    expect(find('usn', 'Lieutenant Commander')?.grade).toBe('O-4');
-    expect(find('heer', 'Oberstabsfeldwebel')?.nato).toBe('OR-9');
+  it('shows a real rank of each chart on the pick cards', () => {
+    for (const c of CHARTS) expect(RANK_CHARTS[c][CHART_SAMPLE[c]]).toBeDefined();
   });
 });
 
 describe('quiz rounds', () => {
-  const seeds = [1, 2, 3, 42, 99, 2026, 31337, 7777, 123456, 987654];
-
-  it('asks ten questions, the same for the same seed', () => {
-    for (const seed of seeds) {
-      const quiz = makeQuiz(seed);
-      expect(quiz).toHaveLength(RANK_QUIZ.questions);
-      expect(makeQuiz(seed)).toEqual(quiz);
-    }
-    expect(makeQuiz(1)).not.toEqual(makeQuiz(2));
-  });
-
-  it('mixes the kinds (three of one at most) and covers all four forces', () => {
-    for (const seed of seeds) {
-      const quiz = makeQuiz(seed);
-      const kinds = new Map<string, number>();
-      for (const q of quiz) kinds.set(q.kind, (kinds.get(q.kind) ?? 0) + 1);
-      expect(Math.max(...kinds.values())).toBeLessThanOrEqual(3);
-      const forces = new Set(quiz.flatMap((q) => [q.subject.force, q.partner?.force, q.target].filter((f): f is Force => !!f)));
-      expect(forces.size).toBe(4);
-      const keys = quiz.map((q) => `${q.kind}|${q.subject.force}|${q.subject.index}|${q.partner?.index ?? ''}|${q.target ?? ''}`);
-      expect(new Set(keys).size).toBe(keys.length);
-    }
-  });
-
-  it('has exactly one right option, at the answer index, among unique options', () => {
-    for (const seed of seeds) {
-      for (const q of makeQuiz(seed)) {
-        expect(new Set(q.options).size).toBe(q.options.length);
-        expect(q.options).toHaveLength(q.kind === 'higher' ? 2 : 4);
-        const right = rightOptions(q);
-        const hits = q.options.filter((o) => right.includes(o));
-        expect(hits, `${q.kind} ${rankAt(q.subject).name}`).toHaveLength(1);
-        expect(right).toContain(q.options[q.answer]);
+  it('asks five different ranks of the chart, each with four different names and one right answer', () => {
+    for (const c of CHARTS) {
+      for (let seed = 1; seed <= 40; seed++) {
+        const quiz = makeQuiz(c, seed);
+        expect(quiz).toHaveLength(RANK_QUIZ.questions);
+        expect(new Set(quiz.map((q) => q.index)).size).toBe(RANK_QUIZ.questions);
+        for (const q of quiz) {
+          expect(new Set(q.options).size).toBe(RANK_QUIZ.options);
+          expect(q.options[q.answer]).toBe(RANK_CHARTS[c][q.index]?.name);
+        }
       }
     }
   });
 
-  it('asks codes and equivalents only about ranks with a known code', () => {
-    for (const seed of seeds) {
-      for (const q of makeQuiz(seed)) {
-        if (q.kind === 'code' || q.kind === 'natoEquiv') expect(rankAt(q.subject).nato).not.toBeNull();
-        if (q.kind === 'grade' || q.kind === 'usEquiv') expect(['usn', 'usa']).toContain(q.subject.force);
+  it('offers the nearest ranks as the wrong names', () => {
+    for (const c of CHARTS) {
+      const names = RANK_CHARTS[c].map((x) => x.name);
+      for (const q of makeQuiz(c, 7)) {
+        const wrong = q.options.filter((_, i) => i !== q.answer).map((n) => names.indexOf(n));
+        expect(wrong.every((i) => i >= 0 && Math.abs(i - q.index) <= RANK_QUIZ.near)).toBe(true);
       }
+    }
+  });
+
+  it('is the same round for the same seed and varies with the seed', () => {
+    expect(makeQuiz('marine', 42)).toEqual(makeQuiz('marine', 42));
+    const firsts = new Set(Array.from({ length: 30 }, (_, s) => makeQuiz('heer', s).map((q) => q.index).join(',')));
+    expect(firsts.size).toBeGreaterThan(25);
+    // The right answer's slot moves around.
+    const slots = new Set(Array.from({ length: 30 }, (_, s) => makeQuiz('usa', s)[0]?.answer));
+    expect(slots.size).toBe(RANK_QUIZ.options);
+  });
+
+  it('reaches every rank of a chart over many rounds', () => {
+    for (const c of CHARTS) {
+      const seen = new Set<number>();
+      for (let seed = 0; seed < 200; seed++) for (const q of makeQuiz(c, seed)) seen.add(q.index);
+      expect(seen.size).toBe(RANK_CHARTS[c].length);
     }
   });
 });
 
-describe('scoring', () => {
-  it('pays 100 plus up to 50 for speed, nothing for a miss', () => {
+describe('points', () => {
+  it('pays 100 plus up to 50 for speed, nothing for a wrong answer', () => {
     expect(answerPoints(true, RANK_QUIZ.time)).toBe(150);
     expect(answerPoints(true, RANK_QUIZ.time / 2)).toBe(125);
     expect(answerPoints(true, 0)).toBe(100);
-    expect(answerPoints(false, 10)).toBe(0);
     expect(answerPoints(true, -3)).toBe(100);
+    expect(answerPoints(false, 10)).toBe(0);
   });
 
-  it('awards medals on a 1500-point scale', () => {
-    expect(RANKS_MEDALS).toEqual({ bronze: 700, silver: 1000, gold: 1300 });
-    expect(RANK_QUIZ.questions * answerPoints(true, RANK_QUIZ.time)).toBe(1500);
+  it('has medals on the 750-point scale', () => {
+    expect(RANK_QUIZ.questions * answerPoints(true, RANK_QUIZ.time)).toBe(750);
+    expect(RANKS_MEDALS).toEqual({ bronze: 400, silver: 550, gold: 700 });
   });
 });

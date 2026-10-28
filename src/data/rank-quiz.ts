@@ -1,119 +1,157 @@
-// Rank Quiz (doc 41): real ranks of four forces, each from lowest to highest. Names are proper names (the same in
-// EN and DE); `grade` is the US pay grade (US forces only); `nato` the NATO rank code, null where the sources give
-// none (those ranks only appear in order questions). Text only — no insignia (public site).
+// Rank Quiz (doc 41): four charts of real ranks — US Navy, US Army, German Navy (Marine), German Army (Heer) — each
+// lowest first, every rank with its insignia as a descriptor that render/minigames/rank-insignia*.ts draws in pixel
+// art. Names are proper names (the same in EN and DE). Owner exception to the no-insignia rule (doc 41); sources:
+// Wikipedia "Ranks and insignia of NATO armies / navies", officers and enlisted, viewed 2026-10-28.
 
-export type Force = 'usn' | 'usa' | 'marine' | 'heer';
-export const FORCES: readonly Force[] = Object.freeze(['usn', 'usa', 'marine', 'heer'] as const);
+export type Chart = 'usn' | 'usa' | 'marine' | 'heer';
+export const CHARTS: readonly Chart[] = Object.freeze(['usn', 'usa', 'marine', 'heer'] as const);
 
-export interface QuizRank {
-  name: string;
-  grade: string | null;
-  nato: string | null;
-}
+/** Sleeve stripes, listed bottom → top. */
+export type Stripe = 'wide' | 'medium' | 'thin';
+/** What a US Army senior NCO wears between chevrons and rockers. */
+export type ArmyDevice = 'none' | 'diamond' | 'star' | 'wreath';
+export type UsOfficerDevice = 'goldBar' | 'silverBar' | 'twoBars' | 'goldLeaf' | 'silverLeaf' | 'eagle';
+export type German = 'heer' | 'marine';
 
-const r = (name: string, nato: string | null, grade: string | null = null): QuizRank => ({ name, grade, nato });
+export type Insignia =
+  /** US Navy E-1 … E-3: white diagonal stripes. */
+  | { kind: 'groupRate'; stripes: number }
+  /** US Navy E-4 … E-6: eagle over chevrons. */
+  | { kind: 'pettyOfficer'; chevrons: number }
+  /** US Navy E-7 … E-9: fouled anchor with "USN", stars above. */
+  | { kind: 'chief'; stars: number }
+  /** Navy officers (US and German): gold sleeve stripes under a star. */
+  | { kind: 'sleeve'; stripes: readonly Stripe[] }
+  | { kind: 'armyChevrons'; chevrons: number; rockers: number; device: ArmyDevice }
+  | { kind: 'specialist' }
+  | { kind: 'usOfficer'; device: UsOfficerDevice }
+  | { kind: 'usGeneral'; stars: number }
+  /** German enlisted: diagonal bars; `wide` adds the Korporal's wide bar under them. */
+  | { kind: 'deBars'; service: German; bars: number; wide: boolean }
+  /** German NCOs from Unteroffizier / Bootsmann up: braid (Heer only), chevrons, the loop. */
+  | { kind: 'deNco'; service: German; braid: 'none' | 'open' | 'full'; chevrons: number; loop: boolean }
+  /** Maat / Obermaat: the hexagon, Obermaat with a chevron. */
+  | { kind: 'maat'; chevron: boolean }
+  /** Heer officers: pips in rows (bottom → top), over an oak wreath from Major up. */
+  | { kind: 'pips'; rows: readonly number[]; wreath: 'none' | 'silver' | 'gold' };
+
+export interface QuizRank { name: string; insignia: Insignia }
+
+const r = (name: string, insignia: Insignia): QuizRank => Object.freeze({ name, insignia });
+const M = 'medium';
+const sleeve = (...stripes: Stripe[]): Insignia => ({ kind: 'sleeve', stripes });
+const army = (chevrons: number, rockers = 0, device: ArmyDevice = 'none'): Insignia => ({ kind: 'armyChevrons', chevrons, rockers, device });
+const bars = (service: German, n: number, wide = false): Insignia => ({ kind: 'deBars', service, bars: n, wide });
+const pips = (rows: readonly number[], wreath: 'none' | 'silver' | 'gold' = 'none'): Insignia => ({ kind: 'pips', rows, wreath });
 
 const US_NAVY: readonly QuizRank[] = [
-  r('Seaman Recruit', 'OR-1', 'E-1'),
-  r('Seaman Apprentice', 'OR-2', 'E-2'),
-  r('Seaman', 'OR-3', 'E-3'),
-  r('Petty Officer Third Class', 'OR-4', 'E-4'),
-  r('Petty Officer Second Class', 'OR-5', 'E-5'),
-  r('Petty Officer First Class', 'OR-6', 'E-6'),
-  r('Chief Petty Officer', 'OR-7', 'E-7'),
-  r('Senior Chief Petty Officer', 'OR-8', 'E-8'),
-  r('Master Chief Petty Officer', 'OR-9', 'E-9'),
-  r('Ensign', 'OF-1', 'O-1'),
-  r('Lieutenant Junior Grade', 'OF-1', 'O-2'),
-  r('Lieutenant', 'OF-2', 'O-3'),
-  r('Lieutenant Commander', 'OF-3', 'O-4'),
-  r('Commander', 'OF-4', 'O-5'),
-  r('Captain', 'OF-5', 'O-6'),
-  r('Rear Admiral (lower half)', 'OF-6', 'O-7'),
-  r('Rear Admiral', 'OF-7', 'O-8'),
-  r('Vice Admiral', 'OF-8', 'O-9'),
-  r('Admiral', 'OF-9', 'O-10'),
+  r('Seaman Recruit', { kind: 'groupRate', stripes: 1 }),
+  r('Seaman Apprentice', { kind: 'groupRate', stripes: 2 }),
+  r('Seaman', { kind: 'groupRate', stripes: 3 }),
+  r('Petty Officer Third Class', { kind: 'pettyOfficer', chevrons: 1 }),
+  r('Petty Officer Second Class', { kind: 'pettyOfficer', chevrons: 2 }),
+  r('Petty Officer First Class', { kind: 'pettyOfficer', chevrons: 3 }),
+  r('Chief Petty Officer', { kind: 'chief', stars: 0 }),
+  r('Senior Chief Petty Officer', { kind: 'chief', stars: 1 }),
+  r('Master Chief Petty Officer', { kind: 'chief', stars: 2 }),
+  r('Ensign', sleeve(M)),
+  r('Lieutenant Junior Grade', sleeve(M, 'thin')),
+  r('Lieutenant', sleeve(M, M)),
+  r('Lieutenant Commander', sleeve(M, 'thin', M)),
+  r('Commander', sleeve(M, M, M)),
+  r('Captain', sleeve(M, M, M, M)),
+  r('Rear Admiral (lower half)', sleeve('wide')),
+  r('Rear Admiral', sleeve('wide', M)),
+  r('Vice Admiral', sleeve('wide', M, M)),
+  r('Admiral', sleeve('wide', M, M, M)),
 ];
 
 const US_ARMY: readonly QuizRank[] = [
-  r('Private', 'OR-1', 'E-1'),
-  r('Private First Class', 'OR-3', 'E-3'),
-  r('Specialist', 'OR-4', 'E-4'),
-  r('Sergeant', 'OR-5', 'E-5'),
-  r('Staff Sergeant', 'OR-6', 'E-6'),
-  r('Sergeant First Class', 'OR-7', 'E-7'),
-  r('Master Sergeant', 'OR-8', 'E-8'),
-  r('Sergeant Major', 'OR-9', 'E-9'),
-  r('Second Lieutenant', 'OF-1', 'O-1'),
-  r('First Lieutenant', 'OF-1', 'O-2'),
-  r('Captain', 'OF-2', 'O-3'),
-  r('Major', 'OF-3', 'O-4'),
-  r('Lieutenant Colonel', 'OF-4', 'O-5'),
-  r('Colonel', 'OF-5', 'O-6'),
-  r('Brigadier General', 'OF-6', 'O-7'),
-  r('Major General', 'OF-7', 'O-8'),
-  r('Lieutenant General', 'OF-8', 'O-9'),
-  r('General', 'OF-9', 'O-10'),
+  r('Private', army(1)),
+  r('Private First Class', army(1, 1)),
+  r('Specialist', { kind: 'specialist' }),
+  r('Corporal', army(2)),
+  r('Sergeant', army(3)),
+  r('Staff Sergeant', army(3, 1)),
+  r('Sergeant First Class', army(3, 2)),
+  r('Master Sergeant', army(3, 3)),
+  r('First Sergeant', army(3, 3, 'diamond')),
+  r('Sergeant Major', army(3, 3, 'star')),
+  r('Command Sergeant Major', army(3, 3, 'wreath')),
+  r('Second Lieutenant', { kind: 'usOfficer', device: 'goldBar' }),
+  r('First Lieutenant', { kind: 'usOfficer', device: 'silverBar' }),
+  r('Captain', { kind: 'usOfficer', device: 'twoBars' }),
+  r('Major', { kind: 'usOfficer', device: 'goldLeaf' }),
+  r('Lieutenant Colonel', { kind: 'usOfficer', device: 'silverLeaf' }),
+  r('Colonel', { kind: 'usOfficer', device: 'eagle' }),
+  r('Brigadier General', { kind: 'usGeneral', stars: 1 }),
+  r('Major General', { kind: 'usGeneral', stars: 2 }),
+  r('Lieutenant General', { kind: 'usGeneral', stars: 3 }),
+  r('General', { kind: 'usGeneral', stars: 4 }),
 ];
 
-/** The enlisted ranks below the NCOs that both German services share after their first rank. */
-const DE_ENLISTED: readonly QuizRank[] = [
-  r('Gefreiter', 'OR-2'),
-  r('Obergefreiter', 'OR-3'),
-  r('Hauptgefreiter', null),
-  r('Stabsgefreiter', 'OR-4'),
-  r('Oberstabsgefreiter', null),
-  r('Korporal', null),
-  r('Stabskorporal', null),
+/** Gefreiter … Stabskorporal: the same ladder in both German services, drawn in their own colours. */
+const deEnlisted = (s: German): QuizRank[] => [
+  r('Gefreiter', bars(s, 1)),
+  r('Obergefreiter', bars(s, 2)),
+  r('Hauptgefreiter', bars(s, 3)),
+  r('Stabsgefreiter', bars(s, 4)),
+  r('Oberstabsgefreiter', bars(s, 5)),
+  r('Korporal', bars(s, 0, true)),
+  r('Stabskorporal', bars(s, 1, true)),
 ];
+
+const nco = (s: German, braid: 'none' | 'open' | 'full', chevrons: number, loop = false): Insignia => ({ kind: 'deNco', service: s, braid, chevrons, loop });
 
 const MARINE: readonly QuizRank[] = [
-  r('Matrose', 'OR-1'),
-  ...DE_ENLISTED,
-  r('Maat', 'OR-5'),
-  r('Obermaat', 'OR-5'),
-  r('Bootsmann', 'OR-6'),
-  r('Oberbootsmann', 'OR-6'),
-  r('Hauptbootsmann', 'OR-7'),
-  r('Stabsbootsmann', 'OR-8'),
-  r('Oberstabsbootsmann', 'OR-9'),
-  r('Leutnant zur See', 'OF-1'),
-  r('Oberleutnant zur See', 'OF-1'),
-  r('Kapitänleutnant', 'OF-2'),
-  r('Stabskapitänleutnant', 'OF-2'),
-  r('Korvettenkapitän', 'OF-3'),
-  r('Fregattenkapitän', 'OF-4'),
-  r('Kapitän zur See', 'OF-5'),
-  r('Flottillenadmiral', 'OF-6'),
-  r('Konteradmiral', 'OF-7'),
-  r('Vizeadmiral', 'OF-8'),
-  r('Admiral', 'OF-9'),
+  r('Matrose', bars('marine', 0)),
+  ...deEnlisted('marine'),
+  r('Maat', { kind: 'maat', chevron: false }),
+  r('Obermaat', { kind: 'maat', chevron: true }),
+  r('Bootsmann', nco('marine', 'none', 1)),
+  r('Oberbootsmann', nco('marine', 'none', 2)),
+  r('Hauptbootsmann', nco('marine', 'none', 1, true)),
+  r('Stabsbootsmann', nco('marine', 'none', 2, true)),
+  r('Oberstabsbootsmann', nco('marine', 'none', 3, true)),
+  r('Leutnant zur See', sleeve(M)),
+  r('Oberleutnant zur See', sleeve(M, M)),
+  r('Kapitänleutnant', sleeve(M, 'thin', M)),
+  r('Stabskapitänleutnant', sleeve(M, 'thin', 'thin', M)),
+  r('Korvettenkapitän', sleeve(M, M, M)),
+  r('Fregattenkapitän', sleeve(M, M, 'thin', M)),
+  r('Kapitän zur See', sleeve(M, M, M, M)),
+  r('Flottillenadmiral', sleeve('wide', 'thin')),
+  r('Konteradmiral', sleeve('wide', M)),
+  r('Vizeadmiral', sleeve('wide', M, M)),
+  r('Admiral', sleeve('wide', M, M, M)),
 ];
 
 const HEER: readonly QuizRank[] = [
-  r('Soldat', 'OR-1'),
-  ...DE_ENLISTED,
-  r('Unteroffizier', 'OR-5'),
-  r('Stabsunteroffizier', 'OR-5'),
-  r('Feldwebel', 'OR-6'),
-  r('Oberfeldwebel', 'OR-6'),
-  r('Hauptfeldwebel', 'OR-7'),
-  r('Stabsfeldwebel', 'OR-8'),
-  r('Oberstabsfeldwebel', 'OR-9'),
-  r('Leutnant', 'OF-1'),
-  r('Oberleutnant', 'OF-1'),
-  r('Hauptmann', 'OF-2'),
-  r('Stabshauptmann', 'OF-2'),
-  r('Major', 'OF-3'),
-  r('Oberstleutnant', 'OF-4'),
-  r('Oberst', 'OF-5'),
-  r('Brigadegeneral', 'OF-6'),
-  r('Generalmajor', 'OF-7'),
-  r('Generalleutnant', 'OF-8'),
-  r('General', 'OF-9'),
+  r('Soldat', bars('heer', 0)),
+  ...deEnlisted('heer'),
+  r('Unteroffizier', nco('heer', 'open', 0)),
+  r('Stabsunteroffizier', nco('heer', 'full', 0)),
+  r('Feldwebel', nco('heer', 'full', 1)),
+  r('Oberfeldwebel', nco('heer', 'full', 2)),
+  r('Hauptfeldwebel', nco('heer', 'full', 1, true)),
+  r('Stabsfeldwebel', nco('heer', 'full', 2, true)),
+  r('Oberstabsfeldwebel', nco('heer', 'full', 3, true)),
+  r('Leutnant', pips([1])),
+  r('Oberleutnant', pips([1, 1])),
+  r('Hauptmann', pips([1, 1, 1])),
+  r('Stabshauptmann', pips([2, 1, 1])),
+  r('Major', pips([1], 'silver')),
+  r('Oberstleutnant', pips([1, 1], 'silver')),
+  r('Oberst', pips([1, 1, 1], 'silver')),
+  r('Brigadegeneral', pips([1], 'gold')),
+  r('Generalmajor', pips([1, 1], 'gold')),
+  r('Generalleutnant', pips([1, 1, 1], 'gold')),
+  r('General', pips([1, 1, 1, 1], 'gold')),
 ];
 
-/** Every force's ranks, lowest first. */
-export const QUIZ_RANKS: Readonly<Record<Force, readonly QuizRank[]>> = Object.freeze({
-  usn: US_NAVY, usa: US_ARMY, marine: MARINE, heer: HEER,
+export const RANK_CHARTS: Readonly<Record<Chart, readonly QuizRank[]>> = Object.freeze({
+  usn: Object.freeze(US_NAVY), usa: Object.freeze(US_ARMY), marine: Object.freeze(MARINE), heer: Object.freeze(HEER),
 });
+
+/** The rank whose insignia shows on a chart's card in the pick screen. */
+export const CHART_SAMPLE: Readonly<Record<Chart, number>> = Object.freeze({ usn: 13, usa: 7, marine: 21, heer: 17 });

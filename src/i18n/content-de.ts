@@ -55,31 +55,31 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
   armor: {
     name: 'Panzerplatten', description: 'Titanplatten um Cockpit und Triebwerke.',
-    levelText: ['+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung', '+80 % Panzerung', '+100 % Panzerung'],
+    levelText: ['+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung', '+80 % Panzerung', '+100 % Panzerung', '+125 % Panzerung', '+150 % Panzerung'],
   },
   engine: {
     name: 'Triebwerkstuning', description: 'Getunte Turbinen und ein heißerer Nachbrenner.',
-    levelText: ['+8 % Tempo', '+16 % Tempo', '+24 % Tempo'],
+    levelText: ['+8 % Tempo', '+16 % Tempo', '+24 % Tempo', '+30 % Tempo', '+36 % Tempo'],
   },
   flares: {
     name: 'Täuschkörperwerfer', description: 'Täuschkörper lenken feindliche Raketen ab. Taste F.',
-    levelText: ['2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper', '8 Täuschkörper', '10 Täuschkörper'],
+    levelText: ['2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper', '8 Täuschkörper', '10 Täuschkörper', '12 Täuschkörper', '14 Täuschkörper'],
   },
   ecm: {
-    name: 'ECM-Störbehälter', description: 'Stört die feindliche Feuerleitung. Feindliche Kugeln −25 % Schaden, Raketen drehen 30 % langsamer.',
-    levelText: ['−25 % Kugelschaden, langsamere Raketen'],
+    name: 'ECM-Störbehälter', description: 'Stört die feindliche Feuerleitung: feindliche Kugeln machen weniger Schaden, feindliche Raketen drehen langsamer.',
+    levelText: ['−25 % Kugelschaden, Raketen drehen 30 % langsamer', '−35 % Kugelschaden, Raketen drehen 40 % langsamer', '−45 % Kugelschaden, Raketen drehen 50 % langsamer'],
   },
   damageControl: {
-    name: 'Schadenskontrolle', description: 'Einmal pro Mission, unter 25 % Panzerung: stellt 40 % wieder her.',
-    levelText: ['Einmal pro Mission +40 % Panzerung'],
+    name: 'Schadenskontrolle', description: 'Unter 25 % Panzerung wird ein Teil wiederhergestellt: einmal pro Mission, auf der höchsten Stufe zweimal.',
+    levelText: ['Einmal pro Mission +40 % Panzerung', 'Einmal pro Mission +60 % Panzerung', 'Zweimal pro Mission +60 % Panzerung'],
   },
   magnet: {
     name: 'Frachtmagnet', description: 'Aufsammelbares fliegt dir aus viel größerer Entfernung zu.',
-    levelText: ['Größere Sammelreichweite'],
+    levelText: ['Aufsammeln ab 160 px', 'Aufsammeln ab 280 px, schneller herangezogen'],
   },
   radar: {
-    name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen bis zu 4 Sekunden früher auf dem Schirm.',
-    levelText: ['Banditen 4 s früher auf dem Radar'],
+    name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen auf dem Schirm, bevor sie da sind.',
+    levelText: ['Banditen 4 s früher auf dem Radar', 'Banditen 7 s früher auf dem Radar, Reichweite 1.400 px'],
   },
 };
 

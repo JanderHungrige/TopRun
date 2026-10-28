@@ -2,6 +2,7 @@ import { approach } from '../../core/math';
 import type { Scene } from '../../core/scene';
 import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types';
 import { missionTuning } from '../../game/challenge';
+import { hitScale } from '../../game/combat';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
@@ -174,10 +175,12 @@ export class MissionScene implements Scene {
     }
   }
 
-  private playerHit(amount: number): void {
+  /** Every enemy hit lands here; its damage grows with the mission's difficulty (doc 43). */
+  private playerHit(base: number): void {
     const p = this.player;
     const w = this.world;
     if (!p.alive || p.invulnerable) return;
+    const amount = base * hitScale(w.mission.difficulty);
     w.perf.damage += amount;
     const died = p.damage(amount);
     w.particles.sparks(p.x, p.y, 8, '#ffb070', 200);

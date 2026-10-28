@@ -56,7 +56,7 @@ test_files:
   - tests/unit/combat.test.ts
   - tests/unit/cockpit.test.ts
 data_flow: greenfield
-last_synced: 2026-10-25
+last_synced: 2026-10-28
 status: complete
 phase: 3
 mdd_version: 11
@@ -148,8 +148,9 @@ interface MissionResult { missionId; success; takeoff: TakeoffRating; kills; spa
 | boat | ground (sea) | 70 | 50 | 50 | aimed 2.4 | ground |
 | destroyer | ground (sea) | 420 | 25 | 250 | aimed 1.4 + missile 5 | ground |
 
-Difficulty scaling (d = mission difficulty 1–30): HP × (1 + 0.06 (d−1)), fire period
-÷ (1 + 0.03 (d−1)), bullet speed × (1 + 0.015 (d−1)), bounty × (1 + 0.03 (d−1)).
+Difficulty scaling (d = mission difficulty incl. the challenge level): HP × (1 + 0.06 (d−1) + 0.003 (d−1)²) (threat
+curve, doc 43), fire period ÷ (1 + 0.03 (d−1)), bullet speed × (1 + 0.015 (d−1)), bounty × (1 + 0.03 (d−1)); every
+enemy hit on the player (bullet 8, flak 12, missile 22, collision 25) × (1 + 0.02 (d−1)) (doc 43).
 
 Bounties were cut to ~35 % after the first playtest (2026-10-24): a perfect run of mission 1
 earned $5,420 in bounties against a $1,200 mission reward, which would empty the shop far too early.
@@ -167,7 +168,7 @@ None.
 - **Gun** fires while FIRE is held (or always, with autofire setting / touch). Pattern per gun level (1–8; the
   map-2 jets fly at most 5 and fire a second gun with its own level from the wing roots; twin pods launch both
   pods per trigger — doc 37).
-  Guns hit air and ground; ground takes 50 %.
+  Guns hit air and ground; ground takes 50 % (more with uranium ammo, doc 43).
 - **Weapons — two fire keys** (2026-10-25, owner: switching was too hectic): every
   secondary has a **role** — *air*: AIM-9, AIM-54; *ground*: rockets, Mk 82, AGM-65. **AIR** (R / K,
   gamepad B) fires the first mounted air weapon that has ammo, **GROUND** (Q / L, gamepad RB) the
@@ -195,11 +196,12 @@ None.
 - **Special** per plane (02): F-16 barrel roll, F-14 wingman, SR-71 Mach dash; map-2 jets (doc 36): A-10 GAU-8 burst,
   F-35 stealth, Tornado nuke (activation and ticks in `scenes/mission/specials.ts`).
 - **Damage**: enemy bullet 8 × scale, missile 22, flak 12, collision with air enemy 25 (enemy
-  takes 80). ECM −25 % bullet damage. 0.6 s invulnerability after any hit (blink).
-  Hull ≤ 0 → explosion → mission failed. Damage control restores 40 % once below 25 %.
+  takes 80). ECM −25 / −35 / −45 % bullet damage by level (doc 43). 0.6 s invulnerability after any hit
+  (blink). Hull ≤ 0 → explosion → mission failed. Damage control restores 40 % once below 25 % (60 %; twice at
+  level 3, doc 43). Guns do 50 % on ground targets, 65 / 80 / 100 % with uranium ammo (doc 43).
 - **Pickups** (drop roll per kill): cash 14 % (bounty × 0.5, min 25), repair 5 % (+25 % hull),
-  power 4 % (gun level +1 for 12 s, max 5; levels 6–7 lift to 8, doc 37), ammo 4 % (+50 % of each secondary's start ammo).
-  Pickups drift down with the scroll; magnet pulls within 160 px.
+  power 4 % (gun level +1 for 12 s up to 10, a new jet's guns up to 7 — doc 43), ammo 4 % (+50 % of each secondary's
+  start ammo). Pickups drift down with the scroll; the magnet pulls within 160 px (280 px at level 2, doc 43).
 - **Timeline** (`generateTimeline`): seeded by mission number; deterministic; events sorted by
   `t`; waves every lerp(3.2 s → 1.5 s by difficulty) with jitter; formations: line, V, column,
   sine group, single heavy, ground cluster. Guarantees: strike missions spawn ≥ count + 2 of the
@@ -210,7 +212,7 @@ None.
 - **Bosses**: enter from top, settle at y ≈ 150, sway; multi-part (turrets with own HP + core).
   Core takes damage at any time; at 50 % core HP the boss enrages (faster fire, extra pattern).
   Some bosses launch escorts (leviathan: fishbeds/fulcrums; blackjack: drones). Boss HP scales
-  with difficulty (× (1 + 0.05 (d−1))). Core HP: ironclad 2,600 · sandstorm 4,000 · blackjack 5,000 ·
+  with difficulty (× (1 + 0.05 (d−1) + 0.002 (d−1)²), doc 43). Core HP: ironclad 2,600 · sandstorm 4,000 · blackjack 5,000 ·
   typhoon 6,000 · leviathan 8,000 (raised ~2.4× after playtest: a mid-game F-14 sank the Ironclad in 6 s).
   Boss music + warning banner on entry.
 - **Objectives / end**:

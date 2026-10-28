@@ -3,7 +3,7 @@ import type { EquipmentId, SecondaryId } from '../data/types';
 import { fillPoly } from './shapes';
 
 /** Horizontal store drawings (nose pointing right) for the hangar; `s` = scale. */
-export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2', x: number, y: number, s: number): void {
+export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2' | 'ammo', x: number, y: number, s: number): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
@@ -18,6 +18,7 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'jdam': jdam(ctx); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
+    case 'ammo': ammoBelt(ctx); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
@@ -36,6 +37,25 @@ function missile(ctx: CanvasRenderingContext2D, len: number, r: number, body: st
   ctx.fillStyle = band;
   ctx.fillRect(h - 18, -r, 4, r * 2);
   fillPoly(ctx, [h - 24, -r, h - 30, -r - 5, h - 34, -r - 5, h - 32, -r, h - 32, r, h - 34, r + 5, h - 30, r + 5, h - 24, r], '#9aa4ad');
+}
+
+/** Uranium ammo (doc 43): a short belt of 30 mm rounds, brass cases with dark penetrator tips, linked. */
+function ammoBelt(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = '#3a3f44';
+  ctx.fillRect(-30, 4, 60, 4);
+  for (let i = -2; i <= 2; i++) {
+    const x = i * 12;
+    ctx.beginPath();
+    ctx.roundRect(x - 4.5, -4, 9, 18, 1.5);
+    ctx.fillStyle = '#c8a24a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.stroke();
+    ctx.fillStyle = '#e6c873';
+    ctx.fillRect(x - 3, -3, 2, 15);
+    fillPoly(ctx, [x - 4, -4, x - 2.5, -14, x, -19, x + 2.5, -14, x + 4, -4], '#59604f');
+    fillPoly(ctx, [x - 1.5, -7, x, -17, x + 1, -7], '#8c957c');
+  }
 }
 
 function rocketPod(ctx: CanvasRenderingContext2D): void {

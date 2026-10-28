@@ -1,8 +1,12 @@
-import { ARMOR_BONUS, ENGINE_BONUS, FLARE_COUNT } from '../data/equipment';
+import type { Mark } from '../data/arsenal';
+import {
+  ARMOR_BONUS, atLevel, DAMAGE_CONTROL_RESTORE, DAMAGE_CONTROL_USES, ECM_BULLET, ECM_TURN, ENGINE_BONUS, FLARE_COUNT,
+} from '../data/equipment';
 import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
+import { gunAmmo, markOf, weaponStats, type WeaponStats } from './arsenal';
 import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
 import type { SaveData } from './save';
@@ -12,6 +16,9 @@ export interface SecondaryAmmo {
   ammo: number;
   /** Twin pods on a new jet: double ammo, both pods fire per trigger (doc 37). */
   twin: boolean;
+  /** Mk I–III and the numbers it gives (doc 43). */
+  mark: Mark;
+  weapon: WeaponStats;
 }
 
 export interface PlayerStats {
@@ -21,14 +28,29 @@ export interface PlayerStats {
   gunLevel: GunLevel;
   /** Second gun of the new jets, 0 = none (doc 37). */
   gun2Level: number;
+  /** The jet's gun multiplier times the uranium ammo's (doc 43). */
   gunDamageMul: number;
+  /** Share of gun damage ground and sea targets take: 0.5, more with uranium ammo (doc 43). */
+  gunGround: number;
+  /** Uranium ammo level, 0 = ordinary rounds (tracer colour). */
+  ammoLevel: number;
   secondaries: SecondaryAmmo[];
   flares: number;
   ecm: boolean;
+  /** Share of enemy bullet / flak damage that hits, and enemy missile turn factor (ECM levels, doc 43). */
+  ecmBullet: number;
+  ecmTurn: number;
   damageControl: boolean;
+  /** Damage control: hull share restored and uses per mission (doc 43). */
+  damageControlRestore: number;
+  damageControlUses: number;
   magnet: boolean;
+  /** Cargo magnet level 0–2 (doc 43). */
+  magnetLevel: number;
   /** Early-Warning Radar fitted (doc 02/05). */
   earlyWarning: boolean;
+  /** Early-Warning Radar level 0–2 (doc 43). */
+  radarLevel: number;
   /** Paint job of the selected jet (doc 09). */
   livery: LiveryId;
 }
@@ -42,24 +64,35 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   for (const id of save.loadout[plane.id]) {
     if (id === null) continue;
     const twin = double && save.twinSecondaries.includes(id);
-    const ammo = SECONDARIES[id].ammoPerSlot * (twin ? 2 : 1);
+    const mark = markOf(save, id);
+    const weapon = weaponStats(SECONDARIES[id], mark);
+    const ammo = weapon.ammoPerSlot * (twin ? 2 : 1);
     const existing = secondaries.find((s) => s.id === id);
     if (existing) existing.ammo += ammo;
-    else secondaries.push({ id, ammo, twin });
+    else secondaries.push({ id, ammo, twin, mark, weapon });
   }
+  const rounds = gunAmmo(save.ammoLevel);
   return {
     plane,
-    maxHull: Math.round(plane.hull * (1 + (ARMOR_BONUS[eq.armor] ?? 0)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
-    speed: Math.round(plane.speed * (1 + (ENGINE_BONUS[eq.engine] ?? 0))),
+    maxHull: Math.round(plane.hull * (1 + atLevel(ARMOR_BONUS, eq.armor)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
+    speed: Math.round(plane.speed * (1 + atLevel(ENGINE_BONUS, eq.engine))),
     gunLevel: jetGunLevel(plane.id, save.gunLevel) as GunLevel,
     gun2Level: double ? save.gun2Level : 0,
-    gunDamageMul: plane.gunDamageMul,
+    gunDamageMul: plane.gunDamageMul * rounds.damageMul,
+    gunGround: rounds.groundFactor,
+    ammoLevel: save.ammoLevel,
     secondaries,
-    flares: FLARE_COUNT[eq.flares] ?? 0,
+    flares: atLevel(FLARE_COUNT, eq.flares),
     ecm: eq.ecm > 0,
+    ecmBullet: atLevel(ECM_BULLET, eq.ecm),
+    ecmTurn: atLevel(ECM_TURN, eq.ecm),
     damageControl: eq.damageControl > 0,
+    damageControlRestore: atLevel(DAMAGE_CONTROL_RESTORE, eq.damageControl),
+    damageControlUses: atLevel(DAMAGE_CONTROL_USES, eq.damageControl),
     magnet: eq.magnet > 0,
+    magnetLevel: eq.magnet,
     earlyWarning: eq.radar > 0,
+    radarLevel: eq.radar,
     livery: save.livery[plane.id],
   };
 }

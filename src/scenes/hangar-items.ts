@@ -5,6 +5,8 @@ import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { gunLevelDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { MAX_MARK, toMark } from '../data/arsenal';
+import { canBuyMark, markCap, markOf, markPrice, weaponStats, type WeaponStats } from '../game/arsenal';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
 import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
 import { jetOnSale } from '../game/jets';
@@ -28,7 +30,7 @@ export const tabs = (save: SaveData): readonly Tab[] => [
   {
     name: 'hangar.tabWeapons',
     items: [
-      { type: 'gun' }, ...(mapTwoOpen(save) ? [{ type: 'gun2' as const }] : []),
+      { type: 'gun' }, { type: 'ammo' }, ...(mapTwoOpen(save) ? [{ type: 'gun2' as const }] : []),
       ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id })),
     ],
   },
@@ -53,6 +55,7 @@ export function itemName(item: ShopItem): string {
     case 'plane': return PLANES[item.id].name;
     case 'gun': return t('hangar.gunName');
     case 'gun2': return t('hangar.gun2Name');
+    case 'ammo': return t('arsenal.ammoName');
     case 'secondary': return secondaryName(item.id);
     case 'equipment': return equipmentName(item.id);
     case 'livery': return liveryName(item.id);
@@ -65,6 +68,7 @@ export function itemDescription(item: ShopItem): string {
     case 'plane': return planeDescription(item.id);
     case 'gun': return t('hangar.gunDesc');
     case 'gun2': return t('hangar.gun2Desc');
+    case 'ammo': return t('arsenal.ammoDesc');
     case 'secondary': return secondaryDescription(item.id);
     case 'equipment': return equipmentDescription(item.id);
     case 'livery': return t('hangar.paintDesc');
@@ -84,9 +88,13 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
     case 'gun2':
       if (save.gun2Level >= MAX_GUN2_LEVEL) return t('hangar.maxLevel', { level: MAX_GUN2_LEVEL });
       return save.gun2Level === 0 ? formatMoney(price ?? 0) : t('hangar.levelPrice', { level: save.gun2Level, price: formatMoney(price ?? 0) });
+    case 'ammo':
+      if (price === null) return t('hangar.maxLevel', { level: save.ammoLevel });
+      return save.ammoLevel === 0 ? formatMoney(price) : t('hangar.levelPrice', { level: save.ammoLevel, price: formatMoney(price) });
     case 'secondary': {
       const mounted = save.loadout[save.selectedPlane].filter((x) => x === item.id).length;
-      if (save.ownedSecondaries.includes(item.id)) return mounted ? t('hangar.mounted', { n: mounted }) : t('hangar.owned');
+      const mark = markOf(save, item.id) > 1 ? `${markName(markOf(save, item.id))} · ` : '';
+      if (save.ownedSecondaries.includes(item.id)) return mark + (mounted ? t('hangar.mounted', { n: mounted }) : t('hangar.owned'));
       return formatMoney(price ?? 0);
     }
     case 'equipment': {
@@ -135,6 +143,9 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
     case 'gun2':
       if (priceOf(save, item) === null) return none(t('hangar.maxed'));
       return buyAction(save, item, save.gun2Level === 0 ? t('hangar.buy', { price }) : t('hangar.gunUpgrade', { level: save.gun2Level + 1, price }));
+    case 'ammo':
+      if (priceOf(save, item) === null) return none(t('hangar.maxed'));
+      return buyAction(save, item, t('hangar.gunUpgrade', { level: save.ammoLevel + 1, price }));
     case 'secondary':
       if (!save.ownedSecondaries.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (!secondaryAllowedOn(item.id, save.selectedPlane)) return none(t('hangar.f14Only'), t('hangar.f14OnlyNote'), 'restricted');
@@ -155,6 +166,24 @@ export function twinAction(save: SaveData, item: ShopItem): { label: string; ena
   if (item.type !== 'secondary' || !mapTwoOpen(save) || !save.ownedSecondaries.includes(item.id)) return null;
   if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
   return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
+}
+
+/** "Mk II" etc. */
+export const markName = (mark: number): string => t('arsenal.mark', { n: 'I'.repeat(mark) });
+
+/** The UPGRADE button of an owned weapon (doc 43); null = not owned. */
+export function markAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
+  if (item.type !== 'secondary' || !save.ownedSecondaries.includes(item.id)) return null;
+  const mark = markOf(save, item.id);
+  const price = markPrice(save, item.id);
+  if (price !== null) return { label: t('arsenal.upgradeMark', { mark: markName(mark + 1), price: formatMoney(price) }), enabled: canBuyMark(save, item.id).ok };
+  return { label: mark < MAX_MARK ? t('arsenal.markLater') : t('arsenal.markTop', { mark: markName(mark) }), enabled: false };
+}
+
+/** A secondary's numbers at its current mark, and at the next one on sale (null at the top). */
+export function weaponNowNext(save: SaveData, id: (typeof SECONDARY_IDS)[number]): { now: WeaponStats; next: WeaponStats | null } {
+  const mark = markOf(save, id);
+  return { now: weaponStats(SECONDARIES[id], mark), next: mark < markCap(save) ? weaponStats(SECONDARIES[id], toMark(mark + 1)) : null };
 }
 
 /** How a paint job is earned: "Beat IRONCLAD — Pacific …" / "3★ on every … mission". */

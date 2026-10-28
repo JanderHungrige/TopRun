@@ -6,6 +6,7 @@ import {
   EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
+import { MAX_AMMO_LEVEL, MAX_MARK } from '../data/arsenal';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
@@ -31,6 +32,10 @@ export interface SaveData {
   ownedSecondaries: SecondaryId[];
   /** Weapons bought a second time: twin pods on the new jets (doc 37). */
   twinSecondaries: SecondaryId[];
+  /** Uranium ammo for the gun, 0 = ordinary rounds (doc 43). */
+  ammoLevel: number;
+  /** Mark of every missile, rocket pod and bomb: 1 = Mk I … 3 = Mk III (doc 43). */
+  weaponLevels: Record<SecondaryId, number>;
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
   progress: Record<string, ProgressEntry>;
@@ -62,6 +67,8 @@ export interface ProgressEntry {
   score?: number;
 }
 
+const freshMarks = (): Record<SecondaryId, number> => Object.fromEntries(SECONDARY_IDS.map((id) => [id, 1])) as Record<SecondaryId, number>;
+
 const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[plane].hardpoints }, () => null);
 
 export function defaultSave(): SaveData {
@@ -74,6 +81,8 @@ export function defaultSave(): SaveData {
     gun2Level: 0,
     ownedSecondaries: [],
     twinSecondaries: [],
+    ammoLevel: 0,
+    weaponLevels: freshMarks(),
     loadout: perPlane(emptyLoadout),
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
     progress: {},
@@ -139,6 +148,14 @@ function parseProgress(v: unknown): Record<string, ProgressEntry> {
   return out;
 }
 
+/** Marks above Mk I only for owned weapons (doc 43). */
+function parseMarks(v: unknown, owned: readonly SecondaryId[]): Record<SecondaryId, number> {
+  const out = freshMarks();
+  if (!isRecord(v)) return out;
+  for (const id of owned) out[id] = int(v[id], 1, MAX_MARK, 1);
+  return out;
+}
+
 function parseEquipment(v: unknown): Record<EquipmentId, number> {
   const out = defaultSave().equipment;
   if (!isRecord(v)) return out;
@@ -164,6 +181,8 @@ export function parseSave(raw: unknown): SaveData | null {
     gun2Level: int(raw.gun2Level, 0, MAX_GUN2_LEVEL, 0),
     ownedSecondaries,
     twinSecondaries: ids(raw.twinSecondaries, SECONDARY_IDS).filter((id) => ownedSecondaries.includes(id)),
+    ammoLevel: int(raw.ammoLevel, 0, MAX_AMMO_LEVEL, 0),
+    weaponLevels: parseMarks(raw.weaponLevels, ownedSecondaries),
     loadout: perPlane((p) => parseLoadout(rawLoadout[p], p, ownedSecondaries)),
     equipment: parseEquipment(raw.equipment),
     progress,

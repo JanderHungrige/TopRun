@@ -41,7 +41,8 @@ export class HangarChief {
     switch (item.type) {
       case 'plane': return this.speak(chiefLine('buyPlane', { plane: PLANES[item.id].name }));
       case 'gun':
-      case 'gun2': return this.speak(chiefLine('buyGun'));
+      case 'gun2':
+      case 'ammo': return this.speak(chiefLine('buyGun'));
       case 'secondary': return this.speak(chiefLine('buySecondary', { item: secondaryName(item.id) }));
       case 'equipment': return this.speak(chiefLine('buyEquipment', { item: equipmentName(item.id) }));
       case 'livery': return;

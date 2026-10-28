@@ -56,6 +56,8 @@ export interface Bullet {
   damage: number;
   ttl: number;
   dead: boolean;
+  /** Player gun rounds: share of damage ground targets take (uranium ammo, doc 43); default 0.5. */
+  ground?: number;
 }
 
 export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'rocket' | 'enemy';

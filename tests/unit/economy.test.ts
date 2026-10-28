@@ -28,8 +28,8 @@ describe('Economy', () => {
       expect(canBuy(s, { type: 'secondary', id: 'mk82' }).ok).toBe(true);
     });
 
-    it('rejects gun and equipment upgrades at max level', () => {
-      const s = { ...rich(), gunLevel: 5 as const, equipment: { ...defaultSave().equipment, armor: 3, ecm: 1 } };
+    it('rejects gun and equipment upgrades at the map-1 top level (doc 43)', () => {
+      const s = { ...rich(), gunLevel: 7 as const, equipment: { ...defaultSave().equipment, armor: 4, ecm: 2 } };
       expect(canBuy(s, { type: 'gun' })).toEqual({ ok: false, reason: 'max-level' });
       expect(canBuy(s, { type: 'equipment', id: 'armor' })).toEqual({ ok: false, reason: 'max-level' });
       expect(canBuy(s, { type: 'equipment', id: 'ecm' })).toEqual({ ok: false, reason: 'max-level' });

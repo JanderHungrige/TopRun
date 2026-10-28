@@ -3,9 +3,10 @@ import { SECONDARIES, type WeaponRole } from '../data/weapons';
 
 // Cockpit logic (doc 05): what the radar shows, which buttons are lit, which warning lamps burn. Pure.
 
-export const RADAR_RANGE = 720;
-export const EARLY_RANGE = 1100;
-export const EARLY_WINDOW = 4;
+import { atLevel, RADAR_AHEAD, RADAR_RANGE as RANGES } from '../data/equipment';
+
+export const RADAR_RANGE = atLevel(RANGES, 0);
+export const EARLY_RANGE = atLevel(RANGES, 1);
 export const EARLY_SPEED = 140;
 export const MISSILE_ALERT_RANGE = 260;
 
@@ -27,10 +28,13 @@ export interface RadarInput {
   upcoming: ReadonlyArray<{ dt: number; x: number }>;
 }
 
-export const radarRange = (early: boolean): number => (early ? EARLY_RANGE : RADAR_RANGE);
+/** Scope range for an Early-Warning Radar level 0–2 (docs 05, 43). */
+export const radarRange = (level: number): number => atLevel(RANGES, level);
 
-export function radarContacts(input: RadarInput, early: boolean): Contact[] {
-  const range = radarRange(early);
+/** Contacts on the scope; with the Early-Warning Radar (level ≥ 1) spawns due in the next 4 / 7 s show ahead. */
+export function radarContacts(input: RadarInput, level: number): Contact[] {
+  const range = radarRange(level);
+  const window = atLevel(RADAR_AHEAD, level);
   const out: Contact[] = [];
   const add = (x: number, y: number, kind: ContactKind): void => {
     const nx = (x - input.player.x) / range;
@@ -40,10 +44,8 @@ export function radarContacts(input: RadarInput, early: boolean): Contact[] {
   for (const e of input.enemies) if (!e.dead) add(e.x, e.y, e.layer);
   if (input.boss) add(input.boss.x, input.boss.y, 'boss');
   for (const m of input.missiles) if (m.enemy) add(m.x, m.y, 'missile');
-  if (early) {
-    for (const u of input.upcoming) {
-      if (u.dt >= 0 && u.dt <= EARLY_WINDOW) add(u.x, -60 - u.dt * EARLY_SPEED, 'upcoming');
-    }
+  for (const u of input.upcoming) {
+    if (window > 0 && u.dt >= 0 && u.dt <= window) add(u.x, -60 - u.dt * EARLY_SPEED, 'upcoming');
   }
   return out;
 }

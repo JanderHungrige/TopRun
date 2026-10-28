@@ -5,6 +5,7 @@ import { liveryName } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
+import { buyMark, canBuyMark, markOf } from '../game/arsenal';
 import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
@@ -14,7 +15,7 @@ import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { itemAction, itemName, tabs, twinAction } from './hangar-items';
+import { itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
@@ -58,7 +59,25 @@ export class HangarScene implements Scene {
     const item = this.item;
     const a = item ? twinAction(this.game.save, item) : null;
     if (!a) return null;
-    return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 214, y: DETAIL.y + 452, w: 196, h: 32, hint: 'E' };
+    return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 254, y: DETAIL.y + 452, w: 236, h: 32, hint: 'E' };
+  }
+
+  /** UPGRADE to the next mark for an owned weapon (doc 43), above TWIN PODS. */
+  private markButton(): Button | null {
+    const item = this.item;
+    const a = item ? markAction(this.game.save, item) : null;
+    if (!a) return null;
+    return { id: 'mark', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 254, y: DETAIL.y + 412, w: 236, h: 32, hint: 'U' };
+  }
+
+  private buyMarkFocused(): void {
+    const item = this.item;
+    if (item?.type !== 'secondary' || !markAction(this.game.save, item)) return;
+    const check = canBuyMark(this.game.save, item.id);
+    if (!check.ok) return this.say(t(check.reason === 'insufficient-funds' ? 'hangar.cannotBuy' : 'hangar.maxed'), false);
+    const next = buyMark(this.game.save, item.id);
+    this.commit(next, t('arsenal.markBought', { item: itemName(item), mark: markName(markOf(next, item.id)) }));
+    this.chief.bought(item);
   }
 
   private buyTwinFocused(): void {
@@ -89,6 +108,7 @@ export class HangarScene implements Scene {
     if (input.pressed('confirm')) this.doAction();
     if (input.pressed('secondary')) this.unmountFocused();
     if (input.pressed('special')) this.buyTwinFocused();
+    if (input.pressed('upgrade')) this.buyMarkFocused();
     for (const tap of input.taps) this.handleTap(tap);
   }
 
@@ -105,6 +125,8 @@ export class HangarScene implements Scene {
     if (action && action.enabled !== false && hit(p, action)) this.doAction();
     const twin = this.twinButton();
     if (twin && twin.enabled !== false && hit(p, twin)) this.buyTwinFocused();
+    const mark = this.markButton();
+    if (mark && mark.enabled !== false && hit(p, mark)) this.buyMarkFocused();
     if (this.tab === 1) {
       slotRects(PLANES[this.game.save.selectedPlane].hardpoints).forEach((r, i) => {
         if (hit(p, r)) this.clickSlot(i);
@@ -253,6 +275,8 @@ export class HangarScene implements Scene {
     drawButton(ctx, b, b.enabled !== false, this.t);
     const twin = this.twinButton();
     if (twin) drawButton(ctx, twin, false, this.t);
+    const mark = this.markButton();
+    if (mark) drawButton(ctx, mark, false, this.t);
     const note = itemAction(this.game.save, item).note;
     if (note && this.toastTime <= 0) text(ctx, note, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 14, color: COLORS.red, maxWidth: DETAIL.w - 340 });
   }

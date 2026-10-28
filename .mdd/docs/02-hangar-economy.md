@@ -54,6 +54,11 @@ sister_projects: []
 
 # 02 — Hangar & Economy
 
+> **2026-10-28 update (Deep Arsenal, doc 43; owner: "everything is already maxed out"):** gun levels 1–10 (map 1:
+> 1–7, map 2: 8–10; level 4 now 14,000, level 5 26,000), **uranium ammo** (WEAPONS tab, levels 1–3), **Mk II / Mk III**
+> for every missile, rocket pod and bomb (UPGRADE button, key U), and more levels for all seven pieces of equipment,
+> each dearer than the one before. Doc 43 has the tables; the tables below are the original map-1 shop. Each map's
+> shop now costs about what the map pays out (map 1 ≈ 660,000).
 > **2026-10-28 update (owner: *"merge hangar and base … The current Hangar becomes the Loadout"*):** the pixel-art
 > BASE (doc 30) is the hangar now, so this shop screen is shown as **LOADOUT** (in German too: AUSRÜSTUNG is already
 > the equipment tab; route and code keep the id `hangar`). Its single MAP button at the top right becomes two exits side by side: **BASE** (key B →
@@ -181,8 +186,9 @@ None.
   - failure: `total = floor(collected × 0.5)` ("salvage"), no base, no bonuses.
   - all amounts rounded to whole dollars.
 - **Stars**: 0 on failure; else 1 + (hullRatio ≥ 0.7) + (killRatio ≥ 0.8). Progress keeps the best.
-- Starting money 2,000; economy is tuned so the whole shop (~250k) costs about one full
-  campaign plus some replays.
+- Starting money 2,000. The original tuning ("the whole shop (~250k) costs about one full campaign plus some
+  replays") left the map-1 shop bought out by about m23 (bounties are more than half of the income); since doc 43 the
+  map-1 shop costs ≈ 660,000, about what map 1 pays.
 
 - **Talking character (06):** chief (crew chief comments on browsing and purchases). All visible text goes through i18n (07).
 

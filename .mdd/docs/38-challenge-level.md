@@ -28,7 +28,7 @@ models:
 test_files:
   - tests/unit/challenge.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-27
+last_synced: 2026-10-28
 status: complete
 phase: all
 mdd_version: 11
@@ -62,8 +62,9 @@ mission id, outcome (`win` / `down` / `abort`), hull left (0–1), kill share (k
 take-off, the challenge level flown and the time. It travels with the cloud save (doc 34), so the owner can look at
 real play data. Wave 3 (doc 39) adds accuracy and power-ups to it.
 
-**Kit score** (pure, `kitScore(save)`): gun level × 10, second gun level × 10, the sum of equipment levels × 5, owned
-weapons × 4, twin pods × 4, the selected jet's price ÷ 10,000. Anything bought raises it.
+**Kit score** (pure, `kitScore(save)`): gun level × 10, second gun level × 10, uranium ammo level × 10 (doc 43), the
+sum of equipment levels × 5, owned weapons × 4, every weapon mark above Mk I × 4 (doc 43), twin pods × 4, the selected
+jet's price ÷ 10,000. Anything bought raises it.
 
 ## Challenge level
 

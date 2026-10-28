@@ -5,10 +5,10 @@ import { GUN2_PRICES, MAP1_GUN_LEVEL, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
-// Map-2 firepower (doc 37): the second gun and twin pods of the new jets, gun levels 6–8 and equipment levels
-// beyond today's caps for the old ones, two heavy weapons — all on sale only once map 2 is open.
+// Map-2 firepower (doc 37): the second gun and twin pods of the new jets, gun levels 8–10 and equipment levels
+// beyond the map-1 caps for the old ones, two heavy weapons — all on sale only once map 2 is open (doc 43).
 
-/** Top gun level on sale for this pilot: 5, or 8 once map 2 is open. */
+/** Top gun level on sale for this pilot: 7, or 10 once map 2 is open (doc 43). */
 export const gunCap = (save: SaveData): number => (mapTwoOpen(save) ? MAX_GUN_LEVEL : MAP1_GUN_LEVEL);
 
 /** Top level of a piece of equipment on sale for this pilot. */
@@ -21,13 +21,12 @@ export const weaponOnSale = (save: SaveData, id: SecondaryId): boolean => SECOND
 /** The A-10, F-35 and Tornado carry the second gun and twin pods. */
 export const doubleFirepower = (plane: PlaneId): boolean => PLANES[plane].campaign === 2;
 
-/** A jet's main gun level: the new jets stop at 5 (they get the second gun instead). */
+/** A jet's main gun level: the new jets stop at 7 (they get the second gun instead, doc 43). */
 export const jetGunLevel = (plane: PlaneId, gunLevel: number): number =>
   (doubleFirepower(plane) ? Math.min(MAP1_GUN_LEVEL, gunLevel) : gunLevel);
 
-/** Highest level a power-up lifts the main gun to: 5 as today, 8 once the gun is past 5 (old jets only). */
-export const powerCap = (plane: PlaneId, gunLevel: number): number =>
-  (!doubleFirepower(plane) && gunLevel > MAP1_GUN_LEVEL ? MAX_GUN_LEVEL : MAP1_GUN_LEVEL);
+/** Highest level a power-up lifts the main gun to: the top of the table, 7 for a new jet's main gun (doc 43). */
+export const powerCap = (plane: PlaneId): number => (doubleFirepower(plane) ? MAP1_GUN_LEVEL : MAX_GUN_LEVEL);
 
 /** Price of the second gun's next level, or null when it is at the top. */
 export const gun2Price = (level: number): number | null => (level >= MAX_GUN2_LEVEL ? null : GUN2_PRICES[level] ?? null);

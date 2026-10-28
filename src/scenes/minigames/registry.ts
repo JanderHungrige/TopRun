@@ -5,6 +5,7 @@ import type { MinigameModule } from './contract';
 import { EVASION } from './evasion';
 import { FLYBY } from './flyby';
 import { FORMATION } from './formation';
+import { HIGHFIVE } from './highfive';
 import { LANDING } from './landing';
 import { MOTORBIKE } from './motorbike';
 import { PIANO } from './piano';
@@ -27,6 +28,7 @@ export const PLAYABLE: readonly MinigameModule[] = [
   LANDING,
   TACTICS,
   RANKS,
+  HIGHFIVE,
 ];
 
 export const playableIds = (): MinigameId[] => PLAYABLE.map((m) => m.id);

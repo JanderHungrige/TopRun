@@ -1,6 +1,7 @@
 import { createRng, type Rng } from '../core/rng';
 import { lerp } from '../core/math';
 import { ENEMIES, isAir } from '../data/enemies';
+import { miniBosses, reinforcements } from '../data/reinforcements';
 import type { Behavior, BossId, CampaignId, EnemyKind, MissionDef } from '../data/types';
 
 /** Playfield size in world units; world x is local to the playfield. */
@@ -15,7 +16,14 @@ export type SpawnEvent =
 
 type EnemyEvent = Extract<SpawnEvent, { type: 'enemy' }>;
 
-const WEIGHT: Readonly<Partial<Record<EnemyKind, number>>> = { bear: 0.35, flanker: 0.6, destroyer: 0.35, depot: 0.7, radar: 0.7 };
+/** Wave weights (default 1); doc 44's reinforcements come rarely, as surprises. */
+const WEIGHT: Readonly<Partial<Record<EnemyKind, number>>> = {
+  bear: 0.35, flanker: 0.6, destroyer: 0.35, depot: 0.7, radar: 0.7,
+  shilka: 0.4, bunker: 0.35, foxbat: 0.35, jammer: 0.15, frigate: 0.3, felon: 0.25,
+};
+
+/** Big or rare aircraft come alone (two from difficulty 20, the jammer always alone); the Foxbat comes as a pair. */
+const SOLO_AIR: readonly EnemyKind[] = ['bear', 'flanker', 'felon', 'jammer'];
 
 function weightedPick(rng: Rng, kinds: readonly EnemyKind[]): EnemyKind {
   const total = kinds.reduce((s, k) => s + (WEIGHT[k] ?? 1), 0);
@@ -33,8 +41,12 @@ const enemy = (t: number, kind: EnemyKind, x: number, behavior: Behavior): Enemy
 function airFormation(rng: Rng, t: number, kind: EnemyKind, extra: number): EnemyEvent[] {
   const behaviors = ENEMIES[kind].behaviors;
   const behavior = rng.pick(behaviors);
-  if (kind === 'bear' || kind === 'flanker') {
-    return Array.from({ length: 1 + (extra > 1 ? 1 : 0) }, (_, i) => enemy(t + i * 1.2, kind, rng.range(120, 520), behavior));
+  if (SOLO_AIR.includes(kind)) {
+    return Array.from({ length: 1 + (extra > 1 && kind !== 'jammer' ? 1 : 0) }, (_, i) => enemy(t + i * 1.2, kind, rng.range(120, 520), behavior));
+  }
+  if (kind === 'foxbat') {
+    const x = rng.range(140, 500);
+    return [enemy(t, kind, x - 34, behavior), enemy(t + 0.15, kind, x + 34, behavior)];
   }
   if (kind === 'drone') {
     const n = 5 + extra * 2;
@@ -54,7 +66,7 @@ function airFormation(rng: Rng, t: number, kind: EnemyKind, extra: number): Enem
 }
 
 /** Heavy ground units come alone; a wave of three destroyers is a wall, not a fight. */
-const HEAVY: readonly EnemyKind[] = ['destroyer'];
+const HEAVY: readonly EnemyKind[] = ['destroyer', 'frigate'];
 
 function groundCluster(rng: Rng, t: number, kinds: readonly EnemyKind[], extra: number): EnemyEvent[] {
   const n = 1 + rng.int(0, 1) + (extra > 1 ? 1 : 0);
@@ -69,9 +81,9 @@ function groundCluster(rng: Rng, t: number, kinds: readonly EnemyKind[], extra: 
   return out;
 }
 
-function addWave(out: SpawnEvent[], rng: Rng, m: MissionDef, t: number): void {
-  const air = m.pool.filter(isAir);
-  const ground = m.pool.filter((k) => !isAir(k));
+function addWave(out: SpawnEvent[], rng: Rng, m: MissionDef, pool: readonly EnemyKind[], t: number): void {
+  const air = pool.filter(isAir);
+  const ground = pool.filter((k) => !isAir(k));
   const extra = Math.floor(m.difficulty / 10);
   const onlyHeavy = ground.length > 0 && ground.every((k) => HEAVY.includes(k));
   const useAir = ground.length === 0 || (air.length > 0 && rng.chance(onlyHeavy ? 0.85 : 0.62));
@@ -109,6 +121,15 @@ function ensureObjective(out: SpawnEvent[], rng: Rng, m: MissionDef): void {
   }
 }
 
+/** Every reinforcement (doc 44) shows up at least once per mission, spread over its length. */
+function ensureNewFaces(out: SpawnEvent[], rng: Rng, m: MissionDef, kinds: readonly EnemyKind[]): void {
+  const missing = kinds.filter((k) => countEnemies(out, (x) => x === k) === 0);
+  missing.forEach((kind, i) => {
+    const t = lerp(8, m.length - 8, (i + 0.5) / missing.length);
+    out.push(enemy(t, kind, rng.range(X_MIN + 60, X_MAX - 60), rng.pick(ENEMIES[kind].behaviors)));
+  });
+}
+
 /** Deterministic spawn timeline for a mission. */
 /** Seconds between waves: unchanged up to difficulty 30, then down to a floor of 1.1 at 60 (doc 35). */
 export function waveGap(difficulty: number): number {
@@ -120,8 +141,13 @@ export function generateTimeline(m: MissionDef): SpawnEvent[] {
   const events: SpawnEvent[] = [];
   const gap = waveGap(m.difficulty);
   const end = m.length - 4;
-  for (let t = 2.5; t < end; t += gap * rng.range(0.75, 1.25)) addWave(events, rng, m, t);
+  // Reinforcements join the waves only on a layer the mission already has: an all-air intercept stays in the air.
+  const layers = new Set(m.pool.map(isAir));
+  const pool = [...m.pool, ...reinforcements(m).filter((k) => layers.has(isAir(k)))];
+  for (let t = 2.5; t < end; t += gap * rng.range(0.75, 1.25)) addWave(events, rng, m, pool, t);
   ensureObjective(events, rng, m);
+  ensureNewFaces(events, rng, m, reinforcements(m));
+  for (const mb of miniBosses(m)) events.push(enemy(m.length * mb.at, mb.kind, PF_W / 2, ENEMIES[mb.kind].behaviors[0] ?? 'ground'));
   const capped = events.filter((e) => e.t < m.length);
   if (m.objective.type === 'boss') capped.push({ type: 'boss', t: m.length, boss: m.objective.boss });
   return capped.sort((a, b) => a.t - b.t);

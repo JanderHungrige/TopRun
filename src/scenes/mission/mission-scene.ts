@@ -1,12 +1,14 @@
 import { approach } from '../../core/math';
 import type { Scene } from '../../core/scene';
 import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types';
+import { isMiniBoss } from '../../data/reinforcements';
+import { holdsScroll, jamming, MINI_HOLD_SCROLL } from '../../game/adversaries';
 import { missionTuning } from '../../game/challenge';
 import { hitScale } from '../../game/combat';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
-import { bossTitle, missionName, objectiveText } from '../../i18n/content';
+import { bossTitle, enemyName, missionName, objectiveText } from '../../i18n/content';
 import { getLang, t } from '../../i18n/i18n';
 import { COLORS, text } from '../../render/text';
 import { pilotContext } from '../../ui/speech';
@@ -147,7 +149,9 @@ export class MissionScene implements Scene {
     fireWingman(w, p, dt);
     const dashing = p.specialActive > 0 && p.stats.plane.special === 'dash';
     const holdForBoss = w.boss?.def.id === 'sandstorm' && w.boss.phase !== 'enter';
-    w.scrollMul = approach(w.scrollMul, dashing ? 3 : holdForBoss ? 0 : 1, dt * 3);
+    const hold = holdForBoss ? 0 : holdsScroll(w.enemies, PF_H, isMiniBoss) ? MINI_HOLD_SCROLL : 1;
+    w.scrollMul = approach(w.scrollMul, dashing ? 3 : hold, dt * 3);
+    w.jammed = jamming(w.enemies, PF_H);
     this.spawnEvents();
     w.terrain.update(dt, w.scrollSpeed);
     for (const wr of w.wrecks) wr.y += w.scrollSpeed * dt;
@@ -164,15 +168,22 @@ export class MissionScene implements Scene {
   private spawnEvents(): void {
     const w = this.world;
     for (let ev = w.timeline[w.nextEvent]; ev && ev.t <= w.t; ev = w.timeline[++w.nextEvent]) {
-      if (ev.type === 'enemy') spawnEnemy(w, ev.kind, ev.x, ev.behavior);
-      else {
+      if (ev.type === 'enemy') {
+        spawnEnemy(w, ev.kind, ev.x, ev.behavior);
+        if (isMiniBoss(ev.kind)) this.warn(t('mission.miniBoss', { name: enemyName(ev.kind) }), enemyName(ev.kind));
+      } else {
         w.boss = new Boss(ev.boss, w.mission.difficulty, w.ease);
-        this.banner = { title: t('mission.warning'), sub: t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), color: COLORS.red, time: 3 };
-        this.radio.bossWarning(w.boss.def.name);
-        this.game.audio.play('warning');
+        this.warn(t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), w.boss.def.name);
         this.game.music.play('boss');
       }
     }
+  }
+
+  /** WARNING banner, siren and the wingman's call: a boss or a mini-boss (doc 44) is coming. */
+  private warn(sub: string, name: string): void {
+    this.banner = { title: t('mission.warning'), sub, color: COLORS.red, time: 3 };
+    this.game.audio.play('warning');
+    this.radio.bossWarning(name);
   }
 
   /** Every enemy hit lands here; its damage grows with the mission's difficulty (doc 43). */

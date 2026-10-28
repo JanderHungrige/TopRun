@@ -225,6 +225,14 @@ export const LINES_EN = {
     "Big bogey inbound! That's {boss}!",
     "Heads up! {boss}, dead ahead!",
   ],
+  'wing.jammer': [
+    "Jammer on the scope! My radar's all snow. Take it out first!",
+    "That's an EW bird jamming us. Missiles are half blind till it's down!",
+  ],
+  'wing.stealth': [
+    "Stealth fighter out there! Watch for the shimmer, missiles won't lock.",
+    "Felon in the area. Can't see it on radar. Eyes open, guns ready!",
+  ],
   'wing.hullLow': [
     "You're trailing smoke! Careful!",
     "You're hit bad! Grab a repair kit if you see one!",

@@ -46,7 +46,7 @@ export const EQUIPMENT: Readonly<Record<EquipmentId, EquipmentDef>> = Object.fre
   },
   radar: {
     id: 'radar', name: 'Early-Warning Radar', description: 'Longer radar range: see bandits on the scope before they arrive.',
-    prices: [8000, 18000], levelText: ['Bandits on radar 4 s earlier', 'Bandits on radar 7 s earlier, range 1,400 px'],
+    prices: [8000, 18000], levelText: ['Bandits on radar 4 s earlier', 'Bandits on radar 7 s earlier, range 1,400 px, shows stealth fighters'],
   },
 });
 

@@ -23,11 +23,13 @@ export interface DamageContext {
   ground?: number;
   /** Share of enemy bullet / flak damage that gets through the ECM pod (1 = no pod, doc 43). */
   ecm?: number;
+  /** The target's armour against the gun (the hardened bunker 0.5, doc 44); the GAU-8 ignores it. */
+  armor?: number;
 }
 
 export function applyDamage(base: number, c: DamageContext): number {
   switch (c.source) {
-    case 'gun': return c.targetLayer === 'ground' ? base * (c.ground ?? GROUND_GUN_FACTOR) : base;
+    case 'gun': return (c.targetLayer === 'ground' ? base * (c.ground ?? GROUND_GUN_FACTOR) : base) * (c.armor ?? 1);
     case 'enemyBullet':
     case 'flak': return base * (c.ecm ?? 1);
     case 'cannon':

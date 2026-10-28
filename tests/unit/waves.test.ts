@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { generateTimeline, PF_W, type SpawnEvent } from '../../src/game/waves';
 import { MISSIONS } from '../../src/data/missions';
 import { isAir } from '../../src/data/enemies';
+import { miniBosses, reinforcements } from '../../src/data/reinforcements';
 
 const enemies = (events: SpawnEvent[]) => events.flatMap((e) => (e.type === 'enemy' ? [e] : []));
 
@@ -23,10 +24,11 @@ describe('Wave timeline', () => {
       }
     });
 
-    it('only spawns kinds from the mission pool inside the playfield', () => {
+    it('only spawns kinds from the mission pool, its reinforcements and mini-bosses inside the playfield', () => {
       for (const m of MISSIONS) {
+        const allowed = [...m.pool, ...reinforcements(m), ...miniBosses(m).map((x) => x.kind)];
         for (const e of enemies(generateTimeline(m))) {
-          expect(m.pool).toContain(e.kind);
+          expect(allowed).toContain(e.kind);
           expect(e.x).toBeGreaterThanOrEqual(30);
           expect(e.x).toBeLessThanOrEqual(PF_W - 30);
         }

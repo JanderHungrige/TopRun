@@ -8,6 +8,10 @@ export interface EnemyDef {
   speed: number;
   radius: number;
   bounty: number;
+  /** Extra factor on gun damage (the hardened bunker, doc 44); default 1. */
+  armor?: number;
+  /** Stealth: hidden from radar and missile locks until it fires (doc 44). */
+  stealth?: boolean;
   weapon: EnemyWeapon;
   period: number;
   weapon2: EnemyWeapon;
@@ -35,6 +39,17 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   depot: def('depot', 'Fuel Depot', 'ground', 120, 0, 26, 80, 'none', 0, ['ground']),
   boat: def('boat', 'Patrol Boat', 'ground', 70, 50, 18, 50, 'aimed', 2.4, ['ground']),
   destroyer: def('destroyer', 'Destroyer', 'ground', 420, 25, 50, 250, 'aimed', 1.4, ['ground'], 'missile', 5),
+  // New adversaries (doc 44).
+  shilka: def('shilka', 'ZSU-23-4 Shilka', 'ground', 75, 30, 16, 50, 'aimed', 1.4, ['ground'], 'flak', 3.8),
+  bunker: { ...def('bunker', 'Hardened Bunker', 'ground', 160, 0, 20, 70, 'spread3', 2.4, ['ground']), armor: 0.5 },
+  foxbat: def('foxbat', 'MiG-25 Foxbat', 'air', 90, 400, 22, 80, 'missile', 2.6, ['straight']),
+  jammer: def('jammer', 'Il-22 Jammer', 'air', 260, 60, 30, 160, 'none', 0, ['straight']),
+  frigate: def('frigate', 'Missile Frigate', 'ground', 300, 25, 34, 180, 'missile', 3.6, ['ground'], 'flak', 2.2),
+  felon: { ...def('felon', 'Su-57 Felon', 'air', 150, 210, 22, 120, 'missile', 3.4, ['strafe'], 'aimed', 1.8), stealth: true },
+  // Mini-bosses (doc 44).
+  backfire: def('backfire', 'Tu-22M Backfire', 'air', 2000, 70, 44, 900, 'spread3', 1.8, ['loiter'], 'missile', 3.5),
+  fortress: def('fortress', 'AA Fortress', 'ground', 2200, 0, 64, 1000, 'flak', 1.6, ['ground'], 'missile', 3.4),
+  cruiser: def('cruiser', 'Missile Cruiser', 'ground', 2300, 20, 60, 1100, 'missile', 3.2, ['ground'], 'flak', 1.7),
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(
@@ -46,4 +61,4 @@ export function isAir(kind: EnemyKind): boolean {
 }
 
 /** Sea units only make sense on water theaters; land units on land. Used by the wave generator. */
-export const SEA_KINDS: readonly EnemyKind[] = Object.freeze(['boat', 'destroyer'] as const);
+export const SEA_KINDS: readonly EnemyKind[] = Object.freeze(['boat', 'destroyer', 'frigate', 'cruiser'] as const);

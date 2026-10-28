@@ -148,6 +148,11 @@ interface MissionResult { missionId; success; takeoff: TakeoffRating; kills; spa
 | boat | ground (sea) | 70 | 50 | 50 | aimed 2.4 | ground |
 | destroyer | ground (sea) | 420 | 25 | 250 | aimed 1.4 + missile 5 | ground |
 
+**New adversaries (doc 44):** six more types — ZSU-23-4 Shilka, hardened bunker (half gun damage), MiG-25 Foxbat,
+Il-22 Jammer (radar static, player missiles turn at half rate), missile frigate, Su-57 Felon (stealth: no radar
+contact or missile lock until it fires) — join the pools from the Gulf on, and three mini-bosses (Tu-22M Backfire, AA
+fortress, missile cruiser) come halfway through non-boss missions from the Arctic on.
+
 Difficulty scaling (d = mission difficulty incl. the challenge level): HP × (1 + 0.06 (d−1) + 0.003 (d−1)²) (threat
 curve, doc 43), fire period ÷ (1 + 0.03 (d−1)), bullet speed × (1 + 0.015 (d−1)), bounty × (1 + 0.03 (d−1)); every
 enemy hit on the player (bullet 8, flak 12, missile 22, collision 25) × (1 + 0.02 (d−1)) (doc 43).

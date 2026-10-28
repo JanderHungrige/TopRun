@@ -1,7 +1,8 @@
-import { ENEMIES, isAir } from '../data/enemies';
+import { ENEMIES, isAir, SEA_KINDS } from '../data/enemies';
 import type { EnemyKind } from '../data/types';
 import { GROUND_UNITS, monoPal, type Pal, type UnitFn } from './draw-ground-units';
 import { AIR_UNITS } from './enemies/air-units';
+import { GROUND_UNITS_2 } from './enemies/ground-2';
 import { fire, hash, scorch, smoke } from './enemies/fx';
 import { ellipse } from './shapes';
 
@@ -20,6 +21,7 @@ const AIR = pal('#7a8288', '#4b5258', '#9aa2a8', '#5f666c');
 
 const PALS: Readonly<Record<EnemyKind, Pal>> = {
   drone: AIR, fishbed: AIR, fulcrum: AIR, flanker: AIR, hind: AIR, bear: AIR,
+  foxbat: AIR, felon: AIR, jammer: AIR, backfire: AIR,
   aa: pal('#b5a274', '#3f3b2e', '#cdbd8e', '#59633f'),
   sam: pal('#8e8d85', '#4a5436', '#a9a89f', '#5d6844'),
   tank: pal('#5d6838', '#3a4123', '#7b8850', '#2c2f24'),
@@ -27,12 +29,18 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   depot: pal('#c6c8c0', '#6d6f69', '#e4e6e0', '#7b7869'),
   boat: pal('#8e98a0', '#4f5960', '#b0b9bf', '#3d454b', '#22303a'),
   destroyer: pal('#7f8a92', '#4f5961', '#a7b0b7', '#3d454b', '#22303a'),
+  // Doc 44.
+  shilka: pal('#66703f', '#3a4123', '#86925a', '#2c2f24'),
+  bunker: pal('#a3a196', '#5d5c55', '#c4c2b6', '#6f6d63'),
+  frigate: pal('#86919a', '#4f5961', '#aab3ba', '#3d454b', '#22303a'),
+  fortress: pal('#b6a57c', '#5b5242', '#d0c19a', '#7c7058'),
+  cruiser: pal('#7a858e', '#4a545c', '#a2abb2', '#3a4248', '#22303a'),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
 const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312'), red: '#3b2a22', line: 'rgba(0,0,0,0.55)', live: false };
 
-const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS };
+const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2 };
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();
 
@@ -74,7 +82,7 @@ export function drawEnemy(ctx: CanvasRenderingContext2D, kind: EnemyKind, x: num
 export function drawWreck(ctx: CanvasRenderingContext2D, kind: EnemyKind, x: number, y: number, t: number): void {
   const r = ENEMIES[kind].radius;
   const seed = hash(Math.round(x) * 0.37 + r) * 100;
-  const sea = kind === 'boat' || kind === 'destroyer';
+  const sea = SEA_KINDS.includes(kind);
   ctx.save();
   ctx.translate(x, y);
   ctx.lineWidth = 0.8;

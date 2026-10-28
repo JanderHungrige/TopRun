@@ -30,12 +30,17 @@ export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
 
 export type EnemyKind =
   | 'drone' | 'fishbed' | 'fulcrum' | 'flanker' | 'hind' | 'bear'
-  | 'aa' | 'sam' | 'tank' | 'radar' | 'depot' | 'boat' | 'destroyer';
+  | 'aa' | 'sam' | 'tank' | 'radar' | 'depot' | 'boat' | 'destroyer'
+  // New adversaries and the three mini-bosses (doc 44).
+  | 'shilka' | 'bunker' | 'foxbat' | 'jammer' | 'frigate' | 'felon'
+  | 'backfire' | 'fortress' | 'cruiser';
 
 export type Layer = 'air' | 'ground';
 
 export type Behavior =
-  | 'straight' | 'sine' | 'dive' | 'swoop' | 'strafe' | 'hover' | 'kamikaze' | 'ground';
+  | 'straight' | 'sine' | 'dive' | 'swoop' | 'strafe' | 'hover' | 'kamikaze' | 'ground'
+  /** The Backfire mini-boss: holds the top of the screen, then leaves (doc 44). */
+  | 'loiter';
 
 export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak';
 

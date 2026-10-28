@@ -42,7 +42,7 @@ export interface LeftConsoleView {
   plane: PlaneId;
   planeName: string;
   callsign: string;
-  radar: { contacts: readonly Contact[]; early: boolean };
+  radar: { contacts: readonly Contact[]; early: boolean; jammed: boolean };
   hull: { ratio: number; value: number; max: number };
   /** `level` 1–8 (6–8 light cyan over the green row), `level2` the second gun, 0 = none (doc 37). */
   cannon: { level: number; level2: number; powered: boolean; powerRatio: number };

@@ -5,7 +5,7 @@ import { lampsLive } from './lamps';
 import { LEFT, RIGHT } from './layout';
 import { missionLive } from './mission';
 import { buildLeft, buildRight } from './plates';
-import { radarLive } from './radar';
+import { radarJammed, radarLive } from './radar';
 import { storesLive } from './screens';
 import type { CockpitLabels, LeftConsoleView, RightConsoleView } from './types';
 
@@ -63,6 +63,7 @@ export function drawLeftConsole(ctx: CanvasRenderingContext2D, v: LeftConsoleVie
   const key = `${v.plane}|${v.planeName}|${v.callsign}|${keyOfLabels(v.labels)}`;
   blitPlate(ctx, leftCache, key, LEFT.panel.x, (o) => buildLeft(o, v));
   radarLive(ctx, LEFT.radar, v.radar.contacts, v.radar.early, v.labels.early, t);
+  if (v.radar.jammed) radarJammed(ctx, LEFT.radar, t);
   hullLive(ctx, LEFT.hull, v.hull);
   cannonLive(ctx, LEFT.cannon, v.cannon, t);
   storesLive(ctx, LEFT.stores, v.stores, v.labels.noStores, v.swap);

@@ -21,11 +21,14 @@ export interface Contact {
 
 export interface RadarInput {
   player: { x: number; y: number };
-  enemies: ReadonlyArray<{ x: number; y: number; layer: Layer; dead: boolean }>;
+  /** `hidden`: a cloaked stealth fighter, shown only by Early-Warning Radar level 2 (doc 44). */
+  enemies: ReadonlyArray<{ x: number; y: number; layer: Layer; dead: boolean; hidden?: boolean }>;
   boss: { x: number; y: number } | null;
   missiles: ReadonlyArray<{ x: number; y: number; enemy: boolean }>;
   /** Timeline spawns not yet in the world: seconds until they appear and where. */
   upcoming: ReadonlyArray<{ dt: number; x: number }>;
+  /** A jammer is on screen: the scope shows nothing but static (doc 44). */
+  jammed?: boolean;
 }
 
 /** Scope range for an Early-Warning Radar level 0–2 (docs 05, 43). */
@@ -35,13 +38,14 @@ export const radarRange = (level: number): number => atLevel(RANGES, level);
 export function radarContacts(input: RadarInput, level: number): Contact[] {
   const range = radarRange(level);
   const window = atLevel(RADAR_AHEAD, level);
+  if (input.jammed) return [];
   const out: Contact[] = [];
   const add = (x: number, y: number, kind: ContactKind): void => {
     const nx = (x - input.player.x) / range;
     const ny = (y - input.player.y) / range;
     if (nx * nx + ny * ny <= 1) out.push({ x: nx, y: ny, kind });
   };
-  for (const e of input.enemies) if (!e.dead) add(e.x, e.y, e.layer);
+  for (const e of input.enemies) if (!e.dead && (!e.hidden || level >= 2)) add(e.x, e.y, e.layer);
   if (input.boss) add(input.boss.x, input.boss.y, 'boss');
   for (const m of input.missiles) if (m.enemy) add(m.x, m.y, 'missile');
   for (const u of input.upcoming) {

@@ -1,9 +1,9 @@
 ---
 id: arsenal-and-adversaries
 title: Arsenal and Adversaries
-status: in_progress
+status: complete
 version: 1
-hash: bb1cf7fc
+hash: a1dc018e
 created: 2026-10-28
 ---
 
@@ -64,4 +64,4 @@ Balance is justified by bot playtests (doc 35 method) and written into the docs 
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/arsenal-and-adversaries-wave-1.md | A map-1 pilot can buy gun levels 6–7, uranium ammo, Mk II weapons and new equipment levels at rising prices; later missions hit harder and need them; the Pacific plays as today. | complete |
-| Wave 2 | waves/arsenal-and-adversaries-wave-2.md | From the Gulf on, every theater brings new enemy types (stealth fighters, interceptors, jammers, bunkers, frigates), and later missions have a mini-boss halfway through. | planned |
+| Wave 2 | waves/arsenal-and-adversaries-wave-2.md | From the Gulf on, every theater brings new enemy types (stealth fighters, interceptors, jammers, bunkers, frigates), and later missions have a mini-boss halfway through. | complete |

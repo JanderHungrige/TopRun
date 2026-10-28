@@ -41,6 +41,15 @@ sister_projects: []
 
 # 10 — Minigames Core
 
+> **2026-10-28 update — ten more games (initiative `off-duty-minigames-2`, wave 1).** `MinigameId` grows by ten,
+> appended after the first ten in unlock order, each unlocking after a map-1 mission that had no unlock yet (owner:
+> "along map 1"): `darts` 2, `highfive` 4, `targetpod` 7, `pool` 8, `ranks` 10, `parachute` 11, `airshow` 14, `deck`
+> 16, `canyon` 20, `dogfight` 27 (kinds: off duty — darts, highfive, pool, ranks, deck; flying — the rest). Nothing
+> else in the rules changes: unbuilt games are not playable (hub: COMING SOON) and never offered; offers, bests and
+> medals take the new ids like the old ones. The pilot rating (doc 26) still counts at most ten minigame medal tiers
+> (`RATING.games`, golds first — the best ten), so more games give more ways to the same cap, not a higher cap; the
+> gold medals of doc 24 (5 and 10 golds) count golds in any of the twenty.
+
 ## Purpose
 
 The shared machinery for the ten off-duty minigames (initiative `off-duty-minigames`): which games

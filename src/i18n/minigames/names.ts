@@ -1,7 +1,7 @@
 import type { MinigameId } from '../../data/minigames';
 import { gameText } from '../minigame-text';
 
-/** The ten minigame names (doc 10); the hub shows locked and unbuilt games too. */
+/** The twenty minigame names (doc 10); the hub shows locked and unbuilt games too. */
 export const MINIGAME_NAMES = gameText<MinigameId>({
   pushups: 'Push-up Challenge',
   flyby: 'Tower Flyby',
@@ -13,6 +13,16 @@ export const MINIGAME_NAMES = gameText<MinigameId>({
   piano: 'Piano Bar',
   landing: 'Carrier Landing',
   tactics: 'Dogfight Tactics',
+  darts: 'Darts',
+  highfive: 'High Five',
+  targetpod: 'Target Pod',
+  pool: 'Pool Table',
+  ranks: 'Rank Quiz',
+  parachute: 'Parachute',
+  airshow: 'Air Show',
+  deck: 'Deck Handler',
+  canyon: 'Canyon Run',
+  dogfight: 'Cockpit Dogfight',
 }, {
   pushups: 'Liegestütz-Duell',
   flyby: 'Tower-Überflug',
@@ -24,4 +34,14 @@ export const MINIGAME_NAMES = gameText<MinigameId>({
   piano: 'Klavierbar',
   landing: 'Trägerlandung',
   tactics: 'Luftkampf-Taktik',
+  darts: 'Darts',
+  highfive: 'High Five',
+  targetpod: 'Zielkamera',
+  pool: 'Billard',
+  ranks: 'Dienstgrad-Quiz',
+  parachute: 'Fallschirm',
+  airshow: 'Flugshow',
+  deck: 'Deck-Rangieren',
+  canyon: 'Canyonflug',
+  dogfight: 'Cockpit-Luftkampf',
 });

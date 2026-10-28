@@ -4,7 +4,7 @@ import { COLORS, text } from '../render/text';
 import type { Rect } from '../ui/widgets';
 import type { MinigameModule } from './minigames/contract';
 
-// BASE hub cards (doc 11).
+// BASE hub cards (doc 11): four rows of five compact cards — icon left, name and status right, medal in the corner.
 
 export type CardState = 'soon' | 'locked' | 'open';
 
@@ -16,13 +16,16 @@ export interface CardView {
   medal: Medal | null;
 }
 
-const CW = 220;
-const CH = 200;
-const GAP = 18;
+const CW = 228;
+const CH = 102;
+const GAP = 14;
+const ROW_STEP = CH + 12;
 const X0 = (1280 - (5 * CW + 4 * GAP)) / 2;
-const ROW_Y = [112, 330];
+const Y0 = 104;
+/** Icon scale on a compact card (icons are drawn within ±40 px). */
+const ICON = 0.85;
 
-export const cardRect = (i: number): Rect => ({ x: X0 + (i % 5) * (CW + GAP), y: ROW_Y[Math.floor(i / 5)] ?? 112, w: CW, h: CH });
+export const cardRect = (i: number): Rect => ({ x: X0 + (i % 5) * (CW + GAP), y: Y0 + Math.floor(i / 5) * ROW_STEP, w: CW, h: CH });
 
 function padlock(ctx: CanvasRenderingContext2D, x: number, y: number): void {
   ctx.strokeStyle = COLORS.dim;
@@ -53,14 +56,20 @@ export function drawCard(ctx: CanvasRenderingContext2D, r: Rect, v: CardView, fo
   ctx.lineWidth = focused ? 3 : 1.5;
   ctx.strokeStyle = focused ? COLORS.gold : COLORS.panelEdge;
   ctx.stroke();
+  const cx = r.x + 52;
+  const cy = r.y + r.h / 2;
   ctx.save();
-  ctx.translate(r.x + r.w / 2, r.y + 72);
+  ctx.translate(cx, cy);
+  ctx.scale(ICON, ICON);
   if (!open) ctx.globalAlpha = 0.35;
   if (v.mod) v.mod.drawIcon(ctx, open ? t : 0);
   else genericIcon(ctx);
   ctx.restore();
-  if (v.state === 'locked') padlock(ctx, r.x + r.w / 2, r.y + 80);
-  text(ctx, v.name, r.x + r.w / 2, r.y + 146, { size: 16, display: true, align: 'center', color: open ? COLORS.ink : COLORS.dim, maxWidth: r.w - 20 });
-  if (v.medal) drawMedal(ctx, v.medal, r.x + 24, r.y + 174, 10);
-  text(ctx, v.status, r.x + r.w / 2 + (v.medal ? 10 : 0), r.y + 179, { size: 13, align: 'center', color: v.state === 'soon' ? COLORS.faint : open ? COLORS.cyan : COLORS.dim, maxWidth: r.w - 60 });
+  if (v.state === 'locked') padlock(ctx, cx, cy + 6);
+  const tx = r.x + 100;
+  const tw = r.w - 108;
+  text(ctx, v.name, tx, r.y + 42, { size: 15, display: true, color: open ? COLORS.ink : COLORS.dim, maxWidth: tw });
+  const statusColor = v.state === 'soon' ? COLORS.faint : open ? COLORS.cyan : COLORS.dim;
+  text(ctx, v.status, tx, r.y + 68, { size: 12, color: statusColor, maxWidth: v.medal ? tw - 24 : tw });
+  if (v.medal) drawMedal(ctx, v.medal, r.x + r.w - 18, r.y + r.h - 18, 9);
 }

@@ -7,9 +7,9 @@ relates: [24-medals-core, 25-medal-ceremony, 26-pilot-rating, 32-picture-wall]
 source_files:
   - src/game/uniform-layout.ts
   - src/scenes/locker.ts
-  - src/render/locker/set.ts
-  - src/render/locker/props.ts
-  - src/render/locker/jacket.ts
+  - src/render/locker/plate.ts
+  - src/assets/locker/locker.png
+  - dev/locker-plate.py
   - src/render/locker/insignia.ts
   - src/render/locker/rack.ts
   - src/render/locker/card.ts
@@ -23,7 +23,7 @@ models: []
 test_files:
   - tests/unit/uniform-layout.test.ts
 data_flow: reads-existing
-last_synced: 2026-10-25
+last_synced: 2026-10-28
 status: complete
 phase: all
 mdd_version: 11
@@ -55,6 +55,9 @@ changes the save.
 
 ## What the screen shows (logical 1280 × 720)
 
+> Since 2026-10-28 the locker and the tunic are the generated locker picture (next section); the description of the
+> code-drawn locker and jacket below is kept for history (that version: git tag `locker-procedural`).
+
 - **Right column**: "LOCKER" (display font, gold) and the counter "7 / 18 MEDALS"; the card; the input hint and a
   pixel **BACK** button at the bottom.
 - **The locker** (left ~800 px, one cached pixel-art layer on the rooms' ≈ 2-logical-px grid): the navy hangar
@@ -82,13 +85,38 @@ changes the save.
   (`cer.group.*`), its ribbon bar and the citation typed out with a block cursor; below, the rank board, the rank
   name (`RANK_KEY`) and "RATING 7,700". With no medals: "NO MEDALS YET" and a hint how to earn them.
 
+## The locker picture (owner, 2026-10-28)
+
+Owner: *"Can you create the uniform in the locker with couch [the ComfyUI tool] as a pixelart? That might improve the
+look."* After four takes and a more pixelated round (*"more Lucas arts"*) the owner picked **locker v4 flat**: the
+generated close-up of the open locker (cap and helmet on the shelf, the tube light, one bare dress-white tunic with a
+stand-up collar on its hanger, closed lockers in shadow on the right; ComfyUI "Top Gun pixel scene 16:9", run 5) put on
+the **320 × 180 grid with 32 flat colours** — the same chunky look as the ceremony (doc 25).
+
+- `dev/locker-plate.py` moves the picture 172 logical px (43 art px) left, so the tunic's centre (x 440) stays left
+  of the card panel, fills the uncovered right edge with the shadow lockers' dark, downscales by area and quantises:
+  `src/assets/locker/locker.png` (9 KB). `src/render/locker/plate.ts` draws it at exactly 4 logical px per art px
+  with hard edges and holds the geometry measured on it.
+- **Measured on the picture** (logical): the tunic's centre line (buttons) x 448, the collar x 388 … 508; the shoulder
+  seams from beside the collar (x 504, top edge y 188 on the right; mirrored on the left) down to the sleeves
+  (x ≈ 600, y ≈ 228) — measured column by column on the right shoulder (the tube light sits behind the left one); breast pockets x 320 … 400 (viewer's left) and 480 … 600 (viewer's right), flaps from
+  y ≈ 330; tube light x 192 … 400 at y 188; the lit inside x 40 … 780.
+- **Shoulder boards** (owner: *"the shoulder insignia are not on the shoulder but hovering"*, then *"still not
+  perfectly aligned"*): they start beside the collar (centre 448 ± 56) with their top edge at y 188 and run 96 px out
+  to the sleeve along the seam's straight slope (dropping 40 px), 16 px deep, on the picture's 4-px grid. Before,
+  they hung at the old jacket's y 162; the first fix assumed centre 440 and started on the collar itself.
+- The code-drawn locker set, props and jacket (`set.ts`, `props.ts`, `jacket.ts`) and the jacket's sway are gone; the
+  tube flicker and the dust motes stay, placed on the picture.
+
 ## Layout (pure, `src/game/uniform-layout.ts`)
 
 `uniformLayout(medals, chest = LOCKER_CHEST)` → `{ slots, wings, top }`:
 
 - Input: the earned medals in catalogue order (`earnedMedals(save, goldCount(save))`) and the chest frame
-  (`LOCKER_CHEST`: left breast x 458 … 606 with the pocket top at 336 and the collar limit at 172; right breast
-  centre 368 with the ribbon bars standing at 308 on the name plate; sizes). **Chest height** (owner,
+  (`LOCKER_CHEST`, measured on the locker picture: left breast x 470 … 606, medals standing at 346 — just over the
+  pocket flap — with the collar limit at 226; medals 48 logical; right breast centre 360 with the ribbon bars standing
+  at 300 on the name plate). The picture's chest is shorter than the old jacket's (≈ 120 px from shoulder to pocket):
+  two rows of medals still stand clear, a full rack (3 + 5 + 5) is court-mounted under the collar. **Chest height** (owner,
   2026-10-26: "the nametag is a bit too low, it is not on chest height"): the breast pockets, name plate, ribbon
   bars and medal rack sit about a third of the way down the tunic (shoulders ≈ 176, hem 632), no longer at its
   middle (pocket top 420 before).
@@ -110,10 +138,9 @@ changes the save.
 
 ## Animation
 
-- **Light flicker**: now and then (deterministic, every few seconds) the tube light drops out for 1–3 frames at
-  15 Hz — the inside of the locker dims and the tube greys.
+- **Light flicker**: now and then (deterministic, every few seconds) the picture's tube light drops out for 1–3
+  frames at 15 Hz — the inside of the locker dims and the tube greys.
 - **Dust** motes drift through the light cone in whole art pixels (hidden while the light is out).
-- **Sway**: the uniform and everything on it shifts by whole art pixels (−1 … +1) on a slow cycle; the hook stays.
 - **Selection**: blinking gold corner brackets, a shine sweep on the selected medal; the card's medal sweeps and
   twinkles; the citation types out again on every new selection (CONFIRM finishes it).
 
@@ -154,6 +181,14 @@ navigation, hit testing); `npm run typecheck` clean; production build OK. Dev se
 BACK, ESC → base; the longest German name fits; detail checked magnified (boards, wings, rack, name plate).
 Frame cost (dev build, update + render, offscreen 2560 × 1440 at DPR 2): ~0.17 ms average, median 0.1 ms with
 18 medals; DPR 1 ~0.22 ms. Building the layers at a new grid size: backdrop ~11–16 ms, jacket ~5 ms, once.
+
+## Verification (2026-10-28, locker picture)
+
+`npm run typecheck` clean; Vitest 77 files / 742 tests green (`uniform-layout.test.ts` with the picture's tunic:
+chest height, two clean rows, a tucked full rack, rows centred on the breast, hit tests); production build OK.
+Browser (dev build, DE): the locker with 15 medals (two rows of five, wings, three ribbon bars, name plate) and with
+all 18 (court-mounted 3 + 5 + 5); the boards lie on both shoulders from the collar down the slope; flicker and dust;
+selection brackets, card and BACK unchanged.
 
 ## Dependencies
 

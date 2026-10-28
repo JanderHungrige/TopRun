@@ -54,10 +54,10 @@ export interface ChestFrame {
   ribbonsPerRow: number;
 }
 
-/** The locker's jacket (src/render/locker/jacket.ts draws the pockets and name plate to match). */
+/** The tunic in the locker picture (src/render/locker/plate.ts): its breast pockets, collar and shoulders, measured. */
 export const LOCKER_CHEST: ChestFrame = {
-  left: 458, right: 606, pocketTop: 336, minTop: 172, medalSize: 64, medalsPerRow: 5, gap: 4, wingsH: 18,
-  ribbonCentre: 368, ribbonBottom: 308, ribbonW: 40, ribbonH: 13, ribbonsPerRow: 3,
+  left: 470, right: 606, pocketTop: 346, minTop: 226, medalSize: 48, medalsPerRow: 5, gap: 4, wingsH: 18,
+  ribbonCentre: 360, ribbonBottom: 300, ribbonW: 40, ribbonH: 13, ribbonsPerRow: 3,
 };
 
 /** Each shape's art in the 64 × 96 medal frame: half-width and bottom (matches src/render/medals). */

@@ -6,13 +6,12 @@ import type { GameContext } from '../game/state';
 import { moveSlot, slotAt, uniformLayout, type SlotDir, type UniformLayout } from '../game/uniform-layout';
 import { medalCitation } from '../i18n/content';
 import { t } from '../i18n/i18n';
-import { drawDust, drawFlicker, swayOffset } from '../render/locker/ambient';
+import { drawDust, drawFlicker } from '../render/locker/ambient';
 import { drawLockerCard, PANEL } from '../render/locker/card';
 import { drawBoards, drawNamePlate } from '../render/locker/insignia';
-import { drawJacket } from '../render/locker/jacket';
+import { drawLockerPlate, PLATE_G, preloadPlate } from '../render/locker/plate';
 import { drawRack } from '../render/locker/rack';
-import { lockerBackdrop } from '../render/locker/set';
-import { BACK_BTN, backButton, blitLayer, hintLine, inRect, roomGrid, roomHeader } from '../render/rooms-chrome';
+import { BACK_BTN, backButton, hintLine, inRect, roomGrid, roomHeader } from '../render/rooms-chrome';
 import { goldCount } from './minigames/registry';
 import { pilotStanding } from './pilot-rating';
 
@@ -40,6 +39,7 @@ export class LockerScene implements Scene {
     this.layout = uniformLayout(this.medals);
     this.standing = pilotStanding(game.save);
     this.selected = this.layout.slots.length > 0 ? 0 : -1;
+    preloadPlate();
   }
 
   enter(): void {
@@ -84,15 +84,12 @@ export class LockerScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     const g = roomGrid(ctx);
-    const bg = lockerBackdrop(g);
-    if (bg) blitLayer(ctx, bg, g);
-    const dx = swayOffset(this.time, g.G);
-    drawJacket(ctx, g.G, dx);
-    drawBoards(ctx, this.standing.rank, g.G, dx);
-    drawNamePlate(ctx, (this.game.profile?.callsign ?? 'PILOT').toUpperCase(), g.G, dx);
-    drawRack(ctx, this.layout, this.selected, g.G, dx, this.time);
+    drawLockerPlate(ctx);
+    drawBoards(ctx, this.standing.rank, PLATE_G);
+    drawNamePlate(ctx, (this.game.profile?.callsign ?? 'PILOT').toUpperCase(), g.G);
+    drawRack(ctx, this.layout, this.selected, g.G, this.time);
     drawFlicker(ctx, this.time);
-    drawDust(ctx, this.time, g.G);
+    drawDust(ctx, this.time, PLATE_G);
     roomHeader(ctx, t('rooms.locker'), PANEL.x, t('locker.count', { n: this.medals.length, total: MEDAL_IDS.length }), PANEL.x + PANEL.w);
     const id = this.medal();
     const typed = id ? typewriter(medalCitation(id), this.cite).length : 0;

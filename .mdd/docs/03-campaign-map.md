@@ -17,7 +17,7 @@ models:
 test_files:
   - tests/unit/missions-data.test.ts
 data_flow: greenfield
-last_synced: 2026-10-25
+last_synced: 2026-10-28
 status: complete
 phase: all
 mdd_version: 11
@@ -69,7 +69,7 @@ scenes/map-render.ts  draws ocean, theater regions, route line, mission nodes
 scenes/debrief.ts  result table, stars, payout breakdown, Continue
 ```
 
-Flow: Map → (Hangar ↔ Map) → Takeoff (04) → Mission (05) → Debrief → Map.
+Flow: Map → (Loadout ↔ Map / Base) → Takeoff (04) → Mission (05) → Debrief → Map.
 
 ## Data Model
 
@@ -119,13 +119,16 @@ None.
 - Briefing panel shows: number + name, theater, objective text with count, threat level
   (difficulty as 1–5 chevrons), reward (with "replay ×0.5" when cleared), best stars,
   expected enemy types, current plane + loadout summary.
-- Buttons: HANGAR, LAUNCH (disabled when locked), TITLE. Keyboard: Enter = Launch,
-- Since 2026-10-28 (owner: *"move the base button also down. Less confusion with one place"*): the mission panel's
-  bottom row is LAUNCH · HANGAR · BASE (keys ENTER · H · B); only MENU stays at the top right.
-  H = Hangar, Esc = Title.
+- Buttons: the mission panel's bottom row is LAUNCH (disabled when locked) · LOADOUT · BASE (keys ENTER · L or H ·
+  B); only MENU stays at the top right (Esc = Title). Since 2026-10-28 (owner: *"move the base button also down. Less
+  confusion with one place"*, then *"The current Hangar becomes the Loadout"*): the shop is called LOADOUT (in German
+  too, doc 02) because the BASE is the hangar now (doc 30).
 - Debrief: SUCCESS/FAILED banner, objective result, kills / spawned, hull %, takeoff rating,
   payout lines (base, takeoff bonus, hull bonus, collected or salvage), stars earned
   (best kept), new money total. Updates `progress[id].stars = max(old, new)` on success.
+- Debrief buttons (2026-10-28, owner: *"after a mission also just add the buttons Continue, Base, and Loadout"*):
+  CONTINUE (→ minigame offer or map) · FLY AGAIN · LOADOUT (key L or H) · BASE (key B → `{ to: 'base' }`); Esc =
+  CONTINUE without the offer, as before. A new medal plays the ceremony first whichever button is used.
 - After clearing mission 30: debrief shows "CAMPAIGN COMPLETE" and the map shows a medal.
 
 - **Talking character (06):** admiral (debrief speech while the pay counts up). All visible text goes through i18n (07).

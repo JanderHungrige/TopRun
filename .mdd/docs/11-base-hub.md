@@ -71,7 +71,7 @@ Routes: `{ to: 'base' }`, `{ to: 'offer', id, isNew }`, `{ to: 'minigame', id, f
   after the mission; on CONTINUE after a successful mission with an offer, the offer card appears
   instead of the map: wingman line, the game's icon and name, "NEW!" if just unlocked, PLAY / SKIP,
   hint "Offers can be switched off in BASE". PLAY → the game (`from: 'offer'`, back to the map);
-  SKIP / Esc → the map. FLY AGAIN and HANGAR skip the offer.
+  SKIP / Esc → the map. FLY AGAIN, LOADOUT and BASE skip the offer.
 
 ## Data Flow
 

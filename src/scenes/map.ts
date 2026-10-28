@@ -61,9 +61,9 @@ export class MapScene implements Scene {
     const open = isUnlocked(this.game.save, this.selected);
     const y = PANEL.y + PANEL.h - 64;
     this.buttons = [
-      { id: 'launch', label: t('map.launch'), x: PANEL.x + 16, y, w: 128, h: 48, primary: true, enabled: open, hint: 'ENTER' },
-      { id: 'hangar', label: t('map.hangar'), x: PANEL.x + 152, y, w: 106, h: 48, hint: 'H' },
-      { id: 'base', label: t('map.base'), x: PANEL.x + 266, y, w: 100, h: 48, hint: 'B' },
+      { id: 'launch', label: t('map.launch'), x: PANEL.x + 16, y, w: 118, h: 48, primary: true, enabled: open, hint: 'ENTER' },
+      { id: 'hangar', label: t('map.hangar'), x: PANEL.x + 142, y, w: 130, h: 48, hint: 'L' },
+      { id: 'base', label: t('map.base'), x: PANEL.x + 280, y, w: 82, h: 48, hint: 'B' },
     ];
   }
 

@@ -9,14 +9,16 @@ import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
-import { COLORS, text } from '../render/text';
+import { COLORS, measure, text } from '../render/text';
 import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
 import { itemAction, itemName, tabs, twinAction } from './hangar-items';
 
-const BACK_BTN = { x: 1150, y: 14, w: 110, h: 44 };
+/** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
+const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
+const MAP_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 
 export class HangarScene implements Scene {
   private t = 0;
@@ -78,7 +80,8 @@ export class HangarScene implements Scene {
     const input = this.game.input;
     this.chief.update(dt, input);
     if (input.taps.length > 0 || input.pressed('confirm') || input.pressed('up') || input.pressed('down')) this.chief.poke();
-    if (input.pressed('back')) return this.leave();
+    if (input.pressed('back')) return this.leave('map');
+    if (input.pressed('base')) return this.leave('base');
     if (input.pressed('left')) this.setTab(this.tab - 1);
     if (input.pressed('right')) this.setTab(this.tab + 1);
     if (input.pressed('up')) this.setFocus((this.focus[this.tab] ?? 0) - 1);
@@ -90,7 +93,8 @@ export class HangarScene implements Scene {
   }
 
   private handleTap(p: { x: number; y: number }): void {
-    if (hit(p, BACK_BTN)) return this.leave();
+    if (hit(p, MAP_BTN)) return this.leave('map');
+    if (hit(p, BASE_BTN)) return this.leave('base');
     this.tabButtons().forEach((b, i) => {
       if (hit(p, b)) this.setTab(i);
     });
@@ -108,9 +112,9 @@ export class HangarScene implements Scene {
     }
   }
 
-  private leave(): void {
+  private leave(to: 'map' | 'base'): void {
     this.game.audio.play('uiBack');
-    this.game.go({ to: 'map' });
+    this.game.go({ to });
   }
 
   private setTab(i: number): void {
@@ -221,9 +225,12 @@ export class HangarScene implements Scene {
     bg.addColorStop(1, '#05090f');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1280, 720);
-    text(ctx, t('hangar.title'), 24, 50, { size: 30, display: true, italic: true });
-    text(ctx, formatMoney(save.money), 1130, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
-    drawButton(ctx, { id: 'back', label: t('hangar.map'), ...BACK_BTN, hint: 'ESC' }, false, this.t);
+    const title = t('hangar.title');
+    const money = formatMoney(save.money);
+    text(ctx, title, 24, 50, { size: 30, display: true, italic: true });
+    text(ctx, money, 1010, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
+    drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BASE_BTN, hint: 'B' }, false, this.t);
+    drawButton(ctx, { id: 'back', label: t('hangar.map'), ...MAP_BTN, hint: 'ESC' }, false, this.t);
     this.tabButtons().forEach((b) => drawButton(ctx, b, false, this.t));
     drawList(ctx, save, this.items, this.focus[this.tab] ?? 0, this.t);
     const item = this.item;
@@ -231,7 +238,8 @@ export class HangarScene implements Scene {
     if (this.tab === 1) drawLoadout(ctx, save, item?.type === 'secondary' ? item.id : null);
     this.renderAction(ctx);
     const hintText = t(this.game.input.device === 'touch' ? 'hangar.hintTouch' : 'hangar.hintKeys');
-    text(ctx, hintText, 220, 48, { size: 12, color: COLORS.faint, maxWidth: 640 });
+    const hintX = Math.max(220, 52 + measure(ctx, title, 30, true));
+    text(ctx, hintText, hintX, 48, { size: 12, color: COLORS.faint, maxWidth: 990 - measure(ctx, money, 28, true) - hintX });
     this.chief.render(ctx);
     if (this.toastTime > 0) {
       text(ctx, this.toast, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 16, color: COLORS.gold, alpha: Math.min(1, this.toastTime * 2), maxWidth: DETAIL.w - 340 });

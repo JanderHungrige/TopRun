@@ -108,12 +108,14 @@ style, flat magenta background) → area 192², 48 colours; the background is ke
 from the edges plus enclosed pure-magenta holes, purple rim pixels repainted with the darkest art colour).
 Two files per item in `src/assets/items/`: `<id>.png` (192 × 192, transparent, the detail panel, drawn
 1 : 1 and centred) and `<id>-small.png` (72 × 40, area-reduced onto the art's own colours, the list rows).
-Ids: `aim9 aim54 agm65 rockets mk82 gun ammo armor engine flares ecm damageControl magnet radar` (`ammo` = the
-uranium ammo, doc 43, added 2026-10-28). Until a picture exists or while it loads, the old vector icon is drawn
-instead; the AIM-120, the JDAM and the second gun have none yet.
+Ids: `aim9 aim54 aim120 agm65 rockets mk82 jdam gun ammo armor engine flares ecm damageControl magnet radar` (`ammo` =
+the uranium ammo, doc 43, added 2026-10-28; `aim120` and `jdam` added 2026-10-29, rendered on the M1 MacBook while
+the M4 slept: same workflow and settings, TE `qwen_3_4b_fp8_mixed`, seed 7). Until a picture exists or while it
+loads, the old vector icon is drawn instead; the second gun has none yet.
 `dev/item-pictures.py <raw.png> <id>` turns a 768 × 768 render on magenta into both files (keying, premultiplied area
 scaling to the 166 px width of the other pictures, 24 colours with up to four kept for small bright accents such as a
-glowing ring, the list icon mapped onto the same colours).
+glowing ring, outline pixels tinted by the magenta repainted with the darkest art colour, the list icon mapped onto
+the same colours).
 
 ## Data Model
 

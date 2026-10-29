@@ -6,8 +6,9 @@ Usage: python3 dev/item-pictures.py <raw.png> <id> [colours]
 background (ComfyUI workflow 'Top Gun pixel crew portrait' on the M4: 768 x 768, see doc 02 for the prompt style).
 The magenta is keyed out (flood fill from the edges plus enclosed magenta holes), the item is cropped to its bounding
 box and scaled with premultiplied area averaging so no magenta bleeds into the rim, to 166 px wide (the width of the
-other pictures), reduced to a small palette (default 24 colours) and centred on 192 x 192. The list icon is the same
-item fitted into 72 x 40 and mapped onto the big picture's palette. Both are written to src/assets/items/.
+other pictures), reduced to a small palette (default 24 colours), outline pixels the render tinted with the magenta
+are repainted with the darkest art colour, and it is centred on 192 x 192. The list icon is the same item fitted into
+72 x 40 and mapped onto the big picture's palette. Both are written to src/assets/items/.
 """
 from __future__ import annotations
 
@@ -91,6 +92,18 @@ def reduce(rgb: np.ndarray, colours: int) -> np.ndarray:
     return out
 
 
+def unfringe(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Outline pixels the render blended with the magenta (a maroon or purple rim) -> the darkest other art colour."""
+    r, g, b = (rgb[..., i].astype(int) for i in range(3))
+    tinted = alpha & (r - g > 40) & (b - g > 25)
+    rest = rgb[alpha & ~tinted]
+    if not tinted.any() or not len(rest):
+        return rgb
+    out = rgb.copy()
+    out[tinted] = rest[rest.astype(int).sum(-1).argmin()]
+    return out
+
+
 def onto(rgb: np.ndarray, palette: np.ndarray) -> np.ndarray:
     """Every pixel to its nearest palette colour."""
     d = np.linalg.norm(rgb[..., None, :].astype(int) - palette[None, None].astype(int), axis=-1)
@@ -103,7 +116,7 @@ def main() -> None:
     rgb = np.asarray(Image.open(raw).convert('RGB'))
     alpha = key(rgb)
     big_rgb, big_a = fit(rgb, alpha, BIG_W, BIG - 16)
-    big_rgb = reduce(big_rgb, colours)
+    big_rgb = unfringe(reduce(big_rgb, colours), big_a)
     place(big_rgb, big_a, BIG, BIG).save(f'{OUT}/{item}.png')
     small_rgb, small_a = fit(rgb, alpha, SMALL_W - 2, SMALL_H - 4)
     small_rgb = onto(small_rgb, np.unique(big_rgb[big_a], axis=0))

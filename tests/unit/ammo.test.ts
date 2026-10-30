@@ -50,11 +50,13 @@ describe('Incendiary ammo (doc 45)', () => {
   it('fires the loaded rounds: uranium bonus or a burn, never both', () => {
     const both = rich({ ammoLevel: 3, incendiaryLevel: 3 });
     expect(loadedRounds({ ...both, ammoType: 'uranium' })).toEqual({ type: 'uranium', damageMul: 1.45, groundFactor: 1, burn: 0 });
-    expect(loadedRounds({ ...both, ammoType: 'incendiary' })).toEqual({ type: 'incendiary', damageMul: 1, groundFactor: 0.5, burn: 0.8 });
+    const inc = loadedRounds({ ...both, ammoType: 'incendiary' });
+    expect(inc).toMatchObject({ type: 'incendiary', damageMul: 1.45, burn: 0.4 });
+    expect(inc.damageMul * inc.groundFactor).toBeCloseTo(0.5, 9); // ground targets: the plain half, no bonus
     expect(loadedRounds(rich({ ammoLevel: 2, ammoType: 'incendiary' }))).toEqual({ type: null, damageMul: 1, groundFactor: 0.5, burn: 0 });
     const stats = derivePlayerStats({ ...both, ammoType: 'incendiary', ownedPlanes: ['f16', 'f14'], selectedPlane: 'f14' });
-    expect(stats).toMatchObject({ gunBurn: 0.8, rounds: 'incendiary', gunGround: 0.5 });
-    expect(stats.gunDamageMul).toBeCloseTo(1.2, 6);
+    expect(stats).toMatchObject({ gunBurn: 0.4, rounds: 'incendiary' });
+    expect(stats.gunDamageMul).toBeCloseTo(1.2 * 1.45, 6);
   });
 
   it('deals a burn evenly over 1.5 s and restarts the clock on every hit', () => {

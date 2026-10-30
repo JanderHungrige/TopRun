@@ -1,9 +1,9 @@
 ---
 id: arsenal-and-adversaries
 title: Arsenal and Adversaries
-status: in_progress
+status: complete
 version: 2
-hash: 81129a25
+hash: 56f643b9
 created: 2026-10-28
 ---
 
@@ -77,4 +77,4 @@ Balance is justified by bot playtests (doc 35 method) and written into the docs 
 |------|------|------------|--------|
 | Wave 1 | waves/arsenal-and-adversaries-wave-1.md | A map-1 pilot can buy gun levels 6–7, uranium ammo, Mk II weapons and new equipment levels at rising prices; later missions hit harder and need them; the Pacific plays as today. | complete |
 | Wave 2 | waves/arsenal-and-adversaries-wave-2.md | From the Gulf on, every theater brings new enemy types (stealth fighters, interceptors, jammers, bunkers, frigates), and later missions have a mini-boss halfway through. | complete |
-| Wave 3 | waves/arsenal-and-adversaries-wave-3.md | On map 2 every ladder has as many new levels again, an always-on 40 mm HE gun and incendiary ammo are on sale, map 2 pays and hits harder, and a pilot who buys as the money comes in still has about a third of the shop left at m60. | in_progress |
+| Wave 3 | waves/arsenal-and-adversaries-wave-3.md | On map 2 every ladder has as many new levels again, an always-on 40 mm HE gun and incendiary ammo are on sale, map 2 pays and hits harder, and a pilot who buys as the money comes in still has about half of the shop left at m60. | complete |

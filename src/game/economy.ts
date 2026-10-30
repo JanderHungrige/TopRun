@@ -8,6 +8,7 @@ import { ammoPrice } from './arsenal';
 import { equipmentCap, gun2Price, gunCap, weaponOnSale } from './firepower';
 import { hePrice } from './he-gun';
 import { jetOnSale } from './jets';
+import { payScale } from './map-two';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 import { recordSortie } from './challenge';
@@ -162,7 +163,7 @@ export function computePayout(mission: MissionDef, result: MissionResult, firstC
     const salvage = Math.floor(result.collected * 0.5);
     return { base: 0, takeoffBonus: 0, hullBonus: 0, collected: 0, salvage, total: salvage };
   }
-  const base = Math.round(mission.reward * (firstClear ? 1 : 0.5));
+  const base = Math.round(mission.reward * payScale(mission.number) * (firstClear ? 1 : 0.5));
   const takeoffBonus = Math.round(base * TAKEOFF_BONUS[result.takeoff]);
   const hullBonus = result.hullRatio >= HULL_BONUS_RATIO ? Math.round(base * 0.1) : 0;
   const collected = Math.round(result.collected);

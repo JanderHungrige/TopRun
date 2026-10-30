@@ -44,12 +44,15 @@ export interface Rounds {
   burn: number;
 }
 
-/** The rounds the gun fires: the loaded type at its level, ordinary rounds without one. */
+/**
+ * The rounds the gun fires: the loaded type at its level, ordinary rounds without one. Incendiary's bonus counts
+ * against planes only: its ground factor cancels the bonus, so ground targets take the plain half (doc 45).
+ */
 export function loadedRounds(save: SaveData): Rounds {
   const plain: Rounds = { type: null, damageMul: 1, groundFactor: PLAIN_GROUND_FACTOR, burn: 0 };
   if (save.ammoType === 'incendiary') {
     const def = incendiaryLevelDef(save.incendiaryLevel);
-    return def ? { ...plain, type: 'incendiary', burn: def.burn } : plain;
+    return def ? { type: 'incendiary', damageMul: def.airMul, groundFactor: PLAIN_GROUND_FACTOR / def.airMul, burn: def.burn } : plain;
   }
   return save.ammoLevel > 0 ? { type: 'uranium', ...gunAmmo(save.ammoLevel), burn: 0 } : plain;
 }

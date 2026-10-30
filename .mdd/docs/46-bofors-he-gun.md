@@ -31,7 +31,7 @@ test_files:
   - tests/unit/he-gun.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-30
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [he-gun, bofors, cannon, explosive, splash, gun, hangar, arsenal, map-2, balance]
@@ -100,4 +100,15 @@ enemy standing in the blast.
 
 ## Balance
 
-Bot playtest: see doc 43, Balance (wave 3).
+Bot playtest (doc 43 method), m47 (a strike mission with a fortress and a Backfire), the wave-3 kit at m47 with and
+without its level-5 HE gun, three runs each:
+
+| | no HE gun | HE gun level 5 |
+|---|---|---|
+| enemies shot down | 55 % | 80 % |
+| damage taken | 4.13 hulls/min | 4.06 |
+| fortress / Backfire, focused | 32 s / escaped | 19 s / 20 s |
+
+The bursts clear the clutter of ground units and hit the bunkers' concrete at full damage, so the gun pays for itself
+in bounties. Damage taken barely changes: what shoots at the pilot (flak, missiles, the fortress) is still there.
+The map-2 enemies were tuned with the HE gun in the kit (doc 43, Balance wave 3).

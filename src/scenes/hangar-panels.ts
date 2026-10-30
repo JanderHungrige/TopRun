@@ -233,7 +233,7 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
       damage: Math.round((a.damageMul - 1) * 100), ground: Math.round(a.groundFactor * 100),
     })), y, AMMO_ROWS);
     case 'incendiary': return levelRows(ctx, save.incendiaryLevel, incendiaryCap(save), INCENDIARY_LEVELS.map((a) => tr('arsenal.incRow', {
-      burn: Math.round(a.burn * 100),
+      damage: Math.round((a.airMul - 1) * 100), burn: Math.round(a.burn * 100),
     })), y, AMMO_ROWS);
     case 'he': return heStats(ctx, save.heLevel, y);
     case 'secondary': return weaponStatsRows(ctx, save, item.id, y);

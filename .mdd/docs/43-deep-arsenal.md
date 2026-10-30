@@ -17,6 +17,7 @@ source_files:
   - src/game/economy.ts
   - src/game/firepower.ts
   - src/game/loadout.ts
+  - src/game/map-two.ts
   - src/game/save.ts
   - src/i18n/content-de.ts
   - src/i18n/ui-de-arsenal.ts
@@ -31,7 +32,9 @@ source_files:
   - src/scenes/hangar-items.ts
   - src/scenes/hangar-panels.ts
   - src/scenes/hangar.ts
+  - src/scenes/mission/boss.ts
   - src/scenes/mission/cockpit-view.ts
+  - src/scenes/mission/enemy-ai.ts
   - src/scenes/mission/mission-render.ts
   - src/scenes/mission/mission-scene.ts
   - src/scenes/mission/pickups.ts
@@ -48,9 +51,10 @@ test_files:
   - tests/unit/economy.test.ts
   - tests/unit/combat.test.ts
   - tests/unit/map-two-ladders.test.ts
+  - tests/unit/map-two.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-30
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [weapons, gun, upgrades, uranium-ammo, mk-ii, mk-vi, equipment, hangar, economy, balance, difficulty, arsenal, map-2, pay]
@@ -236,6 +240,12 @@ are multiplied by
 `pay = 1 + 0.08 x + 0.004 x²`, `x = mission number − 30` → m31 × 1.08, m35 × 1.5, m40 × 2.2, m45 × 3.1, m50 × 4.2,
 m55 × 5.5, m60 × 7.0. Map 1 pays as today.
 
+### Map 2 hits harder
+
+On top of the threat curve below, also by mission number (`MAP_TWO` in `game/map-two.ts`): every enemy's and boss's
+HP × (1 + 0.01 x + 0.0008 x²) and every enemy hit × (1 + 0.02 x) — at m35 × 1.07 / × 1.10, m45 × 1.33 / × 1.30,
+m53 × 1.65 / × 1.46, m60 × 2.02 / × 1.60. Tuned by bot playtest (Balance, wave 3).
+
 ## Cost of each map's shop
 
 | | today | new |
@@ -249,7 +259,7 @@ maxed. The first theater's prices are unchanged except gun level 4 (+2,000), so 
 
 **Wave 3:** map 2's shop on one path (gun 8–20 or the new jets' guns 8–14 + second gun 8–14, uranium 3–6, the HE gun,
 every equipment level, Mk III–VI of four weapons) costs ≈ 12.2 M (old jets) / 11.7 M (new jets), and map 2 now pays
-≈ 8.1 M at 80 % kills: about 1.5 ×. A pilot who buys as the money comes in still has about a third of the shop left at
+≈ 8.1 M at 80 % kills: about 1.5 ×. A pilot who buys as the money comes in still has about half of the shop left at
 m60 and chooses what to buy first.
 
 ## Stronger enemies (threat curve)
@@ -332,3 +342,29 @@ The owner's own case, today's build with the whole map-1 shop bought by the Arct
 - First try (gentler: HP 0.002 x², boss 0.0015 x², hits 0.012 x), for the record: m11 0.52, m18 0.69, m23 0.49,
   m24 1.58, m29 0.89, m30 1.70, m35 1.44, m42 1.87, m47 2.24, m53 1.97, m60 2.28. Map 1 came out as easy as today, so
   the curve was steepened to the factors above.
+
+### Wave 3 (2026-10-30)
+
+Same method; the pilot of each run owns what a pilot buying as the money comes in owns with the wave-3 shop and pay
+(a scratch purchase model that buys through the real shop code: map 1 in the wave-1 order, then map 2 greedily by
+price ÷ weight — gun first, then the HE gun, uranium, armour, the AIM-120 and JDAM, marks of the four weapons it
+flies, the rest of the equipment). F-14, AIM-54 / AIM-120 / AGM-65 / JDAM, uranium loaded.
+
+| mission | the pilot's kit | wave 2 (doc 44) | wave 3 | mini-boss focused / boss |
+|---|---|---|---|---|
+| m35 | gun 7, uranium 2, HE 1, armour 4 | 3.19 | 3.45 | cruiser 14 s, Backfire 19 s (wave 2: 17 s, 24 s) |
+| m42 CONDOR | gun 8, uranium 2, HE 4, armour 5, Mk III AGM-65 | 2.69 | 3.19 | boss 26–44 s |
+| m47 | gun 10, uranium 3, HE 5, armour 6, ECM 3, Mk IV AGM-65 | (wave 1: 2.72) | 3.96 | fortress 18 s, Backfire 20 s |
+| m53 | gun 12, uranium 4, HE 6, armour 7, ECM 4, Mk V AGM-65 | 3.13 | 4.01 | fortress 19 s, Backfire 24 s |
+| m60 COLOSSUS | gun 16, uranium 5, HE 8, armour 10, Mk V AIM-54 | 3.74 | 4.16 | boss 29–32 s |
+
+- **Map 2 is 8–28 % harder than wave 2 for the pilot who keeps buying, and the pilot is much stronger** (gun 16 instead
+  of 10 at m60, armour +250 % instead of +150 %). Committing to a mini-boss still downs it in 14–24 s.
+- **The economy:** map 2 pays ≈ 6.9 M at 65 % of the bounties (≈ 8.1 M at 80 %); the pilot buys one or two upgrades
+  per mission and still has ≈ 6.5 M of its own path left at m60 — about half, so a good pilot who kills more and
+  replays still finds things to buy.
+- **First try**, for the record: enemy HP × (1 + 0.01 x + 0.0006 x²) and hits × (1 + 0.015 x) gave m35 3.45, m42 3.23,
+  m47 4.19, m53 3.53, m60 3.06: the end of map 2 came out easier than wave 2 (armour 10 outgrew the hits), so the hit
+  and HP factors were steepened to the values above.
+- Strike objectives the bot misses (m47, m53) were missed on the earlier builds too; the bot doesn't prioritise targets.
+

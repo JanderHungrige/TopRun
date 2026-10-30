@@ -32,7 +32,7 @@ test_files:
   - tests/unit/arsenal.test.ts
 data_flow: writes-existing
 last_synced: 2026-10-30
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [incendiary-ammo, ammo, gun, burn, uranium-ammo, hangar, arsenal, balance, stealth]
@@ -54,22 +54,25 @@ about it in terms of balance?"* Answer: as an **alternative** to uranium, not on
 mission instead of more damage. The owner chose "load one per sortie".
 
 - **Uranium** (doc 43): armour-piercing. More damage against everything and full damage on ground and sea targets.
-  The choice for strike missions, bunkers, ships and bosses.
-- **Incendiary**: hits set planes on fire, which deals extra damage over the next 1.5 s. No help against ground
-  targets. The choice for intercepts and dogfights.
+  The choice for strike missions, bunkers, ships and ground bosses.
+- **Incendiary**: the same extra punch as uranium, but **against planes only**, and hits set planes on fire, which
+  deals more damage over the next 1.5 s. Nothing extra against ground targets. The choice for intercepts and
+  dogfights.
 
 ## The item
 
 **Incendiary Ammo**, WEAPONS tab, right after the uranium ammo. Six levels, priced like uranium:
 
-| level | burn damage on planes | price | sold |
-|---|---|---|---|
-| 1 | +30 % of each hit | 18,000 | map 1 |
-| 2 | +55 % | 40,000 | map 1 |
-| 3 | +80 % | 120,000 | map 2 |
-| 4 | +100 % | 150,000 | map 2 |
-| 5 | +120 % | 185,000 | map 2 |
-| 6 | +140 % | 225,000 | map 2 |
+| level | gun damage on planes | burn on planes | price | sold |
+|---|---|---|---|---|
+| 1 | +15 % | +20 % of each hit | 18,000 | map 1 |
+| 2 | +30 % | +30 % | 40,000 | map 1 |
+| 3 | +45 % | +40 % | 120,000 | map 2 |
+| 4 | +60 % | +50 % | 150,000 | map 2 |
+| 5 | +75 % | +60 % | 185,000 | map 2 |
+| 6 | +90 % | +70 % | 225,000 | map 2 |
+
+The gun-damage column is uranium's at the same level.
 
 ## Loading
 
@@ -82,7 +85,9 @@ when the loaded type has no level.
 
 With incendiary loaded, the main gun, the second gun and the A-10's GAU-8 burst fire incendiary rounds:
 
-- **No uranium bonus:** gun damage × 1 and the plain ground factor 0.5.
+- **Against planes** (and air bosses) the gun does uranium's extra damage; **against ground and sea targets** it does
+  the plain half damage, with no bonus. (The A-10's GAU-8 burst keeps its full damage on the ground and takes the
+  bonus everywhere, as with uranium.)
 - **Burn:** each hit on an **air** target (planes, helicopters, the Backfire mini-boss) adds the level's share of that
   hit's damage to the target's burn, dealt evenly over the next **1.5 s**. Each new hit adds to the burn and restarts
   the 1.5 s. A target that dies before its burn is over wastes the rest (overkill), which is why the burn numbers are
@@ -108,6 +113,19 @@ builds ignore both fields and fly uranium: the usual one-way upgrade.
 
 ## Balance
 
-Against fighters at the same level the burn is worth about 1.6–1.8 × uranium's bonus on paper and about 1.3–1.5 ×
-after overkill; against ground targets, ships and bosses incendiary is plainly worse. Bot playtest: see doc 43,
-Balance (wave 3).
+First version (burn only, +30 … +140 %, no flat bonus), for the record: on a stationary Backfire it out-damaged
+uranium by 21 % once the burn had built up, but it lost against everything small — fighters died before their burn
+was dealt, and the drones the Backfire launches soaked up the slower rounds — so the bot downed a focused Backfire in
+13–17 s against 11–13 s with uranium, and the cruiser escaped. Not the intercept choice it was meant to be. Hence the
+flat bonus against planes and a smaller burn.
+
+Bot playtest with the final numbers (m35 kit, level 3 of either type, four runs focused on the mini-bosses; m33, an
+all-air intercept, three runs each):
+
+| | uranium 3 | incendiary 3 |
+|---|---|---|
+| m35 Backfire (a plane), focused | 12–17 s | 11–13 s |
+| m35 missile cruiser (a ship), focused | 9–12 s | escaped 3 of 4 |
+| m33 intercept: damage taken, planes shot down | 2.68 hulls/min, 71 % | 2.50, 76 % |
+
+Incendiary is the better pick when the mission is planes; uranium when anything on the ground or the sea matters.

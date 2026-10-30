@@ -29,6 +29,8 @@ export const MAP1_AMMO_LEVEL = 2;
 export interface IncendiaryLevelDef {
   level: number;
   price: number;
+  /** Gun damage multiplier against planes only (uranium's at the same level). */
+  airMul: number;
   /** Share of each hit on a plane that burns on over BURN_SECONDS (doc 45). */
   burn: number;
   campaign: CampaignId;
@@ -36,12 +38,12 @@ export interface IncendiaryLevelDef {
 
 /** Incendiary ammo levels 1–6 (doc 45), priced like uranium. */
 export const INCENDIARY_LEVELS: readonly IncendiaryLevelDef[] = Object.freeze([
-  { level: 1, price: 18000, burn: 0.3, campaign: 1 },
-  { level: 2, price: 40000, burn: 0.55, campaign: 1 },
-  { level: 3, price: 120000, burn: 0.8, campaign: 2 },
-  { level: 4, price: 150000, burn: 1, campaign: 2 },
-  { level: 5, price: 185000, burn: 1.2, campaign: 2 },
-  { level: 6, price: 225000, burn: 1.4, campaign: 2 },
+  { level: 1, price: 18000, airMul: 1.15, burn: 0.2, campaign: 1 },
+  { level: 2, price: 40000, airMul: 1.3, burn: 0.3, campaign: 1 },
+  { level: 3, price: 120000, airMul: 1.45, burn: 0.4, campaign: 2 },
+  { level: 4, price: 150000, airMul: 1.6, burn: 0.5, campaign: 2 },
+  { level: 5, price: 185000, airMul: 1.75, burn: 0.6, campaign: 2 },
+  { level: 6, price: 225000, airMul: 1.9, burn: 0.7, campaign: 2 },
 ]);
 export const MAX_INCENDIARY_LEVEL = 6;
 /** Seconds a burn takes to deal its damage; each new hit restarts it. */

@@ -3,6 +3,7 @@ import { ENEMIES, SEA_KINDS } from '../../data/enemies';
 import type { Behavior, EnemyKind } from '../../data/types';
 import { LOITER, loiter, STEALTH } from '../../game/adversaries';
 import { scaleEnemy, steerHoming } from '../../game/combat';
+import { mapTwoHp, payScale } from '../../game/map-two';
 import type { Player } from './player';
 import { fireEnemyWeapon } from './weapons-fire';
 import { PF_H, PF_W, type Enemy, type World } from './world';
@@ -10,11 +11,12 @@ import { PF_H, PF_W, type Enemy, type World } from './world';
 export function spawnEnemy(world: World, kind: EnemyKind, x: number, behavior: Behavior, y = -50): Enemy {
   const def = ENEMIES[kind];
   const sc = scaleEnemy(def, world.mission.difficulty);
+  const hp = Math.round(sc.hp * mapTwoHp(world.mission.number));
   const e: Enemy = {
     id: world.nextId(), kind, def, layer: def.layer, behavior, x, y, vx: 0, vy: def.speed * 0.7, baseX: x,
-    hp: sc.hp, maxHp: sc.hp, radius: def.radius, t: 0, phase: Math.random() * Math.PI * 2,
+    hp, maxHp: hp, radius: def.radius, t: 0, phase: Math.random() * Math.PI * 2,
     fireT: 0.8 + Math.random() * sc.period, fire2T: 1.5 + Math.random() * Math.max(1, sc.period2),
-    period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: sc.bounty,
+    period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: Math.round(sc.bounty * payScale(world.mission.number)),
     flash: 0, heading: 0, aim: Math.PI, targetX: x, targetY: 160 + Math.random() * 120, dead: false, counted: false,
     revealT: 0, escortT: 3, burn: { left: 0, t: 0 },
   };

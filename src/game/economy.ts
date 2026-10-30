@@ -3,8 +3,10 @@ import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { EquipmentId, GunLevel, MissionDef, MissionResult, PlaneId, SecondaryId, TakeoffRating } from '../data/types';
 import { gunLevelDef, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { afterAmmoBought, incendiaryPrice } from './ammo';
 import { ammoPrice } from './arsenal';
 import { equipmentCap, gun2Price, gunCap, weaponOnSale } from './firepower';
+import { hePrice } from './he-gun';
 import { jetOnSale } from './jets';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
@@ -17,8 +19,12 @@ export type ShopItem =
   | { type: 'gun' }
   /** Second gun of the new jets (doc 37). */
   | { type: 'gun2' }
-  /** Uranium ammo for the gun, levels 1–3 (doc 43). */
+  /** Uranium ammo for the gun, levels 1–6 (doc 43). */
   | { type: 'ammo' }
+  /** Incendiary ammo for the gun, levels 1–6 (doc 45). */
+  | { type: 'incendiary' }
+  /** The Bofors 40 mm HE gun, levels 1–10 (doc 46). */
+  | { type: 'he' }
   | { type: 'secondary'; id: SecondaryId }
   | { type: 'equipment'; id: EquipmentId }
   /** Paint jobs are unlocked by the campaign, never bought (doc 09). */
@@ -37,6 +43,8 @@ export function priceOf(save: SaveData, item: ShopItem): number | null {
     case 'gun': return save.gunLevel >= gunCap(save) ? null : gunLevelDef(save.gunLevel + 1).price;
     case 'gun2': return gun2Price(save.gun2Level);
     case 'ammo': return ammoPrice(save);
+    case 'incendiary': return incendiaryPrice(save);
+    case 'he': return hePrice(save);
     case 'secondary': return save.ownedSecondaries.includes(item.id) ? null : SECONDARIES[item.id].price;
     case 'equipment': return save.equipment[item.id] >= equipmentCap(save, item.id) ? null : EQUIPMENT[item.id].prices[save.equipment[item.id]] ?? null;
     case 'livery': return null;
@@ -49,7 +57,9 @@ function knownItem(item: ShopItem): boolean {
     case 'plane': return item.id in PLANES;
     case 'gun':
     case 'gun2':
-    case 'ammo': return true;
+    case 'ammo':
+    case 'incendiary':
+    case 'he': return true;
     case 'secondary': return item.id in SECONDARIES;
     case 'equipment': return item.id in EQUIPMENT;
     case 'livery': return item.id in LIVERIES;
@@ -61,10 +71,12 @@ function knownItem(item: ShopItem): boolean {
 function onSale(save: SaveData, item: ShopItem): boolean {
   switch (item.type) {
     case 'plane': return jetOnSale(save, item.id);
-    case 'gun2': return mapTwoOpen(save);
+    case 'gun2':
+    case 'he': return mapTwoOpen(save);
     case 'secondary': return weaponOnSale(save, item.id);
     case 'gun':
     case 'ammo':
+    case 'incendiary':
     case 'equipment':
     case 'livery': return true;
     default: throw new Error(`unhandled: ${item satisfies never}`);
@@ -94,7 +106,9 @@ export function buy(save: SaveData, item: ShopItem): SaveData {
     case 'plane': next.ownedPlanes.push(item.id); break;
     case 'gun': next.gunLevel = (save.gunLevel + 1) as GunLevel; break;
     case 'gun2': next.gun2Level = save.gun2Level + 1; break;
-    case 'ammo': next.ammoLevel = save.ammoLevel + 1; break;
+    case 'ammo': next.ammoLevel = save.ammoLevel + 1; return afterAmmoBought(next, 'uranium');
+    case 'incendiary': next.incendiaryLevel = save.incendiaryLevel + 1; return afterAmmoBought(next, 'incendiary');
+    case 'he': next.heLevel = save.heLevel + 1; break;
     case 'secondary': next.ownedSecondaries.push(item.id); break;
     case 'equipment': next.equipment[item.id] = Math.min(maxEquipmentLevel(item.id), save.equipment[item.id] + 1); break;
     case 'livery': break;

@@ -126,7 +126,7 @@ const lampTier = (i: number, level: number): number => {
   return -1;
 };
 
-export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: number; level2: number; powered: boolean; powerRatio: number }, t: number): void {
+export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: number; level2: number; powered: boolean; powerRatio: number; he: number }, t: number): void {
   const level = Math.max(0, Math.min(5 * TIERS.length, Math.round(c.level)));
   const pulse = 0.85 + Math.sin(t * 7) * 0.15;
   for (let i = 0; i < 5; i++) {
@@ -136,6 +136,7 @@ export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: n
     else if (i === level && c.powered) lamp(ctx, lampX(r, i), y, '255,200,61', '#ffd84a', pulse);
   }
   secondGunLamps(ctx, r, c.level2);
+  if (c.he > 0) legend(ctx, `40MM ${c.he}`, r.x + r.w - 18, r.y + r.h - 9, { size: 8, align: 'right', color: '#ffb347' });
   const w = (r.w - 72) * Math.max(0, Math.min(1, c.powerRatio));
   if (!c.powered || w <= 0) return;
   rr(ctx, r.x + 60, r.y + r.h - 26, w, 8, 2);

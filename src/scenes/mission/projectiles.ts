@@ -4,6 +4,8 @@ import type { SecondaryHits } from '../../data/weapons';
 import { isMiniBoss } from '../../data/reinforcements';
 import { cloaked, JAM } from '../../game/adversaries';
 import { applyDamage, circleHit, COLLISION_DAMAGE_TO_ENEMY, PLAYER_DAMAGE, rollDrop, steerHoming } from '../../game/combat';
+import { setAlight, updateBurns } from './burn';
+import { updateShells } from './shells';
 import { PLAYER_RADIUS, type Player } from './player';
 import { PF_H, PF_W, type Enemy, type Missile, type World } from './world';
 
@@ -58,7 +60,9 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     }
     for (const e of world.enemies) {
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
-      damageEnemy(world, e, applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground, armor: e.def.armor }), audio);
+      const dealt = applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground, armor: e.def.armor });
+      damageEnemy(world, e, dealt, audio);
+      setAlight(e, dealt, b.burn ?? 0);
       if (b.kind !== 'wingman') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
@@ -221,6 +225,8 @@ export function updateCombat(world: World, p: Player, dt: number, hooks: CombatH
   updateEnemyBullets(world, p, dt, hooks);
   updateMissiles(world, p, dt, hooks);
   updateBombs(world, dt, hooks.audio);
+  updateShells(world, dt, hooks.audio, (e, n) => damageEnemy(world, e, n, hooks.audio));
+  updateBurns(world, dt, (e) => killEnemy(world, e, hooks.audio));
   for (const f of world.flares) {
     f.ttl -= dt;
     f.x += f.vx * dt;

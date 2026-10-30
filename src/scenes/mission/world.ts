@@ -1,3 +1,5 @@
+import type { AmmoType } from '../../data/arsenal';
+import type { Burn } from '../../game/ammo';
 import type { EnemyDef } from '../../data/enemies';
 import type { MissionDef, Behavior, EnemyKind, Layer } from '../../data/types';
 import type { SecondaryHits } from '../../data/weapons';
@@ -44,6 +46,8 @@ export interface Enemy {
   counted: boolean;
   /** Stealth fighter: seconds it stays visible after firing (doc 44). */
   revealT: number;
+  /** Incendiary burn still to deal (doc 45). */
+  burn: Burn;
   /** Backfire: seconds to its next drone launch (doc 44). */
   escortT: number;
 }
@@ -62,6 +66,10 @@ export interface Bullet {
   dead: boolean;
   /** Player gun rounds: share of damage ground targets take (uranium ammo, doc 43); default 0.5. */
   ground?: number;
+  /** Player gun rounds: share of a hit on a plane that burns on (incendiary ammo, doc 45). */
+  burn?: number;
+  /** Player gun rounds: the ammo loaded, for the tracer colour (docs 43, 45). */
+  rounds?: AmmoType;
 }
 
 export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'rocket' | 'enemy';
@@ -114,6 +122,16 @@ export interface Wreck {
   y: number;
 }
 
+/** A Bofors 40 mm HE shell (doc 46): flies straight up, bursts with `damage` over `radius`. */
+export interface Shell {
+  x: number;
+  y: number;
+  ttl: number;
+  damage: number;
+  radius: number;
+  dead: boolean;
+}
+
 /** All mutable state of a running mission (playfield-local coordinates). */
 export class World {
   readonly timeline: SpawnEvent[];
@@ -123,6 +141,7 @@ export class World {
   bullets: Bullet[] = [];
   missiles: Missile[] = [];
   bombs: Bomb[] = [];
+  shells: Shell[] = [];
   flares: Flare[] = [];
   pickups: Pickup[] = [];
   wrecks: Wreck[] = [];
@@ -179,6 +198,7 @@ export class World {
     this.bullets = this.bullets.filter((b) => !b.dead);
     this.missiles = this.missiles.filter((m) => !m.dead);
     this.bombs = this.bombs.filter((b) => !b.dead);
+    this.shells = this.shells.filter((s) => !s.dead);
     this.flares = this.flares.filter((f) => f.ttl > 0);
     this.pickups = this.pickups.filter((p) => !p.dead);
     this.wrecks = this.wrecks.filter((w) => w.y < PF_H + 60);

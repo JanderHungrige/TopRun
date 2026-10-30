@@ -3,7 +3,7 @@ import type { EquipmentId, SecondaryId } from '../data/types';
 import { fillPoly } from './shapes';
 
 /** Horizontal store drawings (nose pointing right) for the hangar; `s` = scale. */
-export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2' | 'ammo', x: number, y: number, s: number): void {
+export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2' | 'ammo' | 'incendiary' | 'he', x: number, y: number, s: number): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
@@ -18,7 +18,9 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'jdam': jdam(ctx); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
-    case 'ammo': ammoBelt(ctx); break;
+    case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;
+    case 'incendiary': ammoBelt(ctx, '#b5371f', '#ff8a4a'); break;
+    case 'he': bofors(ctx); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
@@ -40,7 +42,8 @@ function missile(ctx: CanvasRenderingContext2D, len: number, r: number, body: st
 }
 
 /** Uranium ammo (doc 43): a short belt of 30 mm rounds, brass cases with dark penetrator tips, linked. */
-function ammoBelt(ctx: CanvasRenderingContext2D): void {
+/** Five rounds on a link belt; `tip` / `shine`: the projectile (uranium dark, incendiary red, doc 45). */
+function ammoBelt(ctx: CanvasRenderingContext2D, tip: string, shine: string): void {
   ctx.fillStyle = '#3a3f44';
   ctx.fillRect(-30, 4, 60, 4);
   for (let i = -2; i <= 2; i++) {
@@ -53,9 +56,25 @@ function ammoBelt(ctx: CanvasRenderingContext2D): void {
     ctx.stroke();
     ctx.fillStyle = '#e6c873';
     ctx.fillRect(x - 3, -3, 2, 15);
-    fillPoly(ctx, [x - 4, -4, x - 2.5, -14, x, -19, x + 2.5, -14, x + 4, -4], '#59604f');
-    fillPoly(ctx, [x - 1.5, -7, x, -17, x + 1, -7], '#8c957c');
+    fillPoly(ctx, [x - 4, -4, x - 2.5, -14, x, -19, x + 2.5, -14, x + 4, -4], tip);
+    fillPoly(ctx, [x - 1.5, -7, x, -17, x + 1, -7], shine);
   }
+}
+
+/** The Bofors 40 mm (doc 46): receiver, clip of shells on top, long barrel with a conical flash hider. */
+function bofors(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = '#4d5560';
+  ctx.fillRect(-30, -7, 26, 16);
+  ctx.fillStyle = '#6b7480';
+  ctx.fillRect(-4, -3, 30, 6);
+  fillPoly(ctx, [26, -3, 36, -6, 36, 6, 26, 3], '#3b4148');
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = '#c8a24a';
+    ctx.fillRect(-26 + i * 7, -17, 5, 10);
+    fillPoly(ctx, [-26 + i * 7, -17, -23.5 + i * 7, -22, -21 + i * 7, -17], '#c0612e');
+  }
+  ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+  ctx.strokeRect(-30, -7, 26, 16);
 }
 
 function rocketPod(ctx: CanvasRenderingContext2D): void {

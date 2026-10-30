@@ -16,7 +16,7 @@ export function spawnEnemy(world: World, kind: EnemyKind, x: number, behavior: B
     fireT: 0.8 + Math.random() * sc.period, fire2T: 1.5 + Math.random() * Math.max(1, sc.period2),
     period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: sc.bounty,
     flash: 0, heading: 0, aim: Math.PI, targetX: x, targetY: 160 + Math.random() * 120, dead: false, counted: false,
-    revealT: 0, escortT: 3,
+    revealT: 0, escortT: 3, burn: { left: 0, t: 0 },
   };
   if (def.layer === 'ground') {
     e.y = y - def.radius;

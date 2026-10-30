@@ -5,7 +5,8 @@ import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { jetGunDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
-import { MAX_MARK, toMark } from '../data/arsenal';
+import { MAX_MARK, toMark, type AmmoType } from '../data/arsenal';
+import { ammoTypeLevel, canLoad } from '../game/ammo';
 import { canBuyMark, markCap, markOf, markPrice, weaponStats, type WeaponStats } from '../game/arsenal';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
 import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
@@ -30,7 +31,8 @@ export const tabs = (save: SaveData): readonly Tab[] => [
   {
     name: 'hangar.tabWeapons',
     items: [
-      { type: 'gun' }, { type: 'ammo' }, ...(mapTwoOpen(save) ? [{ type: 'gun2' as const }] : []),
+      { type: 'gun' }, { type: 'ammo' }, { type: 'incendiary' },
+      ...(mapTwoOpen(save) ? [{ type: 'gun2' as const }, { type: 'he' as const }] : []),
       ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id })),
     ],
   },
@@ -56,6 +58,8 @@ export function itemName(item: ShopItem): string {
     case 'gun': return t('hangar.gunName');
     case 'gun2': return t('hangar.gun2Name');
     case 'ammo': return t('arsenal.ammoName');
+    case 'incendiary': return t('arsenal.incName');
+    case 'he': return t('arsenal.heName');
     case 'secondary': return secondaryName(item.id);
     case 'equipment': return equipmentName(item.id);
     case 'livery': return liveryName(item.id);
@@ -69,6 +73,8 @@ export function itemDescription(item: ShopItem): string {
     case 'gun': return t('hangar.gunDesc');
     case 'gun2': return t('hangar.gun2Desc');
     case 'ammo': return t('arsenal.ammoDesc');
+    case 'incendiary': return t('arsenal.incDesc');
+    case 'he': return t('arsenal.heDesc');
     case 'secondary': return secondaryDescription(item.id);
     case 'equipment': return equipmentDescription(item.id);
     case 'livery': return t('hangar.paintDesc');
@@ -88,9 +94,11 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
     case 'gun2':
       if (save.gun2Level >= MAX_GUN2_LEVEL) return t('hangar.maxLevel', { level: MAX_GUN2_LEVEL });
       return save.gun2Level === 0 ? formatMoney(price ?? 0) : t('hangar.levelPrice', { level: save.gun2Level, price: formatMoney(price ?? 0) });
-    case 'ammo':
-      if (price === null) return t('hangar.maxLevel', { level: save.ammoLevel });
-      return save.ammoLevel === 0 ? formatMoney(price) : t('hangar.levelPrice', { level: save.ammoLevel, price: formatMoney(price) });
+    case 'ammo': return ammoStatus(save, 'uranium', price);
+    case 'incendiary': return ammoStatus(save, 'incendiary', price);
+    case 'he':
+      if (price === null) return t('hangar.maxLevel', { level: save.heLevel });
+      return save.heLevel === 0 ? formatMoney(price) : t('hangar.levelPrice', { level: save.heLevel, price: formatMoney(price) });
     case 'secondary': {
       const mounted = save.loadout[save.selectedPlane].filter((x) => x === item.id).length;
       const mark = markOf(save, item.id) > 1 ? `${markName(markOf(save, item.id))} · ` : '';
@@ -108,6 +116,14 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
       return t(isLiveryUnlocked(save.progress, item.id) ? 'hangar.paintReady' : 'hangar.locked');
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
+}
+
+/** An ammo type's status: LOADED first when it is the loaded one (doc 45). */
+function ammoStatus(save: SaveData, type: AmmoType, price: number | null): string {
+  const level = ammoTypeLevel(save, type);
+  const loaded = level > 0 && save.ammoType === type ? `${t('arsenal.loaded')} · ` : '';
+  if (price === null) return loaded + t('hangar.maxLevel', { level });
+  return loaded + (level === 0 ? formatMoney(price) : t('hangar.levelPrice', { level, price: formatMoney(price) }));
 }
 
 /** True when a status string means "owned / done" (drawn green). */
@@ -144,8 +160,12 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
       if (priceOf(save, item) === null) return none(t('hangar.maxed'));
       return buyAction(save, item, save.gun2Level === 0 ? t('hangar.buy', { price }) : t('hangar.gunUpgrade', { level: save.gun2Level + 1, price }));
     case 'ammo':
+    case 'incendiary':
+    case 'he': {
       if (priceOf(save, item) === null) return none(t('hangar.maxed'));
-      return buyAction(save, item, t('hangar.gunUpgrade', { level: save.ammoLevel + 1, price }));
+      const level = item.type === 'he' ? save.heLevel : ammoTypeLevel(save, item.type === 'ammo' ? 'uranium' : 'incendiary');
+      return buyAction(save, item, t('hangar.gunUpgrade', { level: level + 1, price }));
+    }
     case 'secondary':
       if (!save.ownedSecondaries.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (!secondaryAllowedOn(item.id, save.selectedPlane)) return none(t('hangar.f14Only'), t('hangar.f14OnlyNote'), 'restricted');
@@ -161,8 +181,20 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
   }
 }
 
-/** The TWIN PODS button of an owned weapon once map 2 is open (doc 37); null = no button. */
+/** The ammo type an item sells, null for anything else (doc 45). */
+export const ammoTypeOf = (item: ShopItem): AmmoType | null =>
+  (item.type === 'ammo' ? 'uranium' : item.type === 'incendiary' ? 'incendiary' : null);
+
+/**
+ * The side button (key E): TWIN PODS of an owned weapon once map 2 is open (doc 37), LOAD of an owned ammo type
+ * (doc 45); null = no button.
+ */
 export function twinAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
+  const ammo = ammoTypeOf(item);
+  if (ammo) {
+    if (ammoTypeLevel(save, ammo) === 0) return null;
+    return canLoad(save, ammo) ? { label: t('arsenal.load'), enabled: true } : { label: t('arsenal.loaded'), enabled: false };
+  }
   if (item.type !== 'secondary' || !mapTwoOpen(save) || !save.ownedSecondaries.includes(item.id)) return null;
   if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
   return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };

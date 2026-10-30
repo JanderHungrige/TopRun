@@ -14,8 +14,8 @@ const u32 = (b: Uint8Array, at: number): number => (((b[at] ?? 0) << 24) | ((b[a
 const name = (path: string): string => path.slice(path.lastIndexOf('/') + 1).replace(/\.png$/, '');
 
 describe('hangar item pictures', () => {
-  it('cover every weapon, the cannon, the uranium ammo and every add-on', () => {
-    expect([...ITEM_IDS].sort()).toEqual([...SECONDARY_IDS, ...EQUIPMENT_IDS, 'gun', 'ammo'].sort());
+  it('cover every weapon, the cannon, both ammo types, the Bofors and every add-on', () => {
+    expect([...ITEM_IDS].sort()).toEqual([...SECONDARY_IDS, ...EQUIPMENT_IDS, 'gun', 'ammo', 'incendiary', 'he'].sort());
   });
 
   it('come in pairs: a 192 × 192 picture and a 72 × 40 list icon, both with transparency', () => {

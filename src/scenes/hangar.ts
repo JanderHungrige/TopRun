@@ -5,6 +5,7 @@ import { liveryName } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
+import { canLoad, loadAmmo } from '../game/ammo';
 import { buyMark, canBuyMark, markOf } from '../game/arsenal';
 import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
@@ -15,7 +16,7 @@ import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
+import { ammoTypeOf, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
@@ -80,8 +81,14 @@ export class HangarScene implements Scene {
     this.chief.bought(item);
   }
 
+  /** Key E: LOAD an owned ammo type (doc 45), or TWIN PODS for a weapon (doc 37). */
   private buyTwinFocused(): void {
     const item = this.item;
+    const ammo = item ? ammoTypeOf(item) : null;
+    if (item && ammo) {
+      if (canLoad(this.game.save, ammo)) this.commit(loadAmmo(this.game.save, ammo), t('arsenal.loadedToast', { item: itemName(item) }));
+      return;
+    }
     if (item?.type !== 'secondary' || !twinAction(this.game.save, item)) return;
     const check = canBuyTwin(this.game.save, item.id);
     if (!check.ok) return this.say(t(check.reason === 'insufficient-funds' ? 'hangar.cannotBuy' : 'hangar.maxed'), false);

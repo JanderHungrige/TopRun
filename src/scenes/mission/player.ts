@@ -33,6 +33,8 @@ export class Player {
   gunCooldown = 0;
   /** Second gun of the new jets (doc 37): its own rate; `gun2Side` alternates the wing roots. */
   gun2Cooldown = 0;
+  /** Bofors 40 mm HE gun reload (doc 46). */
+  heCooldown = 0;
   gun2Side = 1;
   secCooldown = 0;
   readonly secondaries: SecondarySlot[];
@@ -109,6 +111,7 @@ export class Player {
     this.invuln = Math.max(0, this.invuln - dt);
     this.gunCooldown = Math.max(0, this.gunCooldown - dt);
     this.gun2Cooldown = Math.max(0, this.gun2Cooldown - dt);
+    this.heCooldown = Math.max(0, this.heCooldown - dt);
     this.secCooldown = Math.max(0, this.secCooldown - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.specialActive = Math.max(0, this.specialActive - dt);

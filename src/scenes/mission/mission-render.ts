@@ -36,19 +36,33 @@ function miniBossBars(ctx: CanvasRenderingContext2D, world: World): void {
   }
 }
 
-/** A gun round; uranium ammo (doc 43) burns a hot white-green inside a flickering green shimmer. */
+/** Glow and core colours of the loaded rounds: uranium white-green in green (doc 43), incendiary orange in red (doc 45). */
+const ROUNDS_GLOW = { uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary: ['255,110,40', '#ffd27a', '#fff0c8'] } as const;
+
+/** A gun round; loaded ammo burns inside a glow that flickers round by round. */
 function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
-  const du = (b.ground ?? 0.5) > 0.5;
-  if (du) {
+  if (b.rounds) {
+    const [glow, hot, core] = ROUNDS_GLOW[b.rounds];
     const k = 0.5 + 0.5 * Math.sin(t * 40 + b.x * 0.7 + b.y * 0.13); // each round flickers on its own
-    ctx.fillStyle = `rgba(130,255,150,${(0.3 + 0.45 * k).toFixed(2)})`;
+    ctx.fillStyle = `rgba(${glow},${(0.3 + 0.45 * k).toFixed(2)})`;
     ctx.fillRect(b.x - 2.5 - 1.5 * k, b.y - 9, 5 + 3 * k, 16);
-    ctx.fillStyle = k > 0.75 ? '#b4ffc4' : '#eaffd8';
+    ctx.fillStyle = k > 0.75 ? hot : core;
   } else ctx.fillStyle = '#fff6b0';
   ctx.fillRect(b.x - 1.5, b.y - 7, 3, 12);
 }
 
+/** A Bofors 40 mm shell (doc 46): a fat orange round with a hot tip. */
+function shell(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+  ctx.fillStyle = 'rgba(255,150,60,0.35)';
+  ctx.fillRect(x - 4, y - 8, 8, 18);
+  ctx.fillStyle = '#e07a2e';
+  ctx.fillRect(x - 2.5, y - 5, 5, 12);
+  ctx.fillStyle = '#ffe6a8';
+  ctx.fillRect(x - 1.5, y - 7, 3, 4);
+}
+
 function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
+  for (const s of world.shells) shell(ctx, s.x, s.y);
   for (const b of world.bullets) {
     if (b.kind === 'gun' || b.kind === 'wingman') tracer(ctx, b, world.t);
     else if (b.kind === 'cannon') {

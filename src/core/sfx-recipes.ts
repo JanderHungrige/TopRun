@@ -7,7 +7,7 @@ type LayerSfx =
   | 'gun' | 'missile' | 'rocket' | 'bombDrop' | 'explosionSmall' | 'explosionLarge' | 'explosionHuge'
   | 'hit' | 'playerHit' | 'pickup' | 'cash' | 'powerup' | 'flare' | 'catapult' | 'warning'
   | 'uiMove' | 'uiSelect' | 'uiBack' | 'buy' | 'denied' | 'enemyShot' | 'enemyMissile' | 'special' | 'splash'
-  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap';
+  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap' | 'bofors';
 /** Procedural babble syllables (see sfx-voice.ts). */
 type VoiceSfx = 'voice' | 'radioVoice';
 export type SfxName = LayerSfx | VoiceSfx;
@@ -40,6 +40,8 @@ const alarm = (): Tone[] => Array.from({ length: 8 }, (_, i) =>
 
 const SFX: Record<LayerSfx, Layer[]> = {
   gun: [tone('square', 1400, 420, 0.05, 0.2), hiss('highpass', 3200, 1500, 0.04, 0.28), thump(240, 70, 0.03, 0.06, 0.26)],
+  // Bofors 40 mm (doc 46): a deep, slow thump with a short bark, well below the gun.
+  bofors: [thump(110, 42, 0.05, 0.18, 0.5), tone('square', 330, 90, 0.06, 0.12), hiss('lowpass', 900, 200, 0.12, 0.2)],
   missile: [
     hiss('bandpass', 500, 3200, 0.55, 0.55, { q: 2, a: 0.04 }), tone('sawtooth', 180, 520, 0.4, 0.07, { a: 0.02 }),
     thump(150, 55, 0.1, 0.3, 0.26, { a: 0.004 }), hiss('lowpass', 500, 140, 0.4, 0.16, { a: 0.02 }),

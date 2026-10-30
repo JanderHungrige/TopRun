@@ -116,7 +116,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.gun2Name': 'Zweite Kanone',
   'hangar.gun2Desc': 'Eine zweite Maschinenkanone in den Flügelwurzeln von A-10, F-35 und Tornado. Feuert zusammen mit der Hauptkanone und wird eigenständig aufgerüstet.',
   'hangar.gun2Sub': 'A-10 · F-35 · Tornado',
-  'hangar.gunNewJets': 'A-10, F-35 und Tornado fliegen die Hauptkanone höchstens auf Stufe 7; dafür tragen sie die zweite Kanone.',
+  'hangar.gunNewJets': 'A-10, F-35 und Tornado fliegen die Hauptkanone bis Stufe 14, ab Stufe 8 mit eigenen Werten; dazu tragen sie die zweite Kanone.',
   'hangar.buyTwin': 'ZWILLING {price}',
   'hangar.twinOwned': 'ZWILLING GEKAUFT',
   'hangar.twinInfo': 'Zwilling: doppelte Munition auf A-10, F-35, Tornado.',

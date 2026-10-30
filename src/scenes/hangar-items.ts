@@ -4,7 +4,7 @@ import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
-import { gunLevelDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { jetGunDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { MAX_MARK, toMark } from '../data/arsenal';
 import { canBuyMark, markCap, markOf, markPrice, weaponStats, type WeaponStats } from '../game/arsenal';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
@@ -168,8 +168,10 @@ export function twinAction(save: SaveData, item: ShopItem): { label: string; ena
   return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
 }
 
-/** "Mk II" etc. */
-export const markName = (mark: number): string => t('arsenal.mark', { n: 'I'.repeat(mark) });
+const ROMAN: readonly string[] = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+
+/** "Mk II" … "Mk VI". */
+export const markName = (mark: number): string => t('arsenal.mark', { n: ROMAN[mark - 1] ?? String(mark) });
 
 /** The UPGRADE button of an owned weapon (doc 43); null = not owned. */
 export function markAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
@@ -197,9 +199,9 @@ export function unlockText(id: LiveryId): string {
   return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 
-/** Gun level line for the detail panel. */
-export function gunSummary(level: number): string {
-  const d = gunLevelDef(level);
+/** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43). */
+export function gunSummary(level: number, twin = false): string {
+  const d = jetGunDef(level, twin);
   return t('hangar.gunSummary', { barrels: d.pattern.length, rate: d.shotsPerSec, damage: d.damage });
 }
 

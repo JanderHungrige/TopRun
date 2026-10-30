@@ -1,8 +1,8 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
 import type { WeaponStats } from '../../game/arsenal';
-import { gunLevelDef, MAX_GUN2_LEVEL } from '../../data/weapons';
-import { powerCap } from '../../game/firepower';
+import { jetGunDef, MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
+import { doubleFirepower, powerCap } from '../../game/firepower';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -76,8 +76,8 @@ export class Player {
     return this.stats.gun2Level > 0 ? Math.min(MAX_GUN2_LEVEL, this.stats.gun2Level + (this.powerTimer > 0 ? 1 : 0)) : 0;
   }
 
-  get gun(): ReturnType<typeof gunLevelDef> {
-    return gunLevelDef(this.gunLevel);
+  get gun(): GunLevelDef {
+    return jetGunDef(this.gunLevel, doubleFirepower(this.stats.plane.id));
   }
 
   get hullRatio(): number {

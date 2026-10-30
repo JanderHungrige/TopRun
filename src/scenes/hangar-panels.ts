@@ -2,7 +2,7 @@ import type { LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { PlaneId, SecondaryId } from '../data/types';
 import { AMMO_LEVELS } from '../data/arsenal';
-import { gunLevelDef, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES } from '../data/weapons';
+import { gunLevelDef, jetGunDef, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES } from '../data/weapons';
 import { ammoCap, markOf } from '../game/arsenal';
 import type { ShopItem } from '../game/economy';
 import { doubleFirepower, equipmentCap, gunCap } from '../game/firepower';
@@ -143,22 +143,27 @@ function statRow(ctx: CanvasRenderingContext2D, label: string, value: string, ra
   text(ctx, value, x + barW + 176, y + 13, { size: 14, color: COLORS.ink });
 }
 
-/** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted. */
-function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number): void {
-  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
-  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
-  const d = gunLevelDef(Math.max(1, level));
+/** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted; `twin`: a new jet's gun. */
+function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number, twin = false): void {
+  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level, twin) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
+  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1, twin) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
+  const d = jetGunDef(Math.max(1, level), twin);
   statRow(ctx, tr('hangar.statLevel'), `${level}/${cap}`, level / cap, y + 52);
   const top = gunLevelDef(MAX_GUN_LEVEL);
   const dps = (g: typeof d): number => g.damage * g.shotsPerSec * g.pattern.length;
   statRow(ctx, 'DPS', level > 0 ? String(Math.round(dps(d))) : '0', level > 0 ? dps(d) / dps(top) : 0, y + 76);
 }
 
-/** One row per level on sale: ■ owned, □ not yet (equipment, uranium ammo). */
+/** Rows shown at most: a long ladder (wave 3, doc 43) shows the window around the next level. */
+const LEVEL_ROWS = 6;
+
+/** One row per level on sale: ■ owned, □ not yet (equipment, ammo). */
 function levelRows(ctx: CanvasRenderingContext2D, level: number, cap: number, texts: readonly string[], y: number): void {
   const step = cap > 5 ? 24 : 26;
+  const first = Math.max(0, Math.min(cap - LEVEL_ROWS, level - 2));
   texts.slice(0, cap).forEach((lt, i) => {
-    text(ctx, `${i < level ? '■' : '□'}  ${cap > 1 ? tr('hangar.levelRow', { n: i + 1, text: lt }) : lt}`, DETAIL.x + 24, y + 12 + i * step, { size: 15, color: i < level ? COLORS.green : COLORS.ink });
+    if (i < first || i >= first + LEVEL_ROWS) return;
+    text(ctx, `${i < level ? '■' : '□'}  ${cap > 1 ? tr('hangar.levelRow', { n: i + 1, text: lt }) : lt}`, DETAIL.x + 24, y + 12 + (i - first) * step, { size: 15, color: i < level ? COLORS.green : COLORS.ink });
   });
 }
 
@@ -173,7 +178,7 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   const ammo = arrow(now.ammoPerSlot, next?.ammoPerSlot);
   statRow(ctx, tr('hangar.statAmmo'), twin > 1 ? `${ammo} ×2` : ammo, (now.ammoPerSlot * twin) / 14, y + 23, 150);
   const mark = markOf(save, id);
-  const marks = [1, 2, 3].map((m) => `${m <= mark ? '■' : '□'} ${markName(m)}`).join('   ');
+  const marks = `${[1, 2, 3, 4, 5, 6].map((m) => (m <= mark ? '■' : '□')).join(' ')}   ${markName(mark)}`;
   text(ctx, tr('arsenal.statMark'), DETAIL.x + 24, y + 58, { size: 13, color: COLORS.dim, letterSpacing: 1, maxWidth: 150 });
   text(ctx, marks, DETAIL.x + 184, y + 58, { size: 14, color: COLORS.green });
   const guidance = tr(d.behavior === 'homing' ? 'hangar.guided' : d.behavior === 'fan' ? 'hangar.salvo' : 'hangar.freefall');
@@ -199,7 +204,7 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
       if (doubleFirepower(save.selectedPlane) && mapTwoOpen(save)) text(ctx, tr('hangar.gunNewJets'), DETAIL.x + 24, y + 112, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 48 });
       return;
     case 'gun2':
-      gunStats(ctx, save.gun2Level, MAX_GUN2_LEVEL, y);
+      gunStats(ctx, save.gun2Level, MAX_GUN2_LEVEL, y, true);
       return;
     case 'ammo': return levelRows(ctx, save.ammoLevel, ammoCap(save), AMMO_LEVELS.map((a) => tr('arsenal.ammoRow', {
       damage: Math.round((a.damageMul - 1) * 100), ground: Math.round(a.groundFactor * 100),

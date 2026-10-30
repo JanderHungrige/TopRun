@@ -4,7 +4,7 @@ import { atLevel, RADAR_AHEAD } from '../../data/equipment';
 import { PLANES } from '../../data/planes';
 import { SECONDARIES } from '../../data/weapons';
 import type { Device } from '../../core/input';
-import { buttonStates, radarContacts, warningLights, type ButtonStates } from '../../game/cockpit';
+import { buttonStates, radarContacts, scopeJammed, warningLights, type ButtonStates } from '../../game/cockpit';
 import { defaultProfile, type JoyAction, type JoyProfile } from '../../game/joystick';
 import { canSwitch, slotFor } from '../../game/loadout';
 import { objectiveProgress } from '../../game/objectives';
@@ -69,7 +69,7 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
     plane: p.stats.plane.id, planeName: PLANES[p.stats.plane.id].name, callsign,
     radar: {
       early: p.stats.earlyWarning,
-      jammed: w.jammed,
+      jammed: scopeJammed(w.jammed, p.stats.radarLevel),
       contacts: radarContacts({
         player: { x: p.x, y: p.y }, enemies: w.enemies.map((e) => ({ x: e.x, y: e.y, layer: e.layer, dead: e.dead, hidden: hidden(e, p) })),
         boss, jammed: w.jammed,

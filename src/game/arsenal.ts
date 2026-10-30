@@ -1,15 +1,15 @@
-import { ammoLevelDef, MARKS, MAX_AMMO_LEVEL, MAX_MARK, PLAIN_GROUND_FACTOR, toMark, type Mark } from '../data/arsenal';
+import { ammoLevelDef, MAP1_AMMO_LEVEL, MAP1_MARK, MARKS, MAX_AMMO_LEVEL, MAX_MARK, PLAIN_GROUND_FACTOR, toMark, type Mark } from '../data/arsenal';
 import type { SecondaryId } from '../data/types';
 import { SECONDARIES, type SecondaryDef } from '../data/weapons';
 import { weaponOnSale } from './firepower';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
-// Deep arsenal (doc 43): uranium ammo for the gun and the Mk II / Mk III marks of the secondaries — what is on sale,
+// Deep arsenal (doc 43): uranium ammo for the gun and the Mk II–VI marks of the secondaries — what is on sale,
 // prices, buying, and the stats a mark gives. Pure.
 
-/** Top uranium-ammo level on sale: 2 on map 1, 3 once map 2 is open. */
-export const ammoCap = (save: SaveData): number => (mapTwoOpen(save) ? MAX_AMMO_LEVEL : MAX_AMMO_LEVEL - 1);
+/** Top uranium-ammo level on sale: 2 on map 1, 6 once map 2 is open. */
+export const ammoCap = (save: SaveData): number => (mapTwoOpen(save) ? MAX_AMMO_LEVEL : MAP1_AMMO_LEVEL);
 
 /** Price of the next uranium-ammo level, or null at the cap. */
 export function ammoPrice(save: SaveData): number | null {
@@ -25,8 +25,8 @@ export function gunAmmo(level: number): { damageMul: number; groundFactor: numbe
 
 export const markOf = (save: SaveData, id: SecondaryId): Mark => toMark(save.weaponLevels[id]);
 
-/** Top mark on sale for a weapon: Mk II on map 1, Mk III once map 2 is open. */
-export const markCap = (save: SaveData): Mark => (mapTwoOpen(save) ? MAX_MARK : 2);
+/** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open. */
+export const markCap = (save: SaveData): Mark => (mapTwoOpen(save) ? MAX_MARK : MAP1_MARK);
 
 /** Price of a weapon's next mark, or null at the top. */
 export function markPrice(save: SaveData, id: SecondaryId): number | null {

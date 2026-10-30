@@ -1,6 +1,6 @@
 import type { AudioEngine } from '../../core/audio';
 import type { EnemyWeapon, SecondaryId } from '../../data/types';
-import { gunLevelDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
+import { jetGunDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
 import { headingTo } from '../../game/combat';
 import type { WeaponStats } from '../../game/arsenal';
@@ -29,7 +29,7 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
 function fireSecondGun(world: World, p: Player): void {
   const level = p.gun2Level;
   if (level <= 0 || p.gun2Cooldown > 0) return;
-  const gun = gunLevelDef(level);
+  const gun = jetGunDef(level, true);
   p.gun2Cooldown = 1 / gun.shotsPerSec;
   p.gun2Side *= -1;
   const damage = gun.damage * p.stats.gunDamageMul;

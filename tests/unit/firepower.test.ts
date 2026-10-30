@@ -1,16 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { maxEquipmentLevel } from '../../src/data/equipment';
 import { MISSIONS } from '../../src/data/missions';
-import { gunLevelDef, GUN2_PRICES, SECONDARIES } from '../../src/data/weapons';
+import { gunLevelDef, GUN2_PRICES, jetGunDef, SECONDARIES } from '../../src/data/weapons';
 import { buy, canBuy } from '../../src/game/economy';
 import { buyTwin, canBuyTwin, equipmentCap, gunCap, jetGunLevel, powerCap, weaponOnSale } from '../../src/game/firepower';
 import { derivePlayerStats } from '../../src/game/loadout';
 import { defaultSave, parseSave, type SaveData } from '../../src/game/save';
 
-const rich = (over: Partial<SaveData> = {}): SaveData => ({ ...defaultSave(), money: 2_000_000, ...over });
+const rich = (over: Partial<SaveData> = {}): SaveData => ({ ...defaultSave(), money: 9_000_000, ...over });
 const mapTwo = (save: SaveData): SaveData =>
   ({ ...save, progress: { ...save.progress, ...Object.fromEntries(MISSIONS.map((m) => [m.id, { stars: 2 }])) } });
 const dps = (level: number): number => { const d = gunLevelDef(level); return d.damage * d.shotsPerSec * d.pattern.length; };
+const twinDps = (level: number): number => { const d = jetGunDef(level, true); return d.damage * d.shotsPerSec * d.pattern.length; };
 
 describe('Double firepower (doc 37)', () => {
   it('keeps every map-2 good off the shelf until map 2 is open', () => {
@@ -25,10 +26,10 @@ describe('Double firepower (doc 37)', () => {
     expect(canBuyTwin(s, 'aim9')).toEqual({ ok: false, reason: 'locked' });
   });
 
-  it('sells gun levels 8–10, more armor and flares, the AIM-120 and the JDAM with map 2 (doc 43)', () => {
+  it('sells gun levels 8–20, more armor and flares, the AIM-120 and the JDAM with map 2 (docs 43, wave 3)', () => {
     let s = mapTwo(rich({ gunLevel: 7, equipment: { ...defaultSave().equipment, armor: 3, flares: 3 } }));
-    expect(gunCap(s)).toBe(10);
-    for (const level of [8, 9, 10]) {
+    expect(gunCap(s)).toBe(20);
+    for (let level = 8; level <= 20; level++) {
       expect(canBuy(s, { type: 'gun' })).toEqual({ ok: true });
       s = buy(s, { type: 'gun' });
       expect(s.gunLevel).toBe(level);
@@ -41,27 +42,31 @@ describe('Double firepower (doc 37)', () => {
     for (const id of ['aim120', 'jdam'] as const) expect(canBuy(s, { type: 'secondary', id })).toEqual({ ok: true });
   });
 
-  it('matches two level-7 guns with level 10, and keeps the new jets main gun at 7 (doc 43)', () => {
+  it('matches two new-jet guns with one old-jet gun at levels 7/10 and 14/20, and keeps the new jets main gun at 14', () => {
     expect(dps(5)).toBe(720);
     expect(dps(8)).toBe(1500);
     expect(Math.abs(2 * dps(7) - dps(10)) / dps(10)).toBeLessThan(0.01);
-    for (let level = 2; level <= 10; level++) expect(dps(level)).toBeGreaterThan(dps(level - 1));
-    expect(jetGunLevel('a10', 10)).toBe(7);
-    expect(jetGunLevel('f14', 10)).toBe(10);
-    expect(powerCap('f14')).toBe(10);
-    expect(powerCap('tornado')).toBe(7);
+    for (let level = 2; level <= 20; level++) expect(dps(level)).toBeGreaterThan(dps(level - 1));
+    expect(dps(20) / dps(10)).toBeCloseTo(2.36, 2);
+    expect(Math.abs(2 * twinDps(14) - dps(20)) / dps(20)).toBeLessThan(0.01);
+    expect(twinDps(7)).toBe(dps(7));
+    for (let level = 8; level <= 14; level++) expect(twinDps(level)).toBeGreaterThan(twinDps(level - 1));
+    expect(jetGunLevel('a10', 20)).toBe(14);
+    expect(jetGunLevel('f14', 20)).toBe(20);
+    expect(powerCap('f14')).toBe(20);
+    expect(powerCap('tornado')).toBe(14);
   });
 
   it('levels the second gun on its own and fits it only to the new jets', () => {
     let s = mapTwo(rich({ ownedPlanes: ['f16', 'a10'], selectedPlane: 'a10' }));
-    for (let level = 1; level <= 7; level++) {
+    for (let level = 1; level <= 14; level++) {
       const before = s.money;
       s = buy(s, { type: 'gun2' });
       expect(s.gun2Level).toBe(level);
       expect(before - s.money).toBe(GUN2_PRICES[level - 1]);
     }
     expect(canBuy(s, { type: 'gun2' })).toEqual({ ok: false, reason: 'max-level' });
-    expect(derivePlayerStats(s).gun2Level).toBe(7);
+    expect(derivePlayerStats(s).gun2Level).toBe(14);
     expect(derivePlayerStats({ ...s, selectedPlane: 'f16' }).gun2Level).toBe(0);
   });
 

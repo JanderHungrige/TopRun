@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { AMMO_LEVELS } from '../../src/data/arsenal';
+import { ammoLevelDef, AMMO_LEVELS } from '../../src/data/arsenal';
 import { EQUIPMENT, map1EquipmentLevel } from '../../src/data/equipment';
 import { MISSIONS } from '../../src/data/missions';
 import { PLANES } from '../../src/data/planes';
@@ -17,7 +17,7 @@ const mapTwo = (save: SaveData): SaveData =>
 
 describe('Deep arsenal (doc 43)', () => {
   describe('uranium ammo', () => {
-    it('sells levels 1–2 on map 1 and level 3 with map 2, one at a time', () => {
+    it('sells levels 1–2 on map 1 and levels 3–6 with map 2, one at a time', () => {
       let s = rich();
       expect(ammoCap(s)).toBe(2);
       expect(priceOf(s, { type: 'ammo' })).toBe(18000);
@@ -27,6 +27,9 @@ describe('Deep arsenal (doc 43)', () => {
       expect(canBuy(s, { type: 'ammo' })).toEqual({ ok: false, reason: 'max-level' });
       s = buy(mapTwo(s), { type: 'ammo' });
       expect(s.ammoLevel).toBe(3);
+      expect([4, 5, 6].map((l) => ammoLevelDef(l)?.price)).toEqual([150000, 185000, 225000]);
+      for (let i = 0; i < 3; i++) s = buy(s, { type: 'ammo' });
+      expect(s.ammoLevel).toBe(6);
       expect(canBuy(s, { type: 'ammo' })).toEqual({ ok: false, reason: 'max-level' });
     });
 
@@ -42,7 +45,7 @@ describe('Deep arsenal (doc 43)', () => {
   });
 
   describe('weapon marks', () => {
-    it('sells Mk II of an owned weapon on map 1 for 1.5 × its price, Mk III with map 2 for 4 ×', () => {
+    it('sells Mk II of an owned weapon on map 1 for 1.5 × its price, Mk III–VI with map 2 for 4 / 6 / 9 / 13 ×', () => {
       let s = rich();
       expect(canBuyMark(s, 'aim9')).toEqual({ ok: false, reason: 'not-owned' });
       s = buy(s, { type: 'secondary', id: 'aim9' });
@@ -54,6 +57,13 @@ describe('Deep arsenal (doc 43)', () => {
       expect(markPrice(s, 'aim9')).toBe(12000);
       s = buyMark(s, 'aim9');
       expect(s.weaponLevels.aim9).toBe(3);
+      const prices: number[] = [];
+      for (let m = 4; m <= 6; m++) {
+        prices.push(markPrice(s, 'aim9') ?? 0);
+        s = buyMark(s, 'aim9');
+      }
+      expect(prices).toEqual([18000, 27000, 39000]);
+      expect(s.weaponLevels.aim9).toBe(6);
       expect(canBuyMark(s, 'aim9')).toEqual({ ok: false, reason: 'max-level' });
     });
 
@@ -70,6 +80,8 @@ describe('Deep arsenal (doc 43)', () => {
       expect(weaponStats(d, 2)).toMatchObject({ damage: 75, ammoPerSlot: 7, turnRate: 3.5, speed: 520 });
       const mk3 = weaponStats(SECONDARIES.mk82, 3);
       expect(mk3).toMatchObject({ damage: 210, ammoPerSlot: 8, radius: 84 });
+      expect(weaponStats(SECONDARIES.mk82, 6)).toMatchObject({ damage: 315, ammoPerSlot: 11, radius: 105 });
+      expect(weaponStats(d, 6)).toMatchObject({ damage: 135, turnRate: 5.25, speed: 650 });
     });
 
     it('carries the mark into the mission stats, with twin pods doubling the marked ammo', () => {
@@ -111,8 +123,8 @@ describe('Deep arsenal (doc 43)', () => {
       expect(back?.weaponLevels.aim9).toBe(2);
       expect(back?.weaponLevels.mk82).toBe(1);
       const forged = parseSave({ ...JSON.parse(JSON.stringify(s)), ammoLevel: 9, weaponLevels: { aim9: 7 } });
-      expect(forged?.ammoLevel).toBe(3);
-      expect(forged?.weaponLevels.aim9).toBe(3);
+      expect(forged?.ammoLevel).toBe(6);
+      expect(forged?.weaponLevels.aim9).toBe(6);
       const old = parseSave({ ...JSON.parse(JSON.stringify(defaultSave())), ammoLevel: undefined, weaponLevels: undefined });
       expect(old?.ammoLevel).toBe(0);
       expect(Object.values(old?.weaponLevels ?? {})).toEqual(SECONDARY_IDS.map(() => 1));

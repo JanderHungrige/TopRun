@@ -3,7 +3,7 @@ import { SECONDARIES, type WeaponRole } from '../data/weapons';
 
 // Cockpit logic (doc 05): what the radar shows, which buttons are lit, which warning lamps burn. Pure.
 
-import { atLevel, RADAR_AHEAD, RADAR_RANGE as RANGES } from '../data/equipment';
+import { atLevel, RADAR_AHEAD, RADAR_BURN_THROUGH, RADAR_RANGE as RANGES } from '../data/equipment';
 
 export const RADAR_RANGE = atLevel(RANGES, 0);
 export const EARLY_RANGE = atLevel(RANGES, 1);
@@ -31,14 +31,17 @@ export interface RadarInput {
   jammed?: boolean;
 }
 
-/** Scope range for an Early-Warning Radar level 0–2 (docs 05, 43). */
+/** Scope range for an Early-Warning Radar level 0–4 (docs 05, 43). */
 export const radarRange = (level: number): number => atLevel(RANGES, level);
 
-/** Contacts on the scope; with the Early-Warning Radar (level ≥ 1) spawns due in the next 4 / 7 s show ahead. */
+/** A jammer blanks the scope, unless the Early-Warning Radar burns through it (level 4, doc 43). */
+export const scopeJammed = (jammed: boolean, level: number): boolean => jammed && level < RADAR_BURN_THROUGH;
+
+/** Contacts on the scope; with the Early-Warning Radar (level ≥ 1) spawns due in the next 4 / 7 / 10 / 13 s show ahead. */
 export function radarContacts(input: RadarInput, level: number): Contact[] {
   const range = radarRange(level);
   const window = atLevel(RADAR_AHEAD, level);
-  if (input.jammed) return [];
+  if (scopeJammed(!!input.jammed, level)) return [];
   const out: Contact[] = [];
   const add = (x: number, y: number, kind: ContactKind): void => {
     const nx = (x - input.player.x) / range;

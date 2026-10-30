@@ -15,6 +15,16 @@ export interface GunLevelDef {
 
 const deg = (d: number): number => (d * Math.PI) / 180;
 
+/** Barrel patterns shared by several levels. */
+const FIVE: readonly GunBarrel[] = [
+  { dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-9) }, { dx: 10, angle: deg(9) },
+];
+const SIX: readonly GunBarrel[] = [
+  { dx: -4, angle: 0 }, { dx: 4, angle: 0 }, { dx: -8, angle: deg(-4) }, { dx: 8, angle: deg(4) },
+  { dx: -12, angle: deg(-10) }, { dx: 12, angle: deg(10) },
+];
+const SEVEN: readonly GunBarrel[] = [{ dx: 0, angle: 0 }, ...SIX];
+
 export const GUN_LEVELS: readonly GunLevelDef[] = Object.freeze([
   { level: 1, price: 0, shotsPerSec: 9, damage: 10, pattern: [{ dx: 0, angle: 0 }] },
   { level: 2, price: 2500, shotsPerSec: 10, damage: 10, pattern: [{ dx: -7, angle: 0 }, { dx: 7, angle: 0 }] },
@@ -34,10 +44,7 @@ export const GUN_LEVELS: readonly GunLevelDef[] = Object.freeze([
     level: 6, price: 45000, shotsPerSec: 17, damage: 13,
     pattern: [{ dx: -5, angle: 0 }, { dx: 5, angle: 0 }, { dx: -9, angle: deg(-7) }, { dx: 9, angle: deg(7) }],
   },
-  {
-    level: 7, price: 70000, shotsPerSec: 16, damage: 14,
-    pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-9) }, { dx: 10, angle: deg(9) }],
-  },
+  { level: 7, price: 70000, shotsPerSec: 16, damage: 14, pattern: FIVE },
   // Map 2: the old jets' path beyond the map-1 top (docs 37, 43).
   {
     level: 8, price: 110000, shotsPerSec: 20, damage: 15,
@@ -48,25 +55,58 @@ export const GUN_LEVELS: readonly GunLevelDef[] = Object.freeze([
     pattern: [{ dx: 0, angle: 0 }, { dx: -6, angle: 0 }, { dx: 6, angle: 0 }, { dx: -10, angle: deg(-8) }, { dx: 10, angle: deg(8) }],
   },
   {
-    level: 10, price: 230000, shotsPerSec: 22, damage: 17,
-    pattern: [
-      { dx: -4, angle: 0 }, { dx: 4, angle: 0 }, { dx: -8, angle: deg(-4) }, { dx: 8, angle: deg(4) },
-      { dx: -12, angle: deg(-10) }, { dx: 12, angle: deg(10) },
-    ],
+    level: 10, price: 230000, shotsPerSec: 22, damage: 17, pattern: SIX,
   },
+  // Map 2, wave 3 (doc 43): as many levels again, about +8–11 % each; the seventh barrel fires from the nose.
+  { level: 11, price: 250000, shotsPerSec: 23, damage: 18, pattern: SIX },
+  { level: 12, price: 265000, shotsPerSec: 23, damage: 20, pattern: SIX },
+  { level: 13, price: 280000, shotsPerSec: 24, damage: 21, pattern: SIX },
+  { level: 14, price: 300000, shotsPerSec: 24, damage: 23, pattern: SIX },
+  { level: 15, price: 320000, shotsPerSec: 25, damage: 24, pattern: SIX },
+  { level: 16, price: 340000, shotsPerSec: 25, damage: 22, pattern: SEVEN },
+  { level: 17, price: 360000, shotsPerSec: 26, damage: 23, pattern: SEVEN },
+  { level: 18, price: 385000, shotsPerSec: 26, damage: 25, pattern: SEVEN },
+  { level: 19, price: 410000, shotsPerSec: 27, damage: 26, pattern: SEVEN },
+  { level: 20, price: 435000, shotsPerSec: 27, damage: 28, pattern: SEVEN },
 ]);
 
-export const MAX_GUN_LEVEL: GunLevel = 10;
-/** The gun's cap before map 2 opens, and the cap of a new jet's main gun (docs 37, 43). */
+export const MAX_GUN_LEVEL: GunLevel = 20;
+/** The gun's cap before map 2 opens (docs 37, 43). */
 export const MAP1_GUN_LEVEL: GunLevel = 7;
-/** Second gun of the new jets (docs 37, 43): price of levels 1–7; it shares the gun's level table. */
-export const GUN2_PRICES: readonly number[] = Object.freeze([15000, 8000, 15000, 25000, 40000, 60000, 90000]);
-export const MAX_GUN2_LEVEL = 7;
+/** A new jet's main gun and second gun go to 14 (wave 3, doc 43; 7 before). */
+export const TWIN_GUN_LEVEL = 14;
+/** Second gun of the new jets (docs 37, 43): price of levels 1–14. */
+export const GUN2_PRICES: readonly number[] = Object.freeze([
+  15000, 8000, 15000, 25000, 40000, 60000, 90000, 120000, 150000, 185000, 225000, 270000, 320000, 375000,
+]);
+export const MAX_GUN2_LEVEL = TWIN_GUN_LEVEL;
+
+/**
+ * Levels 8–14 of a new jet's two guns (wave 3, doc 43): each about half an old jet's gun at the same point of the
+ * ladder, so two level-14 guns match one level-20 gun. Price is the shared ladder's (main gun) or GUN2_PRICES.
+ */
+const TWIN_LEVELS: readonly GunLevelDef[] = Object.freeze([
+  { level: 8, price: 0, shotsPerSec: 17, damage: 15, pattern: FIVE },
+  { level: 9, price: 0, shotsPerSec: 18, damage: 16, pattern: FIVE },
+  { level: 10, price: 0, shotsPerSec: 18, damage: 18, pattern: FIVE },
+  { level: 11, price: 0, shotsPerSec: 20, damage: 18, pattern: FIVE },
+  { level: 12, price: 0, shotsPerSec: 20, damage: 21, pattern: FIVE },
+  { level: 13, price: 0, shotsPerSec: 21, damage: 22, pattern: FIVE },
+  { level: 14, price: 0, shotsPerSec: 21, damage: 25, pattern: FIVE },
+]);
 
 export function gunLevelDef(level: number): GunLevelDef {
   const clamped = Math.max(1, Math.min(MAX_GUN_LEVEL, Math.floor(level)));
   const def = GUN_LEVELS[clamped - 1];
   if (!def) throw new Error(`missing gun level ${clamped}`);
+  return def;
+}
+
+/** A gun's numbers on a jet: a new jet's guns (`twin`) use their own table above level 7. */
+export function jetGunDef(level: number, twin: boolean): GunLevelDef {
+  if (!twin || level <= MAP1_GUN_LEVEL) return gunLevelDef(Math.min(level, twin ? MAP1_GUN_LEVEL : MAX_GUN_LEVEL));
+  const def = TWIN_LEVELS[Math.min(TWIN_GUN_LEVEL, Math.floor(level)) - 8];
+  if (!def) throw new Error(`missing twin gun level ${level}`);
   return def;
 }
 

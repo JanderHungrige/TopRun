@@ -5,6 +5,7 @@ import { isMiniBoss } from '../../data/reinforcements';
 import { holdsScroll, jamming, MINI_HOLD_SCROLL } from '../../game/adversaries';
 import { missionTuning } from '../../game/challenge';
 import { hitScale } from '../../game/combat';
+import { mapTwoHit, mapTwoHp, payScale } from '../../game/map-two';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
@@ -172,7 +173,7 @@ export class MissionScene implements Scene {
         spawnEnemy(w, ev.kind, ev.x, ev.behavior);
         if (isMiniBoss(ev.kind)) this.warn(t('mission.miniBoss', { name: enemyName(ev.kind) }), enemyName(ev.kind));
       } else {
-        w.boss = new Boss(ev.boss, w.mission.difficulty, w.ease);
+        w.boss = new Boss(ev.boss, w.mission.difficulty, w.ease, mapTwoHp(w.mission.number));
         this.warn(t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), w.boss.def.name);
         this.game.music.play('boss');
       }
@@ -191,7 +192,7 @@ export class MissionScene implements Scene {
     const p = this.player;
     const w = this.world;
     if (!p.alive || p.invulnerable) return;
-    const amount = base * hitScale(w.mission.difficulty);
+    const amount = base * hitScale(w.mission.difficulty) * mapTwoHit(w.mission.number);
     w.perf.damage += amount;
     const died = p.damage(amount);
     w.particles.sparks(p.x, p.y, 8, '#ffb070', 200);
@@ -212,8 +213,9 @@ export class MissionScene implements Scene {
     if (w.boss?.phase === 'gone' && !w.tally.bossKilled) {
       w.tally.bossKilled = true;
       w.tally.kills += 1;
-      w.collected += w.boss.def.bounty;
-      w.particles.popup(w.boss.x, w.boss.y, `+$${w.boss.def.bounty}`, '#5be37d');
+      const bounty = Math.round(w.boss.def.bounty * payScale(w.mission.number));
+      w.collected += bounty;
+      w.particles.popup(w.boss.x, w.boss.y, `+$${bounty}`, '#5be37d');
     }
     const over = isMissionOver({
       playerDead: !p.alive, bossMission, bossKilled: w.tally.bossKilled, t: w.t, length: this.mission.length,

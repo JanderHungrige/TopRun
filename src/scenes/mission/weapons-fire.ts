@@ -1,16 +1,18 @@
 import type { AudioEngine } from '../../core/audio';
 import type { EnemyWeapon, SecondaryId } from '../../data/types';
-import { gunLevelDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
+import { jetGunDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
 import { headingTo } from '../../game/combat';
 import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
+import { fireHe } from './shells';
 import type { Missile, World } from './world';
 
 export const GUN_SPEED = 900;
 
 export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void {
   fireSecondGun(world, p);
+  fireHe(world, p, audio);
   if (p.gunCooldown > 0) return;
   const gun = p.gun;
   p.gunCooldown = 1 / gun.shotsPerSec;
@@ -18,7 +20,7 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
   for (const b of gun.pattern) {
     world.bullets.push({
       kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(b.angle) * GUN_SPEED, vy: -Math.cos(b.angle) * GUN_SPEED,
-      damage, ttl: 1, dead: false, ground: p.stats.gunGround,
+      damage, ttl: 1, dead: false, ground: p.stats.gunGround, burn: p.stats.gunBurn, rounds: p.stats.rounds ?? undefined,
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -29,14 +31,15 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
 function fireSecondGun(world: World, p: Player): void {
   const level = p.gun2Level;
   if (level <= 0 || p.gun2Cooldown > 0) return;
-  const gun = gunLevelDef(level);
+  const gun = jetGunDef(level, true);
   p.gun2Cooldown = 1 / gun.shotsPerSec;
   p.gun2Side *= -1;
   const damage = gun.damage * p.stats.gunDamageMul;
   for (const b of gun.pattern) {
     world.bullets.push({
       kind: 'gun', x: p.x + p.gun2Side * 13 + b.dx * 0.6, y: p.y - 12, vx: Math.sin(b.angle) * GUN_SPEED,
-      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false, ground: p.stats.gunGround,
+      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false, ground: p.stats.gunGround, burn: p.stats.gunBurn,
+      rounds: p.stats.rounds ?? undefined,
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;

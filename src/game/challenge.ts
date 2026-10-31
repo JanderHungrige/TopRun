@@ -43,10 +43,11 @@ export const CHALLENGE = Object.freeze({
 
 export const freshChallenge = (): ChallengeState => ({ level: 0, wins: 0, fails: 0, failKit: 0 });
 
-/** Everything bought raises it: guns, uranium ammo, equipment, weapons and their marks, twin pods, a pricier jet. */
+/** Everything bought raises it: guns, both ammo types, equipment, weapons and their marks, twin pods, a pricier jet. */
 export function kitScore(save: SaveData): number {
   const equipment = Object.values(save.equipment).reduce((a, b) => a + b, 0);
-  return save.gunLevel * 10 + save.gun2Level * 10 + save.ammoLevel * 10 + equipment * 5 + save.ownedSecondaries.length * 4
+  const guns = save.gunLevel + save.gun2Level + save.heLevel + save.ammoLevel + save.incendiaryLevel;
+  return guns * 10 + equipment * 5 + save.ownedSecondaries.length * 4
     + marksBought(save) * 4 + save.twinSecondaries.length * 4 + Math.round(PLANES[save.selectedPlane].price / 10000);
 }
 

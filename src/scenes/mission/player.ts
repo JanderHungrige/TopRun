@@ -1,8 +1,8 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
 import type { WeaponStats } from '../../game/arsenal';
-import { gunLevelDef, MAX_GUN2_LEVEL } from '../../data/weapons';
-import { powerCap } from '../../game/firepower';
+import { jetGunDef, MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
+import { doubleFirepower, powerCap } from '../../game/firepower';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -33,6 +33,8 @@ export class Player {
   gunCooldown = 0;
   /** Second gun of the new jets (doc 37): its own rate; `gun2Side` alternates the wing roots. */
   gun2Cooldown = 0;
+  /** Bofors 40 mm HE gun reload (doc 46). */
+  heCooldown = 0;
   gun2Side = 1;
   secCooldown = 0;
   readonly secondaries: SecondarySlot[];
@@ -76,8 +78,8 @@ export class Player {
     return this.stats.gun2Level > 0 ? Math.min(MAX_GUN2_LEVEL, this.stats.gun2Level + (this.powerTimer > 0 ? 1 : 0)) : 0;
   }
 
-  get gun(): ReturnType<typeof gunLevelDef> {
-    return gunLevelDef(this.gunLevel);
+  get gun(): GunLevelDef {
+    return jetGunDef(this.gunLevel, doubleFirepower(this.stats.plane.id));
   }
 
   get hullRatio(): number {
@@ -109,6 +111,7 @@ export class Player {
     this.invuln = Math.max(0, this.invuln - dt);
     this.gunCooldown = Math.max(0, this.gunCooldown - dt);
     this.gun2Cooldown = Math.max(0, this.gun2Cooldown - dt);
+    this.heCooldown = Math.max(0, this.heCooldown - dt);
     this.secCooldown = Math.max(0, this.secCooldown - dt);
     this.specialCooldown = Math.max(0, this.specialCooldown - dt);
     this.specialActive = Math.max(0, this.specialActive - dt);

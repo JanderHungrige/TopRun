@@ -115,16 +115,28 @@ function lamp(ctx: CanvasRenderingContext2D, x: number, y: number, rgb: string, 
   ctx.fill();
 }
 
-export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: number; level2: number; powered: boolean; powerRatio: number }, t: number): void {
-  const level = Math.max(0, Math.min(10, Math.round(c.level)));
+/** Lamp colours by tier of five levels: 1–5 green, 6–10 cyan, 11–15 violet, 16–20 white (docs 37, 43). */
+const TIERS: readonly (readonly [string, string])[] = [
+  ['98,240,138', '#62f08a'], ['96,214,255', '#5fd6ff'], ['178,140,255', '#b28cff'], ['236,242,255', '#f4f7ff'],
+];
+
+/** The tier lamp `i` (0–4) shows at a level, −1 when it is dark: each tier lights over the one before. */
+const lampTier = (i: number, level: number): number => {
+  for (let k = TIERS.length - 1; k >= 0; k--) if (i < level - 5 * k) return k;
+  return -1;
+};
+
+export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: number; level2: number; powered: boolean; powerRatio: number; he: number }, t: number): void {
+  const level = Math.max(0, Math.min(5 * TIERS.length, Math.round(c.level)));
   const pulse = 0.85 + Math.sin(t * 7) * 0.15;
   for (let i = 0; i < 5; i++) {
     const y = r.y + LAMP_Y + 16;
-    if (i < level - 5) lamp(ctx, lampX(r, i), y, '96,214,255', '#5fd6ff', 1); // levels 6–10 (docs 37, 43)
-    else if (i < level) lamp(ctx, lampX(r, i), y, '98,240,138', '#62f08a', 1);
+    const tier = TIERS[lampTier(i, level)];
+    if (tier) lamp(ctx, lampX(r, i), y, tier[0], tier[1], 1);
     else if (i === level && c.powered) lamp(ctx, lampX(r, i), y, '255,200,61', '#ffd84a', pulse);
   }
   secondGunLamps(ctx, r, c.level2);
+  if (c.he > 0) legend(ctx, `40MM ${c.he}`, r.x + r.w - 18, r.y + r.h - 9, { size: 8, align: 'right', color: '#ffb347' });
   const w = (r.w - 72) * Math.max(0, Math.min(1, c.powerRatio));
   if (!c.powered || w <= 0) return;
   rr(ctx, r.x + 60, r.y + r.h - 26, w, 8, 2);
@@ -134,7 +146,7 @@ export function cannonLive(ctx: CanvasRenderingContext2D, r: Rect, c: { level: n
   ctx.fillRect(r.x + 61, r.y + r.h - 25, Math.max(0, w - 2), 2);
 }
 
-/** Second gun (doc 37): five small lamps under the main row, lit up to its level; levels 6–7 cyan (doc 43). */
+/** Second gun (doc 37): five small lamps under the main row, lit up to its level in the same tiers (doc 43). */
 function secondGunLamps(ctx: CanvasRenderingContext2D, r: Rect, level: number): void {
   if (level <= 0) return;
   const y = r.y + LAMP_Y + 36;
@@ -143,7 +155,7 @@ function secondGunLamps(ctx: CanvasRenderingContext2D, r: Rect, level: number): 
     ctx.beginPath();
     ctx.arc(lampX(r, i), y, 4.5, 0, TAU);
     ctx.fill();
-    ctx.fillStyle = i < level - 5 ? '#5fd6ff' : i < level ? '#62f08a' : '#1a2420';
+    ctx.fillStyle = TIERS[lampTier(i, level)]?.[1] ?? '#1a2420';
     ctx.beginPath();
     ctx.arc(lampX(r, i), y, 3.2, 0, TAU);
     ctx.fill();

@@ -55,31 +55,46 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
   armor: {
     name: 'Panzerplatten', description: 'Titanplatten um Cockpit und Triebwerke.',
-    levelText: ['+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung', '+80 % Panzerung', '+100 % Panzerung', '+125 % Panzerung', '+150 % Panzerung'],
+    levelText: [
+      '+20 % Panzerung', '+40 % Panzerung', '+60 % Panzerung', '+80 % Panzerung', '+100 % Panzerung', '+125 % Panzerung', '+150 % Panzerung',
+      '+175 % Panzerung', '+200 % Panzerung', '+225 % Panzerung', '+250 % Panzerung', '+275 % Panzerung', '+300 % Panzerung', '+325 % Panzerung',
+    ],
   },
   engine: {
     name: 'Triebwerkstuning', description: 'Getunte Turbinen und ein heißerer Nachbrenner.',
-    levelText: ['+8 % Tempo', '+16 % Tempo', '+24 % Tempo', '+30 % Tempo', '+36 % Tempo'],
+    levelText: ['+8 % Tempo', '+16 % Tempo', '+24 % Tempo', '+30 % Tempo', '+36 % Tempo', '+40 % Tempo', '+44 % Tempo', '+48 % Tempo', '+52 % Tempo', '+56 % Tempo'],
   },
   flares: {
     name: 'Täuschkörperwerfer', description: 'Täuschkörper lenken feindliche Raketen ab. Taste F.',
-    levelText: ['2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper', '8 Täuschkörper', '10 Täuschkörper', '12 Täuschkörper', '14 Täuschkörper'],
+    levelText: [
+      '2 Täuschkörper', '4 Täuschkörper', '6 Täuschkörper', '8 Täuschkörper', '10 Täuschkörper', '12 Täuschkörper', '14 Täuschkörper',
+      '16 Täuschkörper', '18 Täuschkörper', '20 Täuschkörper', '22 Täuschkörper', '24 Täuschkörper', '26 Täuschkörper', '28 Täuschkörper',
+    ],
   },
   ecm: {
     name: 'ECM-Störbehälter', description: 'Stört die feindliche Feuerleitung: feindliche Kugeln machen weniger Schaden, feindliche Raketen drehen langsamer.',
-    levelText: ['−25 % Kugelschaden, Raketen drehen 30 % langsamer', '−35 % Kugelschaden, Raketen drehen 40 % langsamer', '−45 % Kugelschaden, Raketen drehen 50 % langsamer'],
+    levelText: [
+      '−25 % Kugelschaden, Raketen drehen 30 % langsamer', '−35 % Kugelschaden, Raketen drehen 40 % langsamer', '−45 % Kugelschaden, Raketen drehen 50 % langsamer',
+      '−50 % Kugelschaden, Raketen drehen 55 % langsamer', '−55 % Kugelschaden, Raketen drehen 60 % langsamer', '−60 % Kugelschaden, Raketen drehen 65 % langsamer',
+    ],
   },
   damageControl: {
-    name: 'Schadenskontrolle', description: 'Unter 25 % Panzerung wird ein Teil wiederhergestellt: einmal pro Mission, auf der höchsten Stufe zweimal.',
-    levelText: ['Einmal pro Mission +40 % Panzerung', 'Einmal pro Mission +60 % Panzerung', 'Zweimal pro Mission +60 % Panzerung'],
+    name: 'Schadenskontrolle', description: 'Unter 25 % Panzerung wird ein Teil wiederhergestellt: einmal pro Mission, auf der höchsten Stufe dreimal.',
+    levelText: [
+      'Einmal pro Mission +40 % Panzerung', 'Einmal pro Mission +60 % Panzerung', 'Zweimal pro Mission +60 % Panzerung',
+      'Zweimal pro Mission +70 % Panzerung', 'Zweimal pro Mission +80 % Panzerung', 'Dreimal pro Mission +80 % Panzerung',
+    ],
   },
   magnet: {
     name: 'Frachtmagnet', description: 'Aufsammelbares fliegt dir aus viel größerer Entfernung zu.',
-    levelText: ['Aufsammeln ab 160 px', 'Aufsammeln ab 280 px, schneller herangezogen'],
+    levelText: ['Aufsammeln ab 160 px', 'Aufsammeln ab 280 px, schneller herangezogen', 'Aufsammeln ab 400 px, schneller herangezogen', 'Aufsammeln ab 520 px, am schnellsten herangezogen'],
   },
   radar: {
     name: 'Frühwarnradar', description: 'Größere Radarreichweite: Banditen erscheinen auf dem Schirm, bevor sie da sind.',
-    levelText: ['Banditen 4 s früher auf dem Radar', 'Banditen 7 s früher auf dem Radar, Reichweite 1.400 px, zeigt Tarnkappenjäger'],
+    levelText: [
+      'Banditen 4 s früher auf dem Radar', 'Banditen 7 s früher auf dem Radar, Reichweite 1.400 px, zeigt Tarnkappenjäger',
+      'Banditen 10 s früher auf dem Radar, Reichweite 1.700 px', 'Banditen 13 s früher auf dem Radar, Reichweite 2.000 px, funktioniert trotz Störung',
+    ],
   },
 };
 

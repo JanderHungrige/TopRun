@@ -114,7 +114,7 @@ export const UI_EN = {
   'hangar.gun2Name': 'Second Gun',
   'hangar.gun2Desc': 'A second rotary cannon in the wing roots of the A-10, F-35 and Tornado. Fires together with the main gun and levels up on its own.',
   'hangar.gun2Sub': 'A-10 · F-35 · Tornado',
-  'hangar.gunNewJets': 'The A-10, F-35 and Tornado fly the main gun at level 7 at most; they carry the second gun instead.',
+  'hangar.gunNewJets': 'The A-10, F-35 and Tornado fly the main gun up to level 14, with their own numbers from level 8; they carry the second gun as well.',
   'hangar.buyTwin': 'TWIN PODS {price}',
   'hangar.twinOwned': 'TWIN PODS OWNED',
   'hangar.twinInfo': 'Twin pods: double ammo on the A-10, F-35, Tornado.',

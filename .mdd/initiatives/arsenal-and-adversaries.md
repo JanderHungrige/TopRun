@@ -2,8 +2,8 @@
 id: arsenal-and-adversaries
 title: Arsenal and Adversaries
 status: complete
-version: 1
-hash: a1dc018e
+version: 2
+hash: 56f643b9
 created: 2026-10-28
 ---
 
@@ -16,6 +16,11 @@ and more levels per weapon/equipment, to make the player fail more often but wit
 will find an optimal adjustment, I fully trust you." And: "Can you think of more enemy types, to keep the
 surprises/changes coming more often? Maybe at later levels add mini bosses. Stealth fighters, a base with anti-air …
 just to keep it interesting."
+
+Owner, 2026-10-30, wave 3: "In world two, there are almost no weapons etc to buy as everything is already maxed out.
+But the enemies get harder. I suggest that every item gets the same improvement levels to buy on top as they have
+now. Let's also add a weapon: a small cannon that shoots explosive rounds, low frequency. And a new ammunition type,
+incendiary ammo."
 
 ## Overview
 
@@ -59,9 +64,17 @@ Balance is justified by bot playtests (doc 35 method) and written into the docs 
       what is not yet bought.
 - [x] Rookie (doc 38) → unchanged: the son's Rookie switch still gives 1.5 × hull and slower enemy fire. The new
       scaling barely touches the Pacific.
+- [x] Wave 3: how deep does map 2 go → every ladder gets as many new levels again on map 2 (gun 11–20, Mk IV–VI,
+      uranium 4–6, equipment doubled), the shop about 1.5 × what map 2 pays, map-2 enemies tougher to match (owner,
+      2026-10-30).
+- [x] Wave 3: the explosive cannon → a third gun, always on: no hardpoint, unlimited shells, about one shot a second
+      with the main gun, its own upgrade ladder (owner).
+- [x] Wave 3: incendiary and uranium → one ammo type loaded per sortie, each with its own levels; uranium for armour
+      and ground, incendiary sets planes on fire (owner).
 
 ## Waves
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/arsenal-and-adversaries-wave-1.md | A map-1 pilot can buy gun levels 6–7, uranium ammo, Mk II weapons and new equipment levels at rising prices; later missions hit harder and need them; the Pacific plays as today. | complete |
 | Wave 2 | waves/arsenal-and-adversaries-wave-2.md | From the Gulf on, every theater brings new enemy types (stealth fighters, interceptors, jammers, bunkers, frigates), and later missions have a mini-boss halfway through. | complete |
+| Wave 3 | waves/arsenal-and-adversaries-wave-3.md | On map 2 every ladder has as many new levels again, an always-on 40 mm HE gun and incendiary ammo are on sale, map 2 pays and hits harder, and a pilot who buys as the money comes in still has about half of the shop left at m60. | complete |

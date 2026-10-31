@@ -1,9 +1,9 @@
 ---
 id: 43-deep-arsenal
-title: Deep Arsenal - Gun Levels to 10, Uranium Ammo, Mk II/III Weapons, More Equipment Levels, Stronger Enemies
+title: Deep Arsenal - Gun Levels to 20, Uranium Ammo, Mk II–VI Weapons, Doubled Equipment Levels, Stronger Enemies
 edition: TopRun
 depends_on: [02-hangar-economy, 05-mission-combat, 35-second-map, 37-double-firepower, 38-challenge-level]
-relates: [02-hangar-economy, 05-mission-combat, 37-double-firepower, 38-challenge-level]
+relates: [02-hangar-economy, 05-mission-combat, 37-double-firepower, 38-challenge-level, 45-incendiary-ammo, 46-bofors-he-gun]
 source_files:
   - src/core/input.ts
   - src/data/arsenal.ts
@@ -17,6 +17,7 @@ source_files:
   - src/game/economy.ts
   - src/game/firepower.ts
   - src/game/loadout.ts
+  - src/game/map-two.ts
   - src/game/save.ts
   - src/i18n/content-de.ts
   - src/i18n/ui-de-arsenal.ts
@@ -31,7 +32,9 @@ source_files:
   - src/scenes/hangar-items.ts
   - src/scenes/hangar-panels.ts
   - src/scenes/hangar.ts
+  - src/scenes/mission/boss.ts
   - src/scenes/mission/cockpit-view.ts
+  - src/scenes/mission/enemy-ai.ts
   - src/scenes/mission/mission-render.ts
   - src/scenes/mission/mission-scene.ts
   - src/scenes/mission/pickups.ts
@@ -41,18 +44,20 @@ source_files:
   - src/scenes/mission/world.ts
 routes: []
 models:
-  - "SaveData.gunLevel 1–10 (was 1–8), gun2Level 0–7 (was 0–5), ammoLevel 0–3 (new), weaponLevels: Record<SecondaryId, 1–3> (new), equipment levels up to the new caps"
+  - "SaveData.gunLevel 1–20 (wave 1: 1–10), gun2Level 0–14, ammoLevel 0–6, weaponLevels: Record<SecondaryId, 1–6>, equipment levels up to the doubled caps"
 test_files:
   - tests/unit/arsenal.test.ts
   - tests/unit/firepower.test.ts
   - tests/unit/economy.test.ts
   - tests/unit/combat.test.ts
+  - tests/unit/map-two-ladders.test.ts
+  - tests/unit/map-two.test.ts
 data_flow: writes-existing
-last_synced: 2026-10-28
+last_synced: 2026-10-30
 status: complete
 phase: all
 mdd_version: 11
-tags: [weapons, gun, upgrades, uranium-ammo, mk-ii, equipment, hangar, economy, balance, difficulty, arsenal]
+tags: [weapons, gun, upgrades, uranium-ammo, mk-ii, mk-vi, equipment, hangar, economy, balance, difficulty, arsenal, map-2, pay]
 path: Game/Hangar/Deep Arsenal
 integration_contracts: []
 satisfies_contracts: []
@@ -146,6 +151,101 @@ For rockets the extra ammo is extra volleys. Twin pods (doc 37) double the ammo 
 pilot who owns them keeps them.) Wave 2 adds stealth fighters, which only Early-Warning Radar level 2 shows on the
 scope.
 
+## Map 2 doubled (wave 3, 2026-10-30)
+
+Owner: *"In world two, there are almost no weapons etc to buy as everything is already maxed out. But the enemies get
+harder. I suggest that every item gets the same improvement levels to buy on top as they have now."* Answer: **every
+ladder gets as many new levels again, all on map 2**; the shop is about 1.5 × what map 2 pays; map-2 enemies get
+tougher to match. Map 1 does not change. Two new items join the ladders: incendiary ammo (doc 45) and the Bofors
+40 mm HE gun (doc 46).
+
+### Gun levels 11–20 (old jets: F-16, F-14, SR-71)
+
+| level | shots/s | damage | barrels | DPS | price |
+|---|---|---|---|---|---|
+| 11 | 23 | 18 | 6 | 2,484 | 250,000 |
+| 12 | 23 | 20 | 6 | 2,760 | 265,000 |
+| 13 | 24 | 21 | 6 | 3,024 | 280,000 |
+| 14 | 24 | 23 | 6 | 3,312 | 300,000 |
+| 15 | 25 | 24 | 6 | 3,600 | 320,000 |
+| 16 | 25 | 22 | 7 | 3,850 | 340,000 |
+| 17 | 26 | 23 | 7 | 4,186 | 360,000 |
+| 18 | 26 | 25 | 7 | 4,550 | 385,000 |
+| 19 | 27 | 26 | 7 | 4,914 | 410,000 |
+| 20 | 27 | 28 | 7 | 5,292 | 435,000 |
+
+About +8–11 % a level; level 20 is 2.4 × level 10. The seventh barrel (levels 16–20) fires straight ahead from the
+nose.
+
+### New jets (A-10, F-35, Tornado): main gun and second gun 8–14
+
+The pilot's gun level is one ladder (levels 1–20). A new jet's main gun follows it up to **14** (was 7), and the
+**second gun** goes to **14** (was 7). Levels 8–14 of a new jet's guns come from their own table, each gun about half
+an old jet's gun at the same point of the ladder, so two level-14 guns (5,250 DPS) match one level-20 gun (5,292),
+doc 37's rule:
+
+| level | shots/s | damage | barrels | DPS | second gun price |
+|---|---|---|---|---|---|
+| 8 | 17 | 15 | 5 | 1,275 | 120,000 |
+| 9 | 18 | 16 | 5 | 1,440 | 150,000 |
+| 10 | 18 | 18 | 5 | 1,620 | 185,000 |
+| 11 | 20 | 18 | 5 | 1,800 | 225,000 |
+| 12 | 20 | 21 | 5 | 2,100 | 270,000 |
+| 13 | 21 | 22 | 5 | 2,310 | 320,000 |
+| 14 | 21 | 25 | 5 | 2,625 | 375,000 |
+
+(The main gun's levels cost what the shared ladder costs: 110,000 … 300,000 for 8–14.) Power-ups lift the main gun to
+20 on an old jet and 14 on a new one.
+
+**Cockpit:** the cannon panel keeps its five lamps: levels 1–5 green, 6–10 cyan, **11–15 violet, 16–20 white**, each
+colour lit over the one before. The second gun's small lamps: 1–5 green, 6–10 cyan, 11–14 violet.
+
+### Uranium ammo 4–6
+
+| level | gun damage | gun vs ground | price |
+|---|---|---|---|
+| 4 | +60 % | 100 % | 150,000 |
+| 5 | +75 % | 100 % | 185,000 |
+| 6 | +90 % | 100 % | 225,000 |
+
+### Mk IV – Mk VI
+
+| mark | damage | ammo per hardpoint | flight | price |
+|---|---|---|---|---|
+| Mk IV | +75 % | +3 | homing turn +30 %, speed +15 %; bomb blast +30 % radius | 6 × the weapon's price |
+| Mk V | +100 % | +4 | turn +40 %, speed +20 %; blast +40 % | 9 × |
+| Mk VI | +125 % | +5 | turn +50 %, speed +25 %; blast +50 % | 13 × |
+
+The hangar names the marks Mk I … Mk VI; the UPGRADE button (key U) buys the next one.
+
+### Equipment, levels added on map 2
+
+| item | new levels | prices |
+|---|---|---|
+| Armor Plating | +175 / +200 / +225 / +250 / +275 / +300 / +325 % hull | 170,000 · 185,000 · 200,000 · 215,000 · 230,000 · 250,000 · 270,000 |
+| Engine Tuning | +40 / +44 / +48 / +52 / +56 % speed | 60,000 · 70,000 · 80,000 · 90,000 · 100,000 |
+| Flare Dispenser | 16 / 18 / 20 / 22 / 24 / 26 / 28 flares | 65,000 · 75,000 · 85,000 · 95,000 · 105,000 · 115,000 · 125,000 |
+| ECM Pod | −50 / −55 / −60 % bullet damage, missiles turn 55 / 60 / 65 % slower | 90,000 · 115,000 · 145,000 |
+| Damage Control | restore 70 % twice · 80 % twice · 80 % three times | 100,000 · 125,000 · 155,000 |
+| Cargo Magnet | pickups from 400 px · 520 px, pulled in faster | 25,000 · 40,000 |
+| Early-Warning Radar | bandits 10 s earlier, range 1,700 px · 13 s earlier, range 2,000 px, **the scope keeps working while jammed** | 30,000 · 45,000 |
+
+### Map 2 pays more
+
+Doubling every ladder with prices that keep rising costs ≈ 12 M on map 2, six times what map 2 pays today. So map 2
+pays more, ramping by **mission number** (not by difficulty: a pilot on a high challenge level must not out-earn the
+shop again): on map 2 the mission reward, every enemy's bounty and the boss bounty (and with it the cash pickups)
+are multiplied by
+
+`pay = 1 + 0.08 x + 0.004 x²`, `x = mission number − 30` → m31 × 1.08, m35 × 1.5, m40 × 2.2, m45 × 3.1, m50 × 4.2,
+m55 × 5.5, m60 × 7.0. Map 1 pays as today.
+
+### Map 2 hits harder
+
+On top of the threat curve below, also by mission number (`MAP_TWO` in `game/map-two.ts`): every enemy's and boss's
+HP × (1 + 0.01 x + 0.0008 x²) and every enemy hit × (1 + 0.02 x) — at m35 × 1.07 / × 1.10, m45 × 1.33 / × 1.30,
+m53 × 1.65 / × 1.46, m60 × 2.02 / × 1.60. Tuned by bot playtest (Balance, wave 3).
+
 ## Cost of each map's shop
 
 | | today | new |
@@ -156,6 +256,11 @@ scope.
 Map 1 pays ≈ 574,000 and map 2 ≈ 2,060,000 (80 % kills, first clears, perfect take-offs). A pilot who buys as the
 money comes in finishes map 1 without one of the jets, or with most of the kit, and map 2 with one firepower path
 maxed. The first theater's prices are unchanged except gun level 4 (+2,000), so the son's start is the same.
+
+**Wave 3:** map 2's shop on one path (gun 8–20 or the new jets' guns 8–14 + second gun 8–14, uranium 3–6, the HE gun,
+every equipment level, Mk III–VI of four weapons) costs ≈ 12.2 M (old jets) / 11.7 M (new jets), and map 2 now pays
+≈ 8.1 M at 80 % kills: about 1.5 ×. A pilot who buys as the money comes in still has about half of the shop left at
+m60 and chooses what to buy first.
 
 ## Stronger enemies (threat curve)
 
@@ -176,18 +281,21 @@ steepened.
 
 ## Save
 
-`gunLevel` 1–10, `gun2Level` 0–7, `ammoLevel` 0–3 (missing = 0), `weaponLevels` per weapon 1–3 (missing = 1, above 1
-only for owned weapons), equipment levels up to the new maximum. Older builds clamp a newer save back to their caps:
+`gunLevel` 1–20, `gun2Level` 0–14, `ammoLevel` 0–6 (missing = 0), `weaponLevels` per weapon 1–6 (missing = 1, above 1
+only for owned weapons), equipment levels up to the new maximum (wave 3; wave 1 had 10 / 7 / 3 / 3). Older builds clamp a newer save back to their caps:
 the usual one-way upgrade (docs 08, 35, 37).
 
 ## Business Rules
 
 - Map-1 goods: gun 1–7, uranium ammo 1–2, Mk II of the five map-1 weapons, equipment up to the map-1 column.
   Everything else needs map 2 open (`locked` otherwise, forged clicks included).
+- Wave 3: map 2 sells gun 8–20 (a new jet's main gun follows to 14), second gun 1–14, uranium 3–6, Mk III–VI,
+  equipment up to the doubled maximum. Map 2 pays more by mission number; map 1 is unchanged.
 - Upgrades go one level at a time, cost the listed price, and never change what is already owned.
 - Uranium ammo multiplies gun damage (main gun, second gun, GAU-8 burst) and sets the gun's ground factor.
 - A weapon's mark sets its damage, ammo per hardpoint and flight for every jet.
-- Kit score (doc 38) also counts the ammo level × 10 and every mark above Mk I × 4.
+- Kit score (doc 38) also counts the ammo level × 10 and every mark above Mk I × 4 (wave 3: both ammo types × 10 and
+  the HE gun's level × 10).
 
 ## Balance
 
@@ -234,3 +342,29 @@ The owner's own case, today's build with the whole map-1 shop bought by the Arct
 - First try (gentler: HP 0.002 x², boss 0.0015 x², hits 0.012 x), for the record: m11 0.52, m18 0.69, m23 0.49,
   m24 1.58, m29 0.89, m30 1.70, m35 1.44, m42 1.87, m47 2.24, m53 1.97, m60 2.28. Map 1 came out as easy as today, so
   the curve was steepened to the factors above.
+
+### Wave 3 (2026-10-30)
+
+Same method; the pilot of each run owns what a pilot buying as the money comes in owns with the wave-3 shop and pay
+(a scratch purchase model that buys through the real shop code: map 1 in the wave-1 order, then map 2 greedily by
+price ÷ weight — gun first, then the HE gun, uranium, armour, the AIM-120 and JDAM, marks of the four weapons it
+flies, the rest of the equipment). F-14, AIM-54 / AIM-120 / AGM-65 / JDAM, uranium loaded.
+
+| mission | the pilot's kit | wave 2 (doc 44) | wave 3 | mini-boss focused / boss |
+|---|---|---|---|---|
+| m35 | gun 7, uranium 2, HE 1, armour 4 | 3.19 | 3.45 | cruiser 14 s, Backfire 19 s (wave 2: 17 s, 24 s) |
+| m42 CONDOR | gun 8, uranium 2, HE 4, armour 5, Mk III AGM-65 | 2.69 | 3.19 | boss 26–44 s |
+| m47 | gun 10, uranium 3, HE 5, armour 6, ECM 3, Mk IV AGM-65 | (wave 1: 2.72) | 3.96 | fortress 18 s, Backfire 20 s |
+| m53 | gun 12, uranium 4, HE 6, armour 7, ECM 4, Mk V AGM-65 | 3.13 | 4.01 | fortress 19 s, Backfire 24 s |
+| m60 COLOSSUS | gun 16, uranium 5, HE 8, armour 10, Mk V AIM-54 | 3.74 | 4.16 | boss 29–32 s |
+
+- **Map 2 is 8–28 % harder than wave 2 for the pilot who keeps buying, and the pilot is much stronger** (gun 16 instead
+  of 10 at m60, armour +250 % instead of +150 %). Committing to a mini-boss still downs it in 14–24 s.
+- **The economy:** map 2 pays ≈ 6.9 M at 65 % of the bounties (≈ 8.1 M at 80 %); the pilot buys one or two upgrades
+  per mission and still has ≈ 6.5 M of its own path left at m60 — about half, so a good pilot who kills more and
+  replays still finds things to buy.
+- **First try**, for the record: enemy HP × (1 + 0.01 x + 0.0006 x²) and hits × (1 + 0.015 x) gave m35 3.45, m42 3.23,
+  m47 4.19, m53 3.53, m60 3.06: the end of map 2 came out easier than wave 2 (armour 10 outgrew the hits), so the hit
+  and HP factors were steepened to the values above.
+- Strike objectives the bot misses (m47, m53) were missed on the earlier builds too; the bot doesn't prioritise targets.
+

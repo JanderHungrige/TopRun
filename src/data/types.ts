@@ -98,4 +98,4 @@ export interface SortiePerf {
 }
 
 /** 1–7 from the start; 8–10 once map 2 is open (docs 37, 43). */
-export type GunLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type GunLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20;

@@ -1,4 +1,4 @@
-import type { Mark } from '../data/arsenal';
+import type { AmmoType, Mark } from '../data/arsenal';
 import {
   ARMOR_BONUS, atLevel, DAMAGE_CONTROL_RESTORE, DAMAGE_CONTROL_USES, ECM_BULLET, ECM_TURN, ENGINE_BONUS, FLARE_COUNT,
 } from '../data/equipment';
@@ -6,7 +6,8 @@ import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
-import { gunAmmo, markOf, weaponStats, type WeaponStats } from './arsenal';
+import { loadedRounds } from './ammo';
+import { markOf, weaponStats, type WeaponStats } from './arsenal';
 import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
 import type { SaveData } from './save';
@@ -32,8 +33,12 @@ export interface PlayerStats {
   gunDamageMul: number;
   /** Share of gun damage ground and sea targets take: 0.5, more with uranium ammo (doc 43). */
   gunGround: number;
-  /** Uranium ammo level, 0 = ordinary rounds (tracer colour). */
-  ammoLevel: number;
+  /** Share of a gun hit on a plane that burns on: incendiary ammo (doc 45), else 0. */
+  gunBurn: number;
+  /** The ammo loaded, null = ordinary rounds (tracer colour, docs 43, 45). */
+  rounds: AmmoType | null;
+  /** Bofors 40 mm HE gun level, 0 = none (doc 46). */
+  heLevel: number;
   secondaries: SecondaryAmmo[];
   flares: number;
   ecm: boolean;
@@ -71,7 +76,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     if (existing) existing.ammo += ammo;
     else secondaries.push({ id, ammo, twin, mark, weapon });
   }
-  const rounds = gunAmmo(save.ammoLevel);
+  const rounds = loadedRounds(save);
   return {
     plane,
     maxHull: Math.round(plane.hull * (1 + atLevel(ARMOR_BONUS, eq.armor)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
@@ -80,7 +85,9 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gun2Level: double ? save.gun2Level : 0,
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
     gunGround: rounds.groundFactor,
-    ammoLevel: save.ammoLevel,
+    gunBurn: rounds.burn,
+    rounds: rounds.type,
+    heLevel: save.heLevel,
     secondaries,
     flares: atLevel(FLARE_COUNT, eq.flares),
     ecm: eq.ecm > 0,

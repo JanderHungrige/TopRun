@@ -45,7 +45,8 @@ export interface LeftConsoleView {
   radar: { contacts: readonly Contact[]; early: boolean; jammed: boolean };
   hull: { ratio: number; value: number; max: number };
   /** `level` 1–8 (6–8 light cyan over the green row), `level2` the second gun, 0 = none (doc 37). */
-  cannon: { level: number; level2: number; powered: boolean; powerRatio: number };
+  /** `he`: the Bofors 40 mm level, 0 = none (doc 46). */
+  cannon: { level: number; level2: number; powered: boolean; powerRatio: number; he: number };
   /** Mounted weapons; `role` A/G tag, `next` = the one the AIR / GROUND key fires next. */
   stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; role: WeaponRole; next: boolean }>;
   buttons: { air: ButtonStates['air']; ground: ButtonStates['ground'] };

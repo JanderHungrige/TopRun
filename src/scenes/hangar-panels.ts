@@ -1,8 +1,10 @@
 import type { LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { PlaneId, SecondaryId } from '../data/types';
-import { AMMO_LEVELS } from '../data/arsenal';
-import { gunLevelDef, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES } from '../data/weapons';
+import { AMMO_LEVELS, INCENDIARY_LEVELS } from '../data/arsenal';
+import { heLevelDef, MAX_HE_LEVEL } from '../data/he-gun';
+import { gunLevelDef, jetGunDef, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES } from '../data/weapons';
+import { incendiaryCap } from '../game/ammo';
 import { ammoCap, markOf } from '../game/arsenal';
 import type { ShopItem } from '../game/economy';
 import { doubleFirepower, equipmentCap, gunCap } from '../game/firepower';
@@ -73,6 +75,8 @@ function drawThumb(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
     case 'gun': if (!drawItemPicture(ctx, 'gun', x, y, true)) drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', x, y, 0.8); return;
     case 'ammo': if (!drawItemPicture(ctx, 'ammo', x, y, true)) drawWeaponIcon(ctx, 'ammo', x, y, 0.8); return;
+    case 'incendiary':
+    case 'he': if (!drawItemPicture(ctx, item.type, x, y, true)) drawWeaponIcon(ctx, item.type, x, y, 0.8); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, x, y, true)) drawWeaponIcon(ctx, item.id, x, y, 0.7); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, x, y, true)) drawEquipmentIcon(ctx, item.id, x, y, 32); return;
     case 'livery': liveryThumb(ctx, save, item.id, x, y, t); return;
@@ -117,6 +121,8 @@ function subtitle(save: SaveData, item: ShopItem): string {
     case 'gun': return tr('hangar.gunSub');
     case 'gun2': return tr('hangar.gun2Sub');
     case 'ammo': return tr('arsenal.ammoSub');
+    case 'incendiary': return tr('arsenal.incSub');
+    case 'he': return tr('arsenal.heSub');
     case 'secondary': {
       const w = weaponNowNext(save, item.id).now;
       const fan = SECONDARIES[item.id].behavior === 'fan' ? 5 : 1;
@@ -143,22 +149,44 @@ function statRow(ctx: CanvasRenderingContext2D, label: string, value: string, ra
   text(ctx, value, x + barW + 176, y + 13, { size: 14, color: COLORS.ink });
 }
 
-/** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted. */
-function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number): void {
-  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
-  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
-  const d = gunLevelDef(Math.max(1, level));
+/** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted; `twin`: a new jet's gun. */
+function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number, twin = false): void {
+  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level, twin) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
+  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1, twin) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
+  const d = jetGunDef(Math.max(1, level), twin);
   statRow(ctx, tr('hangar.statLevel'), `${level}/${cap}`, level / cap, y + 52);
   const top = gunLevelDef(MAX_GUN_LEVEL);
   const dps = (g: typeof d): number => g.damage * g.shotsPerSec * g.pattern.length;
   statRow(ctx, 'DPS', level > 0 ? String(Math.round(dps(d))) : '0', level > 0 ? dps(d) / dps(top) : 0, y + 76);
 }
 
-/** One row per level on sale: ■ owned, □ not yet (equipment, uranium ammo). */
-function levelRows(ctx: CanvasRenderingContext2D, level: number, cap: number, texts: readonly string[], y: number): void {
+/** The Bofors HE gun (doc 46): now and next, level bar and its single-target DPS. */
+function heStats(ctx: CanvasRenderingContext2D, level: number, y: number): void {
+  const line = (l: number): string => {
+    const d = heLevelDef(l);
+    return d ? tr('arsenal.heSummary', { rate: d.shotsPerSec, damage: d.damage, radius: d.radius }) : '';
+  };
+  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: line(level) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
+  if (level < MAX_HE_LEVEL) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: line(level + 1) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
+  const dps = (l: number): number => { const d = heLevelDef(l); return d ? d.damage * d.shotsPerSec : 0; };
+  statRow(ctx, tr('hangar.statLevel'), `${level}/${MAX_HE_LEVEL}`, level / MAX_HE_LEVEL, y + 52);
+  statRow(ctx, 'DPS', String(Math.round(dps(level))), dps(level) / dps(MAX_HE_LEVEL), y + 76);
+}
+
+/** Ammo rows leave room for the LOAD button on the right (doc 45) and stop above the loadout slots. */
+const AMMO_ROWS = { maxW: DETAIL.w - 290, rows: 4 };
+
+/** Rows shown at most: a long ladder (wave 3, doc 43) shows the window around the next level. */
+const LEVEL_ROWS = 6;
+
+/** One row per level on sale: ■ owned, □ not yet (equipment, ammo). */
+function levelRows(ctx: CanvasRenderingContext2D, level: number, cap: number, texts: readonly string[], y: number, o = { maxW: DETAIL.w - 48, rows: LEVEL_ROWS }): void {
   const step = cap > 5 ? 24 : 26;
+  const first = Math.max(0, Math.min(cap - o.rows, level - 2));
   texts.slice(0, cap).forEach((lt, i) => {
-    text(ctx, `${i < level ? '■' : '□'}  ${cap > 1 ? tr('hangar.levelRow', { n: i + 1, text: lt }) : lt}`, DETAIL.x + 24, y + 12 + i * step, { size: 15, color: i < level ? COLORS.green : COLORS.ink });
+    if (i < first || i >= first + o.rows) return;
+    const row = `${i < level ? '■' : '□'}  ${cap > 1 ? tr('hangar.levelRow', { n: i + 1, text: lt }) : lt}`;
+    text(ctx, row, DETAIL.x + 24, y + 12 + (i - first) * step, { size: 15, color: i < level ? COLORS.green : COLORS.ink, maxWidth: o.maxW });
   });
 }
 
@@ -173,7 +201,7 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   const ammo = arrow(now.ammoPerSlot, next?.ammoPerSlot);
   statRow(ctx, tr('hangar.statAmmo'), twin > 1 ? `${ammo} ×2` : ammo, (now.ammoPerSlot * twin) / 14, y + 23, 150);
   const mark = markOf(save, id);
-  const marks = [1, 2, 3].map((m) => `${m <= mark ? '■' : '□'} ${markName(m)}`).join('   ');
+  const marks = `${[1, 2, 3, 4, 5, 6].map((m) => (m <= mark ? '■' : '□')).join(' ')}   ${markName(mark)}`;
   text(ctx, tr('arsenal.statMark'), DETAIL.x + 24, y + 58, { size: 13, color: COLORS.dim, letterSpacing: 1, maxWidth: 150 });
   text(ctx, marks, DETAIL.x + 184, y + 58, { size: 14, color: COLORS.green });
   const guidance = tr(d.behavior === 'homing' ? 'hangar.guided' : d.behavior === 'fan' ? 'hangar.salvo' : 'hangar.freefall');
@@ -199,11 +227,15 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
       if (doubleFirepower(save.selectedPlane) && mapTwoOpen(save)) text(ctx, tr('hangar.gunNewJets'), DETAIL.x + 24, y + 112, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 48 });
       return;
     case 'gun2':
-      gunStats(ctx, save.gun2Level, MAX_GUN2_LEVEL, y);
+      gunStats(ctx, save.gun2Level, MAX_GUN2_LEVEL, y, true);
       return;
     case 'ammo': return levelRows(ctx, save.ammoLevel, ammoCap(save), AMMO_LEVELS.map((a) => tr('arsenal.ammoRow', {
       damage: Math.round((a.damageMul - 1) * 100), ground: Math.round(a.groundFactor * 100),
-    })), y);
+    })), y, AMMO_ROWS);
+    case 'incendiary': return levelRows(ctx, save.incendiaryLevel, incendiaryCap(save), INCENDIARY_LEVELS.map((a) => tr('arsenal.incRow', {
+      damage: Math.round((a.airMul - 1) * 100), burn: Math.round(a.burn * 100),
+    })), y, AMMO_ROWS);
+    case 'he': return heStats(ctx, save.heLevel, y);
     case 'secondary': return weaponStatsRows(ctx, save, item.id, y);
     case 'equipment': return levelRows(ctx, save.equipment[item.id], equipmentCap(save, item.id), equipmentLevelText(item.id), y);
     case 'livery':
@@ -237,6 +269,8 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
     case 'gun': if (!drawItemPicture(ctx, 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', cx, cy, 3); return;
     case 'ammo': if (!drawItemPicture(ctx, 'ammo', cx, cy, false)) drawWeaponIcon(ctx, 'ammo', cx, cy, 3); return;
+    case 'incendiary':
+    case 'he': if (!drawItemPicture(ctx, item.type, cx, cy, false)) drawWeaponIcon(ctx, item.type, cx, cy, 3); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawWeaponIcon(ctx, item.id, cx, cy, 3); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawEquipmentIcon(ctx, item.id, cx, cy, 130); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);

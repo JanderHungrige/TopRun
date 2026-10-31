@@ -41,11 +41,11 @@ describe('Save', () => {
     });
 
     it('clamps money, gun level and equipment into range', () => {
-      const raw = { ...valid(), money: -50, gunLevel: 99, equipment: { armor: 9, ecm: -3, flares: 2.7 }, settings: { music: 4 } };
+      const raw = { ...valid(), money: -50, gunLevel: 99, equipment: { armor: 19, ecm: -3, flares: 2.7 }, settings: { music: 4 } };
       const s = parseSave(raw);
       expect(s?.money).toBe(0);
-      expect(s?.gunLevel).toBe(10); // levels 8–10 with map 2 (doc 43)
-      expect(s?.equipment).toEqual({ armor: 7, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0, radar: 0 });
+      expect(s?.gunLevel).toBe(20); // levels 8–20 with map 2 (doc 43, wave 3)
+      expect(s?.equipment).toEqual({ armor: 14, engine: 0, flares: 2, ecm: 0, damageControl: 0, magnet: 0, radar: 0 });
       expect(s && 'settings' in s).toBe(false); // settings are device-wide now (doc 08)
     });
 

@@ -6,7 +6,8 @@ import {
   EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
-import { MAX_AMMO_LEVEL, MAX_MARK } from '../data/arsenal';
+import { AMMO_TYPES, MAX_AMMO_LEVEL, MAX_INCENDIARY_LEVEL, MAX_MARK, type AmmoType } from '../data/arsenal';
+import { MAX_HE_LEVEL } from '../data/he-gun';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
@@ -34,7 +35,13 @@ export interface SaveData {
   twinSecondaries: SecondaryId[];
   /** Uranium ammo for the gun, 0 = ordinary rounds (doc 43). */
   ammoLevel: number;
-  /** Mark of every missile, rocket pod and bomb: 1 = Mk I … 3 = Mk III (doc 43). */
+  /** Incendiary ammo for the gun, 0 = none (doc 45). */
+  incendiaryLevel: number;
+  /** The ammo type loaded for the next sortie (doc 45). */
+  ammoType: AmmoType;
+  /** Bofors 40 mm HE gun, 0 = none (doc 46). */
+  heLevel: number;
+  /** Mark of every missile, rocket pod and bomb: 1 = Mk I … 6 = Mk VI (doc 43). */
   weaponLevels: Record<SecondaryId, number>;
   loadout: Record<PlaneId, Loadout>;
   equipment: Record<EquipmentId, number>;
@@ -82,6 +89,9 @@ export function defaultSave(): SaveData {
     ownedSecondaries: [],
     twinSecondaries: [],
     ammoLevel: 0,
+    incendiaryLevel: 0,
+    ammoType: 'uranium',
+    heLevel: 0,
     weaponLevels: freshMarks(),
     loadout: perPlane(emptyLoadout),
     equipment: { armor: 0, engine: 0, flares: 0, ecm: 0, damageControl: 0, magnet: 0, radar: 0 },
@@ -182,6 +192,9 @@ export function parseSave(raw: unknown): SaveData | null {
     ownedSecondaries,
     twinSecondaries: ids(raw.twinSecondaries, SECONDARY_IDS).filter((id) => ownedSecondaries.includes(id)),
     ammoLevel: int(raw.ammoLevel, 0, MAX_AMMO_LEVEL, 0),
+    incendiaryLevel: int(raw.incendiaryLevel, 0, MAX_INCENDIARY_LEVEL, 0),
+    ammoType: AMMO_TYPES.find((a) => a === raw.ammoType) ?? 'uranium',
+    heLevel: int(raw.heLevel, 0, MAX_HE_LEVEL, 0),
     weaponLevels: parseMarks(raw.weaponLevels, ownedSecondaries),
     loadout: perPlane((p) => parseLoadout(rawLoadout[p], p, ownedSecondaries)),
     equipment: parseEquipment(raw.equipment),

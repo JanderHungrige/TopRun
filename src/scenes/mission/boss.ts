@@ -37,14 +37,14 @@ export class Boss {
   readonly parts: PartState[];
   private readonly bulletSpeedMul: number;
 
-  /** `ease` < 1: Rookie — slower bullets, less fire (doc 38). */
-  constructor(id: BossId, difficulty: number, private readonly ease = 1) {
+  /** `ease` < 1: Rookie — slower bullets, less fire (doc 38); `tough`: map 2's extra HP (wave 3, doc 43). */
+  constructor(id: BossId, difficulty: number, private readonly ease = 1, tough = 1) {
     this.def = BOSSES[id];
-    this.maxHp = scaleBossHp(this.def.coreHp, difficulty);
+    this.maxHp = Math.round(scaleBossHp(this.def.coreHp, difficulty) * tough);
     this.hp = this.maxHp;
     this.bulletSpeedMul = (1 + 0.015 * (difficulty - 1)) * ease;
     this.parts = this.def.parts.map((def, i) => {
-      const hp = scaleBossHp(def.hp, difficulty);
+      const hp = Math.round(scaleBossHp(def.hp, difficulty) * tough);
       return { def, hp, max: hp, alive: true, fireT: 1.5 + i * 0.37, aim: Math.PI, flash: 0 };
     });
   }

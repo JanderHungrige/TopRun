@@ -62,6 +62,8 @@ export interface SaveData {
   sorties: SortieEntry[];
   /** Rookie: easier enemies, more hull, no adaptive challenge (doc 38). */
   rookie: boolean;
+  /** The admin pilot's view (doc 47): set by GameContext only, never read from storage. */
+  admin: boolean;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -104,6 +106,7 @@ export function defaultSave(): SaveData {
     challenge: freshChallenge(),
     sorties: [],
     rookie: false,
+    admin: false,
   };
 }
 
@@ -207,6 +210,7 @@ export function parseSave(raw: unknown): SaveData | null {
     challenge: parseChallenge(raw.challenge),
     sorties: parseSorties(raw.sorties),
     rookie: raw.rookie === true,
+    admin: false,
   };
 }
 

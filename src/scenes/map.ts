@@ -10,7 +10,8 @@ import { SECONDARIES } from '../data/weapons';
 import { doubleFirepower, jetGunLevel } from '../game/firepower';
 import { campaignComplete, campaignStars, isCleared, isUnlocked, mapTwoOpen, nextMission, nextMissionOn } from '../game/progress';
 import type { GameContext } from '../game/state';
-import { COLORS, paragraph, text } from '../render/text';
+import { drawAdminBadge } from '../render/admin-badge';
+import { COLORS, measure, paragraph, text } from '../render/text';
 import { drawPilotAvatar, pilotFace } from '../render/avatars';
 import { drawButton, drawPanel, hit, type Button } from '../ui/widgets';
 import { drawGlobe, drawGlobeLocked, GLOBE } from './map-globe';
@@ -143,6 +144,7 @@ export class MapScene implements Scene {
     if (pilot) {
       drawPilotAvatar(ctx, pilotFace(pilot), { x: PILOT_X - 60, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
       text(ctx, pilot.callsign, PILOT_X, 32, { size: 17, display: true, color: COLORS.gold, maxWidth: MENU_BTN.x - PILOT_X - 12 });
+      if (s.admin) drawAdminBadge(ctx, t('pilots.admin'), PILOT_X + measure(ctx, pilot.callsign, 17, true) + 10, 31);
     }
     text(ctx, formatMoney(s.money), PILOT_X, 60, { size: 20, display: true, color: COLORS.green, maxWidth: MENU_BTN.x - PILOT_X - 12 });
     drawButton(ctx, { id: 'title', label: t('map.menu'), ...MENU_BTN }, false, this.t);

@@ -56,6 +56,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'pilots.newPilot': 'NEUER PILOT',
   'pilots.hint': '↑/↓ wählen  ·  ENTER fliegen  ·  E Aussehen  ·  F Rookie  ·  R Pilot laden  ·  ENTF löschen  ·  ESC zurück',
   'pilots.rookie': 'ROOKIE',
+  'pilots.admin': 'VOLLZUGRIFF',
   'newPilot.title': 'NEUER PILOT',
   'newPilot.callsign': 'RUFNAME',
   'newPilot.placeholder': 'DEIN RUFNAME',
@@ -67,6 +68,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'newPilot.invalid': 'Nur Buchstaben, Ziffern, Leerzeichen und -',
   'newPilot.taken': 'Dieser Rufname ist schon vergeben',
   'newPilot.full': 'Hangar voll: lösche erst einen Piloten',
+  'newPilot.admin': 'ADMIN-PILOT: alle Missionen, unbegrenzt Geld, keine Rangliste',
   'newPilot.hint': 'Rufnamen tippen, Aussehen mit den Pfeiltasten wählen, ENTER drücken',
   // Map
   'map.title': 'EINSATZGEBIET',

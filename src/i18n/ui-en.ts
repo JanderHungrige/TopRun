@@ -54,6 +54,7 @@ export const UI_EN = {
   'pilots.newPilot': 'NEW PILOT',
   'pilots.hint': '↑/↓ choose  ·  ENTER fly  ·  E look  ·  F rookie  ·  R load pilot  ·  DEL delete  ·  ESC back',
   'pilots.rookie': 'ROOKIE',
+  'pilots.admin': 'ALL ACCESS',
   'newPilot.title': 'NEW PILOT',
   'newPilot.callsign': 'CALLSIGN',
   'newPilot.placeholder': 'YOUR CALLSIGN',
@@ -65,6 +66,7 @@ export const UI_EN = {
   'newPilot.invalid': 'Letters, digits, space and - only',
   'newPilot.taken': 'That callsign is already taken',
   'newPilot.full': 'Hangar full: delete a pilot first',
+  'newPilot.admin': 'ADMIN PILOT: every mission, unlimited money, no ladder',
   'newPilot.hint': 'Type a callsign, pick a look with the arrows, press ENTER',
   // Map
   'map.title': 'THEATER OF OPERATIONS',

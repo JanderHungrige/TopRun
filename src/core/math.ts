@@ -32,7 +32,11 @@ export function wrapAngle(a: number): number {
 export const easeOutCubic = (t: number): number => 1 - (1 - t) ** 3;
 export const easeInOutQuad = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
+/** The admin pilot's purse (doc 47); money this large is shown as ∞. */
+export const UNLIMITED_MONEY = 999_999_999;
+
 export function formatMoney(v: number): string {
+  if (v >= UNLIMITED_MONEY) return '$∞';
   return `$${Math.round(v).toLocaleString('en-US')}`;
 }
 

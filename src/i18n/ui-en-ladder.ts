@@ -10,6 +10,7 @@ export const UI_EN_LADDER = {
   'ladder.rating': 'RATING',
   'ladder.you': 'YOUR PLACE #{place}  ·  {rating} PTS  ·  {rank}',
   'ladder.local': '{callsign}: {rating} PTS  ·  {rank}',
+  'ladder.admin': '{callsign} is an admin pilot and stays off the ladder',
   'ladder.hidden': '{callsign} is hidden from the ladder',
   'ladder.noPilot': 'Choose a pilot (CONTINUE) to join the ladder',
   'ladder.back': 'BACK',

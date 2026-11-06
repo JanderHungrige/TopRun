@@ -1,7 +1,7 @@
 import type { Scene } from '../core/scene';
 import { MINIGAME_IDS, MINIGAMES, type MinigameId } from '../data/minigames';
 import { baseLine } from '../game/dialogue-scripts';
-import { medalFor, unlockedMinigames } from '../game/minigames/core';
+import { medalFor, openMinigames } from '../game/minigames/core';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { mt } from '../i18n/minigame-text';
@@ -41,7 +41,7 @@ export class BaseHubScene implements Scene {
     const mod = moduleFor(id);
     const name = mt(MINIGAME_NAMES, id);
     if (!mod) return { name, mod, state: 'soon', status: t('base.soon'), medal: null };
-    if (!unlockedMinigames(this.game.save.progress, playableIds()).includes(id)) {
+    if (!openMinigames(this.game.save, playableIds()).includes(id)) {
       return { name, mod, state: 'locked', status: t('base.locked', { n: MINIGAMES[id].unlockAfter }), medal: null };
     }
     const rec = this.game.save.minigames[id];

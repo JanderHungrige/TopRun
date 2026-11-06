@@ -1,11 +1,13 @@
 import { fetchCloudSave } from '../core/ladder-api';
 import { formatMoney, formatPoints } from '../core/math';
 import type { Scene } from '../core/scene';
+import { isAdminPilot } from '../game/admin';
 import { cloudIsAhead } from '../game/cloud-pilot';
 import { MAX_PROFILES, profileSummary, type Profile } from '../game/profiles';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
+import { drawAdminBadge } from '../render/admin-badge';
 import { drawPilotAvatar, pilotAccent, pilotFace } from '../render/avatars';
 import { drawSunset } from '../render/backdrop';
 import { drawRankBoard, RANK_KEY } from '../render/ranks';
@@ -210,6 +212,7 @@ export class PilotsScene implements Scene {
     const face = pilotFace(p);
     drawPanel(ctx, r, { fill: focused ? 'rgba(30,52,80,0.95)' : 'rgba(10,18,30,0.9)', edge: focused ? COLORS.gold : pilotAccent(face), radius: 12 });
     drawPilotAvatar(ctx, face, { x: r.x + 14, y: r.y + 16, w: 160, h: 198 }, { t: this.time + i * 1.3, mood: focused ? 'happy' : 'neutral' });
+    if (isAdminPilot(p)) drawAdminBadge(ctx, t('pilots.admin'), r.x + 20, r.y + 36);
     const s = profileSummary(p);
     text(ctx, p.callsign, r.x + 188, r.y + 48, { size: 26, display: true, italic: true, color: focused ? COLORS.gold : COLORS.ink, maxWidth: CARD_W - 200 });
     text(ctx, t('map.progress', { done: s.cleared, stars: s.stars }), r.x + 188, r.y + 72, { size: 12, color: COLORS.dim, maxWidth: CARD_W - 200 });

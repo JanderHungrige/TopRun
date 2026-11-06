@@ -2,6 +2,7 @@ import { AudioEngine } from './core/audio';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
 import { CloudSync, type CloudUpload } from './core/cloud-sync';
+import { deletePilot } from './core/ladder-api';
 import { LadderSync } from './core/ladder-sync';
 import { requestPersistence } from './core/persist';
 import { startLoop } from './core/loop';
@@ -12,6 +13,7 @@ import {
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type ImportResult, type Profile,
   type ProfileStore,
 } from './game/profiles';
+import { adminStored, adminView, isAdminPilot } from './game/admin';
 import { cloudProfile } from './game/cloud-pilot';
 import type { Submission } from './game/ladder';
 import type { PilotMatch } from './game/ladder-cloud';
@@ -66,7 +68,9 @@ class Game implements GameContext {
   }
 
   get save(): SaveData {
-    return activeProfile(this.store)?.save ?? this.scratch;
+    const p = activeProfile(this.store);
+    if (!p) return this.scratch;
+    return isAdminPilot(p) ? adminView(p.save) : p.save;
   }
 
   get settings(): Settings {
@@ -92,7 +96,15 @@ class Game implements GameContext {
       return;
     }
     const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
-    this.commit(updateActiveSave(this.store, withLadderCountry(linked, this.localCountry())));
+    const save = withLadderCountry(linked, this.localCountry());
+    const p = activeProfile(this.store);
+    if (!p || !isAdminPilot(p)) this.commit(updateActiveSave(this.store, save));
+    else {
+      // The admin never shows on the ladder or in the cloud (doc 47); a pilot that was shared leaves the ladder.
+      const was = p.save.ladder;
+      if (was?.share) void deletePilot(was.id, was.secret);
+      this.commit(updateActiveSave(this.store, adminStored(save)));
+    }
     this.sync();
   }
 
@@ -111,14 +123,14 @@ class Game implements GameContext {
   private cloudUpload(): CloudUpload | null {
     const p = activeProfile(this.store);
     const link = p?.save.ladder;
-    return p && link?.share ? { id: link.id, secret: link.secret, save: p.save } : null;
+    return p && link?.share && !isAdminPilot(p) ? { id: link.id, secret: link.secret, save: p.save } : null;
   }
 
   /** What the active pilot reports to the online ladder; null while not shared (doc 28). */
   private ladderSubmission(): Submission | null {
     const p = activeProfile(this.store);
     const link = p?.save.ladder;
-    if (!p || !link?.share) return null;
+    if (!p || !link?.share || isAdminPilot(p)) return null;
     const avatar = ladderAvatar(p.avatar, p.save.look);
     return { id: link.id, secret: link.secret, callsign: p.callsign, avatar, country: link.country, stats: pilotStats(p.save) };
   }
@@ -135,6 +147,7 @@ class Game implements GameContext {
     if (r.ok) {
       this.commit(r.store);
       requestPersistence();
+      if (this.profile && isAdminPilot(this.profile)) this.setSave(this.save); // stores the admin's full purse
     }
     return r;
   }

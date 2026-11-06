@@ -53,7 +53,7 @@ export class LadderScene implements Scene {
       { id: 'up', label: '▲', x: ARROW_X, y: TABLE.y, w: 54, h: 54 },
       { id: 'down', label: '▼', x: ARROW_X, y: TABLE.y + TABLE.h - 54, w: 54, h: 54 },
     ];
-    if (link) {
+    if (link && !this.game.save.admin) { // the admin stays off the ladder (doc 47)
       const label = t(link.share ? 'ladder.shareOn' : 'ladder.shareOff');
       list.splice(2, 0, { id: 'share', label, x: TABLE.x + 442, y: 604, w: TABLE.w - 442, h: 46, primary: link.share, enabled: !this.busy });
     }
@@ -78,7 +78,7 @@ export class LadderScene implements Scene {
 
   private async toggleShare(): Promise<void> {
     const link = this.link;
-    if (!link || this.busy) return;
+    if (!link || this.busy || this.game.save.admin) return;
     const share = !link.share;
     this.busy = true;
     this.game.setSave({ ...this.game.save, ladder: { ...link, share } });
@@ -166,6 +166,7 @@ export class LadderScene implements Scene {
   private statusLine(): string {
     const p = this.game.profile;
     if (!p) return t('ladder.noPilot');
+    if (this.game.save.admin) return t('ladder.admin', { callsign: p.callsign });
     if (this.link && !this.link.share) return t('ladder.hidden', { callsign: p.callsign });
     if (this.mine && this.phase === 'ready') {
       const { place, rating, rank } = this.mine;

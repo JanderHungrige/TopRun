@@ -10,6 +10,7 @@ export const UI_DE_LADDER = {
   'ladder.rating': 'WERTUNG',
   'ladder.you': 'DEIN PLATZ #{place}  ·  {rating} PKT  ·  {rank}',
   'ladder.local': '{callsign}: {rating} PKT  ·  {rank}',
+  'ladder.admin': '{callsign} ist ein Admin-Pilot und bleibt aus der Rangliste',
   'ladder.hidden': '{callsign} ist in der Rangliste ausgeblendet',
   'ladder.noPilot': 'Wähle einen Piloten (WEITER), um in die Rangliste zu kommen',
   'ladder.back': 'ZURÜCK',

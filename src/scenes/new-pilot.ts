@@ -1,4 +1,5 @@
 import type { Scene } from '../core/scene';
+import { isAdminPilot } from '../game/admin';
 import { lookPreset, randomLook, type AvatarLook } from '../game/avatar-look';
 import { CALLSIGN_MAX, filterCallsignInput, validateCallsign, type CallsignCheck } from '../game/callsign';
 import { CARD_ORDER, cardCell, moveCard, NEW_PILOT_COLS } from '../game/pilot-cards';
@@ -104,6 +105,12 @@ export class NewPilotScene implements Scene {
   private face(i: number): PilotFace {
     const card = ORDER[i] ?? 'pilot1';
     return card === 'own' ? this.look ?? this.teaser() : card;
+  }
+
+  /** The 4th preset card with the callsign ADMIN typed (doc 47). */
+  private adminPick(): boolean {
+    const card = ORDER[this.avatar];
+    return card !== undefined && card !== 'own' && isAdminPilot({ callsign: this.field.value, avatar: card });
   }
 
   private openBuilder(): void {
@@ -213,6 +220,7 @@ export class NewPilotScene implements Scene {
     });
     const msg = this.full ? 'newPilot.full' : this.error;
     if (msg) text(ctx, t(msg), COL_X, 186, { size: 15, align: 'center', color: COLORS.red, maxWidth: FIELD.w + 30 });
+    else if (this.adminPick()) text(ctx, t('newPilot.admin'), COL_X, 186, { size: 13, align: 'center', color: COLORS.gold, maxWidth: FIELD.w + 30 });
     else text(ctx, t('newPilot.avatar'), COL_X, 186, { size: 13, align: 'center', color: COLORS.dim, letterSpacing: 2 });
   }
 }

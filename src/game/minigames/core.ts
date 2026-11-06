@@ -27,6 +27,11 @@ export function unlockedMinigames(progress: Progress, playable: readonly Minigam
   return MINIGAME_IDS.filter((id) => playable.includes(id) && cleared(progress, MINIGAMES[id].unlockAfter));
 }
 
+/** The games the rec room opens: those unlocked by missions, for the admin every playable one (doc 47). */
+export function openMinigames(save: Pick<SaveData, 'progress' | 'admin'>, playable: readonly MinigameId[]): MinigameId[] {
+  return save.admin ? MINIGAME_IDS.filter((id) => playable.includes(id)) : unlockedMinigames(save.progress, playable);
+}
+
 export function newlyUnlockedMinigames(before: Progress, after: Progress, playable: readonly MinigameId[]): MinigameId[] {
   const had = unlockedMinigames(before, playable);
   return unlockedMinigames(after, playable).filter((id) => !had.includes(id));

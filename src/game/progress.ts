@@ -8,14 +8,17 @@ export function isCleared(save: SaveData, mission: MissionDef): boolean {
   return mission.id in save.progress;
 }
 
-/** Map 2 opens once the map-1 finale (m30) is cleared (doc 35). */
+/** Map 2 opens once the map-1 finale (m30) is cleared (doc 35), for the admin always (doc 47). */
 export function mapTwoOpen(save: SaveData): boolean {
+  if (save.admin) return true;
   const last = MISSIONS[MISSIONS.length - 1];
   return last !== undefined && isCleared(save, last);
 }
 
-/** Mission 1 always; the first map-2 mission once map 2 is open; otherwise the previous mission of its map. */
+/** Mission 1 always; the first map-2 mission once map 2 is open; otherwise the previous mission of its map.
+ *  The admin pilot has every mission (doc 47). */
 export function isUnlocked(save: SaveData, mission: MissionDef): boolean {
+  if (save.admin) return true;
   const list = campaignMissions(mission.campaign);
   const i = list.indexOf(mission);
   if (i === 0) return mission.campaign === 1 || mapTwoOpen(save);
@@ -23,8 +26,10 @@ export function isUnlocked(save: SaveData, mission: MissionDef): boolean {
   return prev !== undefined && isCleared(save, prev);
 }
 
-/** Highest unlocked mission, on map 2 once it is open — the default map selection. */
+/** Highest unlocked mission, on map 2 once it is open — the default map selection. With everything open the
+ *  admin starts at the first mission not yet cleared instead. */
 export function nextMission(save: SaveData): MissionDef {
+  if (save.admin) return firstUncleared(save, ALL_MISSIONS);
   let best = MISSIONS[0];
   for (const m of ALL_MISSIONS) if (isUnlocked(save, m)) best = m;
   if (!best) throw new Error('no missions defined');
@@ -34,10 +39,17 @@ export function nextMission(save: SaveData): MissionDef {
 /** Highest unlocked mission of one map (its default selection when switching maps). */
 export function nextMissionOn(save: SaveData, c: CampaignId): MissionDef {
   const list = campaignMissions(c);
+  if (save.admin) return firstUncleared(save, list);
   let best = list[0];
   for (const m of list) if (isUnlocked(save, m)) best = m;
   if (!best) throw new Error('no missions defined');
   return best;
+}
+
+function firstUncleared(save: SaveData, list: readonly MissionDef[]): MissionDef {
+  const m = list.find((x) => !isCleared(save, x)) ?? list[list.length - 1];
+  if (!m) throw new Error('no missions defined');
+  return m;
 }
 
 /** All stars, both maps (the pilot rating, doc 26). */

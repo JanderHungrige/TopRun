@@ -33,8 +33,8 @@ models:
 test_files:
   - tests/unit/heli-kit.test.ts
 data_flow: writes-existing
-last_synced: 2026-11-06
-status: in_progress
+last_synced: 2026-11-07
+status: complete
 phase: all
 mdd_version: 11
 tags: [helicopters, apache, kit, hangar, chain-gun, hydra, hellfire, equipment, map-3, economy]
@@ -95,7 +95,8 @@ Opened from map 3 (LOADOUT), the hangar shows three tabs: **HELICOPTERS · WEAPO
 
 - **HELICOPTERS:** the helicopters on sale (map 3 open); the Apache owned from the start.
 - **WEAPONS:**
-  - **M230 Chain Gun** — the helicopter's gun, levels 1–10 (`HELI_GUN_LEVELS`, `src/data/heli-kit.ts`); fewer, heavier
+  - **M230 Chain Gun** — the helicopter's gun, levels 1–10 (`HELI_GUN_LEVELS`, `src/data/heli-kit.ts`, levels 7–10
+    tuned by the map-3 playtest, doc 48); fewer, heavier
     rounds than the jet guns, and it hits ground and sea targets at **full** damage (jets: half, doc 43).
   - **Hydra 70 Rocket Pod** (`hydra`): a fan of unguided rockets against air and ground, Mk I–III.
   - **AGM-114 Hellfire** (`hellfire`): homing anti-armour missile against ground and sea targets, Mk I–III.

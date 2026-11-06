@@ -20,10 +20,10 @@ export const HELI_GUN_LEVELS: readonly GunLevelDef[] = Object.freeze([
   { level: 4, price: 14000 * HELI_PRICE, shotsPerSec: 9, damage: 19, pattern: TWO },
   { level: 5, price: 26000 * HELI_PRICE, shotsPerSec: 10, damage: 21, pattern: TWO },
   { level: 6, price: 45000 * HELI_PRICE, shotsPerSec: 11, damage: 23, pattern: TWO },
-  { level: 7, price: 70000 * HELI_PRICE, shotsPerSec: 11, damage: 25, pattern: THREE },
-  { level: 8, price: 110000 * HELI_PRICE, shotsPerSec: 12, damage: 27, pattern: THREE },
-  { level: 9, price: 160000 * HELI_PRICE, shotsPerSec: 13, damage: 29, pattern: THREE },
-  { level: 10, price: 230000 * HELI_PRICE, shotsPerSec: 14, damage: 31, pattern: FOUR },
+  { level: 7, price: 70000 * HELI_PRICE, shotsPerSec: 12, damage: 27, pattern: THREE },
+  { level: 8, price: 110000 * HELI_PRICE, shotsPerSec: 13, damage: 30, pattern: THREE },
+  { level: 9, price: 160000 * HELI_PRICE, shotsPerSec: 14, damage: 32, pattern: FOUR },
+  { level: 10, price: 230000 * HELI_PRICE, shotsPerSec: 15, damage: 35, pattern: FOUR },
 ]);
 
 export const MAX_HELI_GUN_LEVEL = 10;

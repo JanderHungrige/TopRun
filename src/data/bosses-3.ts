@@ -10,7 +10,7 @@ const part = (id: string, dx: number, dy: number, r: number, hp: number, weapon:
 export const BOSSES_3 = {
   glacier: {
     id: 'glacier', name: 'GLACIER', title: 'Armoured Icebreaker', layer: 'ground',
-    coreHp: 3000, coreWeapon: 'spread3', corePeriod: 2.6,
+    coreHp: 2100, coreWeapon: 'spread3', corePeriod: 2.6,
     hitboxes: [{ dx: 0, dy: -110, r: 40 }, { dx: 0, dy: -40, r: 46 }, { dx: 0, dy: 40, r: 46 }, { dx: 0, dy: 115, r: 40 }],
     parts: [
       part('bow', 0, 118, 18, 240, 'spread3', 1.9), part('f1', -38, 40, 15, 200, 'flak', 2.4),
@@ -21,7 +21,7 @@ export const BOSSES_3 = {
   },
   citadel: {
     id: 'citadel', name: 'CITADEL', title: 'Mountain Fortress', layer: 'ground',
-    coreHp: 4000, coreWeapon: 'missile', corePeriod: 3.2,
+    coreHp: 2800, coreWeapon: 'missile', corePeriod: 3.2,
     hitboxes: [{ dx: 0, dy: 0, r: 72 }, { dx: -100, dy: -78, r: 34 }, { dx: 100, dy: -78, r: 34 }, { dx: -100, dy: 78, r: 34 }, { dx: 100, dy: 78, r: 34 }],
     parts: [
       part('t1', -100, -78, 18, 260, 'flak', 2.3), part('t2', 100, -78, 18, 260, 'flak', 2.3),
@@ -32,7 +32,7 @@ export const BOSSES_3 = {
   },
   caiman: {
     id: 'caiman', name: 'CAIMAN', title: 'River Monitor', layer: 'ground',
-    coreHp: 5000, coreWeapon: 'aimed', corePeriod: 1.5,
+    coreHp: 3000, coreWeapon: 'aimed', corePeriod: 1.5,
     hitboxes: [{ dx: 0, dy: -92, r: 32 }, { dx: 0, dy: -28, r: 42 }, { dx: 0, dy: 38, r: 42 }, { dx: 0, dy: 100, r: 30 }],
     parts: [
       part('fore', 0, 72, 18, 280, 'spread3', 1.8), part('aft', 0, -72, 18, 280, 'spread3', 1.8),
@@ -42,7 +42,7 @@ export const BOSSES_3 = {
   },
   mammoth: {
     id: 'mammoth', name: 'MAMMOTH', title: 'Super-Heavy Tank', layer: 'ground',
-    coreHp: 6000, coreWeapon: 'spread3', corePeriod: 2.2,
+    coreHp: 4200, coreWeapon: 'spread3', corePeriod: 2.2,
     hitboxes: [{ dx: 0, dy: 0, r: 70 }, { dx: -84, dy: -50, r: 32 }, { dx: 84, dy: -50, r: 32 }, { dx: -84, dy: 50, r: 32 }, { dx: 84, dy: 50, r: 32 }],
     parts: [
       part('main', 0, 30, 22, 340, 'spread3', 2.0), part('s1', -52, 58, 15, 240, 'aimed', 1.5),
@@ -53,7 +53,7 @@ export const BOSSES_3 = {
   },
   behemoth: {
     id: 'behemoth', name: 'BEHEMOTH', title: 'Twin-Rotor Gunship', layer: 'air',
-    coreHp: 8000, coreWeapon: 'aimed', corePeriod: 1.3,
+    coreHp: 5000, coreWeapon: 'aimed', corePeriod: 1.3,
     hitboxes: [{ dx: 0, dy: -105, r: 38 }, { dx: 0, dy: -30, r: 44 }, { dx: 0, dy: 45, r: 44 }, { dx: 0, dy: 115, r: 36 }, { dx: -72, dy: 10, r: 28 }, { dx: 72, dy: 10, r: 28 }],
     parts: [
       part('chin', 0, 142, 16, 300, 'aimed', 1.2), part('d1', -44, 40, 15, 260, 'spread3', 1.6),

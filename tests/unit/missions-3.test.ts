@@ -21,8 +21,8 @@ describe('Third map (doc 48)', () => {
   it('holds missions m61–m90 on map 3 with a fresh threat climb and the map-1 reward formula', () => {
     expect(MISSIONS_3.map((m) => m.id)).toEqual(Array.from({ length: 30 }, (_, i) => `m${i + 61}`));
     expect(MISSIONS_3.every((m, i) => m.number === i + 61 && m.campaign === 3)).toBe(true);
-    expect(MISSIONS_3.map((m) => m.difficulty).slice(0, 3)).toEqual([12, 13, 15]);
-    expect(MISSIONS_3[29]?.difficulty).toBe(53);
+    expect(MISSIONS_3.map((m) => m.difficulty).slice(0, 3)).toEqual([3, 4, 6]);
+    expect(MISSIONS_3[29]?.difficulty).toBe(42);
     expect(MISSIONS_3[0]?.reward).toBe(1200);
     expect(MISSIONS_3[29]?.reward).toBe(Math.round((1200 + 29 * 380) * 1.5 / 100) * 100);
     expect(campaignMissions(3)).toEqual(MISSIONS_3);

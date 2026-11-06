@@ -22,8 +22,8 @@ models: []
 test_files:
   - tests/unit/heli-flight.test.ts
 data_flow: reads-existing
-last_synced: 2026-11-06
-status: in_progress
+last_synced: 2026-11-07
+status: complete
 phase: all
 mdd_version: 11
 tags: [helicopters, apache, flight-model, rotor, longbow, hellfire, mission, cockpit]

@@ -2,7 +2,7 @@ import { buildCampaign, intercept, patrol, round100, strike, type MissionSeed } 
 import type { MissionDef, TheaterId } from './types';
 
 // Map 3 (doc 48): missions m61–m90 in five new theaters, flown with helicopters. The kit starts from zero, so the
-// threat is a fresh climb (difficulty 12 … 53) and the reward restarts at the map-1 formula (map 3 pays on top of
+// threat is a fresh climb (difficulty 3 … 42, bot playtest) and the reward restarts at the map-1 formula (map 3 pays on top of
 // it, game/map-three.ts). Pools lean on the ground: the war is fought low. German texts in i18n/missions-3-de.ts.
 
 type Map3Theater = 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall';
@@ -58,6 +58,6 @@ export const MISSIONS_3: readonly MissionDef[] = Object.freeze(buildCampaign({
   first: 61,
   seeds: ORDER.map((id): [TheaterId, readonly MissionSeed[]] => [id, SEEDS[id]]),
   length: (n, boss) => (boss ? 40 + (n - 60) : 100 + Math.round((n - 61) * 1.2)),
-  difficulty: (n) => Math.round(12 + (n - 61) * 1.4),
+  difficulty: (n) => Math.round(3 + (n - 61) * 1.35),
   reward: (n) => round100(1200 + (n - 61) * 380),
 }));

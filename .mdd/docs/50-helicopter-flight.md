@@ -62,7 +62,7 @@ Wave 2 of New Frontiers: the Apache must feel like a helicopter in the top-down 
 ## Look and sound
 
 - Top-down art in code (`src/render/helis/`): the Apache's narrow fuselage, stub wings with the stations, tail boom
-  and tail rotor, and the main rotor as a translucent spinning disc with two blurred blades; banking tilts the disc.
+  and tail rotor, and the main rotor as a translucent spinning disc with four blurred blades; banking tilts the disc.
   A side view for the debrief, from the real dimensions (doc 04 style: 17.7 m long, rotor 14.6 m).
 - **Cockpit:** the plane name and E name are the helicopter's; the silhouette is the Apache's (without the rotor).
 - Until the deck liftoff (wave 4) a map-3 LAUNCH goes straight into the mission (`createScene`, takeoff `skipped`).

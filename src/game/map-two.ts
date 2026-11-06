@@ -1,5 +1,8 @@
+import { mapThreePay, onMapThree } from './map-three';
+
 // Map 2 pays and hits harder (wave 3, doc 43): on top of the threat curve, by mission number — not by difficulty, so
-// a pilot on a high challenge level doesn't out-earn the doubled shop. Map 1 is untouched. Pure.
+// a pilot on a high challenge level doesn't out-earn the doubled shop. Map 1 is untouched; map 3 has its own pay and
+// no extra HP or hit factor (doc 48). Pure.
 
 export const MAP_TWO = Object.freeze({
   /** The last mission of map 1: the factors grow with `x = mission number − from`. */
@@ -14,9 +17,10 @@ export const MAP_TWO = Object.freeze({
   hit: 0.02,
 });
 
-const past = (missionNumber: number): number => Math.max(0, missionNumber - MAP_TWO.from);
+const past = (missionNumber: number): number => (onMapThree(missionNumber) ? 0 : Math.max(0, missionNumber - MAP_TWO.from));
 
 export function payScale(missionNumber: number): number {
+  if (onMapThree(missionNumber)) return mapThreePay(missionNumber);
   const x = past(missionNumber);
   return 1 + MAP_TWO.pay * x + MAP_TWO.pay2 * x * x;
 }

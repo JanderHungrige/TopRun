@@ -120,14 +120,14 @@ describe('Dialogue', () => {
       expect(lines[3]?.gesture).toBe('salute');
     });
 
-    it('sends map-2 bosses on within map 2 and ends map 2 with its own finale (doc 35)', () => {
+    it('sends map-2 bosses on within map 2 and ends map 2 with its own finale and map 3 (docs 35, 48)', () => {
       const m36 = missionById('m36');
       const m60 = missionById('m60');
       if (!m36 || !m60) throw new Error('missing');
       setLang('en');
       expect(debriefScript(input({ mission: m36, result: result({ bossKilled: true }) }))[3]?.params).toEqual({ theater: 'Roof of the World' });
       const lines = debriefScript(input({ mission: m60, result: result({ bossKilled: true }), stars: 3, campaignDone: true }));
-      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale2']);
+      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale2', 'adm.lowLevel']);
     });
   });
 

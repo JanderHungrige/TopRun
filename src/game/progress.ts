@@ -8,25 +8,29 @@ export function isCleared(save: SaveData, mission: MissionDef): boolean {
   return mission.id in save.progress;
 }
 
-/** Map 2 opens once the map-1 finale (m30) is cleared (doc 35), for the admin always (doc 47). */
-export function mapTwoOpen(save: SaveData): boolean {
-  if (save.admin) return true;
-  const last = MISSIONS[MISSIONS.length - 1];
+/** A map opens once the previous map's finale is cleared: map 2 after m30 (doc 35), map 3 after m60 (doc 48).
+ *  Map 1 is always open, and the admin has every map (doc 47). */
+export function mapOpen(save: SaveData, c: CampaignId): boolean {
+  if (c === 1 || save.admin) return true;
+  const prev = campaignMissions(c === 3 ? 2 : 1);
+  const last = prev[prev.length - 1];
   return last !== undefined && isCleared(save, last);
 }
 
-/** Mission 1 always; the first map-2 mission once map 2 is open; otherwise the previous mission of its map.
+export const mapTwoOpen = (save: SaveData): boolean => mapOpen(save, 2);
+
+/** A map's first mission once the map is open; otherwise the previous mission of its map.
  *  The admin pilot has every mission (doc 47). */
 export function isUnlocked(save: SaveData, mission: MissionDef): boolean {
   if (save.admin) return true;
   const list = campaignMissions(mission.campaign);
   const i = list.indexOf(mission);
-  if (i === 0) return mission.campaign === 1 || mapTwoOpen(save);
+  if (i === 0) return mapOpen(save, mission.campaign);
   const prev = list[i - 1];
   return prev !== undefined && isCleared(save, prev);
 }
 
-/** Highest unlocked mission, on map 2 once it is open — the default map selection. With everything open the
+/** Highest unlocked mission, on the newest open map — the default map selection. With everything open the
  *  admin starts at the first mission not yet cleared instead. */
 export function nextMission(save: SaveData): MissionDef {
   if (save.admin) return firstUncleared(save, ALL_MISSIONS);
@@ -52,7 +56,7 @@ function firstUncleared(save: SaveData, list: readonly MissionDef[]): MissionDef
   return m;
 }
 
-/** All stars, both maps (the pilot rating, doc 26). */
+/** All stars, every map (the pilot rating, doc 26). */
 export function totalStars(save: SaveData): number {
   return Object.values(save.progress).reduce((sum, p) => sum + p.stars, 0);
 }

@@ -2,7 +2,7 @@ import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { THEATERS } from '../data/theaters';
 import { LIVERIES, type LiveryId } from '../data/liveries';
-import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
+import type { CampaignId, MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import { debriefScript } from '../game/dialogue-scripts';
 import { missionScore } from '../game/score';
 import { applyResult, type Payout } from '../game/economy';
@@ -22,6 +22,9 @@ import { COLORS, text } from '../render/text';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { goldCount, playableIds } from './minigames/registry';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
+
+/** The gold banner when a map's finale is won (docs 35, 48). */
+const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = { 1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3' };
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
   perfect: 'debrief.launchPerfect', good: 'debrief.launchGood', early: 'debrief.launchEarly',
@@ -130,7 +133,7 @@ export class DebriefScene implements Scene {
     this.renderPayout(ctx);
     this.renderStars(ctx);
     this.renderPaint(ctx);
-    if (this.finale) text(ctx, t(this.mission.campaign === 1 ? 'debrief.finale' : 'debrief.finale2'), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
+    if (this.finale) text(ctx, t(FINALE_BANNER[this.mission.campaign]), 640, 628, { size: 20, display: true, align: 'center', color: COLORS.gold, maxWidth: 1200 });
     this.buttons.render(ctx, this.time);
   }
 

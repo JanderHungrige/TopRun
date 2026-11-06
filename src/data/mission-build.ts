@@ -38,6 +38,10 @@ export interface CampaignSpec {
   seeds: readonly (readonly [TheaterId, readonly MissionSeed[]])[];
   /** Mission length in seconds. */
   length(n: number, boss: boolean): number;
+  /** Threat level (doc 05); the mission number unless a map starts a fresh climb (map 3, doc 48). */
+  difficulty?(n: number): number;
+  /** Base reward before the boss bonus; the map-1 formula by mission number unless a map has its own (doc 48). */
+  reward?(n: number): number;
 }
 
 export function buildCampaign(spec: CampaignSpec): MissionDef[] {
@@ -46,7 +50,7 @@ export function buildCampaign(spec: CampaignSpec): MissionDef[] {
     seeds.forEach((seed, k) => {
       const n = spec.first + list.length;
       const isBoss = seed.objective.type === 'boss';
-      const baseReward = round100(1200 + (n - 1) * 380);
+      const baseReward = spec.reward ? spec.reward(n) : round100(1200 + (n - 1) * 380);
       list.push({
         id: `m${String(n).padStart(2, '0')}`,
         number: n,
@@ -55,7 +59,7 @@ export function buildCampaign(spec: CampaignSpec): MissionDef[] {
         theater,
         briefing: seed.briefing,
         objective: seed.objective,
-        difficulty: n,
+        difficulty: spec.difficulty ? spec.difficulty(n) : n,
         reward: isBoss ? round100(baseReward * 1.5) : baseReward,
         length: spec.length(n, isBoss),
         pool: Object.freeze([...seed.pool]),

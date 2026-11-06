@@ -72,6 +72,12 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.finale2': [
     'Die zweite Front ist gewonnen, {callsign}. So ist noch keiner geflogen. Du bist eine Top-Gun-Legende.',
   ],
+  'adm.lowLevel': [
+    'Und es gibt eine dritte Front: Tiefflug, nur Hubschrauber. Die Jets bleiben daheim. Sieh dir den Globus an, {callsign}.',
+  ],
+  'adm.finale3': [
+    'Die Ascheinsel gehört uns, {callsign}. Du hast diesen Krieg in Baumwipfelhöhe geführt. Ass der Asse.',
+  ],
   'adm.livery': [
     'Und die Lackiererei hat etwas für dich: {livery}. Trag sie mit Stolz.',
     'Noch etwas. Die Crew hat dir eine neue Lackierung gemacht: {livery}. Sie wartet im Hangar.',

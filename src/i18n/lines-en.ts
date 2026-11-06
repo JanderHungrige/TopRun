@@ -70,6 +70,12 @@ export const LINES_EN = {
   'adm.finale2': [
     "The second front is won, {callsign}. Nobody has flown like that. You're a Top Gun legend.",
   ],
+  'adm.lowLevel': [
+    "And there's a third front: low level, helicopters only. The jets stay home. Check the globe, {callsign}.",
+  ],
+  'adm.finale3': [
+    "Ash Island is ours, {callsign}. You fought that war at treetop height. Ace of aces.",
+  ],
   'adm.livery': [
     "And the paint shop has something for you: {livery}. Wear it with pride.",
     "One more thing. The crew painted up a new scheme for you: {livery}. It's waiting in the hangar.",

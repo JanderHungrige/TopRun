@@ -5,16 +5,18 @@ import { PLANES } from '../data/planes';
 import { THEATERS } from '../data/theaters';
 import { enemyName, missionBriefing, missionName, objectiveText, theaterName } from '../i18n/content';
 import { t } from '../i18n/i18n';
-import type { CampaignId, MissionDef } from '../data/types';
+import { CAMPAIGN_IDS, type CampaignId, type MissionDef } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
 import { doubleFirepower, jetGunLevel } from '../game/firepower';
-import { campaignComplete, campaignStars, isCleared, isUnlocked, mapTwoOpen, nextMission, nextMissionOn } from '../game/progress';
+import { payScale } from '../game/map-two';
+import { campaignComplete, campaignStars, isCleared, isUnlocked, mapOpen, nextMission, nextMissionOn } from '../game/progress';
 import type { GameContext } from '../game/state';
 import { drawAdminBadge } from '../render/admin-badge';
 import { COLORS, measure, paragraph, text } from '../render/text';
 import { drawPilotAvatar, pilotFace } from '../render/avatars';
 import { drawButton, drawPanel, hit, type Button } from '../ui/widgets';
-import { drawGlobe, drawGlobeLocked, GLOBE } from './map-globe';
+import type { UiKey } from '../i18n/ui-en';
+import { chipRect, drawGlobe, drawGlobeLocked, drawMapPicker, GLOBE, lockedNote } from './map-globe';
 import { drawMapBase, drawNode, drawRoute } from './map-render';
 
 const PANEL = { x: 882, y: 76, w: 378, h: 628 };
@@ -22,13 +24,20 @@ const PANEL = { x: 882, y: 76, w: 378, h: 628 };
 const MENU_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 /** Left edge of the callsign and money in the top bar; the avatar sits just left of it. */
 const PILOT_X = 860;
+const TITLE: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3' };
+const WON: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.campaignComplete', 2: 'map.campaign2Complete', 3: 'map.campaign3Complete' };
+/** Threat triangles: red on map 1, violet on map 2 (doc 35), orange on map 3 (doc 48). */
+const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d' };
 
 export class MapScene implements Scene {
   private t = 0;
   private selected: MissionDef;
   private buttons: Button[] = [];
-  /** Seconds left of the "opens after mission 30" note under the closed globe (doc 35). */
+  /** Seconds left of the "opens after mission 30 / 60" note under the globe (docs 35, 48). */
   private locked = 0;
+  private note: UiKey = 'map.globeLocked';
+  /** The map picker under the globe (doc 48): the focused chip while it is open, else null. */
+  private picker: CampaignId | null = null;
 
   constructor(private readonly game: GameContext, select?: string) {
     this.selected = (select ? missionById(select) : undefined) ?? nextMission(game.save);
@@ -43,15 +52,38 @@ export class MapScene implements Scene {
     return campaignMissions(this.campaign);
   }
 
-  /** The globe: to map 2 once mission 30 is cleared, back to map 1 from map 2. */
-  private switchMap(): void {
-    if (this.campaign === 1 && !mapTwoOpen(this.game.save)) {
+  /** The globe opens or closes the map picker (doc 48). */
+  private togglePicker(): void {
+    this.picker = this.picker === null ? this.campaign : null;
+    this.game.audio.play(this.picker === null ? 'uiBack' : 'uiSelect');
+  }
+
+  /** Switches to map `c`, or tells when a closed map opens. */
+  private pickMap(c: CampaignId): void {
+    this.picker = null;
+    if (!mapOpen(this.game.save, c)) {
       this.locked = 2.2;
+      this.note = lockedNote(c);
       this.game.audio.play('denied');
       return;
     }
-    this.selected = nextMissionOn(this.game.save, this.campaign === 1 ? 2 : 1);
+    if (c !== this.campaign) this.selected = nextMissionOn(this.game.save, c);
     this.game.audio.play('uiSelect');
+  }
+
+  /** Picker input: ←/→ move, ENTER picks, ESC or G closes, a tap picks a chip or closes it. */
+  private updatePicker(focus: CampaignId): void {
+    const input = this.game.input;
+    const i = CAMPAIGN_IDS.indexOf(focus);
+    if (input.pressed('left')) this.picker = CAMPAIGN_IDS[Math.max(0, i - 1)] ?? focus;
+    if (input.pressed('right')) this.picker = CAMPAIGN_IDS[Math.min(CAMPAIGN_IDS.length - 1, i + 1)] ?? focus;
+    const tap = input.taps[0];
+    if (tap) {
+      const chip = CAMPAIGN_IDS.find((c) => hit(tap, chipRect(c)));
+      return chip ? this.pickMap(chip) : this.togglePicker();
+    }
+    if (input.pressed('confirm')) this.pickMap(this.picker ?? focus);
+    else if (input.pressed('back') || input.pressed('globe')) this.togglePicker();
   }
 
   enter(): void {
@@ -73,20 +105,21 @@ export class MapScene implements Scene {
     this.locked = Math.max(0, this.locked - dt);
     const input = this.game.input;
     this.layoutButtons();
+    if (this.picker !== null) return this.updatePicker(this.picker);
     if (input.pressed('left') || input.pressed('up')) this.step(-1);
     if (input.pressed('right') || input.pressed('down')) this.step(1);
     for (const tap of input.taps) {
       const b = this.buttons.find((x) => x.enabled !== false && hit(tap, x));
       if (b) return this.activate(b.id);
       if (hit(tap, MENU_BTN)) return this.activate('title');
-      if (hit(tap, GLOBE)) return this.switchMap();
+      if (hit(tap, GLOBE)) return this.togglePicker();
       const node = this.missions.find((m) => Math.hypot(tap.x - m.map.x, tap.y - m.map.y) < 22);
       if (node) this.select(node);
     }
     if (input.pressed('confirm')) this.activate('launch');
     if (input.pressed('hangar')) this.activate('hangar');
     if (input.pressed('base')) this.activate('base');
-    if (input.pressed('globe')) this.switchMap();
+    if (input.pressed('globe')) this.togglePicker();
     if (input.pressed('back')) this.activate('title');
   }
 
@@ -130,16 +163,17 @@ export class MapScene implements Scene {
     for (const m of this.missions) drawNode(ctx, m, this.game.save, m.id === this.selected.id, this.t);
     this.renderTopBar(ctx);
     this.renderBriefing(ctx);
+    if (this.picker !== null) drawMapPicker(ctx, this.campaign, this.picker, (c) => mapOpen(this.game.save, c));
   }
 
   private renderTopBar(ctx: CanvasRenderingContext2D): void {
     const s = this.game.save;
     const c = this.campaign;
-    text(ctx, t(c === 1 ? 'map.title' : 'map.title2'), 24, 46, { size: 26, display: true, italic: true, color: COLORS.ink, maxWidth: 430 });
+    text(ctx, t(TITLE[c]), 24, 46, { size: 26, display: true, italic: true, color: COLORS.ink, maxWidth: 430 });
     const done = this.missions.filter((m) => isCleared(s, m)).length;
     text(ctx, t('map.progress', { done, stars: campaignStars(s, c) }), 470, 44, { size: 15, color: COLORS.dim, maxWidth: GLOBE.x - 480 });
-    drawGlobe(ctx, c, c === 2 || mapTwoOpen(s), this.t);
-    if (this.locked > 0) drawGlobeLocked(ctx, this.locked);
+    drawGlobe(ctx, c, CAMPAIGN_IDS.some((x) => x !== c && mapOpen(s, x)), this.t);
+    if (this.locked > 0) drawGlobeLocked(ctx, this.locked, this.note);
     const pilot = this.game.profile;
     if (pilot) {
       drawPilotAvatar(ctx, pilotFace(pilot), { x: PILOT_X - 60, y: 8, w: 50, h: 60 }, { t: this.t, mood: 'happy' });
@@ -148,7 +182,7 @@ export class MapScene implements Scene {
     }
     text(ctx, formatMoney(s.money), PILOT_X, 60, { size: 20, display: true, color: COLORS.green, maxWidth: MENU_BTN.x - PILOT_X - 12 });
     drawButton(ctx, { id: 'title', label: t('map.menu'), ...MENU_BTN }, false, this.t);
-    if (campaignComplete(s, c)) text(ctx, t(c === 1 ? 'map.campaignComplete' : 'map.campaign2Complete'), 470, 66, { size: 13, color: COLORS.gold, maxWidth: GLOBE.x - 480 });
+    if (campaignComplete(s, c)) text(ctx, t(WON[c]), 470, 66, { size: 13, color: COLORS.gold, maxWidth: GLOBE.x - 480 });
   }
 
   private renderBriefing(ctx: CanvasRenderingContext2D): void {
@@ -160,12 +194,13 @@ export class MapScene implements Scene {
     text(ctx, t('map.missionHeader', { n: String(m.number).padStart(2, '0'), theater: theaterName(m.theater).toUpperCase() }), x, PANEL.y + 32, { size: 12, color: th.palette.accent, letterSpacing: 1.5 });
     text(ctx, missionName(m).toUpperCase(), x, PANEL.y + 66, { size: 26, display: true, italic: true, maxWidth: PANEL.w - 40 });
     text(ctx, objectiveText(m.objective), x, PANEL.y + 96, { size: 15, color: COLORS.gold, maxWidth: PANEL.w - 40 });
-    const threat = Math.ceil((((m.difficulty - 1) % 30) + 1) / 6); // 1–5 on each map (doc 35)
+    const threat = Math.ceil((((m.number - 1) % 30) + 1) / 6); // 1–5 on each map (docs 35, 48)
     text(ctx, t('map.threat'), x, PANEL.y + 128, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
-    text(ctx, '▲'.repeat(threat) + '△'.repeat(5 - threat), x + 70, PANEL.y + 129, { size: 14, color: m.campaign === 2 ? '#c27bff' : COLORS.red });
+    text(ctx, '▲'.repeat(threat) + '△'.repeat(5 - threat), x + 70, PANEL.y + 129, { size: 14, color: THREAT_COLOR[m.campaign] });
     const cleared = isCleared(s, m);
     text(ctx, t('map.reward'), x + 180, PANEL.y + 128, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
-    text(ctx, formatMoney(cleared ? m.reward * 0.5 : m.reward) + (cleared ? `  ${t('map.replay')}` : ''), x + 244, PANEL.y + 129, { size: 14, color: COLORS.green, maxWidth: PANEL.w - 264 });
+    const reward = Math.round(m.reward * payScale(m.number)); // what the mission pays, map scale included (docs 43, 48)
+    text(ctx, formatMoney(cleared ? reward * 0.5 : reward) + (cleared ? `  ${t('map.replay')}` : ''), x + 244, PANEL.y + 129, { size: 14, color: COLORS.green, maxWidth: PANEL.w - 264 });
     const h = paragraph(ctx, missionBriefing(m), x, PANEL.y + 164, PANEL.w - 40, { size: 15, color: COLORS.ink, type: true });
     let y = PANEL.y + 182 + h;
     text(ctx, t('map.contacts'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
@@ -180,7 +215,7 @@ export class MapScene implements Scene {
   private renderLoadout(ctx: CanvasRenderingContext2D, x: number, y: number): void {
     const s = this.game.save;
     const weapons = s.loadout[s.selectedPlane].map((id) => (id ? SECONDARIES[id].short : '—')).join(' / ');
-    text(ctx, t('map.yourJet'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
+    text(ctx, t(this.campaign === 3 ? 'map.yourHeli' : 'map.yourJet'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
     const level = s.gun2Level > 0 && doubleFirepower(s.selectedPlane) ? `${jetGunLevel(s.selectedPlane, s.gunLevel)} + ${s.gun2Level}` : String(jetGunLevel(s.selectedPlane, s.gunLevel));
     text(ctx, t('map.gunLevel', { plane: PLANES[s.selectedPlane].name, level }), x, y + 22, { size: 15, color: COLORS.ink, maxWidth: PANEL.w - 40 });
     text(ctx, weapons, x, y + 44, { size: 13, color: COLORS.dim, maxWidth: PANEL.w - 40 });

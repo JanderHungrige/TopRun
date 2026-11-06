@@ -18,11 +18,12 @@ const STRIPES: Readonly<Record<RankId, readonly Stripe[]>> = {
   adm: ['wide', 'mid', 'mid', 'mid'],
   fadm: ['wide', 'mid', 'mid', 'mid', 'mid'],
   legend: ['wide', 'mid', 'wide'],
+  ace: ['wide', 'wide', 'wide'],
 };
 
 export const RANK_KEY: Readonly<Record<RankId, UiKey>> = {
   ensign: 'rank.ensign', ltjg: 'rank.ltjg', lt: 'rank.lt', lcdr: 'rank.lcdr',
-  cdr: 'rank.cdr', capt: 'rank.capt', radm: 'rank.radm', adm: 'rank.adm', fadm: 'rank.fadm', legend: 'rank.legend',
+  cdr: 'rank.cdr', capt: 'rank.capt', radm: 'rank.radm', adm: 'rank.adm', fadm: 'rank.fadm', legend: 'rank.legend', ace: 'rank.ace',
 };
 
 const HEIGHT: Readonly<Record<Stripe, number>> = { wide: 5, mid: 2, thin: 1 };

@@ -15,11 +15,11 @@ export interface RatingStats {
 }
 
 export const RATING = Object.freeze({
-  star: 100, maxStars: 180, // both maps (doc 35); was 90
+  star: 100, maxStars: 270, // three maps (doc 48); was 180 (doc 35), 90
   medal: 250, maxMedals: 18,
   kill: 2, maxKills: 2000,
   gold: 150, silver: 80, bronze: 40, games: 10,
-  scorePer: 10, maxScore: 60000, // + best mission scores ÷ 10, both maps (doc 39)
+  scorePer: 10, maxScore: 90000, // + best mission scores ÷ 10, three maps (docs 39, 48)
 });
 
 const whole = (v: number, hi: number): number => (Number.isFinite(v) ? Math.min(hi, Math.max(0, Math.floor(v))) : 0);

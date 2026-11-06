@@ -1,5 +1,6 @@
 import { buildCampaign, intercept, patrol, strike, type MissionSeed } from './mission-build';
 import { MISSIONS_2 } from './missions-2';
+import { MISSIONS_3 } from './missions-3';
 import type { CampaignId, MissionDef, TheaterId } from './types';
 
 // Map 1 (doc 03): missions m01–m30 in five theaters. Map 2 (m31–m60) lives in missions-2.ts (doc 35).
@@ -56,10 +57,17 @@ export const MISSIONS: readonly MissionDef[] = Object.freeze(buildCampaign({
   campaign: 1, first: 1, seeds: ORDER.map((id): [TheaterId, readonly MissionSeed[]] => [id, SEEDS[id]]), length: (n, boss) => (boss ? 45 + n : 70 + Math.round((n - 1) * 2.1)),
 }));
 
-/** Both maps, m01–m60. */
-export const ALL_MISSIONS: readonly MissionDef[] = Object.freeze([...MISSIONS, ...MISSIONS_2]);
+/** All three maps, m01–m90. */
+export const ALL_MISSIONS: readonly MissionDef[] = Object.freeze([...MISSIONS, ...MISSIONS_2, ...MISSIONS_3]);
 
-export const campaignMissions = (c: CampaignId): readonly MissionDef[] => (c === 1 ? MISSIONS : MISSIONS_2);
+export function campaignMissions(c: CampaignId): readonly MissionDef[] {
+  switch (c) {
+    case 1: return MISSIONS;
+    case 2: return MISSIONS_2;
+    case 3: return MISSIONS_3;
+    default: throw new Error(`unhandled: ${c satisfies never}`);
+  }
+}
 
 export function missionById(id: string): MissionDef | undefined {
   return ALL_MISSIONS.find((m) => m.id === id);

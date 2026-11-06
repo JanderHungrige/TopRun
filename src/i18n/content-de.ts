@@ -13,6 +13,11 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   jungle: { name: 'Grüne Hölle', tagline: 'Unter dem Blätterdach' },
   nightfall: { name: 'Wüstennacht', tagline: 'Ins Dunkel' },
   thunderhead: { name: 'Operation Gewitterfront', tagline: 'Mach endgültig Schluss' },
+  fjords: { name: 'Fjordland', tagline: 'Zwischen den Wänden' },
+  highlands: { name: 'Hochland-Pässe', tagline: 'Am Grat entlang' },
+  delta: { name: 'Flussdelta', tagline: 'Dem Wasser nach' },
+  mesa: { name: 'Tafelberge', tagline: 'Roter Fels, lange Schatten' },
+  ashfall: { name: 'Ascheinsel', tagline: 'Feuer unter der Asche' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -144,4 +149,9 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   python: 'Panzerzug',
   scorpion: 'Raketenkriecher',
   colossus: 'Fliegende Festung',
+  glacier: 'Gepanzerter Eisbrecher',
+  citadel: 'Bergfestung',
+  caiman: 'Flussmonitor',
+  mammoth: 'Superschwerer Panzer',
+  behemoth: 'Tandemrotor-Kampfhubschrauber',
 };

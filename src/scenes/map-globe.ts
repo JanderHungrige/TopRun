@@ -1,11 +1,13 @@
 import { TAU } from '../core/math';
-import type { CampaignId } from '../data/types';
+import { CAMPAIGN_IDS, type CampaignId } from '../data/types';
 import { t } from '../i18n/i18n';
+import type { UiKey } from '../i18n/ui-en';
 import { circle, ellipse } from '../render/shapes';
 import { COLORS, text } from '../render/text';
-import type { Rect } from '../ui/widgets';
+import { drawPanel, type Rect } from '../ui/widgets';
 
-// The campaign map's globe (doc 35): switches between map 1 and map 2, padlocked until mission 30 is cleared.
+// The campaign map's globe (doc 35), a map picker since map 3 (doc 48): a tap drops a row of map chips below it,
+// closed maps padlocked until the previous map's finale is cleared.
 
 export const GLOBE: Rect = { x: 712, y: 10, w: 56, h: 56 };
 const R = 22;
@@ -48,7 +50,7 @@ function earth(ctx: CanvasRenderingContext2D, cx: number, cy: number, time: numb
   ctx.restore();
 }
 
-/** The globe on `on`; the badge shows the other map's number, or a padlock while map 2 is closed. */
+/** The globe on map `on`; the badge shows its number, or a padlock while no other map is open yet. */
 export function drawGlobe(ctx: CanvasRenderingContext2D, on: CampaignId, open: boolean, time: number): void {
   const cx = GLOBE.x + GLOBE.w / 2;
   const cy = GLOBE.y + GLOBE.h / 2;
@@ -63,14 +65,40 @@ export function drawGlobe(ctx: CanvasRenderingContext2D, on: CampaignId, open: b
   const by = cy + 16;
   circle(ctx, bx, by, 10, open ? '#b8860b' : '#33414f');
   if (!open) return padlock(ctx, bx, by + 1);
-  text(ctx, on === 1 ? '2' : '1', bx, by + 1, { size: 13, display: true, align: 'center', baseline: 'middle', color: '#fff' });
+  text(ctx, String(on), bx, by + 1, { size: 13, display: true, align: 'center', baseline: 'middle', color: '#fff' });
 }
 
-/** "Opens after mission 30" under the globe for a moment after a tap on the closed globe. */
-export function drawGlobeLocked(ctx: CanvasRenderingContext2D, alpha: number): void {
+const CHIP = 40;
+const CHIP_GAP = 8;
+
+/** The map chips in a row under the globe, centred on it. */
+export function chipRect(c: CampaignId): Rect {
+  const n = CAMPAIGN_IDS.length;
+  const x0 = GLOBE.x + GLOBE.w / 2 - (n * CHIP + (n - 1) * CHIP_GAP) / 2;
+  return { x: x0 + (c - 1) * (CHIP + CHIP_GAP), y: GLOBE.y + GLOBE.h + 6, w: CHIP, h: CHIP };
+}
+
+/** The open picker: the map on show in gold, the focused chip outlined, closed maps padlocked. */
+export function drawMapPicker(ctx: CanvasRenderingContext2D, on: CampaignId, focus: CampaignId, open: (c: CampaignId) => boolean): void {
+  const first = chipRect(1);
+  const last = chipRect(CAMPAIGN_IDS[CAMPAIGN_IDS.length - 1] ?? 1);
+  drawPanel(ctx, { x: first.x - 8, y: first.y - 6, w: last.x + last.w - first.x + 16, h: CHIP + 12 }, { fill: 'rgba(6,12,20,0.94)', radius: 8 });
+  for (const c of CAMPAIGN_IDS) {
+    const r = chipRect(c);
+    drawPanel(ctx, r, { fill: c === on ? '#b8860b' : 'rgba(30,48,70,0.95)', edge: c === focus ? COLORS.gold : COLORS.panelEdge, radius: 6 });
+    if (open(c)) text(ctx, String(c), r.x + r.w / 2, r.y + r.h / 2 + 1, { size: 18, display: true, align: 'center', baseline: 'middle', color: '#fff' });
+    else padlock(ctx, r.x + r.w / 2, r.y + r.h / 2 + 2);
+  }
+}
+
+/** The note for a closed map: "Opens after mission 30 / 60". */
+export const lockedNote = (c: CampaignId): UiKey => (c === 3 ? 'map.globeLocked3' : 'map.globeLocked');
+
+/** The closed-map note under the globe for a moment after picking a closed map. */
+export function drawGlobeLocked(ctx: CanvasRenderingContext2D, alpha: number, note: UiKey): void {
   ctx.save();
   ctx.globalAlpha = Math.min(1, alpha);
-  text(ctx, t('map.globeLocked'), GLOBE.x + GLOBE.w / 2, GLOBE.y + GLOBE.h + 16, {
+  text(ctx, t(note), GLOBE.x + GLOBE.w / 2, GLOBE.y + GLOBE.h + 62, {
     size: 13, align: 'center', color: COLORS.red, stroke: 'rgba(0,0,0,0.6)', strokeWidth: 3,
   });
   ctx.restore();

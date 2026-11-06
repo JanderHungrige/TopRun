@@ -18,4 +18,10 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   jungle: ['dawn', 'day', 'dusk', 'day', 'dawn', 'dusk'],
   nightfall: ['night', 'night', 'dusk', 'night', 'night', 'night'],
   thunderhead: ['storm', 'storm', 'night', 'storm', 'dusk', 'storm'],
+  // Map 3 (doc 48): no photos in this initiative, but the table covers every theater.
+  fjords: ['dawn', 'day', 'day', 'dusk', 'day', 'storm'],
+  highlands: ['dawn', 'day', 'day', 'dusk', 'dawn', 'day'],
+  delta: ['day', 'dawn', 'day', 'dusk', 'dusk', 'day'],
+  mesa: ['dawn', 'day', 'day', 'dusk', 'day', 'dusk'],
+  ashfall: ['storm', 'dusk', 'day', 'night', 'storm', 'night'],
 });

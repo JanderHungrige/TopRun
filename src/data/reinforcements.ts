@@ -29,6 +29,12 @@ const ADDS: Readonly<Record<TheaterId, readonly Reinforcement[]>> = {
   jungle: [r('bunker', 43), r('shilka', 43), r('felon', 43), r('jammer', 43)],
   nightfall: [r('felon', 49), r('bunker', 49), r('shilka', 49), r('foxbat', 49), r('jammer', 49)],
   thunderhead: [r('felon', 55), r('frigate', 55), r('foxbat', 55), r('jammer', 55), r('bunker', 55)],
+  // Map 3 (doc 48): the kit starts from zero, so the new kinds come back one theater at a time, mostly on the ground.
+  fjords: [r('shilka', 62)],
+  highlands: [r('bunker', 67), r('shilka', 67)],
+  delta: [r('shilka', 73), r('bunker', 74)],
+  mesa: [r('bunker', 79), r('shilka', 79), r('foxbat', 80)],
+  ashfall: [r('frigate', 85), r('shilka', 85), r('bunker', 85), r('felon', 87)],
 };
 
 /** Sea units need a sea theater (land units stand on islands in sea theaters). */
@@ -42,14 +48,15 @@ export function reinforcements(m: MissionDef): EnemyKind[] {
     .map((x) => x.kind);
 }
 
-/** First mission with mid-mission mini-bosses (the Arctic). */
+/** First mission with mid-mission mini-bosses (the Arctic); on map 3 from the highlands on (doc 48). */
 export const MINI_BOSS_FROM = 13;
+export const MAP3_MINI_BOSS_FROM = 67;
 
 /** Mini-bosses of a mission: when (share of the mission length) and which kind. None in boss missions. */
 export function miniBosses(m: MissionDef): Array<{ at: number; kind: EnemyKind }> {
-  if (m.objective.type === 'boss' || m.number < MINI_BOSS_FROM) return [];
+  if (m.objective.type === 'boss' || m.number < MINI_BOSS_FROM || (m.campaign === 3 && m.number < MAP3_MINI_BOSS_FROM)) return [];
   const sea = THEATERS[m.theater].base === 'sea';
   const pick = (k: number): EnemyKind => ((m.number + k) % 2 === 0 ? 'backfire' : sea ? 'cruiser' : 'fortress');
-  const times = m.campaign === 1 ? [0.55] : [0.4, 0.75];
+  const times = m.campaign === 2 ? [0.4, 0.75] : [0.55];
   return times.map((at, k) => ({ at, kind: pick(k) }));
 }

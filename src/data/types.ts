@@ -17,15 +17,18 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
 
 export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke';
 
-/** Map 1 (m01–m30) or map 2 (m31–m60, doc 35). */
-export type CampaignId = 1 | 2;
+/** Map 1 (m01–m30), map 2 (m31–m60, doc 35) or map 3 (m61–m90, helicopters, doc 48). */
+export type CampaignId = 1 | 2 | 3;
+export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3] as const);
 
 export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
-  | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead';
+  | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead'
+  | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
+  'fjords', 'highlands', 'delta', 'mesa', 'ashfall',
 ] as const);
 
 export type EnemyKind =
@@ -46,7 +49,8 @@ export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 
 
 export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
-  | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus';
+  | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus'
+  | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 

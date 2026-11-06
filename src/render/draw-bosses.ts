@@ -1,5 +1,5 @@
 import { BOSSES, type BossDef, type BossPartDef } from '../data/bosses';
-import { bossPal as pal, HULLS_2, LIGHTS_2, PALS_2 } from './bosses-2';
+import { bossPal as pal, HULLS_LATER, LIGHTS_LATER, PALS_LATER } from './bosses-later';
 import type { BossId } from '../data/types';
 import { exhaust, fire, hash, roundel, scorch, smoke } from './draw-enemies';
 import { gunTurret, HL, missileRack, monoPal, rect, ring, SH, slab, twinGun, wake, type Pal } from './draw-ground-units';
@@ -19,7 +19,7 @@ const PALS: Readonly<Record<BossId, Pal>> = {
   blackjack: pal('#d3d7da', '#9aa1a7', '#eef0f1', '#7d858c', '#25323d'),
   typhoon: pal('#30353a', '#1c1f23', '#4d555d', '#3a4047', '#8a3a2a'),
   leviathan: pal('#4f575d', '#33393e', '#7d868d', '#646d74', '#1e2a33'),
-  ...PALS_2,
+  ...PALS_LATER,
 };
 /** Turret / launcher colours where they differ from the hull. */
 const MOUNT_PALS: Partial<Record<BossId, Pal>> = { sandstorm: pal('#7c7d68', '#33342b', '#9a9a84', '#5d6640', '#2a2a24') };
@@ -124,7 +124,7 @@ const LIGHTS: Readonly<Record<BossId, readonly number[]>> = {
   blackjack: [-178, -44, 178, -44, 0, -132, -55, -20, 55, -20, 0, 98],
   typhoon: [-216, -40, 216, -40, -110, -50, 110, -50, 0, -30, 0, 60],
   leviathan: [86, 0, -62, -220, 62, -220, -40, 210, 40, 210, -88, 20],
-  ...LIGHTS_2,
+  ...LIGHTS_LATER,
 };
 
 function warningLights(ctx: Ctx, id: BossId, t: number): void {
@@ -283,7 +283,7 @@ const leviathan: HullFn = (ctx, p, s) => {
   if (!p.mono) deckProps(ctx, p, s.t);
 };
 
-const HULLS: Readonly<Record<BossId, HullFn>> = { ironclad, sandstorm, blackjack, typhoon, leviathan, ...HULLS_2 };
+const HULLS: Readonly<Record<BossId, HullFn>> = { ironclad, sandstorm, blackjack, typhoon, leviathan, ...HULLS_LATER };
 
 export function drawBoss(ctx: CanvasRenderingContext2D, id: BossId, x: number, y: number, s: BossDrawState): void {
   const def = BOSSES[id];

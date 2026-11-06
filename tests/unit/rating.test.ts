@@ -13,17 +13,18 @@ describe('Pilot rating', () => {
     expect(pilotRating({ ...zero, golds: 1, silvers: 1, bronzes: 1, score: 0 })).toBe(150 + 80 + 40);
   });
 
-  it('caps every ingredient so grinding cannot dominate, max 34 000 with both maps and the mission score (docs 35, 39)', () => {
+  it('caps every ingredient so grinding cannot dominate, max 46 000 with three maps and the mission score (docs 35, 39, 48)', () => {
     expect(pilotRating({ ...zero, kills: 99999 })).toBe(4000);
     expect(pilotRating({ stars: 999, medals: 99, kills: 99999, golds: 99, silvers: 0, bronzes: 0, score: 999999 })).toBe(maxRating());
-    expect(maxRating()).toBe(34000);
-    expect(pilotRating({ ...zero, stars: 180 })).toBe(18000);
+    expect(maxRating()).toBe(46000);
+    expect(pilotRating({ ...zero, stars: 270 })).toBe(27000);
+    expect(pilotRating({ ...zero, stars: 300 })).toBe(27000);
   });
 
-  it('adds the best mission scores ÷ 10, capped at 60 missions × 1000 (doc 39)', () => {
+  it('adds the best mission scores ÷ 10, capped at 90 missions × 1000 (docs 39, 48)', () => {
     expect(pilotRating({ ...zero, score: 734 })).toBe(73);
-    expect(pilotRating({ ...zero, score: 60000 })).toBe(6000);
-    expect(pilotRating({ ...zero, score: 99999 })).toBe(6000);
+    expect(pilotRating({ ...zero, score: 90000 })).toBe(9000);
+    expect(pilotRating({ ...zero, score: 99999 })).toBe(9000);
     expect(clampStats({ ...zero, score: -3 }).score).toBe(0);
   });
 
@@ -33,7 +34,9 @@ describe('Pilot rating', () => {
   });
 
   it('maps ratings to naval ranks', () => {
-    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend']);
+    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace']);
+    expect(rankFor(35999)).toBe('legend');
+    expect(rankFor(36000)).toBe('ace');
     expect(rankFor(0)).toBe('ensign');
     expect(rankFor(799)).toBe('ensign');
     expect(rankFor(800)).toBe('ltjg');

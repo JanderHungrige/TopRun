@@ -22,10 +22,16 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   jungle: { x: 326, y: 104 },
   nightfall: { x: 166, y: 478 },
   thunderhead: { x: 196, y: 548 },
+  // Map 3 snakes across the whole map (doc 48).
+  fjords: { x: 205, y: 100 },
+  highlands: { x: 600, y: 104 },
+  delta: { x: 770, y: 512 },
+  mesa: { x: 420, y: 330 },
+  ashfall: { x: 300, y: 686 },
 };
 
-/** Map 2 is a darker, colder sea (doc 35). */
-const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'] };
+/** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48). */
+const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'] };
 
 const cached = new Map<CampaignId, HTMLCanvasElement>();
 

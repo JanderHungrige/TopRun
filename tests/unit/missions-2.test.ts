@@ -19,7 +19,7 @@ describe('Second map (doc 35)', () => {
     expect(MISSIONS.every((m) => m.campaign === 1)).toBe(true);
     expect(MISSIONS_2.map((m) => m.id)).toEqual(Array.from({ length: 30 }, (_, i) => `m${i + 31}`));
     expect(MISSIONS_2.every((m, i) => m.number === i + 31 && m.difficulty === i + 31 && m.campaign === 2)).toBe(true);
-    expect(ALL_MISSIONS).toHaveLength(60);
+    expect(ALL_MISSIONS).toHaveLength(90); // map 3 since doc 48
     expect(campaignMissions(1)).toEqual(MISSIONS);
     expect(campaignMissions(2)).toEqual(MISSIONS_2);
     expect(missionById('m45')?.campaign).toBe(2);
@@ -28,7 +28,7 @@ describe('Second map (doc 35)', () => {
   it('has five new theaters with six missions each and a new boss every sixth', () => {
     expect(campaignTheaters(2)).toEqual(MAP2);
     expect(campaignTheaters(1)).toEqual(['pacific', 'gulf', 'arctic', 'canyon', 'leviathan']);
-    expect(THEATER_IDS).toHaveLength(10);
+    expect(THEATER_IDS).toHaveLength(15); // map 3 since doc 48
     MAP2.forEach((th, k) => {
       const six = MISSIONS_2.slice(k * 6, k * 6 + 6);
       expect(six.every((m) => m.theater === th)).toBe(true);

@@ -84,7 +84,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gunLevel: jetGunLevel(plane.id, save.gunLevel) as GunLevel,
     gun2Level: double ? save.gun2Level : 0,
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
-    gunGround: rounds.groundFactor,
+    gunGround: plane.kind === 'heli' ? 1 : rounds.groundFactor, // the chain gun hits the ground fully (doc 49)
     gunBurn: rounds.burn,
     rounds: rounds.type,
     heLevel: save.heLevel,

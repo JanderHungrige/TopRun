@@ -66,12 +66,12 @@ describe('Languages', () => {
   });
 
   describe('content', () => {
-    it('covers all 60 missions (both maps), theaters, planes, weapons, equipment, enemies and bosses in German', () => {
+    it('covers all 90 missions (three maps), theaters, planes, weapons, equipment, enemies and bosses in German', () => {
       for (const m of ALL_MISSIONS) {
         expect(MISSIONS_DE[m.id]?.name, m.id).toBeTruthy();
         expect(MISSIONS_DE[m.id]?.briefing, m.id).toBeTruthy();
       }
-      expect(Object.keys(MISSIONS_DE)).toHaveLength(60);
+      expect(Object.keys(MISSIONS_DE)).toHaveLength(90);
       THEATER_IDS.forEach((id) => expect(THEATERS_DE[id].name).toBeTruthy());
       PLANE_IDS.forEach((id) => expect(PLANES_DE[id].description).toBeTruthy());
       SECONDARY_IDS.forEach((id) => expect(SECONDARIES_DE[id].description).toBeTruthy());

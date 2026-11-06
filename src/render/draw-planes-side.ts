@@ -8,6 +8,7 @@ import { drawF35Side } from './planes/f35-side';
 import { drawSR71Side } from './planes/sr71-side';
 import { drawTornadoSide } from './planes/tornado-side';
 import type { SideOpts } from './planes/surface';
+import { drawAh64Side } from './helis/ah64-side';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
 
@@ -38,10 +39,11 @@ export function drawPlaneSide(
     case 'a10': drawA10Side(ctx, look, opts); break;
     case 'f35': drawF35Side(ctx, look, opts); break;
     case 'tornado': drawTornadoSide(ctx, look, opts); break;
+    case 'ah64': drawAh64Side(ctx, look, opts); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23 };

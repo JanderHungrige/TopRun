@@ -120,21 +120,21 @@ describe('Dialogue', () => {
       expect(lines[3]?.gesture).toBe('salute');
     });
 
-    it('sends map-2 bosses on within map 2 and ends map 2 with its own finale (doc 35)', () => {
+    it('sends map-2 bosses on within map 2 and ends map 2 with its own finale and map 3 (docs 35, 48)', () => {
       const m36 = missionById('m36');
       const m60 = missionById('m60');
       if (!m36 || !m60) throw new Error('missing');
       setLang('en');
       expect(debriefScript(input({ mission: m36, result: result({ bossKilled: true }) }))[3]?.params).toEqual({ theater: 'Roof of the World' });
       const lines = debriefScript(input({ mission: m60, result: result({ bossKilled: true }), stars: 3, campaignDone: true }));
-      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale2']);
+      expect(lines.map((l) => l.key)).toEqual(['adm.open3', 'adm.boss', 'adm.pay', 'adm.finale2', 'adm.lowLevel']);
     });
   });
 
   describe('event lines', () => {
     it('chief, shooter and wingman lines map every event to a known line key', () => {
       const all = [...Object.values(CHIEF_EVENTS), ...Object.values(SHOOTER_EVENTS), ...Object.values(WINGMAN_EVENTS)];
-      expect(all.length).toBe(15 + 11 + 16); // wingman: + jammer and stealth calls (doc 44)
+      expect(all.length).toBe(16 + 11 + 16); // wingman: + jammer and stealth calls (doc 44); chief: + helicopters (doc 49)
       for (const e of all) expect(LINES_EN[e.key], e.key).toBeDefined();
       expect(wingmanStart({ type: 'strike', target: 'sam', count: 4 })).toMatchObject({ key: 'wing.startStrike', params: { n: 4, targets: 'SAM Sites' } });
       expect(wingmanStart({ type: 'boss', boss: 'leviathan' })).toMatchObject({ key: 'wing.startBoss', params: { boss: 'LEVIATHAN' } });

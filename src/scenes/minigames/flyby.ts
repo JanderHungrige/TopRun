@@ -16,6 +16,7 @@ import {
 } from '../../render/minigames/flyby-hud';
 import { drawTower } from '../../render/minigames/flyby-tower';
 import type { MinigameModule, MinigameRound } from './contract';
+import { asJet } from '../../data/types';
 
 // Tower Flyby (doc 13): three low passes over the tower. Rules live in game/minigames/flyby.ts.
 
@@ -59,7 +60,7 @@ class FlybyRound implements MinigameRound {
   private rattle = 0;
 
   constructor(private readonly game: GameContext) {
-    this.s = createFlyby(game.save.selectedPlane);
+    this.s = createFlyby(asJet(game.save.selectedPlane));
   }
 
   private readInput(input: Input): FlybyInput {

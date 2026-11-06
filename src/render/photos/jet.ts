@@ -1,6 +1,6 @@
 import type { LiveryId } from '../../data/liveries';
 import type { TimeOfDay } from '../../data/photo-looks';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import { drawPlaneSide } from '../draw-planes-side';
 import { makeCanvas } from '../pixel/post';
 import { pixelize } from '../pixel/quantize';
@@ -10,7 +10,7 @@ import { pixelize } from '../pixel/quantize';
 // cleaned into pixel art (dominant colours, hard alpha, 1-px outline) like the game's other pixel figures.
 
 /** Airframe length and centre in side-view units (the afterburner flame not counted). */
-const METRICS: Readonly<Record<PlaneId, { len: number; cx: number; cy: number }>> = {
+const METRICS: Readonly<Record<JetId, { len: number; cx: number; cy: number }>> = {
   f16: { len: 114, cx: 12, cy: -21.5 },
   f14: { len: 131, cx: 16, cy: -19.4 },
   sr71: { len: 147, cx: 21, cy: -15.3 },
@@ -28,7 +28,7 @@ export interface JetPose {
   facing: 1 | -1;
 }
 
-export interface JetShot { plane: PlaneId; livery: LiveryId; pose: JetPose }
+export interface JetShot { plane: JetId; livery: LiveryId; pose: JetPose }
 
 function tint(time: TimeOfDay): string | null {
   switch (time) {

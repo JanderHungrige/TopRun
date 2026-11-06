@@ -23,6 +23,7 @@ import type { MinigameModule, MinigameRound } from './contract';
 import { promptView, raceView, stripView, tachView, tx } from './motorbike-frame';
 import { RideReader } from './motorbike-input';
 import { BikeRadio } from './motorbike-radio';
+import { asJet } from '../../data/types';
 
 // Motorbike vs. Jet (doc 22): reads the controls, steps the pure race, plays sounds and effects, holds the result.
 
@@ -173,7 +174,7 @@ class MotorbikeRound implements MinigameRound {
     const frontSx = FRONT_SX + this.bias;
     const sway = s.stun > 0 ? Math.sin(this.t * 18) * Math.min(1, s.stun * 2) : 0;
     const f = {
-      frontSx, t: this.t, look: this.look, plane: this.game.save.selectedPlane, livery: this.game.save.livery[this.game.save.selectedPlane],
+      frontSx, t: this.t, look: this.look, plane: asJet(this.game.save.selectedPlane), livery: this.game.save.livery[this.game.save.selectedPlane],
       fx: this.fx, sway, hop: this.hop, gateLift: this.gateLift, input: this.input,
     };
     ctx.save();

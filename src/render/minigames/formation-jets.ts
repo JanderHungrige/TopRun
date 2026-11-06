@@ -1,6 +1,6 @@
 import { TAU, type Vec } from '../../core/math';
 import type { LiveryId } from '../../data/liveries';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import { INNER_R, OUTER_R, type Zone } from '../../game/minigames/formation';
 import { drawPlaneTop } from '../draw-planes';
 import { a10Silhouette } from '../planes/a10-top';
@@ -18,8 +18,8 @@ export const JET_SCALE = 1.35;
 export const SWEEP = 0.25;
 const SHADOW = { x: 26, y: 40 };
 /** Where the smoke leaves each jet (tail) and its wingtips, in plane units from its centre. */
-export const TAIL: Readonly<Record<PlaneId, number>> = { f16: 30, f14: 30, sr71: 36, a10: 30, f35: 33, tornado: 32 };
-export const WINGTIP: Readonly<Record<PlaneId, Vec>> = {
+export const TAIL: Readonly<Record<JetId, number>> = { f16: 30, f14: 30, sr71: 36, a10: 30, f35: 33, tornado: 32 };
+export const WINGTIP: Readonly<Record<JetId, Vec>> = {
   f16: { x: 25, y: 11 }, f14: { x: 33, y: 8 }, sr71: { x: 28, y: 22 }, a10: { x: 33, y: 2 }, f35: { x: 24, y: 11 }, tornado: { x: 26, y: 11 },
 };
 
@@ -43,7 +43,7 @@ export function onJet(p: JetPose, v: Vec): Vec {
 }
 
 /** The shadow on the sea; `sun` turns its offset with the ground (the sun stays put in a turn). */
-export function drawJetShadow(ctx: CanvasRenderingContext2D, plane: PlaneId, p: JetPose, sun: number): void {
+export function drawJetShadow(ctx: CanvasRenderingContext2D, plane: JetId, p: JetPose, sun: number): void {
   const k = 1 + 1.7 * p.alt;
   const c = Math.cos(sun);
   const s = Math.sin(sun);
@@ -55,7 +55,7 @@ export function drawJetShadow(ctx: CanvasRenderingContext2D, plane: PlaneId, p: 
   ctx.restore();
 }
 
-export function drawJet(ctx: CanvasRenderingContext2D, plane: PlaneId, p: JetPose, t: number, livery?: LiveryId): void {
+export function drawJet(ctx: CanvasRenderingContext2D, plane: JetId, p: JetPose, t: number, livery?: LiveryId): void {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.yaw);
@@ -63,7 +63,7 @@ export function drawJet(ctx: CanvasRenderingContext2D, plane: PlaneId, p: JetPos
   ctx.restore();
 }
 
-function silhouette(plane: PlaneId): Path2D {
+function silhouette(plane: JetId): Path2D {
   switch (plane) {
     case 'f16': return f16Silhouette();
     case 'f14': return f14Silhouette(SWEEP);
@@ -88,7 +88,7 @@ function ring(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, co
 }
 
 /** Ghost outline of your jet at the slot (under the jets). */
-export function drawSlotGhost(ctx: CanvasRenderingContext2D, plane: PlaneId, at: Vec, yaw: number, scale: number): void {
+export function drawSlotGhost(ctx: CanvasRenderingContext2D, plane: JetId, at: Vec, yaw: number, scale: number): void {
   ctx.save();
   ctx.translate(at.x, at.y);
   ctx.rotate(yaw);

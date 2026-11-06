@@ -1,5 +1,5 @@
 import { clamp } from '../../core/math';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 
 // Tower Flyby jet (doc 13): hull geometry and the flight step. Pure.
 
@@ -22,7 +22,7 @@ export const FT_PER_PX = 0.4;
 export const GUST = 40;
 
 /** Bottom outline of each jet, [x forward, y up] from the draw origin (main-gear contact), gear up — from the real-dimension side views (doc 04). */
-const HULL: Readonly<Record<PlaneId, readonly (readonly [number, number])[]>> = {
+const HULL: Readonly<Record<JetId, readonly (readonly [number, number])[]>> = {
   f16: [[69, 14.1], [54.8, 11], [34.9, 6.6], [16.5, 6.6], [-3, 7.4], [-21.4, 6.3], [-26.3, 7.1], [-33, 11.1], [-43.9, 12], [-45.4, 14.9]],
   f14: [[81.7, 13.7], [63, 10.5], [41.2, 9.5], [21.4, 8.7], [1.3, 8.7], [-25.8, 6.2], [-30.5, 6.7], [-40.9, 10.5], [-46.2, 9.8], [-49.6, 14.1]],
   sr71: [[94.5, 9.2], [63, 7.5], [31.5, 6.8], [13.5, 5.2], [-27, 5.2], [-45, 6.1], [-52.2, 6.3]],
@@ -49,7 +49,7 @@ export interface FlybyInput {
 }
 
 /** Height above the ground of the jet's lowest point at this altitude and pitch. */
-export function lowestPoint(plane: PlaneId, alt: number, pitch: number): number {
+export function lowestPoint(plane: JetId, alt: number, pitch: number): number {
   const s = Math.sin(pitch);
   const c = Math.cos(pitch);
   let low = Infinity;
@@ -58,7 +58,7 @@ export function lowestPoint(plane: PlaneId, alt: number, pitch: number): number 
 }
 
 /** How far the jet reaches ahead of (front) and behind (back) its origin, in px. */
-export function jetSpan(plane: PlaneId, pitch: number): { front: number; back: number } {
+export function jetSpan(plane: JetId, pitch: number): { front: number; back: number } {
   const s = Math.sin(pitch);
   const c = Math.cos(pitch);
   let front = -Infinity;

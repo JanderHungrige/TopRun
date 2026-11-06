@@ -1,4 +1,6 @@
-import type { CampaignId, GunLevel, PlaneId, SecondaryId } from './types';
+import { HELI_PRICE } from './heli-kit';
+import { PLANES } from './planes';
+import { HELI_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
 
 export interface GunBarrel {
   dx: number;
@@ -118,6 +120,7 @@ export type WeaponRole = 'air' | 'ground';
 
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
+  hydra: 'ground', hellfire: 'ground',
 });
 
 export interface SecondaryDef {
@@ -136,7 +139,7 @@ export interface SecondaryDef {
   turnRate: number;
   planes: readonly PlaneId[] | null;
   description: string;
-  /** 1 = sold from the start; 2 = once map 2 is open (doc 37). */
+  /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49). */
   campaign: CampaignId;
 }
 
@@ -176,9 +179,21 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     damage: 520, radius: 130, hits: 'ground', behavior: 'bomb', cooldown: 0.8, speed: 0,
     turnRate: 0, planes: null, description: '2,000 lb satellite-guided bomb. The biggest blast in the hangar.', campaign: 2,
   },
+  // Helicopter weapons (doc 49): mount on helicopters only; prices on the helicopter scale.
+  hydra: {
+    id: 'hydra', role: 'ground', name: 'Hydra 70 Rocket Pod', short: 'HYDRA', price: 4500 * HELI_PRICE, ammoPerSlot: 7,
+    damage: 28, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 640,
+    turnRate: 0, planes: HELI_IDS, description: 'A pod of unguided 70 mm rockets fired in a fan. Hits air and ground.', campaign: 3,
+  },
+  hellfire: {
+    id: 'hellfire', role: 'ground', name: 'AGM-114 Hellfire', short: 'HELLFIRE', price: 9000 * HELI_PRICE, ammoPerSlot: 4,
+    damage: 190, radius: 0, hits: 'ground', behavior: 'homing', cooldown: 0.5, speed: 450,
+    turnRate: 3.4, planes: HELI_IDS, description: 'Laser-guided anti-armour missile. Finds tanks, bunkers and boats.', campaign: 3,
+  },
 });
 
+/** A weapon with no plane list goes on any jet; helicopter weapons list their helicopters (doc 49). */
 export function secondaryAllowedOn(id: SecondaryId, plane: PlaneId): boolean {
   const allowed = SECONDARIES[id].planes;
-  return allowed === null || allowed.includes(plane);
+  return allowed === null ? PLANES[plane].kind === 'jet' : allowed.includes(plane);
 }

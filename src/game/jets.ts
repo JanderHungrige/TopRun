@@ -1,18 +1,23 @@
 import { PLANES } from '../data/planes';
 import type { PlaneId, SpecialId } from '../data/types';
-import { mapTwoOpen } from './progress';
+import { kitOfPlane } from './kit';
+import { mapOpen, mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
-// Rules of the jets sold once map 2 is open and of every jet's E ability (doc 36).
+// Rules of the jets sold once map 2 is open, of the helicopters (doc 49), and of every plane's E ability (doc 36).
 
-/** Map-1 jets are always on sale; the A-10, F-35 and Tornado once map 2 is open. */
+/** In the jets' hangar: map-1 jets always, the A-10, F-35 and Tornado once map 2 is open. In the helicopters'
+ *  hangar: the helicopters once map 3 is open (doc 49). */
 export function jetOnSale(save: SaveData, id: PlaneId): boolean {
-  return PLANES[id].campaign === 1 || mapTwoOpen(save);
+  const p = PLANES[id];
+  if (kitOfPlane(id) !== save.kit) return false;
+  if (p.kind === 'heli') return mapOpen(save, 3);
+  return p.campaign === 1 || mapTwoOpen(save);
 }
 
 /** Map 2 is open but the pilot owns none of its jets yet: the crew chief points them out (doc 36). */
 export function newJetsWaiting(save: SaveData): boolean {
-  return mapTwoOpen(save) && !save.ownedPlanes.some((id) => PLANES[id].campaign === 2);
+  return save.kit === 'jet' && mapTwoOpen(save) && !save.ownedPlanes.some((id) => PLANES[id].campaign === 2);
 }
 
 export interface SpecialRules {
@@ -29,7 +34,8 @@ export function specialRules(special: SpecialId): SpecialRules {
     case 'stealth': return { invulnerable: false, stealth: true };
     case 'wingman':
     case 'cannon':
-    case 'nuke': return { invulnerable: false, stealth: false };
+    case 'nuke':
+    case 'longbow': return { invulnerable: false, stealth: false };
     default: throw new Error(`unhandled: ${special satisfies never}`);
   }
 }

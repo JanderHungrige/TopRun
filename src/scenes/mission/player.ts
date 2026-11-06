@@ -1,8 +1,9 @@
 import { approach, clamp } from '../../core/math';
 import type { SecondaryId } from '../../data/types';
 import type { WeaponStats } from '../../game/arsenal';
-import { jetGunDef, MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
-import { doubleFirepower, powerCap } from '../../game/firepower';
+import { MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
+import { gunDef, powerCap } from '../../game/firepower';
+import { heliVelocity } from '../../game/heli-flight';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -52,6 +53,8 @@ export class Player {
   /** Damage-control repairs left this mission (doc 43: two at the top level). */
   damageControlLeft: number;
   dashVX = 0;
+  /** The helicopter's velocity, eased toward the stick (doc 50); a jet's follows the stick at once. */
+  drift = { x: 0, y: 0 };
   /** A-10 GAU-8 burst: seconds to the next round (doc 36). */
   cannonT = 0;
   rollSpin = 0;
@@ -79,7 +82,7 @@ export class Player {
   }
 
   get gun(): GunLevelDef {
-    return jetGunDef(this.gunLevel, doubleFirepower(this.stats.plane.id));
+    return gunDef(this.stats.plane.id, this.gunLevel);
   }
 
   get hullRatio(): number {
@@ -96,11 +99,14 @@ export class Player {
   }
 
 
-  /** Moves by a normalised direction plus a raw drag delta (touch), clamped to the playfield. */
+  /** Moves by a normalised direction plus a raw drag delta (touch), clamped to the playfield. A helicopter eases
+   *  toward the stick instead of moving at once (doc 50); a drag moves it directly. */
   move(dir: { x: number; y: number }, drag: { x: number; y: number }, dt: number): void {
     const dash = this.dashVX * dt;
-    this.x = clamp(this.x + dir.x * this.speed * dt + drag.x + dash, 24, PF_W - 24);
-    this.y = clamp(this.y + dir.y * this.speed * dt + drag.y, 70, PF_H - 40);
+    const v = this.stats.plane.kind === 'heli' ? heliVelocity(this.drift, dir, this.speed, dt) : { x: dir.x * this.speed, y: dir.y * this.speed };
+    this.drift = v;
+    this.x = clamp(this.x + v.x * dt + drag.x + dash, 24, PF_W - 24);
+    this.y = clamp(this.y + v.y * dt + drag.y, 70, PF_H - 40);
     const sideways = clamp(dir.x + drag.x / Math.max(1, this.speed * dt), -1, 1);
     this.bank = approach(this.bank, sideways, dt * 6);
     this.forward = approach(this.forward, clamp(-dir.y - drag.y / Math.max(1, this.speed * dt), 0, 1), dt * 3);

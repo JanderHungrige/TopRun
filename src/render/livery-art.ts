@@ -76,6 +76,8 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
     under: '#8f9499', camo: { kind: 'splinter', colors: ['#3d4136', '#56654b'], cover: [0.34, 0.3], size: 1.2, seed: 41 },
     ink: 'rgba(14,16,12,0.6)', panel: 'rgba(14,16,12,0.24)', gloss: 0.55,
   }),
+  // Map-3 helicopters (doc 49): Apache olive drab, matt.
+  ah64: look('#4b5228', STANDARD_SWATCH, { under: '#454b25', ink: 'rgba(14,16,10,0.65)', panel: 'rgba(14,16,10,0.26)', gloss: 0.35 }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

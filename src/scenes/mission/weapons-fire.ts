@@ -59,7 +59,7 @@ export function fireWingman(world: World, p: Player, dt: number): void {
 }
 
 /** A player missile or rocket with the numbers of its weapon's mark (doc 43). */
-function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: number, heading: number): Missile {
+export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: number, heading: number): Missile {
   if (kind === 'enemy') throw new Error('not a player missile');
   const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind].hits;
   return {
@@ -69,7 +69,7 @@ function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: num
 }
 
 const homingKind = (id: SecondaryId): Missile['kind'] | null =>
-  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' ? id : null);
+  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' ? id : null);
 
 /**
  * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods

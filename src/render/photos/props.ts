@@ -88,6 +88,12 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   python: { shape: battleship, air: false, s: 0.8 },
   scorpion: { shape: fortress, air: false, s: 0.65 },
   colossus: { shape: flyingWing, air: true, s: 0.75 },
+  // Map 3 (doc 48): stand-ins as well.
+  glacier: { shape: battleship, air: false, s: 0.8 },
+  citadel: { shape: fortress, air: false, s: 0.7 },
+  caiman: { shape: battleship, air: false, s: 0.7 },
+  mammoth: { shape: fortress, air: false, s: 0.65 },
+  behemoth: { shape: bomber, air: true, s: 0.62 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

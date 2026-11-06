@@ -10,6 +10,7 @@ import { Terrain } from '../../render/draw-terrain';
 import { Particles } from '../../render/particles';
 import { THEATERS } from '../../data/theaters';
 import type { Boss } from './boss';
+import { HELI_FLIGHT } from '../../game/heli-flight';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -72,7 +73,7 @@ export interface Bullet {
   rounds?: AmmoType;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'rocket' | 'enemy';
+export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -175,8 +176,9 @@ export class World {
     return ++this.ids;
   }
 
+  /** Map 3 is flown low and slow by helicopters (doc 50). */
   get scrollSpeed(): number {
-    return BASE_SCROLL * this.scrollMul;
+    return BASE_SCROLL * this.scrollMul * (this.mission.campaign === 3 ? HELI_FLIGHT.scroll : 1);
   }
 
   addShake(amount: number): void {

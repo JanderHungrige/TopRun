@@ -110,6 +110,10 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Schon wieder pleite, {callsign}? Flieg eine Mission und komm mit Geld zurück.',
     'Knapp bei Kasse, {callsign}? Schauen kostet wenigstens nichts.',
   ],
+  'chief.helloHelis': [
+    'Der Rotor-Laden hat offen, {callsign}. Deine Jet-Ausrüstung bleibt daheim: Hier fangen wir mit dem Apache bei null an.',
+    'Willkommen im Tiefflug, {callsign}. Kettenkanone, Hydras, Hellfires: Bauen wir dir eine Hubschrauber-Ausrüstung.',
+  ],
   'chief.helloNewJets': [
     'Drei neue Vögel sind da, {callsign}: eine A-10, eine F-35 und ein alter Tornado. Schau mal unter JETS.',
     'Frische Lieferung, {callsign}! Ein Warthog, eine Lightning und ein Tornado, der älter ist als ich. Sieh unter JETS nach.',

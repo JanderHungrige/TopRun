@@ -6,4 +6,7 @@ export const UI_DE_FRONTIERS = {
   'map.yourHeli': 'DEIN HUBSCHRAUBER',
   'debrief.finale3': '🎖  TIEFFLUG GEWONNEN — ASS DER ASSE  🎖',
   'rank.ace': 'Ass der Asse',
+  'hangar.tabHelis': 'HUBSCHRAUBER',
+  'hangar.heliGunName': 'M230 Kettenkanone',
+  'hangar.heliGunDesc': 'Die 30-mm-Kettenkanone unter der Nase des Apache. Weniger, aber schwerere Schüsse als die Kanone eines Jets, und sie treffen Boden- und Seeziele mit vollem Schaden.',
 };

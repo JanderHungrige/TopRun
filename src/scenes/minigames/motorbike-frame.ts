@@ -1,6 +1,6 @@
 import { clamp } from '../../core/math';
 import type { LiveryId } from '../../data/liveries';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import { BOOST, GEARS, rpm } from '../../game/minigames/motorbike-bike';
 import { COURSE, NEEDS, type Obstacle } from '../../game/minigames/motorbike-course';
 import { BURNER_AT, jetAt, LIFTOFF_X } from '../../game/minigames/motorbike-jet';
@@ -32,7 +32,7 @@ export interface FrameCtx {
   frontSx: number;
   t: number;
   look: RiderLook;
-  plane: PlaneId;
+  plane: JetId;
   livery: LiveryId;
   fx: MotorbikeFx;
   /** Mishap sway −1 … 1 and the bike's hop over a bump (px). */

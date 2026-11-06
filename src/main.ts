@@ -14,6 +14,7 @@ import {
   type ProfileStore,
 } from './game/profiles';
 import { adminStored, adminView, isAdminPilot } from './game/admin';
+import { fromKitView, kitView, routeKit, type Kit } from './game/kit';
 import { cloudProfile } from './game/cloud-pilot';
 import type { Submission } from './game/ladder';
 import type { PilotMatch } from './game/ladder-cloud';
@@ -67,10 +68,18 @@ class Game implements GameContext {
     this.music = new Music(this.audio);
   }
 
+  /** The kit the scenes see (doc 49). */
+  private kit: Kit = 'jet';
+
   get save(): SaveData {
     const p = activeProfile(this.store);
-    if (!p) return this.scratch;
-    return isAdminPilot(p) ? adminView(p.save) : p.save;
+    if (!p) return kitView(this.scratch, this.kit);
+    const view = kitView(p.save, this.kit);
+    return isAdminPilot(p) ? adminView(view) : view;
+  }
+
+  setKit(kit: Kit): void {
+    this.kit = kit;
   }
 
   get settings(): Settings {
@@ -91,14 +100,14 @@ class Game implements GameContext {
   }
 
   setSave(next: SaveData): void {
-    if (!this.store.activeId) {
-      this.scratch = next;
+    const p = activeProfile(this.store);
+    if (!this.store.activeId || !p) {
+      this.scratch = fromKitView(this.scratch, next);
       return;
     }
-    const linked = withLadderLink(next, () => crypto.getRandomValues(new Uint8Array(48)));
+    const linked = withLadderLink(fromKitView(p.save, next), () => crypto.getRandomValues(new Uint8Array(48)));
     const save = withLadderCountry(linked, this.localCountry());
-    const p = activeProfile(this.store);
-    if (!p || !isAdminPilot(p)) this.commit(updateActiveSave(this.store, save));
+    if (!isAdminPilot(p)) this.commit(updateActiveSave(this.store, save));
     else {
       // The admin never shows on the ladder or in the cloud (doc 47); a pilot that was shared leaves the ladder.
       const was = p.save.ladder;
@@ -184,6 +193,7 @@ class Game implements GameContext {
   }
 
   go(route: Route): void {
+    this.kit = routeKit(route, this.kit);
     this.scenes.go(createScene(this, route));
   }
 
@@ -215,7 +225,8 @@ function createScene(game: GameContext, route: Route): Scene {
       const mod = moduleFor(route.id);
       return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);
     }
-    case 'takeoff': return new TakeoffScene(game, route.mission);
+    // Map 3 starts in the air until the helicopters' deck liftoff (doc 48, wave 4).
+    case 'takeoff': return route.mission.campaign === 3 ? new MissionScene(game, route.mission, 'skipped') : new TakeoffScene(game, route.mission);
     case 'mission': return new MissionScene(game, route.mission, route.takeoff);
     case 'debrief': return new DebriefScene(game, route.mission, route.result);
     default: throw new Error(`unhandled: ${route satisfies never}`);

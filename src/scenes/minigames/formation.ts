@@ -1,6 +1,6 @@
 import type { Input } from '../../core/input';
 import { approach, clamp, type Vec } from '../../core/math';
-import type { PlaneId } from '../../data/types';
+import { asJet, type JetId } from '../../data/types';
 import {
   ALT_GROW, createFormation, finalScore, FORMATION_MEDALS, predict, rating, slotPoint, stepFormation, type FormationState, type Stick, type WingState,
 } from '../../game/minigames/formation';
@@ -30,7 +30,7 @@ const crossed = (a: number, b: number, at: number): boolean => a < at && b >= at
 
 class FormationRound implements MinigameRound {
   private s: FormationState;
-  private readonly plane: PlaneId;
+  private readonly plane: JetId;
   private readonly world: FormationWorld;
   private readonly smoke = new SmokeTrails();
   private readonly radio: DukeRadio;
@@ -41,7 +41,7 @@ class FormationRound implements MinigameRound {
   private banner: { label: string; age: number } | null = null;
 
   constructor(private readonly game: GameContext) {
-    this.plane = game.save.selectedPlane;
+    this.plane = asJet(game.save.selectedPlane);
     this.s = createFormation([{ slot: 'right', plane: this.plane }]);
     this.world = new FormationWorld(14 + (game.save.minigames.formation?.plays ?? 0) * 7919);
     this.radio = new DukeRadio(game.audio, mt(FORMATION_TEXT, 'duke'), game.profile?.callsign ?? 'PILOT');

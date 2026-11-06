@@ -1,6 +1,6 @@
 import { TAU } from '../../core/math';
 import type { LiveryId } from '../../data/liveries';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import type { ObstacleKind } from '../../game/minigames/motorbike-course';
 import { drawPlaneSide } from '../draw-planes-side';
 import { drawBike, drawBikeShadow, drawWindscreen, type BikeView } from './motorbike-bike';
@@ -17,7 +17,7 @@ import { drawForeground, drawWorld, ROAD_Y, RUNWAY_Y } from './motorbike-world';
 
 /** Jet drawing scale and each jet's nose ahead of its main gear (plane units). */
 export const JET_SCALE = 2.1;
-const NOSE: Readonly<Record<PlaneId, number>> = { f16: 69, f14: 82, sr71: 95, a10: 59, f35: 69, tornado: 75 };
+const NOSE: Readonly<Record<JetId, number>> = { f16: 69, f14: 82, sr71: 95, a10: 59, f35: 69, tornado: 75 };
 
 export interface ObstacleView {
   kind: ObstacleKind;
@@ -29,7 +29,7 @@ export interface ObstacleView {
 }
 
 export interface JetView {
-  plane: PlaneId;
+  plane: JetId;
   livery: LiveryId;
   /** Screen x of the nose; height of the main gear above the runway (px). */
   noseX: number;

@@ -8,6 +8,7 @@ import { t } from '../i18n/i18n';
 import { CAMPAIGN_IDS, type CampaignId, type MissionDef } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
 import { doubleFirepower, jetGunLevel } from '../game/firepower';
+import { kitOf } from '../game/kit';
 import { payScale } from '../game/map-two';
 import { campaignComplete, campaignStars, isCleared, isUnlocked, mapOpen, nextMission, nextMissionOn } from '../game/progress';
 import type { GameContext } from '../game/state';
@@ -41,6 +42,7 @@ export class MapScene implements Scene {
 
   constructor(private readonly game: GameContext, select?: string) {
     this.selected = (select ? missionById(select) : undefined) ?? nextMission(game.save);
+    game.setKit(kitOf(this.campaign)); // map 3 shows the helicopters' kit (doc 49)
   }
 
   /** The map on screen: the selected mission's (doc 35). */
@@ -68,6 +70,7 @@ export class MapScene implements Scene {
       return;
     }
     if (c !== this.campaign) this.selected = nextMissionOn(this.game.save, c);
+    this.game.setKit(kitOf(c));
     this.game.audio.play('uiSelect');
   }
 

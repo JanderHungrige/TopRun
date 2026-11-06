@@ -1,5 +1,5 @@
 import { createRng } from '../../src/core/rng';
-import type { PlaneId } from '../../src/data/types';
+import type { JetId } from '../../src/data/types';
 import { createFormation, predict, slotPoint, stepFormation, type FormationState, type Stick, type WingState } from '../../src/game/minigames/formation';
 import { leadPose, ROUND_END } from '../../src/game/minigames/formation-script';
 
@@ -9,7 +9,7 @@ export const DT = 1 / 60;
 export const STILL: Stick = { x: 0, y: 0 };
 export type Pilot = (s: FormationState) => Stick;
 
-export const solo = (plane: PlaneId = 'f16'): FormationState => createFormation([{ slot: 'right', plane }]);
+export const solo = (plane: JetId = 'f16'): FormationState => createFormation([{ slot: 'right', plane }]);
 /** Calm air (no jet wash): exact physics checks. */
 export const calm = (): FormationState => createFormation([{ slot: 'right', plane: 'f16' }], 0);
 export const wing = (s: FormationState, i = 0): WingState => {

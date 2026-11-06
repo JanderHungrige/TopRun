@@ -45,6 +45,10 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Atomschlag',
     description: 'Alter Schwenkflügel-Jagdbomber für Hardcore-Piloten: so alt, dass er in jeder Mission langsam Hülle verliert. Trägt eine Atomrakete.',
   },
+  ah64: {
+    specialName: 'Longbow-Salve',
+    description: 'Gepanzerter Kampfhubschrauber. Eine 30-mm-Kettenkanone unter der Nase, vier Waffenstationen und das Longbow-Radar.',
+  },
 };
 
 export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; description: string }>> = {
@@ -55,6 +59,8 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   aim54: { name: 'AIM-54 Phoenix', description: 'Schwere Langstreckenrakete. Verheerend gegen Bosse. Nur für die F-14.' },
   aim120: { name: 'AIM-120 AMRAAM', description: 'Schnelle, wendige radargelenkte Rakete. Jagt die zähesten Jäger.' },
   jdam: { name: 'GBU-31 JDAM', description: '2000-Pfund-Bombe mit Satellitenlenkung. Die größte Explosion im Hangar.' },
+  hydra: { name: 'Hydra-70-Raketenbehälter', description: 'Ein Behälter ungelenkter 70-mm-Raketen, im Fächer abgefeuert. Trifft Luft- und Bodenziele.' },
+  hellfire: { name: 'AGM-114 Hellfire', description: 'Lasergelenkte Panzerabwehrrakete. Findet Panzer, Bunker und Boote.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {

@@ -8,7 +8,7 @@ export const THEATERS_3 = {
   fjords: {
     id: 'fjords', campaign: 3, index: 10, name: 'Fjord Country', tagline: 'Between the walls', terrain: 'canyon', base: 'sea',
     palette: {
-      sea: '#1c3c4d', seaDeep: '#132b38', land: '#56616b', landDark: '#3b444d', detail: '#d6e2ea',
+      sea: '#1a3a4b', seaDeep: '#132b38', land: '#3d6a7e', landDark: '#3b444d', detail: '#d6e2ea',
       accent: '#7fd6ff', cloud: 'rgba(214,224,232,0.5)',
     },
     route: { x0: 80, y0: 170, x1: 330, y1: 130 },

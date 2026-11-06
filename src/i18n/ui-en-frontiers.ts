@@ -6,4 +6,7 @@ export const UI_EN_FRONTIERS = {
   'map.yourHeli': 'YOUR HELICOPTER',
   'debrief.finale3': '🎖  LOW LEVEL WON — ACE OF ACES  🎖',
   'rank.ace': 'Ace of Aces',
+  'hangar.tabHelis': 'HELICOPTERS',
+  'hangar.heliGunName': 'M230 Chain Gun',
+  'hangar.heliGunDesc': 'The Apache\'s 30 mm chain gun under the nose. Fewer, heavier rounds than a jet\'s cannon, and they hit ground and sea targets at full damage.',
 } as const;

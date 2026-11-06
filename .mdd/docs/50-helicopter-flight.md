@@ -56,16 +56,16 @@ Wave 2 of New Frontiers: the Apache must feel like a helicopter in the top-down 
   targets at full damage.
 - Hydra pods and Hellfires use the shared rocket-fan and homing-missile behaviours (doc 05).
 - **E — Longbow Salvo** (cooldown 14 s): the Longbow radar locks up to **four** ground or sea targets on screen —
-  nearest first — and a Hellfire leaves the rails for each, without using the Hellfires on the stations. No targets:
-  a "NO TARGETS" callout and no cooldown.
+  nearest first — and a Hellfire leaves the rails for each, without using the Hellfires on the stations (the mark of
+  mounted Hellfires counts, else Mk I). No targets: the `denied` sound, and the special stays charged.
 
 ## Look and sound
 
 - Top-down art in code (`src/render/helis/`): the Apache's narrow fuselage, stub wings with the stations, tail boom
   and tail rotor, and the main rotor as a translucent spinning disc with two blurred blades; banking tilts the disc.
   A side view for the debrief, from the real dimensions (doc 04 style: 17.7 m long, rotor 14.6 m).
-- The rotor's thump is synthesized (low pulsed noise), under the gun.
-- **Cockpit:** the plane name and E name are the helicopter's; the silhouette is the Apache's.
+- **Cockpit:** the plane name and E name are the helicopter's; the silhouette is the Apache's (without the rotor).
+- Until the deck liftoff (wave 4) a map-3 LAUNCH goes straight into the mission (`createScene`, takeoff `skipped`).
 
 ## Business Rules
 

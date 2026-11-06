@@ -16,6 +16,8 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'mk82': bomb(ctx); break;
     case 'aim120': missile(ctx, 66, 3.5, '#eef0f2', '#4c5a7a', '#b9bfc6'); break;
     case 'jdam': jdam(ctx); break;
+    case 'hydra': rocketPod(ctx, '#4f5a3a', '#e0e0d8'); break;
+    case 'hellfire': missile(ctx, 44, 3.5, '#6b7350', '#c8b25a', '#2a2e26'); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;
@@ -77,10 +79,10 @@ function bofors(ctx: CanvasRenderingContext2D): void {
   ctx.strokeRect(-30, -7, 26, 16);
 }
 
-function rocketPod(ctx: CanvasRenderingContext2D): void {
+function rocketPod(ctx: CanvasRenderingContext2D, body = '#6f7a5a', band = '#c8b25a'): void {
   ctx.beginPath();
   ctx.roundRect(-26, -9, 52, 18, 8);
-  ctx.fillStyle = '#6f7a5a';
+  ctx.fillStyle = body;
   ctx.fill();
   ctx.strokeStyle = 'rgba(0,0,0,0.5)';
   ctx.stroke();
@@ -91,7 +93,7 @@ function rocketPod(ctx: CanvasRenderingContext2D): void {
     ctx.arc(31, dy, 1.6, 0, TAU);
     ctx.fill();
   }
-  ctx.fillStyle = '#c8b25a';
+  ctx.fillStyle = band;
   ctx.fillRect(-14, -9, 3, 18);
 }
 

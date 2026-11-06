@@ -4,6 +4,7 @@ import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
+import { heliGunDef } from '../data/heli-kit';
 import { jetGunDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { MAX_MARK, toMark, type AmmoType } from '../data/arsenal';
 import { ammoTypeLevel, canLoad } from '../game/ammo';
@@ -25,8 +26,18 @@ export interface Tab {
   items: readonly ShopItem[];
 }
 
-/** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36). */
-export const tabs = (save: SaveData): readonly Tab[] => [
+/** The helicopters' hangar (doc 49): helicopters, the chain gun and helicopter weapons, equipment — no paint yet. */
+const heliTabs = (save: SaveData): readonly Tab[] => [
+  { name: 'hangar.tabHelis', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
+  {
+    name: 'hangar.tabWeapons',
+    items: [{ type: 'gun', heli: true }, ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id }))],
+  },
+  { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
+];
+
+/** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36); map 3's are the helicopters'. */
+export const tabs = (save: SaveData): readonly Tab[] => (save.kit === 'heli' ? heliTabs(save) : [
   { name: 'hangar.tabJets', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
   {
     name: 'hangar.tabWeapons',
@@ -38,7 +49,7 @@ export const tabs = (save: SaveData): readonly Tab[] => [
   },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
   { name: 'hangar.tabPaint', items: LIVERY_IDS.filter((id) => liveryOnShow(save.progress, id)).map((id) => ({ type: 'livery', id })) },
-];
+]);
 
 export type ActionKind = 'buy' | 'select' | 'mount' | 'paint' | 'none';
 
@@ -55,7 +66,7 @@ export interface ItemAction {
 export function itemName(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return PLANES[item.id].name;
-    case 'gun': return t('hangar.gunName');
+    case 'gun': return t(item.heli ? 'hangar.heliGunName' : 'hangar.gunName');
     case 'gun2': return t('hangar.gun2Name');
     case 'ammo': return t('arsenal.ammoName');
     case 'incendiary': return t('arsenal.incName');
@@ -70,7 +81,7 @@ export function itemName(item: ShopItem): string {
 export function itemDescription(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return planeDescription(item.id);
-    case 'gun': return t('hangar.gunDesc');
+    case 'gun': return t(item.heli ? 'hangar.heliGunDesc' : 'hangar.gunDesc');
     case 'gun2': return t('hangar.gun2Desc');
     case 'ammo': return t('arsenal.ammoDesc');
     case 'incendiary': return t('arsenal.incDesc');
@@ -231,9 +242,10 @@ export function unlockText(id: LiveryId): string {
   return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 
-/** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43). */
-export function gunSummary(level: number, twin = false): string {
-  const d = jetGunDef(level, twin);
+/** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43); `heli`: the
+ *  chain gun (doc 49). */
+export function gunSummary(level: number, twin = false, heli = false): string {
+  const d = heli ? heliGunDef(level) : jetGunDef(level, twin);
   return t('hangar.gunSummary', { barrels: d.pattern.length, rate: d.shotsPerSec, damage: d.damage });
 }
 

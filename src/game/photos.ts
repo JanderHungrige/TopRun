@@ -2,7 +2,7 @@ import type { LiveryId } from '../data/liveries';
 import { MISSIONS } from '../data/missions';
 import { PHOTO_TIMES, type TimeOfDay } from '../data/photo-looks';
 import { THEATERS } from '../data/theaters';
-import type { BossId, MissionDef, PlaneId, TheaterId } from '../data/types';
+import { asJet, type BossId, type JetId, type MissionDef, type TheaterId } from '../data/types';
 import type { SaveData } from './save';
 
 // Picture wall (doc 32): which photos hang on the wall and what each one shows — one per cleared mission, in
@@ -18,7 +18,8 @@ export interface PhotoSpec {
   stars: number;
   /** Time of the best run (ms since the epoch), null for entries saved before photos existed. */
   at: number | null;
-  plane: PlaneId;
+  /** The picture wall shows map-1 missions, flown by jets (docs 32, 49). */
+  plane: JetId;
   livery: LiveryId;
   /** True when the entry had no jet: the photo shows the current jet and its paint job. */
   fallback: boolean;
@@ -71,7 +72,7 @@ export function photoList(save: SaveData): PhotoSpec[] {
   for (const m of MISSIONS) {
     const e = save.progress[m.id];
     if (!e) continue;
-    const plane = e.plane ?? save.selectedPlane;
+    const plane = asJet(e.plane ?? save.selectedPlane);
     out.push({
       mission: m.id,
       number: m.number,

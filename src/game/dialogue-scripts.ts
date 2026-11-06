@@ -90,7 +90,7 @@ export function medalLine(index: number, medal: MedalId): LineRef {
 }
 
 export type ChiefEvent =
-  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
+  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
   | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
@@ -98,6 +98,7 @@ export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Moo
   helloRich: { key: 'chief.helloRich', mood: 'happy', gesture: 'thumbsUp' },
   helloBroke: { key: 'chief.helloBroke', mood: 'stern', gesture: 'none' },
   helloNewJets: { key: 'chief.helloNewJets', mood: 'happy', gesture: 'point' },
+  helloHelis: { key: 'chief.helloHelis', mood: 'happy', gesture: 'point' },
   buyPlane: { key: 'chief.buyPlane', mood: 'happy', gesture: 'thumbsUp' },
   buyGun: { key: 'chief.buyGun', mood: 'happy', gesture: 'point' },
   buySecondary: { key: 'chief.buySecondary', mood: 'happy', gesture: 'none' },

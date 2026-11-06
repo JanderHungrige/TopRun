@@ -1,5 +1,5 @@
 import { clamp, type Vec } from '../../core/math';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import type { Medals } from './core';
 import { leadPose, ROUND_END, SHOW_END, SHOW_START, SMOKE_OFF, SMOKE_ON, smokeOn, type LeadPose } from './formation-script';
 
@@ -33,7 +33,7 @@ export type Zone = 'inner' | 'outer' | 'out';
 export type Stick = Vec;
 
 /** Right-wing offset from the lead's centre per pilot jet (behind = +y), so the wingtips never touch. */
-const SLOT_BASE: Readonly<Record<PlaneId, Vec>> = {
+const SLOT_BASE: Readonly<Record<JetId, Vec>> = {
   f16: { x: 94, y: 72 }, f14: { x: 106, y: 74 }, sr71: { x: 100, y: 90 },
   a10: { x: 108, y: 74 }, f35: { x: 96, y: 72 }, tornado: { x: 102, y: 76 },
 };
@@ -41,7 +41,7 @@ const SIDE: Readonly<Record<SlotId, number>> = { right: 1, left: -1 };
 
 export interface WingSpec {
   slot: SlotId;
-  plane: PlaneId;
+  plane: JetId;
 }
 
 export interface WingState extends WingSpec {
@@ -69,9 +69,9 @@ export interface FormationState {
   done: boolean;
 }
 
-export const slotOffset = (slot: SlotId, plane: PlaneId): Vec => ({ x: SLOT_BASE[plane].x * SIDE[slot], y: SLOT_BASE[plane].y });
+export const slotOffset = (slot: SlotId, plane: JetId): Vec => ({ x: SLOT_BASE[plane].x * SIDE[slot], y: SLOT_BASE[plane].y });
 
-export function slotPoint(lead: Pick<LeadPose, 'x' | 'y' | 'yaw' | 'alt'>, slot: SlotId, plane: PlaneId): Vec {
+export function slotPoint(lead: Pick<LeadPose, 'x' | 'y' | 'yaw' | 'alt'>, slot: SlotId, plane: JetId): Vec {
   const o = slotOffset(slot, plane);
   const k = 1 + ALT_GROW * lead.alt;
   const c = Math.cos(lead.yaw);

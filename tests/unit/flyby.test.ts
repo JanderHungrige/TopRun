@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { PlaneId } from '../../src/data/types';
+import type { JetId } from '../../src/data/types';
 import { medalFor } from '../../src/game/minigames/core';
 import {
   BURNER_SPEED, createFlyby, EXIT_TIME, FLYBY_MEDALS, PASSES, ROOF_LIFT, SCRAPE_DEPTH, scorePass, SPEED,
@@ -16,7 +16,7 @@ const dive: FlybyInput = { climb: -1, burner: false };
 const pull: FlybyInput = { climb: 1, burner: false };
 
 /** Calm air: the reference pilots and exact flight checks. */
-const calm = (plane: PlaneId = 'f16'): FlybyState => createFlyby(plane, 0);
+const calm = (plane: JetId = 'f16'): FlybyState => createFlyby(plane, 0);
 
 function run(s: FlybyState, input: FlybyInput, seconds: number): FlybyState {
   let st = s;
@@ -43,7 +43,7 @@ function flyPass(s: FlybyState, clear: number, burner: boolean): FlybyState {
   return until(at(s, clear), burner ? burn : level, (st) => st.done || st.pass !== pass);
 }
 
-function round(clears: readonly number[], burner: boolean, plane: PlaneId = 'f16'): FlybyState {
+function round(clears: readonly number[], burner: boolean, plane: JetId = 'f16'): FlybyState {
   return clears.reduce((s, c) => flyPass(s, c, burner), calm(plane));
 }
 

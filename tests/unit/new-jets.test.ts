@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { MISSIONS } from '../../src/data/missions';
 import { PLANES } from '../../src/data/planes';
-import { PLANE_IDS } from '../../src/data/types';
+import { JET_IDS, PLANE_IDS } from '../../src/data/types';
 import { secondaryAllowedOn } from '../../src/data/weapons';
 import { applyDamage, GROUND_GUN_FACTOR } from '../../src/game/combat';
 import { buy, canBuy, canMount } from '../../src/game/economy';
@@ -15,7 +15,7 @@ const mapTwo = (save: SaveData): SaveData =>
 
 describe('New jets (doc 36)', () => {
   it('adds the A-10, F-35 and Tornado as map-2 jets with their specials', () => {
-    expect(PLANE_IDS.slice(3)).toEqual([...NEW]);
+    expect(JET_IDS.slice(3)).toEqual([...NEW]);
     expect(NEW.map((id) => PLANES[id].special)).toEqual(['cannon', 'stealth', 'nuke']);
     for (const id of NEW) expect(PLANES[id].campaign).toBe(2);
     for (const id of ['f16', 'f14', 'sr71'] as const) expect(PLANES[id].campaign).toBe(1);

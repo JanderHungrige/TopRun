@@ -2,10 +2,10 @@ import { EQUIPMENT, maxEquipmentLevel } from '../data/equipment';
 import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
 import type { EquipmentId, GunLevel, MissionDef, MissionResult, PlaneId, SecondaryId, TakeoffRating } from '../data/types';
-import { gunLevelDef, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
+import { SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { afterAmmoBought, incendiaryPrice } from './ammo';
 import { ammoPrice } from './arsenal';
-import { equipmentCap, gun2Price, gunCap, weaponOnSale } from './firepower';
+import { equipmentPrice, gun2Price, gunCap, gunPrice, weaponOnSale } from './firepower';
 import { hePrice } from './he-gun';
 import { jetOnSale } from './jets';
 import { payScale } from './map-two';
@@ -17,7 +17,8 @@ import { recordMission } from './service-record';
 
 export type ShopItem =
   | { type: 'plane'; id: PlaneId }
-  | { type: 'gun' }
+  /** `heli`: the helicopters' chain gun (doc 49); prices follow the kit on show either way. */
+  | { type: 'gun'; heli?: true }
   /** Second gun of the new jets (doc 37). */
   | { type: 'gun2' }
   /** Uranium ammo for the gun, levels 1–6 (doc 43). */
@@ -41,13 +42,13 @@ export type Check<F> = { ok: true } | { ok: false; reason: F };
 export function priceOf(save: SaveData, item: ShopItem): number | null {
   switch (item.type) {
     case 'plane': return save.ownedPlanes.includes(item.id) ? null : PLANES[item.id].price;
-    case 'gun': return save.gunLevel >= gunCap(save) ? null : gunLevelDef(save.gunLevel + 1).price;
+    case 'gun': return save.gunLevel >= gunCap(save) ? null : gunPrice(save, save.gunLevel + 1);
     case 'gun2': return gun2Price(save.gun2Level);
     case 'ammo': return ammoPrice(save);
     case 'incendiary': return incendiaryPrice(save);
     case 'he': return hePrice(save);
     case 'secondary': return save.ownedSecondaries.includes(item.id) ? null : SECONDARIES[item.id].price;
-    case 'equipment': return save.equipment[item.id] >= equipmentCap(save, item.id) ? null : EQUIPMENT[item.id].prices[save.equipment[item.id]] ?? null;
+    case 'equipment': return equipmentPrice(save, item.id);
     case 'livery': return null;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
@@ -68,18 +69,19 @@ function knownItem(item: ShopItem): boolean {
   }
 }
 
-/** Map-2 goods (docs 36, 37) cannot be bought before map 2 is open. */
+/** Map-2 goods (docs 36, 37) cannot be bought before map 2 is open; jet goods never in the helicopters' hangar (doc 49). */
 function onSale(save: SaveData, item: ShopItem): boolean {
+  const jets = save.kit === 'jet';
   switch (item.type) {
     case 'plane': return jetOnSale(save, item.id);
     case 'gun2':
-    case 'he': return mapTwoOpen(save);
+    case 'he': return jets && mapTwoOpen(save);
     case 'secondary': return weaponOnSale(save, item.id);
-    case 'gun':
     case 'ammo':
     case 'incendiary':
-    case 'equipment':
-    case 'livery': return true;
+    case 'livery': return jets;
+    case 'gun':
+    case 'equipment': return true;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }
 }

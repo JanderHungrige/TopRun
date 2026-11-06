@@ -67,7 +67,7 @@ describe('Loadout', () => {
 
   describe('two weapon keys (doc 05)', () => {
     it('gives every secondary an air or ground role', () => {
-      expect(SECONDARY_ROLES).toEqual({ aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground' });
+      expect(SECONDARY_ROLES).toEqual({ aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground', hydra: 'ground', hellfire: 'ground' });
       for (const id of Object.keys(SECONDARY_ROLES) as Array<keyof typeof SECONDARIES>) expect(SECONDARIES[id].role).toBe(SECONDARY_ROLES[id]);
     });
 

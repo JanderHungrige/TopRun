@@ -1,9 +1,13 @@
 import type { AudioEngine } from '../../core/audio';
+import { ENEMIES } from '../../data/enemies';
+import { SECONDARIES } from '../../data/weapons';
+import { weaponStats } from '../../game/arsenal';
+import { longbowTargets } from '../../game/heli-flight';
 import { ageDrain, agingJet, CANNON, cannonDamage, NUKE } from '../../game/jets';
 import type { Player } from './player';
 import { killEnemy } from './projectiles';
 import type { WingmanRadio } from './radio';
-import { GUN_SPEED } from './weapons-fire';
+import { GUN_SPEED, playerMissile } from './weapons-fire';
 import { PF_H, type World } from './world';
 
 // Every jet's E ability (docs 05, 36) — activation and what it does each tick — and the Tornado's age drain.
@@ -39,9 +43,31 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
       world.nuke = { x: p.x, y: p.y - 30, t: 0 };
       audio.play('nukeLaunch');
       break;
+    case 'longbow':
+      longbowSalvo(world, p, audio);
+      break;
     default:
       throw new Error(`unhandled: ${plane.special satisfies never}`);
   }
+}
+
+/** Apache Longbow Salvo (doc 50): a Hellfire for each of the nearest ground targets on screen, not from the stations;
+ *  the mark of mounted Hellfires counts. No target: nothing fires and the special stays charged. */
+function longbowSalvo(world: World, p: Player, audio: AudioEngine): void {
+  const ground = world.enemies.filter((e) => !e.dead && ENEMIES[e.kind].layer === 'ground' && e.y > 0 && e.y < PF_H);
+  const targets = longbowTargets(ground, p);
+  if (targets.length === 0) {
+    p.specialCooldown = 0;
+    p.specialActive = 0;
+    audio.play('denied');
+    return;
+  }
+  const weapon = p.secondaries.find((s) => s.id === 'hellfire')?.weapon ?? weaponStats(SECONDARIES.hellfire, 1);
+  targets.forEach((e, i) => {
+    const m = playerMissile(p, 'hellfire', weapon, (i - (targets.length - 1) / 2) * 7, 0);
+    world.missiles.push({ ...m, target: e });
+  });
+  audio.play('missile');
 }
 
 /** One tick of the running specials, the nuke in flight and the Tornado's age. */

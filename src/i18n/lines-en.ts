@@ -108,6 +108,10 @@ export const LINES_EN = {
     "Empty pockets again, {callsign}? Fly a mission and come back with some cash.",
     "Money's tight, {callsign}. Window shopping is free, at least.",
   ],
+  'chief.helloHelis': [
+    "Rotor shop's open, {callsign}. Your jet kit stays home: out here we start from scratch with the Apache.",
+    "Welcome to low level, {callsign}. Chain gun, Hydras, Hellfires: let's build you a helicopter kit.",
+  ],
   'chief.helloNewJets': [
     "Got three new birds in, {callsign}: an A-10, an F-35 and an old Tornado. Have a look under JETS.",
     "Fresh delivery, {callsign}! A Warthog, a Lightning and a Tornado that's older than me. Check the JETS tab.",

@@ -1,13 +1,23 @@
 // Shared ids and data shapes used across features. Pure types + frozen id lists.
 
 /** The three map-1 jets, then the three sold once map 2 is open (doc 36). */
-export type PlaneId = 'f16' | 'f14' | 'sr71' | 'a10' | 'f35' | 'tornado';
-export const PLANE_IDS: readonly PlaneId[] = Object.freeze(['f16', 'f14', 'sr71', 'a10', 'f35', 'tornado'] as const);
+export type JetId = 'f16' | 'f14' | 'sr71' | 'a10' | 'f35' | 'tornado';
+export const JET_IDS: readonly JetId[] = Object.freeze(['f16', 'f14', 'sr71', 'a10', 'f35', 'tornado'] as const);
+/** The map-3 helicopters (doc 49). */
+export type HeliId = 'ah64';
+export const HELI_IDS: readonly HeliId[] = Object.freeze(['ah64'] as const);
+/** Everything the pilot can fly: jets and helicopters share the loadout, paint and progress records. */
+export type PlaneId = JetId | HeliId;
+export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS]);
 
-/** The last two are sold once map 2 is open (doc 37). */
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam';
+export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[]).includes(id);
+/** A plane as a jet, for what only jets do (minigames, photos, the hangar base): a helicopter reads as the F-16. */
+export const asJet = (id: PlaneId): JetId => (isJet(id) ? id : 'f16');
+
+/** AIM-120 and JDAM are sold once map 2 is open (doc 37); the Hydra pod and the Hellfire are helicopter weapons (doc 49). */
+export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
-  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam',
+  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -15,7 +25,7 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
   'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet', 'radar',
 ] as const);
 
-export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke';
+export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow';
 
 /** Map 1 (m01–m30), map 2 (m31–m60, doc 35) or map 3 (m61–m90, helicopters, doc 48). */
 export type CampaignId = 1 | 2 | 3;

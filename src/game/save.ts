@@ -3,7 +3,7 @@ import { LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
 import { perPlane, PLANES } from '../data/planes';
 import {
-  EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS,
+  EQUIPMENT_IDS, isJet, PLANE_IDS, SECONDARY_IDS,
   type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { AMMO_TYPES, MAX_AMMO_LEVEL, MAX_INCENDIARY_LEVEL, MAX_MARK, type AmmoType } from '../data/arsenal';
@@ -11,6 +11,7 @@ import { MAX_HE_LEVEL } from '../data/he-gun';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
+import { freshHeliKit, parseHeliKit, type HeliKit, type Kit } from './kit';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
@@ -64,6 +65,10 @@ export interface SaveData {
   rookie: boolean;
   /** The admin pilot's view (doc 47): set by GameContext only, never read from storage. */
   admin: boolean;
+  /** Which kit the scenes see (doc 49): set by GameContext only, storage always holds the jets'. */
+  kit: Kit;
+  /** The helicopters' own kit (doc 49). */
+  heli: HeliKit;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -107,6 +112,8 @@ export function defaultSave(): SaveData {
     sorties: [],
     rookie: false,
     admin: false,
+    kit: 'jet',
+    heli: freshHeliKit(),
   };
 }
 
@@ -181,7 +188,7 @@ export function parseSave(raw: unknown): SaveData | null {
   if (!isRecord(raw) || raw.version !== 1) return null;
   const ownedPlanes = ids(raw.ownedPlanes, PLANE_IDS);
   if (!ownedPlanes.includes('f16')) ownedPlanes.unshift('f16');
-  const selected = ownedPlanes.find((p) => p === raw.selectedPlane) ?? 'f16';
+  const selected = ownedPlanes.find((p) => p === raw.selectedPlane && isJet(p)) ?? 'f16';
   const ownedSecondaries = ids(raw.ownedSecondaries, SECONDARY_IDS);
   const rawLoadout = isRecord(raw.loadout) ? raw.loadout : {};
   const progress = parseProgress(raw.progress);
@@ -211,6 +218,8 @@ export function parseSave(raw: unknown): SaveData | null {
     sorties: parseSorties(raw.sorties),
     rookie: raw.rookie === true,
     admin: false,
+    kit: 'jet',
+    heli: parseHeliKit(raw.heli),
   };
 }
 

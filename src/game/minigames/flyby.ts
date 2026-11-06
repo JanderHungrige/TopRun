@@ -1,5 +1,5 @@
 import { clamp } from '../../core/math';
-import type { PlaneId } from '../../data/types';
+import type { JetId } from '../../data/types';
 import type { Medals } from './core';
 import { burnerLevel, flyJet, gust, jetSpan, lowestPoint, SPEED, type FlybyInput, type FlybyJet } from './flyby-jet';
 
@@ -42,7 +42,7 @@ export interface PassResult {
 }
 
 export interface FlybyState {
-  plane: PlaneId;
+  plane: JetId;
   /** Gust strength, 1 = normal bumpy air, 0 = calm (reference pilots in the tests). */
   turbulence: number;
   /** 0-based pass index. */
@@ -70,7 +70,7 @@ function startPass(s: Pick<FlybyState, 'plane' | 'turbulence'>, pass: number, re
   return { plane, turbulence, pass, jet: startJet(), t: 0, minClear: null, towerSpeed: null, result: null, exitT: 0, results, done: false };
 }
 
-export const createFlyby = (plane: PlaneId, turbulence = 1): FlybyState => startPass({ plane, turbulence }, 0, []);
+export const createFlyby = (plane: JetId, turbulence = 1): FlybyState => startPass({ plane, turbulence }, 0, []);
 
 export const speedMult = (speed: number): number => 1 + (MAX_MULT - 1) * burnerLevel(speed);
 
@@ -84,13 +84,13 @@ export function scorePass(clearance: number, speed: number): PassResult {
 }
 
 /** True while the jet's span overlaps the roof. */
-export function overTower(plane: PlaneId, jet: FlybyJet): boolean {
+export function overTower(plane: JetId, jet: FlybyJet): boolean {
   const span = jetSpan(plane, jet.pitch);
   return jet.x + span.front > -ROOF_HALF_W && jet.x - span.back < ROOF_HALF_W;
 }
 
 /** Sets the pitch to at least `pitch`, then raises the jet so its lowest point is at `low`. */
-function liftTo(plane: PlaneId, jet: FlybyJet, low: number, pitch: number): FlybyJet {
+function liftTo(plane: JetId, jet: FlybyJet, low: number, pitch: number): FlybyJet {
   const p = Math.max(jet.pitch, pitch);
   return { ...jet, pitch: p, alt: jet.alt + low - lowestPoint(plane, jet.alt, p) };
 }

@@ -103,7 +103,12 @@ Opened from map 3 (LOADOUT), the hangar shows three tabs: **HELICOPTERS · WEAPO
   their own levels, up to the map-1 caps, at helicopter prices.
 - Jet goods never show here and helicopter goods never show in the jets' hangar (`jetOnSale`, `weaponOnSale` read
   the kit); helicopter weapons mount only on helicopters, jet weapons only on jets.
-- Prices: the jet table's price for the same step × `HELI_PRICE` (one knob, set by the map-3 balance, doc 48).
+- Prices: the jet table's price for the same step × `HELI_PRICE` (one knob, set by the map-3 balance, doc 48);
+  the Hydra and Hellfire marks Mk II–III cost their usual share of the weapon's (helicopter) price.
+- The chain gun's hangar picture is `chaingun` (`src/assets/items/`); until it exists the gun icon stands in.
+- The crew chief greets the helicopters' hangar with his own lines (`chief.helloHelis`).
+- The minigames, photos and the hangar base only ever show jets: their tables are typed by `JetId`, and
+  `asJet` reads a helicopter as the F-16 where only a jet makes sense.
 - The map briefing's "YOUR JET" line reads "YOUR HELICOPTER" on map 3.
 
 ## Business Rules

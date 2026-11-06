@@ -11,6 +11,7 @@ import type { PilotMatch } from './ladder-cloud';
 import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
 import type { SaveData } from './save';
 import type { Settings } from './settings';
+import type { Kit } from './kit';
 
 /** NEW PILOT's unfinished form, kept while the avatar builder is open (doc 29): `pick` = chosen card (3 = own look). */
 export interface NewPilotDraft { callsign: string; look: AvatarLook | null; pick: number }
@@ -63,6 +64,8 @@ export interface GameContext {
   readonly dom: { host: HTMLElement; viewport: () => Viewport };
   /** Replaces the active pilot's save and persists the profile store. */
   setSave(next: SaveData): void;
+  /** Which kit `save` shows (doc 49); the campaign map sets it for the map on show, routes set it otherwise. */
+  setKit(kit: Kit): void;
   /** Replaces the device settings, applies them (sound / music switches, volumes, language) and persists. */
   setSettings(next: Settings): void;
   createProfile(callsign: string, avatar: AvatarId): CreateResult;

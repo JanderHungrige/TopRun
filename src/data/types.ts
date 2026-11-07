@@ -8,18 +8,25 @@ export type HeliId = 'ah64' | 'tiger' | 'rah66' | 'mi24';
 export const HELI_IDS: readonly HeliId[] = Object.freeze(['ah64', 'tiger', 'rah66', 'mi24'] as const);
 /** The map-4 spacecraft: one ship, built from modules (doc 54). */
 export type ShipId = 'starship';
-/** Everything the pilot can fly: jets, helicopters and the ship share the loadout, paint and progress records. */
-export type PlaneId = JetId | HeliId | ShipId;
-export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS, 'starship']);
+/** The map-5 attack subs: the Type 212 (doc 66). */
+export type SubId = 'u212';
+export const SUB_IDS: readonly SubId[] = Object.freeze(['u212'] as const);
+/** Everything the pilot can fly: jets, helicopters, the ship and the subs share the loadout, paint and progress records. */
+export type PlaneId = JetId | HeliId | ShipId | SubId;
+export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS, 'starship', ...SUB_IDS]);
 
 export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[]).includes(id);
 /** A plane as a jet, for what only jets do (minigames, photos, the hangar base): a helicopter reads as the F-16. */
 export const asJet = (id: PlaneId): JetId => (isJet(id) ? id : 'f16');
 
-/** AIM-120 and JDAM are sold once map 2 is open (doc 37); Hydra, Hellfire (doc 49) and Stinger (doc 51) are helicopter weapons. */
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo';
+/** AIM-120 and JDAM are sold once map 2 is open (doc 37); Hydra, Hellfire (doc 49) and Stinger (doc 51) are helicopter
+ *  weapons; the MK48 and the depth mine sub weapons (doc 66). */
+export type SecondaryId =
+  | 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo'
+  | 'mk48' | 'depthmine';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
   'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket', 'torpedo',
+  'mk48', 'depthmine',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -27,22 +34,25 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
   'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet', 'radar',
 ] as const);
 
-export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour';
+export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour' | 'sonar';
 
-/** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–, space, doc 56). */
-export type CampaignId = 1 | 2 | 3 | 4;
-export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4] as const);
+/** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–m120, space, doc 56),
+ *  map 5 (m121–, under the sea, doc 65). */
+export type CampaignId = 1 | 2 | 3 | 4 | 5;
+export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5] as const);
 
 export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead'
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall'
-  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep';
+  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep'
+  | 'reef';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall',
   'orbit', 'belt', 'moon', 'rings', 'deep',
+  'reef',
 ] as const);
 
 export type EnemyKind =
@@ -52,7 +62,9 @@ export type EnemyKind =
   | 'shilka' | 'bunker' | 'foxbat' | 'jammer' | 'frigate' | 'felon'
   | 'backfire' | 'fortress' | 'cruiser'
   // Map 4, space (docs 56, 58); the warden is map 4's mini-boss.
-  | 'raider' | 'satgun' | 'corvette' | 'interceptor' | 'gunship' | 'battery' | 'warden';
+  | 'raider' | 'satgun' | 'corvette' | 'interceptor' | 'gunship' | 'battery' | 'warden'
+  // Map 5, under the sea (doc 68): machines and creatures.
+  | 'minisub' | 'seadrone' | 'seamine' | 'seaturret' | 'jelly' | 'eel';
 
 export type Layer = 'air' | 'ground';
 
@@ -67,7 +79,8 @@ export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
   | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus'
   | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth'
-  | 'halo' | 'quarry' | 'crater' | 'trident' | 'ark';
+  | 'halo' | 'quarry' | 'crater' | 'trident' | 'ark'
+  | 'barracuda';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 

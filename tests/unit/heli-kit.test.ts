@@ -34,8 +34,8 @@ describe('Helicopter kit (doc 49)', () => {
   it('writes a helicopter purchase into the helicopter kit and keeps the jets as they were', () => {
     const save = rich();
     let view = kitView(save, 'heli');
-    expect(priceOf(view, { type: 'gun', heli: true })).toBe(2500 * HELI_PRICE);
-    view = buy(view, { type: 'gun', heli: true });
+    expect(priceOf(view, { type: 'gun', fleet: 'heli' })).toBe(2500 * HELI_PRICE);
+    view = buy(view, { type: 'gun', fleet: 'heli' });
     view = buy(view, { type: 'equipment', id: 'armor' });
     const stored = fromKitView(save, view);
     expect(stored).toMatchObject({ kit: 'jet', gunLevel: 9, selectedPlane: 'f16', heli: { gunLevel: 2, selectedPlane: 'ah64' } });

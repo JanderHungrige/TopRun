@@ -21,6 +21,7 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
     world.bullets.push({
       kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(b.angle) * GUN_SPEED, vy: -Math.cos(b.angle) * GUN_SPEED,
       damage, ttl: 1, dead: false, ground: p.stats.gunGround, burn: p.stats.gunBurn, rounds: p.stats.rounds ?? undefined, laser: !!p.stats.ship,
+      harpoon: p.stats.plane.kind === 'sub',
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -69,7 +70,8 @@ export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, 
 }
 
 const homingKind = (id: SecondaryId): Missile['kind'] | null =>
-  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' || id === 'stinger' || id === 'spacerocket' || id === 'torpedo' ? id : null);
+  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' || id === 'stinger' || id === 'spacerocket'
+    || id === 'torpedo' || id === 'mk48' ? id : null);
 
 /**
  * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods

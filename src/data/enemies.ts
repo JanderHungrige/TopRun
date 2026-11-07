@@ -59,6 +59,13 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   battery: def('battery', 'Lunar Battery', 'ground', 140, 0, 20, 90, 'aimed', 2.2, ['ground'], 'missile', 6.5),
   // Map 4's mini-boss (doc 58).
   warden: def('warden', 'Battlecruiser', 'ground', 2200, 20, 60, 1000, 'spread3', 1.8, ['ground'], 'missile', 3.2),
+  // Under the sea (doc 68): 'air' is anything in the water, 'ground' the seabed; the creatures carry no guns but sting.
+  minisub: def('minisub', 'Midget Sub', 'air', 60, 150, 20, 50, 'aimed', 1.8, ['sine', 'swoop']),
+  seadrone: def('seadrone', 'Sea Drone', 'air', 12, 130, 12, 15, 'none', 0, ['kamikaze', 'sine']),
+  seamine: def('seamine', 'Sea Mine', 'air', 32, 40, 16, 20, 'none', 0, ['straight']),
+  seaturret: def('seaturret', 'Seabed Turret', 'ground', 70, 0, 18, 50, 'flak', 2.4, ['ground']),
+  jelly: def('jelly', 'Jellyfish', 'air', 30, 50, 18, 25, 'none', 0, ['sine']),
+  eel: def('eel', 'Electric Eel', 'air', 45, 210, 16, 40, 'single', 2.0, ['sine', 'swoop']),
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(

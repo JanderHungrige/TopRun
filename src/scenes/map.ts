@@ -26,10 +26,14 @@ const PANEL = { x: 882, y: 76, w: 378, h: 628 };
 const MENU_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 /** Left edge of the callsign and money in the top bar; the avatar sits just left of it. */
 const PILOT_X = 860;
-const TITLE: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4' };
-const WON: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.campaignComplete', 2: 'map.campaign2Complete', 3: 'map.campaign3Complete', 4: 'map.campaign4Complete' };
+const TITLE: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5' };
+const WON: Readonly<Record<CampaignId, UiKey>> = {
+  1: 'map.campaignComplete', 2: 'map.campaign2Complete', 3: 'map.campaign3Complete', 4: 'map.campaign4Complete', 5: 'map.campaign5Complete',
+};
 /** Threat triangles: red on map 1, violet on map 2 (doc 35), orange on map 3 (doc 48). */
-const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#7fb4ff' };
+const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#7fb4ff', 5: '#5ff0e0' };
+/** The briefing's craft line by map (docs 49, 66); map 4 shows the ship instead. */
+const YOUR: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.yourJet', 2: 'map.yourJet', 3: 'map.yourHeli', 4: 'map.yourShip', 5: 'map.yourSub' };
 
 export class MapScene implements Scene {
   private t = 0;
@@ -220,7 +224,7 @@ export class MapScene implements Scene {
     const s = this.game.save;
     if (this.campaign === 4) return this.renderShip(ctx, x, y);
     const weapons = s.loadout[s.selectedPlane].map((id) => (id ? SECONDARIES[id].short : '—')).join(' / ');
-    text(ctx, t(this.campaign === 3 ? 'map.yourHeli' : 'map.yourJet'), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
+    text(ctx, t(YOUR[this.campaign]), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
     const level = s.gun2Level > 0 && doubleFirepower(s.selectedPlane) ? `${jetGunLevel(s.selectedPlane, s.gunLevel)} + ${s.gun2Level}` : String(jetGunLevel(s.selectedPlane, s.gunLevel));
     text(ctx, t('map.gunLevel', { plane: PLANES[s.selectedPlane].name, level }), x, y + 22, { size: 15, color: COLORS.ink, maxWidth: PANEL.w - 40 });
     text(ctx, weapons, x, y + 44, { size: 13, color: COLORS.dim, maxWidth: PANEL.w - 40 });

@@ -3,9 +3,10 @@ import { ENEMIES } from '../../data/enemies';
 import { SECONDARIES } from '../../data/weapons';
 import { weaponStats } from '../../game/arsenal';
 import { longbowTargets } from '../../game/heli-flight';
+import { SONAR, sonarHits, sonarRadius } from '../../game/sub-flight';
 import { ageDrain, agingJet, CANNON, cannonDamage, NUKE } from '../../game/jets';
 import type { Player } from './player';
-import { killEnemy } from './projectiles';
+import { damageEnemy, killEnemy } from './projectiles';
 import type { WingmanRadio } from './radio';
 import { GUN_SPEED, playerMissile } from './weapons-fire';
 import { PF_H, type World } from './world';
@@ -53,6 +54,10 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
     case 'armour':
       audio.play('special');
       break;
+    case 'sonar':
+      world.sonar = { x: p.x, y: p.y, t: 0 };
+      audio.play('sonar');
+      break;
     default:
       throw new Error(`unhandled: ${plane.special satisfies never}`);
   }
@@ -77,11 +82,13 @@ function longbowSalvo(world: World, p: Player, audio: AudioEngine): void {
   audio.play('missile');
 }
 
-/** One tick of the running specials, the nuke in flight and the Tornado's age. */
+/** One tick of the running specials, the nuke in flight, the Tornado's age and a sub's bubble wake. */
 export function tickSpecials(world: World, p: Player, dt: number, audio: AudioEngine): void {
+  if (p.alive && p.stats.plane.kind === 'sub') wake(world, p, dt);
   if (p.wingman && p.specialActive <= 0) p.wingman = null;
   if (p.alive && p.specialActive > 0 && p.stats.plane.special === 'cannon') fireCannon(world, p, dt);
   flyNuke(world, dt, audio);
+  runSonar(world, dt, audio);
   if (world.blast) {
     world.blast.t += dt;
     if (world.blast.t >= NUKE.burstSec) world.blast = null;
@@ -101,6 +108,34 @@ function fireCannon(world: World, p: Player, dt: number): void {
     if (world.targetsInView()) world.perf.shots += 1;
   }
   world.shake = Math.max(world.shake, 1.8);
+}
+
+/** Bubbles streaming from the sub's screw (doc 67), thicker when it pushes forward. */
+function wake(world: World, p: Player, dt: number): void {
+  if (Math.random() > dt * (14 + p.forward * 26)) return;
+  world.particles.add({
+    kind: 'smoke', x: p.x + (Math.random() - 0.5) * 5, y: p.y + 34, vx: (Math.random() - 0.5) * 16,
+    vy: world.scrollSpeed * 0.7 + 50, max: 0.7 + Math.random() * 0.4, size: 2 + Math.random() * 3, grow: 2, drag: 0.6, color: '#fff',
+  });
+}
+
+/** Type 212 Sonar Burst (doc 67): the ring wipes out the enemy shots it passes and hurts every enemy and boss part it
+ *  reaches, once. */
+function runSonar(world: World, dt: number, audio: AudioEngine): void {
+  const s = world.sonar;
+  if (!s) return;
+  const r0 = sonarRadius(s.t);
+  s.t += dt;
+  const r1 = sonarRadius(s.t);
+  for (const e of sonarHits(world.enemies.filter((x) => !x.dead), s, r0, r1)) damageEnemy(world, e, SONAR.damage, audio);
+  for (const b of sonarHits(world.bullets, s, 0, r1)) if (b.kind === 'enemy' || b.kind === 'flak') b.dead = true;
+  for (const m of sonarHits(world.missiles, s, 0, r1)) if (m.kind === 'enemy') m.dead = true;
+  const boss = world.boss;
+  if (boss && r1 > r0) {
+    const at = boss.aimPoint();
+    if (sonarHits([at], s, r0, r1).length > 0) boss.hitAt(at.x, at.y, 8, SONAR.damage, world, audio);
+  }
+  if (s.t >= SONAR.time + 0.25) world.sonar = null;
 }
 
 function flyNuke(world: World, dt: number, audio: AudioEngine): void {

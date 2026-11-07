@@ -1,9 +1,13 @@
 import { THEATERS_2 } from './theaters-2';
 import { THEATERS_3 } from './theaters-3';
 import { THEATERS_4 } from './theaters-4';
+import { THEATERS_5 } from './theaters-5';
 import { THEATER_IDS, type CampaignId, type TheaterId } from './types';
 
-export type TerrainStyle = 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar';
+export type TerrainStyle = 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar' | 'reef';
+
+/** The terrains under the sea (doc 68): water instead of sky, bubbles instead of smoke. */
+export const underwater = (style: TerrainStyle): boolean => style === 'reef';
 
 export interface TheaterPalette {
   sea: string;
@@ -73,7 +77,7 @@ const THEATERS_1 = {
   },
 } satisfies Record<string, TheaterDef>;
 
-export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4 });
+export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4, ...THEATERS_5 });
 
 /** The theaters of one campaign map, in route order. */
 export const campaignTheaters = (c: CampaignId): TheaterId[] => THEATER_IDS.filter((id) => THEATERS[id].campaign === c);

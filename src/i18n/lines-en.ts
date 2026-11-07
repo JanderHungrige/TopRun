@@ -80,6 +80,13 @@ export const LINES_EN = {
   'adm.celebrate2': ["Two fronts, one pilot. {callsign}, they will tell stories about you in every ready room."],
   'adm.celebrate3': ["From the decks to the valleys, {callsign}. Rotors or wings, you always bring them home."],
   'adm.celebrate4': ["You took the war to the stars and won it, {callsign}. Look down there: that is the world you saved."],
+  'adm.celebrate5': ["Sky, space and now the deep sea, {callsign}. There is no water left that they can hide in."],
+  'adm.deepWater': [
+    "Well, almost nowhere. What was left of them has gone under the sea. Your sub pen has a boat waiting, {callsign}. Check the globe.",
+  ],
+  'adm.finale5': [
+    "The abyss is quiet, {callsign}. You hunted them all the way to the bottom of the sea.",
+  ],
   'adm.finale4': [
     "That was the last frontier, {callsign}. There is nowhere left they can run.",
   ],
@@ -121,6 +128,10 @@ export const LINES_EN = {
   'chief.helloHelis': [
     "Rotor shop's open, {callsign}. Your jet kit stays home: out here we start from scratch with the Apache.",
     "Welcome to low level, {callsign}. Chain gun, Hydras, Hellfires: let's build you a helicopter kit.",
+  ],
+  'chief.helloSubs': [
+    "Welcome to the sub pen, {callsign}. Mind the puddles. Out here we start from scratch with the Type 212.",
+    "Down here it's harpoons, torpedoes and mines, {callsign}. Let's build you a sub kit.",
   ],
   'chief.helloNewJets': [
     "Got three new birds in, {callsign}: an A-10, an F-35 and an old Tornado. Have a look under JETS.",

@@ -33,6 +33,7 @@ const SPAWNS: Readonly<Record<TerrainStyle, readonly Spawn[]>> = {
   space: [['rock', 0.1, 10, 30]],
   belt: [['rock', 0.5, 10, 34], ['rock', 0.1, 40, 70]],
   lunar: [['crater', 0.4, 14, 40], ['crater', 0.06, 60, 110], ['rock', 0.2, 6, 14]],
+  reef: [['coral', 0.4, 14, 34], ['stone', 0.2, 10, 24]],
 };
 
 interface Cloud { x: number; y: number; puffs: Array<{ dx: number; dy: number; r: number }> }

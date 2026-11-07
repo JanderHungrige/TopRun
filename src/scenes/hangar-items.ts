@@ -4,7 +4,7 @@ import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
-import { heliGunDef } from '../data/heli-kit';
+import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
 import { jetGunDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { MAX_MARK, toMark, type AmmoType } from '../data/arsenal';
 import { ammoTypeLevel, canLoad } from '../game/ammo';
@@ -26,18 +26,32 @@ export interface Tab {
   items: readonly ShopItem[];
 }
 
-/** The helicopters' hangar (doc 49): helicopters, the chain gun and helicopter weapons, equipment — no paint yet. */
-const heliTabs = (save: SaveData): readonly Tab[] => [
-  { name: 'hangar.tabHelis', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
+/** A fleet kit's words in its hangar (docs 49, 66). */
+export const FLEET_UI: Readonly<Record<FleetKitId, {
+  title: UiKey; tab: UiKey; gunName: UiKey; gunDesc: UiKey; flyThis: UiKey; markInfo: UiKey;
+}>> = {
+  heli: {
+    title: 'hangar.title', tab: 'hangar.tabHelis', gunName: 'hangar.heliGunName', gunDesc: 'hangar.heliGunDesc',
+    flyThis: 'hangar.flyThisHeli', markInfo: 'arsenal.markInfoHeli',
+  },
+  sub: {
+    title: 'hangar.titleSubs', tab: 'hangar.tabSubs', gunName: 'hangar.subGunName', gunDesc: 'hangar.subGunDesc',
+    flyThis: 'hangar.flyThisSub', markInfo: 'arsenal.markInfoSub',
+  },
+};
+
+/** A fleet kit's hangar (docs 49, 66): its craft, its gun and weapons, equipment — no paint yet. */
+const fleetTabs = (save: SaveData, fleet: FleetKitId): readonly Tab[] => [
+  { name: FLEET_UI[fleet].tab, items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
   {
     name: 'hangar.tabWeapons',
-    items: [{ type: 'gun', heli: true }, ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id }))],
+    items: [{ type: 'gun', fleet }, ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id }))],
   },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
 ];
 
-/** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36); map 3's are the helicopters'. */
-export const tabs = (save: SaveData): readonly Tab[] => (save.kit === 'heli' ? heliTabs(save) : [
+/** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36); maps 3 and 5 show their fleets. */
+export const tabs = (save: SaveData): readonly Tab[] => (isFleet(save.kit) ? fleetTabs(save, save.kit) : [
   { name: 'hangar.tabJets', items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
   {
     name: 'hangar.tabWeapons',
@@ -66,7 +80,7 @@ export interface ItemAction {
 export function itemName(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return PLANES[item.id].name;
-    case 'gun': return t(item.heli ? 'hangar.heliGunName' : 'hangar.gunName');
+    case 'gun': return t(item.fleet ? FLEET_UI[item.fleet].gunName : 'hangar.gunName');
     case 'gun2': return t('hangar.gun2Name');
     case 'ammo': return t('arsenal.ammoName');
     case 'incendiary': return t('arsenal.incName');
@@ -81,7 +95,7 @@ export function itemName(item: ShopItem): string {
 export function itemDescription(item: ShopItem): string {
   switch (item.type) {
     case 'plane': return planeDescription(item.id);
-    case 'gun': return t(item.heli ? 'hangar.heliGunDesc' : 'hangar.gunDesc');
+    case 'gun': return t(item.fleet ? FLEET_UI[item.fleet].gunDesc : 'hangar.gunDesc');
     case 'gun2': return t('hangar.gun2Desc');
     case 'ammo': return t('arsenal.ammoDesc');
     case 'incendiary': return t('arsenal.incDesc');
@@ -163,7 +177,7 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
     case 'plane':
       if (!save.ownedPlanes.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (save.selectedPlane === item.id) return none(t('hangar.inUse'));
-      return { kind: 'select', label: t(save.kit === 'heli' ? 'hangar.flyThisHeli' : 'hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
+      return { kind: 'select', label: t(isFleet(save.kit) ? FLEET_UI[save.kit].flyThis : 'hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
     case 'gun':
       if (save.gunLevel >= gunCap(save)) return none(t('hangar.maxed'));
       return buyAction(save, item, t('hangar.gunUpgrade', { level: save.gunLevel + 1, price }));
@@ -206,7 +220,7 @@ export function twinAction(save: SaveData, item: ShopItem): { label: string; ena
     if (ammoTypeLevel(save, ammo) === 0) return null;
     return canLoad(save, ammo) ? { label: t('arsenal.load'), enabled: true } : { label: t('arsenal.loaded'), enabled: false };
   }
-  if (item.type !== 'secondary' || !mapTwoOpen(save) || save.kit === 'heli' || !save.ownedSecondaries.includes(item.id)) return null;
+  if (item.type !== 'secondary' || !mapTwoOpen(save) || save.kit !== 'jet' || !save.ownedSecondaries.includes(item.id)) return null;
   if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
   return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
 }
@@ -242,14 +256,15 @@ export function unlockText(id: LiveryId): string {
   return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 
-/** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43); `heli`: the
- *  chain gun (doc 49). */
-export function gunSummary(level: number, twin = false, heli = false): string {
-  const d = heli ? heliGunDef(level) : jetGunDef(level, twin);
+/** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43); `fleet`: a fleet
+ *  kit's gun (docs 49, 66). */
+export function gunSummary(level: number, twin = false, fleet?: FleetKitId): string {
+  const d = fleet ? FLEET[fleet].gunDef(level) : jetGunDef(level, twin);
   return t('hangar.gunSummary', { barrels: d.pattern.length, rate: d.shotsPerSec, damage: d.damage });
 }
 
 export function secondaryTargets(id: (typeof SECONDARY_IDS)[number]): string {
-  const hits = SECONDARIES[id].hits;
+  const { hits, campaign } = SECONDARIES[id];
+  if (campaign === 5) return t(hits === 'ground' ? 'hangar.targetsSeabed' : 'hangar.targetsWater'); // under the sea (doc 66)
   return t(hits === 'any' ? 'hangar.targetsAny' : hits === 'air' ? 'hangar.targetsAir' : 'hangar.targetsGround');
 }

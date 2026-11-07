@@ -1,9 +1,9 @@
 import { rnd } from './metal';
 import { SK } from './skin';
 
-// The whole console behind the instruments, in the current skin (docs 05, 61): gunmetal with brushed streaks and
+// The whole console behind the instruments, in the current skin (docs 05, 61, 67): gunmetal with brushed streaks and
 // scratches (jets), olive drab worn to bare metal with rivet rows (helicopters), dark glass with a faint grid
-// (spacecraft); a seam towards the playfield.
+// (spacecraft), teal enamel with brass rivets and rippled light (subs); a seam towards the playfield.
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -40,6 +40,11 @@ function worn(ctx: Ctx, x: number, seed: number): void {
     ctx.ellipse(cx, cy, r * 1.6, r, rnd(seed + i) * Math.PI, 0, Math.PI * 2);
     ctx.fill();
   }
+  rivetRows(ctx, x);
+}
+
+/** Rivet rows down both edges and across, in the skin's metal. */
+function rivetRows(ctx: Ctx, x: number): void {
   const rivet = (rx: number, ry: number): void => {
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
@@ -55,6 +60,25 @@ function worn(ctx: Ctx, x: number, seed: number): void {
     rivet(x + 315, y);
   }
   for (const y of [62, 326, 458, 600]) for (let rx = x + 22; rx < x + 300; rx += 18) rivet(rx, y);
+}
+
+/** Teal enamel: soft bands of rippled light, as through water, and brass rivet rows. */
+function ripples(ctx: Ctx, x: number, seed: number): void {
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 26; i++) {
+    const y0 = rnd(seed * 31 + i) * 720;
+    const amp = 2 + rnd(seed * 37 + i) * 4;
+    ctx.strokeStyle = `rgba(${SK.streak},${(0.02 + rnd(seed * 41 + i) * 0.04).toFixed(3)})`;
+    ctx.beginPath();
+    for (let k = 0; k <= 32; k++) {
+      const px = x + k * 10;
+      const py = y0 + Math.sin(k * 0.7 + i) * amp;
+      if (k === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  rivetRows(ctx, x);
 }
 
 /** Glass: a faint grid and a few brighter traces. */
@@ -102,6 +126,9 @@ export function backplate(ctx: Ctx, x: number, seed: number, seamX: number): voi
       break;
     case 'ship':
       grid(ctx, x, seed);
+      break;
+    case 'sub':
+      ripples(ctx, x, seed);
       break;
     default:
       throw new Error(`unhandled: ${SK.id satisfies never}`);

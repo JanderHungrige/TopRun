@@ -9,6 +9,7 @@ import { UI_DE_CLOUD } from './ui-de-cloud';
 import { UI_DE_JOYSTICK } from './ui-de-joystick';
 import { UI_DE_ARSENAL } from './ui-de-arsenal';
 import { UI_DE_FRONTIERS } from './ui-de-frontiers';
+import { UI_DE_DEEP } from './ui-de-deep';
 import type { UiKey } from './ui-en';
 
 // German UI strings. Record<UiKey, string>: the compiler rejects a missing key.
@@ -293,4 +294,5 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   ...UI_DE_JOYSTICK,
   ...UI_DE_ARSENAL,
   ...UI_DE_FRONTIERS,
+  ...UI_DE_DEEP,
 };

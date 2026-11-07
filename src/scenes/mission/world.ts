@@ -8,9 +8,9 @@ import { emptyTally, type MissionTally } from '../../game/objectives';
 import { generateTimeline, PF_H, PF_W, type SpawnEvent } from '../../game/waves';
 import { Terrain } from '../../render/draw-terrain';
 import { Particles } from '../../render/particles';
-import { THEATERS } from '../../data/theaters';
+import { THEATERS, underwater } from '../../data/theaters';
 import type { Boss } from './boss';
-import { HELI_FLIGHT } from '../../game/heli-flight';
+import { flightScroll } from '../../game/sub-flight';
 import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/canyon';
 
 export { PF_W, PF_H };
@@ -74,9 +74,12 @@ export interface Bullet {
   rounds?: AmmoType;
   /** The spacecraft's laser bolts (doc 54). */
   laser?: boolean;
+  /** The subs' harpoon bolts (doc 67). */
+  harpoon?: boolean;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'rocket' | 'enemy';
+export type MissileKind =
+  | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -164,6 +167,8 @@ export class World {
   /** Mission-score measurements (doc 39): gun rounds fired / hitting, raw damage taken, pickups dropped / taken. */
   perf = { shots: 0, hits: 0, damage: 0, drops: 0, taken: 0 };
   blast: { x: number; y: number; t: number } | null = null;
+  /** The Type 212's sonar ring running out from where it pinged (doc 67); `t` counts up. */
+  sonar: { x: number; y: number; t: number } | null = null;
   private ids = 0;
 
   /**
@@ -182,7 +187,8 @@ export class World {
     this.timeline = generateTimeline(mission);
     this.terrain = new Terrain(THEATERS[mission.theater], mission.number * 31 + 7);
     this.canyon = canyonPlan(mission);
-    this.canyonTotal = (this.canyon?.seconds ?? 0) * BASE_SCROLL * (mission.campaign === 3 ? HELI_FLIGHT.scroll : 1);
+    this.canyonTotal = (this.canyon?.seconds ?? 0) * BASE_SCROLL * flightScroll(mission.campaign);
+    this.particles.underwater = underwater(THEATERS[mission.theater].terrain);
   }
 
   /** The canyon's channel at screen row `y`, or null where there is no gorge (doc 52). */
@@ -196,9 +202,9 @@ export class World {
     return ++this.ids;
   }
 
-  /** Map 3 is flown low and slow by helicopters (doc 50). */
+  /** Map 3 is flown low and slow by helicopters (doc 50), map 5 slower still by subs (doc 67). */
   get scrollSpeed(): number {
-    return BASE_SCROLL * this.scrollMul * (this.mission.campaign === 3 ? HELI_FLIGHT.scroll : 1);
+    return BASE_SCROLL * this.scrollMul * flightScroll(this.mission.campaign);
   }
 
   addShake(amount: number): void {

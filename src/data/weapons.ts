@@ -1,6 +1,7 @@
 import { HELI_PRICE } from './heli-kit';
+import { SUB_PRICE } from './sub-kit';
 import { PLANES } from './planes';
-import { HELI_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
+import { HELI_IDS, SUB_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
 
 export interface GunBarrel {
   dx: number;
@@ -120,7 +121,7 @@ export type WeaponRole = 'air' | 'ground';
 
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
-  hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground',
+  hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground',
 });
 
 export interface SecondaryDef {
@@ -139,7 +140,7 @@ export interface SecondaryDef {
   turnRate: number;
   planes: readonly PlaneId[] | null;
   description: string;
-  /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49). */
+  /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49); 5 = a sub weapon (doc 66). */
   campaign: CampaignId;
 }
 
@@ -206,9 +207,20 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     damage: 300, radius: 0, hits: 'ground', behavior: 'homing', cooldown: 0.7, speed: 340,
     turnRate: 1.2, planes: ['starship'], description: 'Slow homing plasma bolts from the torpedo bays, for warships, stations and bosses.', campaign: 4,
   },
+  // Sub weapons (doc 66): mount on subs only; prices on the sub scale.
+  mk48: {
+    id: 'mk48', role: 'air', name: 'MK48 Torpedo', short: 'MK48', price: 3000 * SUB_PRICE, ammoPerSlot: 3,
+    damage: 150, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.45, speed: 300,
+    turnRate: 2.6, planes: SUB_IDS, description: 'Wire-guided heavy torpedo. Slow, but it finds anything in the water: subs, drones, mines and monsters.', campaign: 5,
+  },
+  depthmine: {
+    id: 'depthmine', role: 'ground', name: 'Depth Mine', short: 'MINE', price: 5000 * SUB_PRICE, ammoPerSlot: 4,
+    damage: 160, radius: 80, hits: 'ground', behavior: 'bomb', cooldown: 0.5, speed: 0,
+    turnRate: 0, planes: SUB_IDS, description: 'Sinks below the sub and bursts on the seabed. A wide blast against turrets and anything on the bottom.', campaign: 5,
+  },
 });
 
-/** A weapon with no plane list goes on any jet; helicopter weapons list their helicopters (doc 49). */
+/** A weapon with no plane list goes on any jet; helicopter and sub weapons list their craft (docs 49, 66). */
 export function secondaryAllowedOn(id: SecondaryId, plane: PlaneId): boolean {
   const allowed = SECONDARIES[id].planes;
   return allowed === null ? PLANES[plane].kind === 'jet' : allowed.includes(plane);

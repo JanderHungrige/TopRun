@@ -18,8 +18,8 @@ export interface LineRef {
   gesture: Gesture;
 }
 
-/** The admiral's line when a map's finale is won (docs 35, 48). */
-const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4' };
+/** The admiral's line when a map's finale is won (docs 35, 48, 65). */
+const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4', 5: 'adm.finale5' };
 
 const ref = (speaker: CharacterId, key: LineKey, mood: Mood, gesture: Gesture, params?: Params): LineRef =>
   ({ speaker, key, mood, gesture, ...(params ? { params } : {}) });
@@ -69,7 +69,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   }
   if (d.challengeUp) lines.push(ref('admiral', 'adm.challengeUp', 'stern', 'point'));
   const list = campaignMissions(m.campaign);
-  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, m90, m120
+  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, …, m150
     lines.push(ref('admiral', FINALE[m.campaign], 'happy', 'salute'));
     if (m.campaign === 1) {
       lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
@@ -77,6 +77,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
     }
     if (m.campaign === 2) lines.push(ref('admiral', 'adm.lowLevel', 'neutral', 'point')); // map 3 is open now (doc 48)
     if (m.campaign === 3) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 4 is open now (doc 56)
+    if (m.campaign === 4) lines.push(ref('admiral', 'adm.deepWater', 'neutral', 'point')); // map 5 is open now (doc 65)
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
@@ -91,7 +92,7 @@ export function medalLine(index: number, medal: MedalId): LineRef {
 }
 
 export type ChiefEvent =
-  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
+  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'helloSubs' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
   | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
@@ -100,6 +101,7 @@ export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Moo
   helloBroke: { key: 'chief.helloBroke', mood: 'stern', gesture: 'none' },
   helloNewJets: { key: 'chief.helloNewJets', mood: 'happy', gesture: 'point' },
   helloHelis: { key: 'chief.helloHelis', mood: 'happy', gesture: 'point' },
+  helloSubs: { key: 'chief.helloSubs', mood: 'happy', gesture: 'point' },
   buyPlane: { key: 'chief.buyPlane', mood: 'happy', gesture: 'thumbsUp' },
   buyGun: { key: 'chief.buyGun', mood: 'happy', gesture: 'point' },
   buySecondary: { key: 'chief.buySecondary', mood: 'happy', gesture: 'none' },
@@ -186,6 +188,6 @@ export function wingmanStart(o: Objective): LineRef {
 }
 
 /** The admiral at a world's celebration (doc 64). */
-const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4' };
+const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4', 5: 'adm.celebrate5' };
 export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CELEBRATE[world], 'happy', 'salute');
 

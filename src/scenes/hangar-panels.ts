@@ -3,7 +3,7 @@ import { PLANES } from '../data/planes';
 import type { PlaneId, SecondaryId } from '../data/types';
 import { AMMO_LEVELS, INCENDIARY_LEVELS } from '../data/arsenal';
 import { heLevelDef, MAX_HE_LEVEL } from '../data/he-gun';
-import { heliGunDef, MAX_HELI_GUN_LEVEL } from '../data/heli-kit';
+import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
 import { gunLevelDef, jetGunDef, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES } from '../data/weapons';
 import { incendiaryCap } from '../game/ammo';
 import { ammoCap, markOf } from '../game/arsenal';
@@ -21,7 +21,7 @@ import { drawPanel, type Rect } from '../ui/widgets';
 import { equipmentLevelText, planeSpecialName } from '../i18n/content';
 import { t as tr } from '../i18n/i18n';
 import {
-  gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, unlockText, weaponNowNext,
+  FLEET_UI, gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, unlockText, weaponNowNext,
 } from './hangar-items';
 import { equipmentEffectRow, planeStats, statRow } from './hangar-stats-view';
 
@@ -76,7 +76,7 @@ function liveryThumb(ctx: CanvasRenderingContext2D, save: SaveData, id: LiveryId
 function drawThumb(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem, x: number, y: number, t: number): void {
   switch (item.type) {
     case 'plane': drawPlaneTop(ctx, item.id, x, y, 0.9, { t, throttle: 0.3, sweep: 0.3, livery: save.livery[item.id] }); return;
-    case 'gun': if (!drawItemPicture(ctx, item.heli ? 'chaingun' : 'gun', x, y, true)) drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
+    case 'gun': if (!drawItemPicture(ctx, item.fleet ? FLEET[item.fleet].gunPicture : 'gun', x, y, true)) drawWeaponIcon(ctx, 'gun', x, y, 0.8); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', x, y, 0.8); return;
     case 'ammo': if (!drawItemPicture(ctx, 'ammo', x, y, true)) drawWeaponIcon(ctx, 'ammo', x, y, 0.8); return;
     case 'incendiary':
@@ -147,13 +147,13 @@ function subtitle(save: SaveData, item: ShopItem): string {
 
 /** A labelled bar; `barW` shrinks it for the weapons, whose UPGRADE and TWIN PODS buttons sit on the right. */
 /** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted; `twin`: a new jet's gun;
- *  `heli`: the chain gun, measured against its own top level (doc 49). */
-function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number, twin = false, heli = false): void {
-  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level, twin, heli) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
-  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1, twin, heli) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
-  const d = heli ? heliGunDef(Math.max(1, level)) : jetGunDef(Math.max(1, level), twin);
+ *  `fleet`: a fleet kit's gun, measured against its own top level (docs 49, 66). */
+function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number, twin = false, fleet?: FleetKitId): void {
+  if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level, twin, fleet) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
+  if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1, twin, fleet) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
+  const d = fleet ? FLEET[fleet].gunDef(Math.max(1, level)) : jetGunDef(Math.max(1, level), twin);
   statRow(ctx, DETAIL, tr('hangar.statLevel'), `${level}/${cap}`, level / cap, y + 52);
-  const top = heli ? heliGunDef(MAX_HELI_GUN_LEVEL) : gunLevelDef(MAX_GUN_LEVEL);
+  const top = fleet ? FLEET[fleet].gunDef(FLEET[fleet].maxGun) : gunLevelDef(MAX_GUN_LEVEL);
   const dps = (g: typeof d): number => g.damage * g.shotsPerSec * g.pattern.length;
   statRow(ctx, DETAIL, 'DPS', level > 0 ? String(Math.round(dps(d))) : '0', level > 0 ? dps(d) / dps(top) : 0, y + 76);
 }
@@ -204,7 +204,7 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   text(ctx, marks, DETAIL.x + 184, y + 58, { size: 14, color: COLORS.green });
   const guidance = tr(d.behavior === 'homing' ? 'hangar.guided' : d.behavior === 'fan' ? 'hangar.salvo' : 'hangar.freefall');
   text(ctx, tr('hangar.targets', { targets: secondaryTargets(id), guidance }), DETAIL.x + 24, y + 78, { size: 14, color: COLORS.ink, maxWidth: DETAIL.w - 300 });
-  const info = save.kit === 'heli' ? tr('arsenal.markInfoHeli') : mapTwoOpen(save) ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
+  const info = isFleet(save.kit) ? tr(FLEET_UI[save.kit].markInfo) : mapTwoOpen(save) ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
   text(ctx, info, DETAIL.x + 24, y + 96, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 300 });
 }
 
@@ -213,7 +213,7 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
   switch (item.type) {
     case 'plane': return planeStats(ctx, DETAIL, save, item.id, y);
     case 'gun':
-      gunStats(ctx, save.gunLevel, gunCap(save), y, false, item.heli === true);
+      gunStats(ctx, save.gunLevel, gunCap(save), y, false, item.fleet);
       if (doubleFirepower(save.selectedPlane) && mapTwoOpen(save)) text(ctx, tr('hangar.gunNewJets'), DETAIL.x + 24, y + 112, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 48 });
       return;
     case 'gun2':
@@ -259,7 +259,7 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
   switch (item.type) {
     case 'plane': return showcase(ctx, item.id, save.livery[item.id], cx, cy, t);
     case 'livery': return showcase(ctx, save.selectedPlane, item.id, cx, cy, t);
-    case 'gun': if (!drawItemPicture(ctx, item.heli ? 'chaingun' : 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
+    case 'gun': if (!drawItemPicture(ctx, item.fleet ? FLEET[item.fleet].gunPicture : 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', cx, cy, 3); return;
     case 'ammo': if (!drawItemPicture(ctx, 'ammo', cx, cy, false)) drawWeaponIcon(ctx, 'ammo', cx, cy, 3); return;
     case 'incendiary':

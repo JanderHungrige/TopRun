@@ -31,6 +31,8 @@ const BLAST: Readonly<Record<BlastSize, { fire: number; smoke: number; sparks: n
 
 export class Particles {
   private list: Particle[] = [];
+  /** Under the sea (doc 68): smoke rises as bubbles and fire burns out faster. */
+  underwater = false;
 
   get count(): number {
     return this.list.length;
@@ -42,8 +44,9 @@ export class Particles {
 
   add(p: Partial<Particle> & { kind: ParticleKind; x: number; y: number; max: number }): void {
     if (this.list.length >= MAX_PARTICLES) this.list.shift();
+    const max = this.underwater && p.kind === 'fire' ? p.max * 0.55 : p.max;
     this.list.push({
-      vx: 0, vy: 0, size: 4, grow: 0, color: '#fff', drag: 0, ground: false, label: '', ...p, life: p.max,
+      vx: 0, vy: 0, size: 4, grow: 0, color: '#fff', drag: 0, ground: false, label: '', ...p, max, life: max,
     });
   }
 
@@ -115,15 +118,35 @@ export class Particles {
       p.x += p.vx * dt;
       p.y += p.vy * dt + (p.ground ? scroll * dt : 0);
       p.size += p.grow * dt;
+      if (this.underwater && p.kind === 'smoke') {
+        p.vy -= 90 * dt;
+        p.x += Math.sin(p.life * 9 + p.size) * 14 * dt;
+      }
       keep.push(p);
     }
     this.list = keep;
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    for (const p of this.list) drawParticle(ctx, p);
+    for (const p of this.list) {
+      if (this.underwater && p.kind === 'smoke') bubble(ctx, p);
+      else drawParticle(ctx, p);
+    }
     ctx.globalAlpha = 1;
   }
+}
+
+/** Smoke under the sea: a hollow bubble with a highlight, smaller than the puff it stands for. */
+function bubble(ctx: CanvasRenderingContext2D, p: Particle): void {
+  const r = Math.max(1, p.size * 0.45);
+  ctx.globalAlpha = Math.min(1, (p.life / p.max) * 1.6) * 0.8;
+  ctx.strokeStyle = '#d8f4ff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, TAU);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillRect(p.x - r * 0.5, p.y - r * 0.55, Math.max(1, r * 0.35), Math.max(1, r * 0.35));
 }
 
 function drawParticle(ctx: CanvasRenderingContext2D, p: Particle): void {

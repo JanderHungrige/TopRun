@@ -23,6 +23,7 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   moon: { name: 'Mondfront', tagline: 'Staub und Krater' },
   rings: { name: 'Ringriese', tagline: 'Eis in den Ringen' },
   deep: { name: 'Tiefer Raum', tagline: 'Hinter dem letzten Stern' },
+  reef: { name: 'Korallenriff', tagline: 'Klares Wasser, scharfe Zähne' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -70,6 +71,10 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Fliegender Panzer',
     description: 'Der fliegende Panzer. Schwere Panzerung, sechs Waffenstationen und ein paar Sekunden, in denen nichts durchkommt. Träge in der Kurve.',
   },
+  u212: {
+    specialName: 'Sonarstoß',
+    description: 'Leises deutsches Jagd-U-Boot mit Brennstoffzellenantrieb. Vier Rohre, eine Harpunenkanone und ein Aktivsonar, das das Wasser ringsum freiräumt.',
+  },
 };
 
 export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; description: string }>> = {
@@ -85,6 +90,8 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   stinger: { name: 'FIM-92 Stinger', description: 'Wärmesuchende Luft-Luft-Rakete für Hubschrauber. Jagt Kampfhubschrauber und Jets.' },
   spacerocket: { name: 'Weltraumrakete', description: 'Zielsuchende Raketen aus den Raketenflügeln. Sie finden alles, was sich bewegt.' },
   torpedo: { name: 'Plasmatorpedo', description: 'Langsame zielsuchende Plasmageschosse aus den Torpedoschächten, für Kriegsschiffe, Stationen und Bosse.' },
+  mk48: { name: 'MK48-Torpedo', description: 'Drahtgelenkter schwerer Torpedo. Langsam, aber er findet alles im Wasser: U-Boote, Drohnen, Minen und Monster.' },
+  depthmine: { name: 'Grundmine', description: 'Sinkt unter das Boot und platzt am Meeresgrund. Eine weite Explosion gegen Geschütze und alles am Boden.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
@@ -143,6 +150,7 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   frigate: 'Missile Frigates', felon: 'Su-57 Felons', backfire: 'Tu-22M Backfires', fortress: 'AA Fortresses', cruiser: 'Missile Cruisers',
   raider: 'Raider Fighters', satgun: 'Gun Satellites', corvette: 'Corvettes', interceptor: 'Interceptors', gunship: 'Gunships',
   battery: 'Lunar Batteries', warden: 'Battlecruisers',
+  minisub: 'Midget Subs', seadrone: 'Sea Drones', seamine: 'Sea Mines', seaturret: 'Seabed Turrets', jelly: 'Jellyfish', eel: 'Electric Eels',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -175,6 +183,12 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   gunship: ['Kanonenboot', 'Kanonenboote'],
   battery: ['Mondbatterie', 'Mondbatterien'],
   warden: ['Schlachtkreuzer', 'Schlachtkreuzer'],
+  minisub: ['Kleinst-U-Boot', 'Kleinst-U-Boote'],
+  seadrone: ['Seedrohne', 'Seedrohnen'],
+  seamine: ['Seemine', 'Seeminen'],
+  seaturret: ['Meeresboden-Geschütz', 'Meeresboden-Geschütze'],
+  jelly: ['Qualle', 'Quallen'],
+  eel: ['Zitteraal', 'Zitteraale'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -198,4 +212,5 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   crater: 'Mondzitadelle',
   trident: 'Dreirumpf-Schlachtschiff',
   ark: 'Mutterschiff',
+  barracuda: 'Jagd-U-Boot',
 };

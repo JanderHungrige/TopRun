@@ -1,4 +1,5 @@
 import { ammoLevelDef, MAP1_AMMO_LEVEL, MAP1_MARK, MARKS, MAX_AMMO_LEVEL, MAX_MARK, PLAIN_GROUND_FACTOR, toMark, type Mark } from '../data/arsenal';
+import { isFleet } from '../data/fleet';
 import type { SecondaryId } from '../data/types';
 import { SECONDARIES, type SecondaryDef } from '../data/weapons';
 import { weaponOnSale } from './firepower';
@@ -25,14 +26,14 @@ export function gunAmmo(level: number): { damageMul: number; groundFactor: numbe
 
 export const markOf = (save: SaveData, id: SecondaryId): Mark => toMark(save.weaponLevels[id]);
 
-/** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open; Mk III for the helicopters (doc 49). */
+/** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open; Mk III for the fleet kits (docs 49, 66). */
 export function markCap(save: SaveData): Mark {
-  if (save.kit === 'heli') return HELI_MARK;
+  if (isFleet(save.kit)) return FLEET_MARK;
   return mapTwoOpen(save) ? MAX_MARK : MAP1_MARK;
 }
 
-/** The helicopter weapons' top mark (doc 49). */
-export const HELI_MARK: Mark = 3;
+/** The helicopter and sub weapons' top mark (docs 49, 66). */
+export const FLEET_MARK: Mark = 3;
 
 /** Price of a weapon's next mark, or null at the top. */
 export function markPrice(save: SaveData, id: SecondaryId): number | null {

@@ -1,6 +1,7 @@
 import { TAU } from '../core/math';
 import { createRng, type Rng } from '../core/rng';
-import type { TheaterDef } from '../data/theaters';
+import { underwater, type TheaterDef } from '../data/theaters';
+import { Water } from './sea-floor';
 import { drawFeature, makeBaseTile, makeBlob, type Feature, type FeatureType } from './terrain-art';
 
 const W = 640;
@@ -22,10 +23,14 @@ export class Terrain {
   private distance = 0;
   private rowAcc = 0;
   private readonly rng: Rng;
+  /** Under the sea (doc 68): fish, bubbles, caustics and light rays instead of clouds. */
+  private readonly water: Water | null;
+  private time = 0;
   lightning = 0;
 
   constructor(readonly theater: TheaterDef, seed: number) {
     this.rng = createRng(seed);
+    this.water = underwater(theater.terrain) ? new Water(seed + 1) : null;
     for (let y = -ROW; y < H; y += ROW) this.spawnRow(y);
     for (let i = 0; i < 4; i++) this.spawnCloud(this.rng.range(0, H));
   }
@@ -37,6 +42,8 @@ export class Terrain {
   update(dt: number, speed: number): void {
     const dy = speed * dt;
     this.distance += dy;
+    this.time += dt;
+    this.water?.update(dt, dy);
     for (const f of this.features) f.y += dy;
     for (const c of this.clouds) c.y += dy * 1.7;
     this.features = this.features.filter((f) => f.y - f.r * 4 < H + 40);
@@ -61,10 +68,12 @@ export class Terrain {
     this.renderBase(ctx);
     if (this.theater.terrain === 'canyon') this.renderCanyon(ctx);
     const style = this.theater.terrain;
-    for (const f of this.features) drawFeature(ctx, f, style, this.theater.palette);
+    for (const f of this.features) drawFeature(ctx, f, style, this.theater.palette, this.time);
+    this.water?.renderFloor(ctx, this.distance);
   }
 
   renderSky(ctx: CanvasRenderingContext2D, t: number): void {
+    if (this.water) return this.water.renderOverlay(ctx);
     // Each cloud is filled as one shape so overlapping puffs keep a single, even transparency.
     ctx.fillStyle = this.theater.palette.cloud;
     ctx.globalAlpha = 0.7;
@@ -192,6 +201,13 @@ export class Terrain {
         if (r.chance(0.3)) add('crater', r.range(14, 40));
         if (r.chance(0.05)) add('crater', r.range(60, 110));
         if (r.chance(0.15)) add('rock', r.range(6, 14));
+        return;
+      case 'reef': // the seabed under the sea (doc 68)
+        if (r.chance(0.06)) add('drop', r.range(70, 130));
+        if (r.chance(0.7)) add('coral', r.range(16, 40));
+        if (r.chance(0.4)) add('coral', r.range(12, 26));
+        if (r.chance(0.22)) add('stone', r.range(10, 24));
+        if (r.chance(0.32)) add('kelp', r.range(16, 30));
         return;
       default:
         throw new Error(`unhandled: ${this.theater.terrain satisfies never}`);

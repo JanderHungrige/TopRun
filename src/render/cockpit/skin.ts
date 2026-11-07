@@ -88,8 +88,19 @@ const SHIP: CockpitSkin = {
   sky: '#14406a', ground: '#3a1f5e', horizon: '#9ff4ff', symbol: '#ff7ad9', toggle: '#0d1828', corner: 'chamfer', edgeGlow: '95,227,255',
 };
 
-export const COCKPIT_SKINS: Readonly<Record<CockpitSkinId, CockpitSkin>> = Object.freeze({ jet: JET, heli: HELI, ship: SHIP });
-export const COCKPIT_SKIN_IDS: readonly CockpitSkinId[] = Object.freeze(['jet', 'heli', 'ship'] as const);
+const SUB: CockpitSkin = {
+  id: 'sub', back: ['#14484c', '#0d3438', '#072124'], streak: '170,240,230', scratch: 'rgba(200,170,90,0.12)',
+  seam: '#041517', seamHi: 'rgba(230,190,100,0.4)', bevelHi: '#c9a24e', bevelLo: '#2a1d08', sunkHi: '#2f6a6c', sunkLo: '#051819',
+  plate: '#0f3b3f', namePlate: '#b8913e', nameInk: '#1e1606', nameHi: 'rgba(255,240,200,0.5)', legend: '#f0dca8',
+  fastener: 'rivet', metal: ['#2a1d08', '#a8823a', '#e8c878'], bezel: ['#d8b25e', '#7a5a22', '#2a1d08'], bezelRing: '#3a2a0e',
+  housing: '#0a2b2e', well: '#041517', capDark: '#123f43', mfd: '#0c3135', screenBg: '#021412',
+  ink: '#6ff5d2', inkDim: 'rgba(111,245,210,0.45)', inkRgb: '111,245,210', scope: ['#063a32', '#021210'],
+  lampPanel: '#082629', lampOff: '#0f3437', lampLegend: '#5a8a80', dialFace: '#06201f', lcd: '#021412',
+  sky: '#1d6f8a', ground: '#2a4a3c', horizon: '#e8fbff', symbol: '#ffcf5a', toggle: '#163f43', corner: 'round', edgeGlow: null,
+};
+
+export const COCKPIT_SKINS: Readonly<Record<CockpitSkinId, CockpitSkin>> = Object.freeze({ jet: JET, heli: HELI, ship: SHIP, sub: SUB });
+export const COCKPIT_SKIN_IDS: readonly CockpitSkinId[] = Object.freeze(['jet', 'heli', 'ship', 'sub'] as const);
 
 /** The skin being painted (a live binding: importers always see the current one). */
 export let SK: CockpitSkin = JET;

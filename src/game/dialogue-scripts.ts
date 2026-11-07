@@ -184,3 +184,8 @@ export function wingmanStart(o: Objective): LineRef {
     default: throw new Error(`unhandled: ${o satisfies never}`);
   }
 }
+
+/** The admiral at a world's celebration (doc 64). */
+const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4' };
+export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CELEBRATE[world], 'happy', 'salute');
+

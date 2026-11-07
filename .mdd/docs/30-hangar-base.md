@@ -3,7 +3,7 @@ id: 30-hangar-base
 title: Hangar Base - Animated Pixel-Art Home Base with Areas
 edition: TopRun
 depends_on: [11-base-hub, 20-retro-look, 17-people-kit, 09-paint-jobs, 06-talking-characters, 07-i18n]
-relates: [11-base-hub, 25-medal-ceremony, 28-ladder-screen, 20-retro-look]
+relates: [11-base-hub, 25-medal-ceremony, 28-ladder-screen, 20-retro-look, 63-hangar-tv]
 source_files:
   - src/data/base-areas.ts
   - src/game/base-hangar.ts
@@ -75,6 +75,7 @@ minigame list from doc 11 moves behind the FUN MISSIONS area as the **rec room**
 | Area | id | Where | Looks like | Opens |
 |------|----|-------|------------|-------|
 | FUN MISSIONS | `fun` | far left, floor row | rec-room doorway with warm light, an arcade cabinet with a blinking screen, a dartboard, a flickering neon joystick sign above the door | `{ to: 'recRoom' }` (doc 11 list) |
+| TV | `tv` | left, floor row, in front of the rec room (doc 63, 2026-11-07) | an old wood-grain CRT with rabbit ears on a video recorder, on a rolling AV cart with tapes on the lower shelf; the screen glows blue, the recorder's clock blinks | `{ to: 'tapes' }` (doc 63) |
 | LOCKER | `locker` | left, floor row | a row of four steel lockers with vents and a bench; locker 3 stands ajar with the dress whites (gold buttons, ribbons) and a white cap inside, a flight helmet on the bench | `{ to: 'locker' }` |
 | PICTURE WALL | `photos` | left-centre, wall row | a framed corkboard with nine small pinned pictures (generic skies, sea, a jet silhouette — placeholders; the real photos are doc 32's) | `{ to: 'photoWall' }` |
 | LADDER | `ladder` | centre, high on the back wall above the jet, wall row | a big split-flap scoreboard: row 1 the board name, row 2 the pilot's callsign, row 3 the pilot's local rating; tiles flip through letters every few seconds | `{ to: 'ladder' }` |
@@ -96,7 +97,7 @@ plane × livery × grid; yellow wheel chocks at the main gear, a dithered floor 
 
 ## Navigation (pure, `src/game/base-hangar.ts` + table `src/data/base-areas.ts`)
 
-- Areas are ordered left → right: `fun, locker, photos, jet, ladder, chalk, exit` (chalk: doc 40; jet: 2026-10-28). **← / →** move the highlight one area
+- Areas are ordered left → right: `fun, tv, locker, photos, jet, ladder, chalk, exit` (chalk: doc 40; jet: 2026-10-28; tv: doc 63). **← / →** move the highlight one area
   (clamped at the ends, `uiMove`; nothing at an end).
 - Every area has a row: `wall` (photos, ladder), `mid` (chalk, doc 40) or `floor` (fun, locker, jet, exit). **↑** / **↓**
   go to the area whose centre is nearest in x in any row above / below (a tie: the nearer row); ↑ on the wall /

@@ -5,7 +5,7 @@ import type { LadderSync } from '../core/ladder-sync';
 import type { Music } from '../core/music';
 import type { MedalId } from '../data/medals';
 import type { MinigameId } from '../data/minigames';
-import type { MissionDef, MissionResult, TakeoffRating } from '../data/types';
+import type { CampaignId, MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarLook } from './avatar-look';
 import type { PilotMatch } from './ladder-cloud';
 import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
@@ -43,6 +43,10 @@ export type Route =
   | { to: 'minigame'; id: MinigameId; from: 'recRoom' | 'offer' }
   /** Medal ceremony (doc 25), then on to `then`. */
   | { to: 'ceremony'; medals: MedalId[]; then: Route }
+  /** A world's celebration after its finale or from the hangar TV (doc 64). */
+  | { to: 'celebration'; world: CampaignId; then: Route }
+  /** The hangar TV's tape shelf (doc 63). */
+  | { to: 'tapes' }
   | { to: 'takeoff'; mission: MissionDef }
   | { to: 'mission'; mission: MissionDef; takeoff: TakeoffRating }
   | { to: 'debrief'; mission: MissionDef; result: MissionResult };

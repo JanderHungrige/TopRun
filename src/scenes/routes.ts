@@ -9,6 +9,7 @@ import { NewPilotScene } from './new-pilot';
 import { LiftoffScene } from './liftoff';
 import { AvatarBuilderScene } from './avatar-builder';
 import { BaseHubScene } from './base-hub';
+import { CelebrationScene } from './celebration';
 import { CeremonyScene } from './ceremony';
 import { HangarBaseScene } from './hangar-base';
 import { JoystickSetupScene } from './joystick-setup';
@@ -26,8 +27,9 @@ import { TakeoffScene } from './takeoff';
 import { TitleScene } from './title';
 import { RocketLaunchScene } from './rocket-launch';
 import { ShipyardScene } from './shipyard';
+import { TapesScene } from './tapes';
 
-// Which scene each route opens (docs 01, 53, 55, 56, 59).
+// Which scene each route opens (docs 01, 53, 55, 56, 59, 63, 64).
 
 /** Jets launch from the catapult, helicopters lift off the deck (doc 53), the spacecraft rides a rocket (doc 59). */
 function takeoffScene(game: GameContext, mission: MissionDef): Scene {
@@ -54,6 +56,8 @@ export function createScene(game: GameContext, route: Route): Scene {
     case 'chalkboard': return new ChalkboardScene(game);
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
     case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
+    case 'celebration': return new CelebrationScene(game, route.world, route.then);
+    case 'tapes': return new TapesScene(game);
     case 'minigame': {
       const mod = moduleFor(route.id);
       return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);

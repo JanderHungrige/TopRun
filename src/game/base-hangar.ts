@@ -12,6 +12,7 @@ export type NavDir = 'left' | 'right' | 'up' | 'down';
 export function areaRoute(id: BaseAreaId): Route {
   switch (id) {
     case 'fun': return { to: 'recRoom' };
+    case 'tv': return { to: 'tapes' };
     case 'locker': return { to: 'locker' };
     case 'photos': return { to: 'photoWall' };
     case 'jet': return { to: 'hangar' };
@@ -62,8 +63,11 @@ export function neighbour(id: BaseAreaId, dir: NavDir): BaseAreaId {
 }
 
 /** The area whose hotspot contains the point (logical px), if any. */
+/** Hit-test order: the TV first — it stands in front of the rec room's doorway (doc 63) — then left to right. */
+const HIT_ORDER: readonly BaseAreaId[] = ['tv', ...BASE_AREA_IDS.filter((id) => id !== 'tv')];
+
 export function areaAt(p: { x: number; y: number }): BaseAreaId | null {
-  for (const id of BASE_AREA_IDS) {
+  for (const id of HIT_ORDER) {
     const r = BASE_AREAS[id].hot;
     if (p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h) return id;
   }

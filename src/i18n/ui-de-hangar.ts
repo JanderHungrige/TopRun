@@ -2,6 +2,7 @@
 export const UI_DE_HANGAR = {
   'hbase.title': 'HEIMATBASIS',
   'hbase.fun': 'SPASS-EINSÄTZE',
+  'hbase.tv': 'TV',
   'hbase.locker': 'SPIND',
   'hbase.photos': 'BILDERWAND',
   'hbase.jet': 'LOADOUT',
@@ -9,6 +10,7 @@ export const UI_DE_HANGAR = {
   'hbase.chalk': 'KREIDETAFEL',
   'hbase.exit': 'AUSGANG · KARTE',
   'hbase.hint.fun': 'Dienstfreie Minispiele: für Medaillen und Ruhm.',
+  'hbase.hint.tv': 'Sieh dir deine geschafften Welten noch einmal an.',
   'hbase.hint.locker': 'Deine Ausgehuniform mit allen verdienten Orden.',
   'hbase.hint.photos': 'Ein Foto für jeden geschafften Einsatz.',
   'hbase.hint.jet': 'Dein Jet: Waffen, Ausrüstung und Lackierungen.',
@@ -26,4 +28,14 @@ export const UI_DE_HANGAR = {
   'chalk.dry': 'Ein trockener Schwamm verschmiert nur. Tauch ihn in den Eimer!',
   'chalk.keys': 'Ziehen oder LEERTASTE halten: malen  ·  X Werkzeug  ·  E Schwamm tauchen  ·  ESC zurück',
   'chalk.keysTouch': 'Kreide oder Schwamm antippen  ·  auf der Tafel malen  ·  Eimer antippen macht den Schwamm nass',
+  // Der Hangar-Fernseher und die Weltfeiern (Doc 63, 64).
+  'tapes.title': 'VIDEOKASSETTEN',
+  'tapes.world': 'WELT {n}',
+  'tapes.blank': 'noch nicht aufgenommen',
+  'tapes.keys': '←/→ wählen  ·  ENTER abspielen  ·  ESC zurück',
+  'tapes.play': 'ABSPIELEN',
+  'celebration.complete': 'WELT {n} GESCHAFFT',
+  'celebration.stars': 'STERNE {stars} / {max}',
+  'celebration.medals': 'MEDAILLEN {medals} / {max}',
+  'celebration.skip': 'ENTER überspringen',
 } as const;

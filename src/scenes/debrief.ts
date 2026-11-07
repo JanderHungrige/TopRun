@@ -13,6 +13,7 @@ import type { MedalId } from '../data/medals';
 import type { Route } from '../game/state';
 import { campaignMissions } from '../data/missions';
 import { campaignComplete, nextMissionOn } from '../game/progress';
+import { afterDebrief } from '../game/celebration';
 import type { GameContext } from '../game/state';
 import { liveryName, missionName, objectiveText } from '../i18n/content';
 import { t } from '../i18n/i18n';
@@ -114,7 +115,8 @@ export class DebriefScene implements Scene {
       : to === 'hangar' || to === 'base' ? { to }
         : this.offer ? { to: 'offer', id: this.offer.id, isNew: this.offer.isNew }
           : { to: 'map', select: this.result.success ? nextMissionOn(this.game.save, this.mission.campaign).id : this.mission.id };
-    this.game.go(this.medals.length > 0 ? { to: 'ceremony', medals: this.medals, then: next } : next);
+    // A finale plays the world's celebration first (doc 64); retrying goes straight back to the launch after any medals.
+    this.game.go(afterDebrief({ finale: this.finale && to !== 'retry', world: this.mission.campaign, medals: this.medals, next }));
   }
 
   render(ctx: CanvasRenderingContext2D): void {

@@ -1,6 +1,6 @@
 import type { AreaRect } from '../../data/base-areas';
 import { hexOf, PAL, type Ramp } from '../pixel/palette';
-import { ARCADE, BEACON, DOOR, HORIZON, LAMPS, LAMP_Y, MUG } from './layout';
+import { ARCADE, BEACON, DOOR, HORIZON, LAMPS, LAMP_Y, MUG, TV_SCREEN, VCR } from './layout';
 import { col, hash } from './paint';
 import { FAN_FRAMES, fanSprite, neonSprite, type Placed } from './sprites';
 
@@ -120,6 +120,26 @@ function steam(g: CanvasRenderingContext2D, G: number, t: number): void {
   g.globalAlpha = 1;
 }
 
+/** The old TV (doc 63): a dim blue screen with a slowly rolling bright band and now and then a burst of snow; the
+ *  video recorder's clock blinks its four digits like every unset recorder ever. */
+function tvSet(g: CanvasRenderingContext2D, G: number, t: number): void {
+  const c0 = Math.round(TV_SCREEN.x / G);
+  const r0 = Math.round(TV_SCREEN.y / G);
+  const w = Math.round(TV_SCREEN.w / G);
+  const h = Math.round(TV_SCREEN.h / G);
+  px(g, c0, r0, w, h, hx(PAL.blue, 1));
+  px(g, c0, r0 + Math.floor(((t * 0.35) % 1) * h), w, 1, hx(PAL.blue, 2));
+  if (hash(Math.floor(t * 3)) > 0.82) {
+    for (let i = 0; i < w * h * 0.3; i++) px(g, c0 + Math.floor(hash(t * 50 + i) * w), r0 + Math.floor(hash(t * 70 + i * 3) * h), 1, 1, hx(PAL.white, i % 3 === 0 ? 4 : 2));
+  }
+  px(g, c0 + 1, r0 + 1, 2, 1, hx(PAL.white, 2));
+  if (t % 1 > 0.5) return;
+  const lc = Math.round((VCR.x + 46) / G);
+  const lr = Math.round((VCR.y + 5) / G);
+  for (const dc of [0, 2, 5, 7]) px(g, lc + dc, lr, 1, 2, hx(PAL.green, 4));
+  px(g, lc + 4, lr, 1, 1, hx(PAL.green, 4));
+}
+
 /** Pulsing gold corner brackets around a hotspot (logical rect). */
 export function drawBrackets(g: CanvasRenderingContext2D, G: number, rect: AreaRect, t: number): void {
   const o = Math.floor(t * 4) % 2;
@@ -147,8 +167,9 @@ export function drawAmbientBack(g: CanvasRenderingContext2D, G: number, t: numbe
   arcade(g, G, t);
 }
 
-/** In front of the jet and the props: dust in the light, mug steam. */
+/** In front of the jet and the props: the TV, dust in the light, mug steam. */
 export function drawAmbientFront(g: CanvasRenderingContext2D, G: number, t: number): void {
+  tvSet(g, G, t);
   dust(g, G, t);
   steam(g, G, t);
 }

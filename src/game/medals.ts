@@ -1,42 +1,56 @@
 import { MEDAL_IDS, type MedalId } from '../data/medals';
-import { MISSIONS } from '../data/missions';
-import type { TheaterId } from '../data/types';
+import { ALL_MISSIONS, campaignMissions } from '../data/missions';
+import type { CampaignId, TheaterId } from '../data/types';
 import type { SaveData } from './save';
 
-// Which medals a pilot has earned (doc 24). Derived from the save, never stored. Pure.
+// Which medals a pilot has earned (docs 24, 62). Derived from the save, never stored. Pure.
 
+/** Campaign ribbons (doc 62 adds maps 2–4): the theater whose boss earns it. */
 const THEATER_MEDAL: Readonly<Partial<Record<MedalId, TheaterId>>> = {
   pacific: 'pacific', gulf: 'gulf', arctic: 'arctic', canyon: 'canyon', leviathan: 'leviathan',
+  northsea: 'northsea', himalaya: 'himalaya', jungle: 'jungle', nightfall: 'nightfall', thunderhead: 'thunderhead',
+  fjords: 'fjords', highlands: 'highlands', delta: 'delta', mesa: 'mesa', ashfall: 'ashfall',
+  orbit: 'orbit', belt: 'belt', moon: 'moon', rings: 'rings', deep: 'deep',
+};
+
+/** Each map's victory medal and golden star (doc 62). */
+const MAP_MEDAL: Readonly<Partial<Record<MedalId, { map: CampaignId; kind: 'victory' | 'stars' }>>> = {
+  victory: { map: 1, kind: 'victory' }, allstars: { map: 1, kind: 'stars' },
+  victory2: { map: 2, kind: 'victory' }, allstars2: { map: 2, kind: 'stars' },
+  victory3: { map: 3, kind: 'victory' }, allstars3: { map: 3, kind: 'stars' },
+  victory4: { map: 4, kind: 'victory' }, allstars4: { map: 4, kind: 'stars' },
 };
 
 const bossCleared = (progress: SaveData['progress'], theater: TheaterId): boolean =>
-  MISSIONS.some((m) => m.theater === theater && m.objective.type === 'boss' && progress[m.id] !== undefined);
+  ALL_MISSIONS.some((m) => m.theater === theater && m.objective.type === 'boss' && progress[m.id] !== undefined);
+
+function mapMedal(progress: SaveData['progress'], map: CampaignId, kind: 'victory' | 'stars'): boolean {
+  const list = campaignMissions(map);
+  if (kind === 'victory') return list.length > 0 && progress[list[list.length - 1]?.id ?? ''] !== undefined;
+  return list.length > 0 && list.every((m) => (progress[m.id]?.stars ?? 0) >= 3);
+}
+
+/** The combat, off-duty and dedication medals. */
+const PERSONAL: Readonly<Partial<Record<MedalId, (r: SaveData['record'], golds: number) => boolean>>> = {
+  ace: (r) => r.kills >= 50,
+  topace: (r) => r.kills >= 250,
+  giant: (r) => r.bossKills >= 3,
+  untouchable: (r) => r.flawless >= 1,
+  gunslinger: (r) => r.gunOnly >= 1,
+  catapult: (r) => r.bestLaunchStreak >= 5,
+  offduty5: (_r, golds) => golds >= 5,
+  offduty10: (_r, golds) => golds >= 10,
+  sorties25: (r) => r.sorties >= 25,
+  sorties100: (r) => r.sorties >= 100,
+  triple: (r) => r.planesFlown.length >= 3,
+};
 
 function earned(id: MedalId, save: SaveData, golds: number): boolean {
-  const r = save.record;
   const theater = THEATER_MEDAL[id];
   if (theater) return bossCleared(save.progress, theater);
-  switch (id) {
-    case 'victory': return save.progress[MISSIONS[MISSIONS.length - 1]?.id ?? ''] !== undefined;
-    case 'allstars': return MISSIONS.every((m) => (save.progress[m.id]?.stars ?? 0) >= 3);
-    case 'ace': return r.kills >= 50;
-    case 'topace': return r.kills >= 250;
-    case 'giant': return r.bossKills >= 3;
-    case 'untouchable': return r.flawless >= 1;
-    case 'gunslinger': return r.gunOnly >= 1;
-    case 'catapult': return r.bestLaunchStreak >= 5;
-    case 'offduty5': return golds >= 5;
-    case 'offduty10': return golds >= 10;
-    case 'sorties25': return r.sorties >= 25;
-    case 'sorties100': return r.sorties >= 100;
-    case 'triple': return r.planesFlown.length >= 3;
-    case 'pacific':
-    case 'gulf':
-    case 'arctic':
-    case 'canyon':
-    case 'leviathan': return false;
-    default: throw new Error(`unhandled: ${id satisfies never}`);
-  }
+  const map = MAP_MEDAL[id];
+  if (map) return mapMedal(save.progress, map.map, map.kind);
+  return PERSONAL[id]?.(save.record, golds) ?? false;
 }
 
 /** The earned medals in catalogue order. `golds` = minigames with a gold personal best. */

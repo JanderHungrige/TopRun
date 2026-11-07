@@ -5,7 +5,9 @@ import type { MedalId } from '../../data/medals';
 
 export type EmblemId =
   | 'wave' | 'sun' | 'flake' | 'mesa' | 'trident' | 'star' | 'stars3' | 'jet' | 'palm' | 'sword' | 'reticle'
-  | 'shield' | 'laurelStar' | 'helmet' | 'chevronJet' | 'trio';
+  | 'shield' | 'laurelStar' | 'helmet' | 'chevronJet' | 'trio'
+  // The world medals (doc 62).
+  | 'rig' | 'peak' | 'moon' | 'bolt' | 'volcano' | 'orbit' | 'rock' | 'planet' | 'rotor' | 'rocket';
 
 /** A paint for emblem parts: a hex colour or the medal's own metal. */
 export type Paint = string | 'metal';
@@ -40,6 +42,28 @@ export const DESIGNS: Readonly<Record<MedalId, Design>> = {
   leviathan: { emblem: 'trident', enamel: '#101f2e', mark: 'metal', accent: '#ff5a1f' },
   victory: { emblem: 'star', enamel: '#b8202a', mark: '#f2f2ee', accent: '#f2f2ee', points: 5, rays: 'glory' },
   allstars: { emblem: 'stars3', enamel: '#1d3a8a', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
+  // Maps 2–4 (doc 62).
+  northsea: { emblem: 'rig', enamel: '#22303d', mark: '#c9d2dc', accent: '#ff9d2e' },
+  himalaya: { emblem: 'peak', enamel: '#3b4a6b', mark: '#8a94a8', accent: '#f2f2ee' },
+  jungle: { emblem: 'palm', enamel: '#1f4d2a', mark: '#8ad14a', accent: '#d9b44a' },
+  nightfall: { emblem: 'moon', enamel: '#151a33', mark: '#e9dcb0', accent: '#ffd25a' },
+  thunderhead: { emblem: 'bolt', enamel: '#2a2f3a', mark: '#9aa6b8', accent: '#ffd84a' },
+  victory2: { emblem: 'sword', enamel: '#5b2a86', field: '#f2f2ee', mark: '#5b2a86', accent: '#c27bff' },
+  allstars2: { emblem: 'stars3', enamel: '#5b2a86', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
+  fjords: { emblem: 'wave', enamel: '#1d4d6e', mark: '#e9f2f7', accent: '#3f8a6a' },
+  highlands: { emblem: 'peak', enamel: '#4a5a3a', mark: '#8a6a4a', accent: '#e9f2f7' },
+  delta: { emblem: 'palm', enamel: '#2a5a4a', mark: '#b0a050', accent: '#6ab0c0' },
+  mesa: { emblem: 'mesa', enamel: '#e0956a', mark: '#7a3a22', accent: '#ffd25a' },
+  ashfall: { emblem: 'volcano', enamel: '#2a2624', mark: '#6a605a', accent: '#ff5a1f' },
+  victory3: { emblem: 'rotor', enamel: '#3a4a2a', mark: 'metal', accent: '#ff8a3d', rivets: true },
+  allstars3: { emblem: 'stars3', enamel: '#3a4a2a', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
+  orbit: { emblem: 'orbit', enamel: '#0a1630', mark: '#7fb4ff', accent: '#e9f2f7' },
+  belt: { emblem: 'rock', enamel: '#2a2018', mark: '#9c8a74', accent: '#ffb46b' },
+  moon: { emblem: 'moon', enamel: '#3d4048', mark: '#e6edf7', accent: '#4f8cff' },
+  rings: { emblem: 'planet', enamel: '#1a2a40', mark: '#9fb4c8', accent: '#ffd27a' },
+  deep: { emblem: 'star', enamel: '#1a0a24', mark: '#ff6a8a', accent: '#ff6a8a' },
+  victory4: { emblem: 'rocket', enamel: '#0a1630', mark: '#e9f2f7', accent: '#5fe3ff', points: 5, rays: 'glory' },
+  allstars4: { emblem: 'stars3', enamel: '#0a1630', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
   ace: { emblem: 'star', enamel: '#2f3f66', mark: '#f2f2ee', accent: '#f2f2ee', tiers: 2 },
   topace: { emblem: 'star', enamel: '#b8202a', mark: 'metal', accent: 'metal', tiers: 3 },
   giant: { emblem: 'sword', enamel: '#5b2a86', field: '#f2f2ee', mark: '#5b2a86', accent: '#c88c28' },

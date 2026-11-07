@@ -13,10 +13,10 @@ describe('Pilot rating', () => {
     expect(pilotRating({ ...zero, golds: 1, silvers: 1, bronzes: 1, score: 0 })).toBe(150 + 80 + 40);
   });
 
-  it('caps every ingredient so grinding cannot dominate, max 58 000 with four maps and the mission score (docs 35, 39, 48, 58)', () => {
+  it('caps every ingredient so grinding cannot dominate, max 63 250 with four maps, their medals and the mission score (docs 35, 39, 48, 58, 62)', () => {
     expect(pilotRating({ ...zero, kills: 99999 })).toBe(4000);
     expect(pilotRating({ stars: 999, medals: 99, kills: 99999, golds: 99, silvers: 0, bronzes: 0, score: 999999 })).toBe(maxRating());
-    expect(maxRating()).toBe(58000);
+    expect(maxRating()).toBe(63250);
     expect(pilotRating({ ...zero, stars: 360 })).toBe(36000);
     expect(pilotRating({ ...zero, stars: 400 })).toBe(36000);
   });

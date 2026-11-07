@@ -8,6 +8,12 @@ import { Pix } from '../../src/render/pixel/raster';
 // up from the pocket under the wings; campaign ribbons as bars on the right breast above the name plate.
 
 const C = LOCKER_CHEST;
+/** Map 1's catalogue of 18 (doc 31); the world medals of doc 62 are covered in world-medals.test.ts. */
+const WORLD: readonly MedalId[] = [
+  'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2', 'fjords', 'highlands', 'delta',
+  'mesa', 'ashfall', 'victory3', 'allstars3', 'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
+];
+const MAP1 = MEDAL_IDS.filter((id) => !WORLD.includes(id));
 const rowsOf = (l: UniformLayout, kind: SlotKind): MedalId[][] => {
   const out: MedalId[][] = [];
   for (const s of l.slots) if (s.kind === kind) (out[s.row] ??= []).push(s.id);
@@ -36,15 +42,15 @@ describe('uniform layout', () => {
   });
 
   it('puts all 18 in catalogue order: ribbon bars 2 + 3, medals 3 + 5 + 5', () => {
-    const l = uniformLayout(MEDAL_IDS);
-    expect(l.slots.map((s) => s.id)).toEqual([...MEDAL_IDS]);
+    const l = uniformLayout(MAP1);
+    expect(l.slots.map((s) => s.id)).toEqual([...MAP1]);
     expect(rowsOf(l, 'ribbon').map((r) => r.length)).toEqual([2, 3]);
     expect(rowsOf(l, 'medal').map((r) => r.length)).toEqual([3, 5, 5]);
     for (const s of l.slots) expect(s.kind).toBe(MEDALS[s.id].look.shape === 'ribbon' ? 'ribbon' : 'medal');
   });
 
   it('keeps the medals on the left breast, under the shoulder boards and the wings, above the pocket', () => {
-    const l = uniformLayout(MEDAL_IDS);
+    const l = uniformLayout(MAP1);
     expect(l.top).toBeGreaterThanOrEqual(C.minTop);
     for (const s of l.slots.filter((x) => x.kind === 'medal')) {
       expect(s.box.x, s.id).toBeGreaterThanOrEqual(C.left - 0.01);
@@ -57,7 +63,7 @@ describe('uniform layout', () => {
   it('sits at chest height (a third down the tunic), rows hang over each other a little, a full rack tucks under the collar', () => {
     // The tunic in the locker picture runs from the shoulders (≈ 200) to the hem (≈ 688): the breast line is high.
     expect(C.pocketTop).toBeLessThan(200 + (688 - 200) * 0.4);
-    const full = uniformLayout(MEDAL_IDS);
+    const full = uniformLayout(MAP1);
     expect(full.top).toBeGreaterThanOrEqual(C.minTop);
     const [r0, r1, r2] = [0, 1, 2].map((r) => rowSpan(full, 'medal', r));
     expect(r0 && r1 && r0.y1 > r1.y0).toBe(true);
@@ -71,7 +77,7 @@ describe('uniform layout', () => {
   });
 
   it('stands the ribbon bars on the name plate, centred on the right breast', () => {
-    const l = uniformLayout(MEDAL_IDS);
+    const l = uniformLayout(MAP1);
     const bottom = rowSpan(l, 'ribbon', 1);
     const top = rowSpan(l, 'ribbon', 0);
     expect(bottom.y1).toBe(C.ribbonBottom);
@@ -114,7 +120,7 @@ describe('uniform layout', () => {
 });
 
 describe('uniform navigation', () => {
-  const l = uniformLayout(MEDAL_IDS);
+  const l = uniformLayout(MAP1);
   const at = (id: MedalId): number => l.slots.findIndex((s) => s.id === id);
 
   it('steps left and right through the catalogue order, across rows and blocks, clamped at the ends', () => {

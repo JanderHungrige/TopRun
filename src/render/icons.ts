@@ -19,6 +19,7 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'hydra': rocketPod(ctx, '#4f5a3a', '#e0e0d8'); break;
     case 'hellfire': missile(ctx, 44, 3.5, '#6b7350', '#c8b25a', '#2a2e26'); break;
     case 'stinger': missile(ctx, 40, 2.6, '#c9cbbf', '#3f6b8a', '#e0e2da'); break;
+    case 'spacerocket': missile(ctx, 38, 3, '#dfe6f2', '#5b7cff', '#9fb6ff'); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;

@@ -9,7 +9,7 @@ import type { Route } from './state';
 // from zero. The scenes see a kit view of the save — for the helicopters the jet-kit fields are swapped for the
 // helicopter ones — so the hangar, the shop and the loadout code work unchanged on either kit. Pure.
 
-export type Kit = 'jet' | 'heli';
+export type Kit = 'jet' | 'heli' | 'ship';
 
 /** What only the helicopters have of their own; their weapons are separate ids, so they need no copy. */
 export interface HeliKit {
@@ -18,7 +18,7 @@ export interface HeliKit {
   equipment: Record<EquipmentId, number>;
 }
 
-export const kitOf = (c: CampaignId): Kit => (c === 3 ? 'heli' : 'jet');
+export const kitOf = (c: CampaignId): Kit => (c === 4 ? 'ship' : c === 3 ? 'heli' : 'jet');
 
 const noEquipment = (): Record<EquipmentId, number> =>
   Object.fromEntries(EQUIPMENT_IDS.map((id) => [id, 0])) as Record<EquipmentId, number>;
@@ -44,6 +44,13 @@ export function parseHeliKit(v: unknown): HeliKit {
 /** The save as the scenes of a kit see it. The Apache is free, so the helicopter view always owns it. */
 export function kitView(save: SaveData, kit: Kit): SaveData {
   if (kit === 'jet') return save;
+  if (kit === 'ship') {
+    const owned: PlaneId[] = save.ownedPlanes.includes('starship') ? save.ownedPlanes : [...save.ownedPlanes, 'starship'];
+    return {
+      ...save, kit, ownedPlanes: owned, selectedPlane: 'starship', gunLevel: save.ship.laserLevel as GunLevel, equipment: noEquipment(),
+      gun2Level: 0, ammoLevel: 0, incendiaryLevel: 0, heLevel: 0, twinSecondaries: [],
+    };
+  }
   const h = save.heli;
   const owned: PlaneId[] = save.ownedPlanes.includes('ah64') ? save.ownedPlanes : [...save.ownedPlanes, 'ah64'];
   return {
@@ -55,7 +62,7 @@ export function kitView(save: SaveData, kit: Kit): SaveData {
 /** A view written back: the helicopter fields go into `heli`, the jet fields keep their stored values. */
 export function fromKitView(stored: SaveData, view: SaveData): SaveData {
   if (view.kit === 'jet') return view;
-  const heli: HeliKit = { selectedPlane: view.selectedPlane, gunLevel: view.gunLevel, equipment: view.equipment };
+  const heli: HeliKit = view.kit === 'heli' ? { selectedPlane: view.selectedPlane, gunLevel: view.gunLevel, equipment: view.equipment } : view.heli;
   return {
     ...view, kit: 'jet', heli, selectedPlane: stored.selectedPlane, gunLevel: stored.gunLevel, equipment: stored.equipment,
     gun2Level: stored.gun2Level, ammoLevel: stored.ammoLevel, incendiaryLevel: stored.incendiaryLevel,
@@ -64,7 +71,7 @@ export function fromKitView(stored: SaveData, view: SaveData): SaveData {
 }
 
 /** The kit a plane belongs to. */
-export const kitOfPlane = (id: PlaneId): Kit => (PLANES[id].kind === 'heli' ? 'heli' : 'jet');
+export const kitOfPlane = (id: PlaneId): Kit => PLANES[id].kind;
 
 /** The kit a route shows: a mission's own (takeoff, mission, debrief); the hangar keeps the kit it was opened from and
  *  the campaign map sets its own; every other scene shows the jets. */

@@ -6,6 +6,7 @@ import { cachedGradient } from './pen';
 /** Sky and sea behind the carrier (doc 04). Gradients are cached per context; clouds and waves are batched. */
 
 const SKY: Readonly<Record<TerrainStyle, readonly [string, string, string]>> = {
+  space: ['#02030a', '#070b1e', '#0d1430'],
   ocean: ['#3d7fc4', '#8cc0e6', '#f3dcb4'],
   desert: ['#4a86c0', '#a9c8e0', '#f5c98e'],
   ice: ['#6f93b8', '#c4d6e6', '#eef3f7'],

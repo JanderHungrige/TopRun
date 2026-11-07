@@ -4,6 +4,9 @@ import type { WeaponStats } from '../../game/arsenal';
 import { MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
 import { gunDef, powerCap } from '../../game/firepower';
 import { heliVelocity } from '../../game/heli-flight';
+import { shipGun, touchesShip } from '../../game/ship-loadout';
+import { CELL_PX, SHIELD } from '../../data/ship-modules';
+import { circleHit } from '../../game/combat';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -55,6 +58,10 @@ export class Player {
   dashVX = 0;
   /** The helicopter's velocity, eased toward the stick (doc 50); a jet's follows the stick at once. */
   drift = { x: 0, y: 0 };
+  /** The spacecraft's shield points and the time since the last hit (doc 54). */
+  shield = 0;
+  readonly shieldMax: number;
+  private quiet = 0;
   /** A-10 GAU-8 burst: seconds to the next round (doc 36). */
   cannonT = 0;
   rollSpin = 0;
@@ -68,6 +75,8 @@ export class Player {
     this.hull = stats.maxHull;
     this.speed = stats.speed;
     this.flares = stats.flares;
+    this.shieldMax = stats.ship?.shield ?? 0;
+    this.shield = this.shieldMax;
     this.damageControlLeft = stats.damageControlUses;
     this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin, weapon: s.weapon }));
   }
@@ -82,7 +91,14 @@ export class Player {
   }
 
   get gun(): GunLevelDef {
-    return gunDef(this.stats.plane.id, this.gunLevel);
+    const ship = this.stats.ship;
+    return ship ? shipGun(ship, this.gunLevel) : gunDef(this.stats.plane.id, this.gunLevel);
+  }
+
+  /** A circle at (x, y) touches the player: its radius, or for the spacecraft any of its cells (doc 54). */
+  touches(x: number, y: number, r: number, inset = 0): boolean {
+    const ship = this.stats.ship;
+    return ship ? touchesShip(ship, this.x, this.y, x, y, r, CELL_PX) : circleHit(x, y, r, this.x, this.y, PLAYER_RADIUS + inset);
   }
 
   get hullRatio(): number {
@@ -124,13 +140,18 @@ export class Player {
     this.powerTimer = Math.max(0, this.powerTimer - dt);
     this.rollSpin = Math.max(0, this.rollSpin - dt);
     this.switchFlash = Math.max(0, this.switchFlash - dt);
+    this.quiet += dt;
+    if (this.quiet >= SHIELD.delay) this.shield = Math.min(this.shieldMax, this.shield + SHIELD.regen * dt);
   }
 
 
   /** Applies damage; returns true when this hit destroyed the jet. */
   damage(amount: number): boolean {
     if (!this.alive || this.invulnerable) return false;
-    this.hull -= amount;
+    this.quiet = 0;
+    const soaked = Math.min(this.shield, amount); // the spacecraft's shield takes hits first (doc 54)
+    this.shield -= soaked;
+    this.hull -= amount - soaked;
     this.invuln = INVULN_AFTER_HIT;
     if (this.hull < this.maxHull * 0.25 && this.damageControlLeft > 0 && this.hull > 0) {
       this.damageControlLeft -= 1;

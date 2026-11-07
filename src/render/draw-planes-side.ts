@@ -11,6 +11,7 @@ import type { SideOpts } from './planes/surface';
 import { drawAh64Side } from './helis/ah64-side';
 import { COMANCHE_SIDE, HIND_SIDE, TIGER_SIDE } from './helis/fleet';
 import { drawHeliSide } from './helis/heli-art';
+import { drawShipSide } from './ship';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
 
@@ -45,10 +46,11 @@ export function drawPlaneSide(
     case 'tiger': drawHeliSide(ctx, look, opts, TIGER_SIDE); break;
     case 'rah66': drawHeliSide(ctx, look, opts, COMANCHE_SIDE); break;
     case 'mi24': drawHeliSide(ctx, look, opts, HIND_SIDE); break;
+    case 'starship': drawShipSide(ctx, look, opts.t); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21, starship: -40 };

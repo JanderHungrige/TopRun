@@ -72,9 +72,11 @@ export interface Bullet {
   burn?: number;
   /** Player gun rounds: the ammo loaded, for the tracer colour (docs 43, 45). */
   rounds?: AmmoType;
+  /** The spacecraft's laser bolts (doc 54). */
+  laser?: boolean;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'rocket' | 'enemy';
+export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;

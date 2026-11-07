@@ -120,7 +120,7 @@ export type WeaponRole = 'air' | 'ground';
 
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
-  hydra: 'ground', hellfire: 'ground', stinger: 'air',
+  hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'ground',
 });
 
 export interface SecondaryDef {
@@ -194,6 +194,12 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     id: 'stinger', role: 'air', name: 'FIM-92 Stinger', short: 'STINGER', price: 6500 * HELI_PRICE, ammoPerSlot: 4,
     damage: 85, radius: 0, hits: 'air', behavior: 'homing', cooldown: 0.35, speed: 560,
     turnRate: 4.0, planes: HELI_IDS, description: 'Heat-seeking air-to-air missile for helicopters. Hunts gunships and jets.', campaign: 3,
+  },
+  // The spacecraft's rocket wings carry these (doc 54); never sold on their own.
+  spacerocket: {
+    id: 'spacerocket', role: 'ground', name: 'Space Rocket', short: 'ROCKETS', price: 0, ammoPerSlot: 6,
+    damage: 70, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.4, speed: 520,
+    turnRate: 3.6, planes: ['starship'], description: 'Homing rockets from the rocket wings. They find anything that moves.', campaign: 4,
   },
 });
 

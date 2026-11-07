@@ -88,14 +88,14 @@ function updateEnemyBullets(world: World, p: Player, dt: number, hooks: CombatHo
       b.dead = true;
       world.particles.explosion(b.x, b.y, 'small');
       hooks.audio.play('explosionSmall', { volume: 0.4 });
-      if (p.alive && Math.hypot(p.x - b.x, p.y - b.y) < 42) hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.flak, { source: 'flak', ecm: p.stats.ecmBullet }));
+      if (p.alive && p.touches(b.x, b.y, 42, -PLAYER_RADIUS)) hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.flak, { source: 'flak', ecm: p.stats.ecmBullet }));
       continue;
     }
     if (b.y > PF_H + 20 || b.y < -40 || b.x < -20 || b.x > PF_W + 20 || b.ttl <= 0) {
       b.dead = true;
       continue;
     }
-    if (b.kind === 'enemy' && p.alive && circleHit(b.x, b.y, 4, p.x, p.y, PLAYER_RADIUS - 3)) {
+    if (b.kind === 'enemy' && p.alive && p.touches(b.x, b.y, 4, -3)) {
       b.dead = true;
       hooks.onPlayerHit(applyDamage(PLAYER_DAMAGE.bullet, { source: 'enemyBullet', ecm: p.stats.ecmBullet }));
     }
@@ -162,7 +162,7 @@ function updateMissiles(world: World, p: Player, dt: number, hooks: CombatHooks)
       if (m.decoy && Math.hypot(m.decoy.x - m.x, m.decoy.y - m.y) < 12) {
         m.dead = true;
         world.particles.explosion(m.x, m.y, 'small');
-      } else if (p.alive && circleHit(m.x, m.y, 5, p.x, p.y, PLAYER_RADIUS)) {
+      } else if (p.alive && p.touches(m.x, m.y, 5)) {
         m.dead = true;
         world.particles.explosion(m.x, m.y, 'small');
         hooks.onPlayerHit(PLAYER_DAMAGE.missile);
@@ -209,7 +209,7 @@ function playerCollisions(world: World, p: Player, hooks: CombatHooks): void {
   if (!p.alive) return;
   const ramming = p.specialActive > 0 && p.stats.plane.special === 'dash';
   for (const e of world.enemies) {
-    if (e.dead || e.layer !== 'air' || !circleHit(p.x, p.y, PLAYER_RADIUS, e.x, e.y, e.radius * 0.8)) continue;
+    if (e.dead || e.layer !== 'air' || !p.touches(e.x, e.y, e.radius * 0.8)) continue;
     if (ramming) {
       damageEnemy(world, e, 220, hooks.audio);
       continue;

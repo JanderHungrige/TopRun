@@ -7,7 +7,8 @@ import { LadderSync } from './core/ladder-sync';
 import { requestPersistence } from './core/persist';
 import { startLoop } from './core/loop';
 import { Music } from './core/music';
-import { SceneManager, type Scene } from './core/scene';
+import { SceneManager } from './core/scene';
+import { createScene } from './scenes/routes';
 import {
   activeProfile, createProfile, deleteProfile, importProfile, loadStore, newProfileId, persistStore, selectProfile, setProfileRookie,
   sortedProfiles, updateActiveSave, updateSettings, type AvatarId, type CreateResult, type ImportResult, type Profile,
@@ -24,30 +25,7 @@ import { defaultSave, type SaveData } from './game/save';
 import { toggleAllSound, type Settings } from './game/settings';
 import type { GameContext, Route } from './game/state';
 import { setLang } from './i18n/i18n';
-import { DebriefScene } from './scenes/debrief';
-import { HangarScene } from './scenes/hangar';
-import { MapScene } from './scenes/map';
-import { MissionScene } from './scenes/mission/mission-scene';
-import { NewPilotScene } from './scenes/new-pilot';
-import { LiftoffScene } from './scenes/liftoff';
-import { AvatarBuilderScene } from './scenes/avatar-builder';
-import { BaseHubScene } from './scenes/base-hub';
-import { CeremonyScene } from './scenes/ceremony';
-import { HangarBaseScene } from './scenes/hangar-base';
-import { JoystickSetupScene } from './scenes/joystick-setup';
-import { LadderScene } from './scenes/ladder';
-import { LockerScene } from './scenes/locker';
-import { ChalkboardScene } from './scenes/chalkboard';
-import { PhotoWallScene } from './scenes/photo-wall';
-import { MinigameOfferScene } from './scenes/minigame-offer';
-import { moduleFor } from './scenes/minigames/registry';
-import { MinigameScene } from './scenes/minigames/shell';
 import { pilotStats } from './scenes/pilot-rating';
-import { PilotCodeScene } from './scenes/pilot-code';
-import { PilotLoadScene } from './scenes/pilot-load';
-import { PilotsScene } from './scenes/pilots';
-import { TakeoffScene } from './scenes/takeoff';
-import { TitleScene } from './scenes/title';
 import { preloadPortraits } from './render/portraits';
 
 class Game implements GameContext {
@@ -203,36 +181,6 @@ class Game implements GameContext {
   }
 }
 
-function createScene(game: GameContext, route: Route): Scene {
-  switch (route.to) {
-    case 'title': return new TitleScene(game);
-    case 'pilots': return new PilotsScene(game);
-    case 'pilotCode': return new PilotCodeScene(game, route.from);
-    case 'pilotLoad': return new PilotLoadScene(game, route.from);
-    case 'newPilot': return new NewPilotScene(game, route.draft);
-    case 'avatarBuilder': return new AvatarBuilderScene(game, route.target);
-    case 'joystick': return new JoystickSetupScene(game);
-    case 'ladder': return new LadderScene(game);
-    case 'map': return new MapScene(game, route.select);
-    case 'hangar': return new HangarScene(game);
-    case 'base': return new HangarBaseScene(game);
-    case 'recRoom': return new BaseHubScene(game);
-    case 'locker': return new LockerScene(game);
-    case 'photoWall': return new PhotoWallScene(game);
-    case 'chalkboard': return new ChalkboardScene(game);
-    case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
-    case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
-    case 'minigame': {
-      const mod = moduleFor(route.id);
-      return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);
-    }
-    // Map 3 takes off from the deck by helicopter (doc 53).
-    case 'takeoff': return route.mission.campaign === 3 ? new LiftoffScene(game, route.mission) : new TakeoffScene(game, route.mission);
-    case 'mission': return new MissionScene(game, route.mission, route.takeoff);
-    case 'debrief': return new DebriefScene(game, route.mission, route.result);
-    default: throw new Error(`unhandled: ${route satisfies never}`);
-  }
-}
 
 function boot(): void {
   const canvas = document.getElementById('game');

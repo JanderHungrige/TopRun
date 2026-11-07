@@ -17,8 +17,8 @@ export interface PlaneDef {
   description: string;
   /** 1 = sold from the start; 2 = sold once map 2 is open (doc 36); 3 = a map-3 helicopter (doc 49). */
   campaign: CampaignId;
-  /** Jets fly maps 1–2, helicopters map 3 (doc 49). */
-  kind: 'jet' | 'heli';
+  /** Jets fly maps 1–2, helicopters map 3 (doc 49), the spacecraft map 4 (doc 54). */
+  kind: 'jet' | 'heli' | 'ship';
 }
 
 export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
@@ -90,6 +90,14 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     special: 'armour', specialName: 'Flying Tank', specialCooldown: 16, specialDuration: 3,
     description: 'The flying tank. Heavy armour, six stations and a few seconds where nothing gets through. Slow to turn.',
     campaign: 3, kind: 'heli',
+  },
+  // Map 4 (doc 54): one ship; hull, speed, guns and stations come from its modules.
+  starship: {
+    id: 'starship', name: 'Spacecraft', short: 'SHIP', nickname: 'Ship',
+    price: 0, hull: 60, speed: 290, hardpoints: 0, gunDamageMul: 1.0,
+    special: 'gunpods', specialName: 'Overcharge', specialCooldown: 16, specialDuration: 6,
+    description: 'One ship that grows with you: every module you place changes its shape, hull, speed and guns.',
+    campaign: 4, kind: 'ship',
   },
 });
 

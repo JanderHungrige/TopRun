@@ -19,7 +19,7 @@ export interface LineRef {
 }
 
 /** The admiral's line when a map's finale is won (docs 35, 48). */
-const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3' };
+const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4' };
 
 const ref = (speaker: CharacterId, key: LineKey, mood: Mood, gesture: Gesture, params?: Params): LineRef =>
   ({ speaker, key, mood, gesture, ...(params ? { params } : {}) });
@@ -69,13 +69,14 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   }
   if (d.challengeUp) lines.push(ref('admiral', 'adm.challengeUp', 'stern', 'point'));
   const list = campaignMissions(m.campaign);
-  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id) {
+  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, m90, m120
     lines.push(ref('admiral', FINALE[m.campaign], 'happy', 'salute'));
     if (m.campaign === 1) {
       lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
       lines.push(ref('admiral', 'adm.newJets', 'happy', 'point')); // and its jets are on sale (doc 36)
     }
     if (m.campaign === 2) lines.push(ref('admiral', 'adm.lowLevel', 'neutral', 'point')); // map 3 is open now (doc 48)
+    if (m.campaign === 3) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 4 is open now (doc 56)
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));

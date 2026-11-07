@@ -80,6 +80,7 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   ah64: look('#4b5228', STANDARD_SWATCH, { under: '#454b25', ink: 'rgba(14,16,10,0.65)', panel: 'rgba(14,16,10,0.26)', gloss: 0.35 }),
   // Doc 51: Tiger grey-green, Comanche dark radar grey, Hind sand and green.
   tiger: look('#5d6655', STANDARD_SWATCH, { under: '#6b7462', ink: 'rgba(14,16,12,0.6)', panel: 'rgba(14,16,12,0.24)', gloss: 0.4 }),
+  starship: look('#c9d0da', STANDARD_SWATCH, { under: '#9aa3b0', ink: 'rgba(10,14,24,0.7)', panel: 'rgba(10,14,24,0.25)', gloss: 0.7 }),
   rah66: look('#3f4448', STANDARD_SWATCH, { under: '#3a3e42', ink: 'rgba(8,10,12,0.7)', panel: 'rgba(8,10,12,0.25)', gloss: 0.35 }),
   mi24: look('#8a7b54', STANDARD_SWATCH, {
     under: '#9db0b8', camo: { kind: 'blobs', colors: ['#4f5a34'], cover: [0.42], size: 1.4, seed: 24 },

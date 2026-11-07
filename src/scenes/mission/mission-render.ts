@@ -9,6 +9,9 @@ import { hidden } from './projectiles';
 import { isMiniBoss } from '../../data/reinforcements';
 import { PF_H, PF_W, type Bullet, type Enemy, type World } from './world';
 import { drawCanyon } from './canyon-run';
+import { drawShip } from '../../render/ship';
+import { liveryLook } from '../../render/livery-art';
+import type { ShipStats } from '../../game/ship';
 
 const SHADOW_DX = 16;
 const SHADOW_DY = 26;
@@ -42,6 +45,13 @@ const ROUNDS_GLOW = { uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary
 
 /** A gun round; loaded ammo burns inside a glow that flickers round by round. */
 function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
+  if (b.laser) {
+    ctx.fillStyle = 'rgba(110,220,255,0.35)';
+    ctx.fillRect(b.x - 3, b.y - 12, 6, 22);
+    ctx.fillStyle = '#e8fbff';
+    ctx.fillRect(b.x - 1, b.y - 10, 2, 18);
+    return;
+  }
   if (b.rounds) {
     const [glow, hot, core] = ROUNDS_GLOW[b.rounds];
     const k = 0.5 + 0.5 * Math.sin(t * 40 + b.x * 0.7 + b.y * 0.13); // each round flickers on its own
@@ -116,8 +126,31 @@ function drawBombs(ctx: CanvasRenderingContext2D, world: World): void {
   }
 }
 
+/** The spacecraft (doc 54): drawn from its modules, a shadow below, the shield as a glow around it. */
+function drawShipPlayer(ctx: CanvasRenderingContext2D, p: Player, ship: ShipStats, t: number): void {
+  const look = liveryLook('starship', 'standard');
+  const blink = p.invuln > 0 && p.invuln < 0.6 && Math.floor(t * 20) % 2 === 0;
+  ctx.save();
+  ctx.translate(p.x + SHADOW_DX, p.y + SHADOW_DY);
+  drawShip(ctx, ship.modules, look, { solid: 'rgba(0,0,0,0.28)' });
+  ctx.restore();
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  if (!blink) drawShip(ctx, ship.modules, look, { t, throttle: 0.4 + p.forward * 0.6 });
+  if (p.shield > 0) {
+    const r = Math.max(...ship.cells.map((c) => Math.hypot(c.dx, c.dy))) + 16;
+    ctx.strokeStyle = `rgba(140,210,255,${(0.25 + 0.45 * (p.shield / Math.max(1, p.shieldMax))).toFixed(2)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, TAU);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawPlayer(ctx: CanvasRenderingContext2D, p: Player, t: number): void {
   if (!p.alive) return;
+  if (p.stats.ship) return drawShipPlayer(ctx, p, p.stats.ship, t);
   const blink = p.invuln > 0 && p.invuln < 0.6 && Math.floor(t * 20) % 2 === 0;
   const special = p.stats.plane.special;
   const rolling = special === 'roll' && p.specialActive > 0;

@@ -95,14 +95,14 @@ describe('Paint jobs', () => {
     const raw = (livery: unknown, progress: Progress = {}): unknown => JSON.parse(JSON.stringify({ ...defaultSave(), progress, livery }));
 
     it('defaults to standard for old saves and unknown ids', () => {
-      expect(defaultSave().livery).toEqual({ f16: 'standard', f14: 'standard', sr71: 'standard', a10: 'standard', f35: 'standard', tornado: 'standard', ah64: 'standard', tiger: 'standard', rah66: 'standard', mi24: 'standard' });
+      expect(defaultSave().livery).toEqual({ f16: 'standard', f14: 'standard', sr71: 'standard', a10: 'standard', f35: 'standard', tornado: 'standard', ah64: 'standard', tiger: 'standard', rah66: 'standard', mi24: 'standard', starship: 'standard' });
       expect(parseSave(raw(undefined))?.livery).toEqual(defaultSave().livery);
       expect(parseSave(raw({ f16: 'chrome', f14: 7 }))?.livery).toEqual(defaultSave().livery);
     });
 
     it('keeps unlocked liveries and drops ones the progress has not earned', () => {
       const parsed = parseSave(raw({ f16: 'desert', f14: 'tiger', sr71: 'standard' }, cleared('pacific', 1)));
-      expect(parsed?.livery).toEqual({ f16: 'desert', f14: 'standard', sr71: 'standard', a10: 'standard', f35: 'standard', tornado: 'standard', ah64: 'standard', tiger: 'standard', rah66: 'standard', mi24: 'standard' });
+      expect(parsed?.livery).toEqual({ f16: 'desert', f14: 'standard', sr71: 'standard', a10: 'standard', f35: 'standard', tornado: 'standard', ah64: 'standard', tiger: 'standard', rah66: 'standard', mi24: 'standard', starship: 'standard' });
     });
   });
 

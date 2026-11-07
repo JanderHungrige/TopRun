@@ -5,6 +5,7 @@ import { AIR_UNITS } from './enemies/air-units';
 import { GROUND_UNITS_2 } from './enemies/ground-2';
 import { fire, hash, scorch, smoke } from './enemies/fx';
 import { ellipse } from './shapes';
+import { SPACE_UNITS } from './enemies/space';
 
 export { exhaust, fire, hash, roundel, scorch, smoke } from './enemies/fx';
 
@@ -35,12 +36,16 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   frigate: pal('#86919a', '#4f5961', '#aab3ba', '#3d454b', '#22303a'),
   fortress: pal('#b6a57c', '#5b5242', '#d0c19a', '#7c7058'),
   cruiser: pal('#7a858e', '#4a545c', '#a2abb2', '#3a4248', '#22303a'),
+  // Space (doc 56).
+  raider: pal('#8a93a6', '#3a4152', '#b9c1d2', '#c84a3a', '#7fd0ff'),
+  satgun: pal('#a7adb8', '#4e5462', '#d2d6de', '#5b7cff', '#7fd0ff'),
+  corvette: pal('#7b8496', '#3c4352', '#a8b0c0', '#c84a3a', '#7fd0ff'),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
 const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312'), red: '#3b2a22', line: 'rgba(0,0,0,0.55)', live: false };
 
-const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2 };
+const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS };
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();
 

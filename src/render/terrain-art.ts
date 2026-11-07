@@ -159,7 +159,12 @@ export function makeBaseTile(style: TerrainStyle, p: TheaterPalette): HTMLCanvas
   const land = style === 'desert' || style === 'canyon';
   g.fillStyle = land ? p.land : p.sea;
   g.fillRect(0, 0, TILE, TILE);
-  if (land) {
+  if (style === 'space') {
+    // Map 4 (doc 56): a star field — many faint points, a few bright ones, one faint nebula band.
+    waveMarks(g, 31, 6, p.cloud);
+    speckle(g, 32, 140, 'rgba(200,215,255,0.35)', 1);
+    speckle(g, 33, 26, 'rgba(255,255,255,0.9)', 1.5);
+  } else if (land) {
     speckle(g, 11, 500, 'rgba(0,0,0,0.06)', 2);
     speckle(g, 12, 300, 'rgba(255,255,255,0.07)', 2);
     waveMarks(g, 13, 26, style === 'canyon' ? 'rgba(90,30,10,0.18)' : 'rgba(150,110,60,0.25)');

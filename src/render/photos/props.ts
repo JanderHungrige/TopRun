@@ -94,6 +94,7 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   caiman: { shape: battleship, air: false, s: 0.7 },
   mammoth: { shape: fortress, air: false, s: 0.65 },
   behemoth: { shape: bomber, air: true, s: 0.62 },
+  halo: { shape: fortress, air: false, s: 0.6 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

@@ -30,6 +30,7 @@ const SPAWNS: Readonly<Record<TerrainStyle, readonly Spawn[]>> = {
   ice: [['floe', 0.85, 18, 60], ['floe', 0.18, 80, 140]],
   canyon: [['mesa', 0.45, 30, 75], ['rock', 0.5, 8, 20], ['road', 0.05, 200, 380]],
   storm: [['whitecap', 0.8, 8, 18], ['whitecap', 0.6, 8, 14], ['island', 0.08, 30, 60]],
+  space: [['rock', 0.1, 10, 30]],
 };
 
 interface Cloud { x: number; y: number; puffs: Array<{ dx: number; dy: number; r: number }> }
@@ -41,7 +42,8 @@ export class EvasionWorld {
   private clouds = new Map<string, Cloud | null>();
 
   constructor(private readonly seed: number) {
-    this.theater = THEATERS[THEATER_IDS[seed % THEATER_IDS.length] ?? 'pacific'];
+    const jets = THEATER_IDS.filter((id) => THEATERS[id].campaign <= 2); // a jet minigame: the jets' maps only
+    this.theater = THEATERS[jets[seed % jets.length] ?? 'pacific'];
   }
 
   private cell(cx: number, cy: number): Feature[] {

@@ -1,5 +1,6 @@
 import { BOSSES_2 } from './bosses-2';
 import { BOSSES_3 } from './bosses-3';
+import { BOSSES_4 } from './bosses-4';
 import type { BossId, EnemyKind, EnemyWeapon, Layer } from './types';
 
 export interface Hitbox {
@@ -98,4 +99,4 @@ const BOSSES_1 = {
   },
 } satisfies Record<string, BossDef>;
 
-export const BOSSES: Readonly<Record<BossId, BossDef>> = Object.freeze({ ...BOSSES_1, ...BOSSES_2, ...BOSSES_3 });
+export const BOSSES: Readonly<Record<BossId, BossDef>> = Object.freeze({ ...BOSSES_1, ...BOSSES_2, ...BOSSES_3, ...BOSSES_4 });

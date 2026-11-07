@@ -55,14 +55,14 @@ export const BOSSES_4 = {
   },
   ark: {
     id: 'ark', name: 'ARK', title: 'Mothership', layer: 'ground',
-    coreHp: 6200, coreWeapon: 'spread3', corePeriod: 1.9,
+    coreHp: 6200, coreWeapon: 'spread3', corePeriod: 1.6,
     hitboxes: [
       { dx: 0, dy: 0, r: 80 }, { dx: -110, dy: -20, r: 46 }, { dx: 110, dy: -20, r: 46 }, { dx: -60, dy: 90, r: 40 },
       { dx: 60, dy: 90, r: 40 }, { dx: 0, dy: -110, r: 44 }, { dx: 0, dy: 140, r: 34 },
     ],
     parts: [
-      part('prow', 0, 150, 20, 380, 'spread3', 1.6), part('b1', -130, 30, 16, 300, 'aimed', 1.3),
-      part('b2', 130, 30, 16, 300, 'aimed', 1.3), part('bay1', -110, -60, 18, 320, 'missile', 3.2),
+      part('prow', 0, 150, 20, 380, 'spread3', 1.6), part('b1', -130, 30, 16, 300, 'aimed', 1.1),
+      part('b2', 130, 30, 16, 300, 'aimed', 1.1), part('bay1', -110, -60, 18, 320, 'missile', 3.2),
       part('bay2', 110, -60, 18, 320, 'missile', 3.2), part('f1', -60, -120, 15, 280, 'flak', 2.0),
       part('f2', 60, -120, 15, 280, 'flak', 2.0),
     ],

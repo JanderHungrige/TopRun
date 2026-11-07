@@ -81,4 +81,20 @@ export const UI_DE_FRONTIERS = {
   'shipyard.gainRockets': 'Pro Rakete: {now} → {next} Schaden',
   'shipyard.gainTorpedo': 'Pro Torpedo: {now} → {next} Schaden',
   'shipyard.markTop': '{mark}: die höchste Stufe',
+  // Nahbereichsabwehr (Doc 60).
+  'module.pointdef': 'Nahbereichsabwehr',
+  'moduleDesc.pointdef': 'Ein kleiner Turm, der alle paar Sekunden eine anfliegende Rakete in Reichweite abschießt; mehr Türme, öfter. Braucht 1 Energie.',
+  'shipyard.pointDefence': 'NAHBEREICHSABWEHR',
+  // Der Raketenstart (Doc 59).
+  'rocket.subtitle': 'RAKETENSTART',
+  'rocket.ignition': 'ZÜNDUNG',
+  'rocket.burn': 'STUFE {n} BRENNT — WARTE AUF BRENNSCHLUSS',
+  'rocket.separate': 'BRENNSCHLUSS — {key}: ABTRENNEN!',
+  'rocket.btnSep': 'ABTRENNEN',
+  'rocket.stage': 'STUFE {n}',
+  'rocket.fuel': 'TREIBSTOFF',
+  'rocket.perfect': 'PERFEKTE STUFENTRENNUNG!',
+  'rocket.good': 'GUTE STUFENTRENNUNG',
+  'rocket.early': 'ZU FRÜH ABGETRENNT',
+  'rocket.late': 'TOTES GEWICHT — ZU SPÄT',
 };

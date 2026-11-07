@@ -5,6 +5,7 @@ import { isMiniBoss } from '../../data/reinforcements';
 import { cloaked, JAM } from '../../game/adversaries';
 import { applyDamage, circleHit, COLLISION_DAMAGE_TO_ENEMY, PLAYER_DAMAGE, rollDrop, steerHoming } from '../../game/combat';
 import { setAlight, updateBurns } from './burn';
+import { updatePointDefence } from './point-defence';
 import { updateShells } from './shells';
 import { PLAYER_RADIUS, type Player } from './player';
 import { PF_H, PF_W, type Enemy, type Missile, type World } from './world';
@@ -224,6 +225,7 @@ export function updateCombat(world: World, p: Player, dt: number, hooks: CombatH
   updatePlayerBullets(world, dt, hooks.audio);
   updateEnemyBullets(world, p, dt, hooks);
   updateMissiles(world, p, dt, hooks);
+  updatePointDefence(world, p, dt, hooks.audio);
   updateBombs(world, dt, hooks.audio);
   updateShells(world, dt, hooks.audio, (e, n) => damageEnemy(world, e, n, hooks.audio));
   updateBurns(world, dt, (e) => killEnemy(world, e, hooks.audio));

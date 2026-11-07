@@ -46,6 +46,7 @@ integration_contracts: []
 satisfies_contracts: []
 known_issues:
   - "The spacecraft has no flares or other missile defence, so map 4's missiles (interceptors, batteries, corvettes, bosses) always land; the Lunar Front sits above the Ring Giant in the bot sweep. Wave 7's balance pass decides (a point-defence module or flares)."
+  - "Resolved in wave 7: the point-defence module (doc 60) shoots down incoming missiles; the balance pass is recorded below."
 security_read_sites: []
 sister_projects: []
 ---
@@ -81,7 +82,7 @@ Threat, length and reward keep doc 56's formulas: threat `2 + (n − 91) × 1.35
 | m101 | Hollow Rocks | patrol | satgun, gunship, interceptor, raider |
 | m102 | Quarry | boss QUARRY | raider, interceptor |
 | m103 | Dust Line | patrol | battery, raider, interceptor |
-| m104 | Crater Guns | 8 lunar batteries | battery, raider, drone |
+| m104 | Crater Guns | 6 lunar batteries | battery, raider, drone |
 | m105 | Moonrise | 32 kills | interceptor, raider, drone |
 | m106 | Supply Line | 5 gunships | gunship, battery, interceptor |
 | m107 | Far Side | patrol | battery, gunship, interceptor, raider |
@@ -107,7 +108,7 @@ German names and briefings in `src/i18n/missions-4-de.ts`.
 |---|---|---|---|---|---|
 | interceptor | Interceptor | air | 90 | 300 | missiles every 4.5 s, aimed shots every 1.6 s; dives and strafes |
 | gunship | Gunship | ground | 240 | 30 | three-way spread every 2.2 s, flak every 3 s |
-| battery | Lunar Battery | ground | 140 | 0 | aimed shots every 2.2 s, missiles every 5.5 s |
+| battery | Lunar Battery | ground | 140 | 0 | aimed shots every 2.2 s, missiles every 6.5 s |
 | warden | Battlecruiser (mini-boss) | ground | 2,200 | 20 | three-way spread every 1.8 s, missiles every 3.2 s |
 
 - **Mini-boss:** from the Asteroid Belt on (m97), one battlecruiser per mission at 55 % of the way, none in boss
@@ -175,4 +176,30 @@ minute, two or three runs each; map 3 at the same place in brackets (doc 48).
   satellites for drones.
 - The bot won every run and never crashed. It earns ≈ 10.4 M on map 4 (m91–m120); the shipyard's whole list (laser
   power to 10, every mark to Mk V, ~20 modules) costs ≈ 12–13 M.
+
+## Balance pass (wave 7, 2026-11-07)
+
+Same bot, now buying point defence (doc 60) early; the ship's missiles no longer all land. Hulls lost per minute, two
+or three runs each; map 3 at the same place in brackets.
+
+| mission | with point defence | after the last tuning | map 3 |
+|---|---|---|---|
+| m93 | 1.0–1.3 | — | |
+| m96 HALO | 1.6, boss 20–22 s | — | (m66 1.8) |
+| m99 | 1.9–2.3 | — | (m69 ≈ 1.9) |
+| m102 QUARRY | 1.9–2.2, boss 19 s | — | (m72) |
+| m104 | 3.4–3.6 | 3.3–3.5 | |
+| m105 | 2.8–2.9 | — | (m75 2.8) |
+| m108 CRATER | 3.3–3.9, boss 22–23 s | 3.1–3.8 | (m78 2.5) |
+| m111 | 2.8–3.3 | — | (m81 ≈ 2.6) |
+| m114 TRIDENT | 3.3–3.7, boss 23–25 s | — | (m84 2.6) |
+| m117 | 4.8–4.9 | — | (m87 ≈ 4.9) |
+| m120 ARK | 4.0–4.3, boss 35–37 s | 4.3, boss 35 s | (m90 5.2) |
+
+- Last tuning: m104 asks for 6 batteries instead of 8, the battery's missiles every 6.5 s; the ARK fires faster (core
+  1.9 → 1.6 s, broadsides 1.3 → 1.1 s) so the finale is the longest and among the hardest fights of the map.
+- Map 4 climbs from ≈ 1 to ≈ 4.5 like map 3; the Lunar Front and the middle bosses sit about half a hull a minute
+  above map 3's — map 4 is the last map. The bot won every run and never crashed.
+- Economy: the bot earns ≈ 10.4 M on map 4 and ends with ≈ 2.3 M unspent at m120 with laser 10 and most marks at Mk
+  III–IV; the whole list costs ≈ 13 M (≈ 1.25 × the map's pay; map 3 ≈ 1.5 ×).
 

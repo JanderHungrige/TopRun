@@ -134,6 +134,8 @@ export interface ShipStats {
   shieldRegen: number;
   rocketWings: number;
   torpedoBays: number;
+  /** Point-defence turrets (doc 60). */
+  pointDefence: number;
   radar: boolean;
   /** The placed modules (core excluded), for drawing. */
   modules: Placed[];
@@ -162,7 +164,7 @@ export function shipStats(s: Pick<ShipKit, 'modules'> & { marks?: Partial<Record
     shieldRegen: SHIELD.regen * shieldGain,
     speed: Math.min(420, Math.round(160 + (260 * thrust) / mass)), mass, thrust, power: powerBalance(list),
     cells: list.map(offset), barrels: list.filter((m) => m.id === 'laser' || m.id === 'core').map(offset),
-    rocketWings: count('rockets'), torpedoBays: count('torpedo'), radar: count('capsule') > 0,
+    rocketWings: count('rockets'), torpedoBays: count('torpedo'), pointDefence: count('pointdef'), radar: count('capsule') > 0,
     modules: [...s.modules],
   };
 }

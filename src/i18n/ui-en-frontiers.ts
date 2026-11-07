@@ -81,4 +81,20 @@ export const UI_EN_FRONTIERS = {
   'shipyard.gainRockets': 'Per rocket: {now} → {next} damage',
   'shipyard.gainTorpedo': 'Per torpedo: {now} → {next} damage',
   'shipyard.markTop': '{mark}: the top mark',
+  // Point defence (doc 60).
+  'module.pointdef': 'Point Defence',
+  'moduleDesc.pointdef': 'A small turret that shoots down an incoming missile within reach every few seconds; more turrets, more often. Draws 1 power.',
+  'shipyard.pointDefence': 'POINT DEFENCE',
+  // The rocket launch (doc 59).
+  'rocket.subtitle': 'ROCKET LAUNCH',
+  'rocket.ignition': 'IGNITION',
+  'rocket.burn': 'STAGE {n} BURNING — WAIT FOR BURNOUT',
+  'rocket.separate': 'ENGINE OUT — {key}: SEPARATE!',
+  'rocket.btnSep': 'SEPARATE',
+  'rocket.stage': 'STAGE {n}',
+  'rocket.fuel': 'FUEL',
+  'rocket.perfect': 'PERFECT STAGING!',
+  'rocket.good': 'GOOD STAGING',
+  'rocket.early': 'SEPARATED TOO EARLY',
+  'rocket.late': 'DEAD WEIGHT — TOO LATE',
 } as const;

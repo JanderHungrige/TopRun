@@ -88,6 +88,15 @@ function detail(ctx: Ctx, id: ModuleId, x: number, y: number, s: number, look: L
       ctx.fill();
       return;
     }
+    case 'pointdef': {
+      rr(ctx, x - h * 0.5, y - h * 0.5, h, h, h * 0.5, '#2b2f38');
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.sin(t * 1.7 + x) * 0.6);
+      for (const dx of [-0.16, 0.16]) rr(ctx, dx * s - s * 0.04, -h * 1.05, s * 0.08, h * 0.8, 1, '#c9d2e0');
+      ctx.restore();
+      return;
+    }
     case 'shield':
       ctx.strokeStyle = `rgba(140,210,255,${(0.55 + Math.sin(t * 5) * 0.25).toFixed(2)})`;
       ctx.lineWidth = Math.max(1, s * 0.09);

@@ -26,7 +26,7 @@ const SEEDS: Readonly<Record<Map4Theater, readonly MissionSeed[]>> = {
   ],
   moon: [
     { name: 'Dust Line', objective: patrol, pool: ['battery', 'raider', 'interceptor'], briefing: 'The war has reached the moon. Batteries in the craters fire at anything overhead.' },
-    { name: 'Crater Guns', objective: strike('battery', 8), pool: ['battery', 'raider', 'drone'], briefing: 'Eight lunar batteries cover the landing zone. Silence them.' },
+    { name: 'Crater Guns', objective: strike('battery', 6), pool: ['battery', 'raider', 'drone'], briefing: 'Six lunar batteries cover the landing zone. Silence them.' },
     { name: 'Moonrise', objective: intercept(32), pool: ['interceptor', 'raider', 'drone'], briefing: 'Their fighters rise from the far side. 32 kills.' },
     { name: 'Supply Line', objective: strike('gunship', 5), pool: ['gunship', 'battery', 'interceptor'], briefing: 'Gunships carry supplies between the lunar bases. Take out 5.' },
     { name: 'Far Side', objective: patrol, pool: ['battery', 'gunship', 'interceptor', 'raider'], briefing: 'We go round to the far side, where no one of ours has flown yet.' },

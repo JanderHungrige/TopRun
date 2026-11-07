@@ -185,10 +185,10 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
 type ShipStep = ModuleId | 'power' | `mk:${ShipMarkFamily}`;
 
 /** A sensible shipyard list on top of the starter ship: laser power first, then hull, a capsule, rockets, shields,
- *  torpedoes, and the marks (doc 57) as the money grows. */
+ *  point defence (doc 60), torpedoes, and the marks (doc 57) as the money grows. */
 export const SHIP_ORDER: readonly ShipStep[] = [
-  'power', 'power', 'plate', 'capsule', 'power', 'laser', 'rockets', 'reactor', 'shield', 'power', 'torpedo', 'engine',
-  'plate', 'mk:plate', 'rockets', 'laser', 'power', 'mk:rockets', 'shield', 'reactor', 'torpedo', 'power', 'mk:shield',
+  'power', 'power', 'plate', 'capsule', 'power', 'laser', 'rockets', 'reactor', 'pointdef', 'shield', 'power', 'torpedo',
+  'engine', 'plate', 'mk:plate', 'rockets', 'laser', 'power', 'mk:rockets', 'reactor', 'pointdef', 'shield', 'torpedo', 'power', 'mk:shield',
   'plate', 'laser', 'mk:torpedo', 'power', 'mk:engine', 'mk:plate', 'mk:rockets', 'reactor', 'shield', 'power', 'power',
   'mk:torpedo', 'mk:shield', 'mk:plate', 'mk:rockets', 'mk:engine', 'power', 'mk:torpedo', 'mk:shield', 'mk:plate',
   'mk:rockets', 'mk:torpedo', 'mk:shield', 'mk:engine', 'mk:engine',
@@ -214,7 +214,7 @@ function buyStep(save: SaveData, s: ShipStep): SaveData {
 function autoPlace(ship: SaveData['ship'], id: ModuleId): SaveData['ship'] {
   const cells: { col: number; row: number }[] = [];
   for (let col = 0; col < GRID.cols; col++) for (let row = 0; row < GRID.rows; row++) cells.push({ col, row });
-  const want = id === 'engine' || id === 'shield' || id === 'reactor' ? 1 : id === 'plate' || id === 'rockets' ? 0 : -1;
+  const want = id === 'engine' || id === 'shield' || id === 'reactor' || id === 'pointdef' ? 1 : id === 'plate' || id === 'rockets' ? 0 : -1;
   const score = (c: { col: number; row: number }): number =>
     Math.abs(c.col - GRID.core.col) * 2 + Math.abs(c.row - GRID.core.row) + (Math.sign(c.row - GRID.core.row) === want ? 0 : 3);
   for (const c of cells.sort((a, b) => score(a) - score(b))) if (canPlace(ship, id, c.col, c.row).ok) return place(ship, id, c.col, c.row);
@@ -247,5 +247,5 @@ export async function flyShip(id: string, runs = 3): Promise<{ kit: string; resu
   for (let i = 0; i < runs; i++) results.push(await run(id, k.save));
   const st = shipStats(k.save.ship);
   const marks = Object.values(k.save.ship.marks).join('');
-  return { kit: `${st.cells.length} modules, laser ${k.save.ship.laserLevel}, marks ${marks}, hull ${st.hull}, ${st.barrels.length} barrels, ${st.rocketWings}R ${st.torpedoBays}T`, results };
+  return { kit: `${st.cells.length} modules, laser ${k.save.ship.laserLevel}, marks ${marks}, hull ${st.hull}, ${st.barrels.length} barrels, ${st.rocketWings}R ${st.torpedoBays}T ${st.pointDefence}PD`, results };
 }

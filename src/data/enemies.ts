@@ -56,7 +56,7 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   corvette: def('corvette', 'Corvette', 'ground', 380, 22, 46, 230, 'aimed', 1.5, ['ground'], 'missile', 4.6),
   interceptor: def('interceptor', 'Interceptor', 'air', 90, 300, 20, 70, 'missile', 4.5, ['dive', 'strafe'], 'aimed', 1.6),
   gunship: def('gunship', 'Gunship', 'ground', 240, 30, 30, 150, 'spread3', 2.2, ['ground'], 'flak', 3.0),
-  battery: def('battery', 'Lunar Battery', 'ground', 140, 0, 20, 90, 'aimed', 2.2, ['ground'], 'missile', 5.5),
+  battery: def('battery', 'Lunar Battery', 'ground', 140, 0, 20, 90, 'aimed', 2.2, ['ground'], 'missile', 6.5),
   // Map 4's mini-boss (doc 58).
   warden: def('warden', 'Battlecruiser', 'ground', 2200, 20, 60, 1000, 'spread3', 1.8, ['ground'], 'missile', 3.2),
 });

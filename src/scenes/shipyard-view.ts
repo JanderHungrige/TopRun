@@ -33,7 +33,7 @@ export interface YardView {
 const CELL = 54;
 const GRID_X = 40;
 const GRID_Y = 110;
-const LIST = { x: 450, y: 110, w: 400, row: 60 };
+const LIST = { x: 450, y: 110, w: 400, row: 54 };
 const DETAIL: Rect = { x: 870, y: 110, w: 370, h: 540 };
 export const BTN = Object.freeze({
   map: { x: 1150, y: 22, w: 110, h: 44 },
@@ -52,6 +52,7 @@ const MODULE_KEY: Readonly<Record<YardRow, { name: UiKey; desc: UiKey }>> = {
   rockets: { name: 'module.rockets', desc: 'moduleDesc.rockets' },
   torpedo: { name: 'module.torpedo', desc: 'moduleDesc.torpedo' },
   shield: { name: 'module.shield', desc: 'moduleDesc.shield' },
+  pointdef: { name: 'module.pointdef', desc: 'moduleDesc.pointdef' },
   reactor: { name: 'module.reactor', desc: 'moduleDesc.reactor' },
 };
 
@@ -122,10 +123,10 @@ function drawList(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly Yar
     const on = i === v.rowIndex;
     drawPanel(ctx, r, { fill: on ? 'rgba(30,52,80,0.95)' : 'rgba(10,18,30,0.9)', edge: on ? COLORS.gold : COLORS.panelEdge, radius: 8 });
     drawModuleIcon(ctx, row === 'power' ? 'laser' : row, r.x + 32, r.y + r.h / 2, 30, look, v.time);
-    text(ctx, t(MODULE_KEY[row].name), r.x + 64, r.y + 22, { size: 16, display: true, color: on ? COLORS.gold : COLORS.ink, maxWidth: 230 });
-    text(ctx, rowSub(v, row), r.x + 64, r.y + 42, { size: 12, color: COLORS.dim, maxWidth: 230 });
+    text(ctx, t(MODULE_KEY[row].name), r.x + 64, r.y + 20, { size: 16, display: true, color: on ? COLORS.gold : COLORS.ink, maxWidth: 230 });
+    text(ctx, rowSub(v, row), r.x + 64, r.y + 38, { size: 12, color: COLORS.dim, maxWidth: 230 });
     const price = priceOf(v, row);
-    text(ctx, price === null ? t('hangar.maxed') : formatMoney(price), r.x + r.w - 12, r.y + 32, { size: 14, align: 'right', color: price === null ? COLORS.dim : COLORS.green });
+    text(ctx, price === null ? t('hangar.maxed') : formatMoney(price), r.x + r.w - 12, r.y + 29, { size: 14, align: 'right', color: price === null ? COLORS.dim : COLORS.green });
   });
 }
 
@@ -142,9 +143,9 @@ function drawDetail(ctx: CanvasRenderingContext2D, v: YardView): void {
   const stats: readonly [UiKey, string][] = [
     ['shipyard.hull', String(st.hull)], ['shipyard.shield', String(st.shield)], ['shipyard.speed', `${st.speed} kn`],
     ['shipyard.powerLeft', String(st.power)], ['shipyard.mass', String(st.mass)], ['shipyard.lasers', String(st.barrels.length)],
-    ['shipyard.wings', String(st.rocketWings)], ['shipyard.torpedoes', String(st.torpedoBays)],
+    ['shipyard.wings', String(st.rocketWings)], ['shipyard.torpedoes', String(st.torpedoBays)], ['shipyard.pointDefence', String(st.pointDefence)],
   ];
-  stats.forEach(([label, value], i) => statLine(ctx, label, value, DETAIL.y + 222 + i * 26));
+  stats.forEach(([label, value], i) => statLine(ctx, label, value, DETAIL.y + 212 + i * 24));
   const f = familyOf(v.row);
   if (f) drawMark(ctx, v, f);
   const price = priceOf(v, v.row);

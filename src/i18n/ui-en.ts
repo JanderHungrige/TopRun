@@ -129,6 +129,7 @@ export const UI_EN = {
   'hangar.statSpeed': 'SPEED',
   'hangar.statHardpoints': 'HARDPOINTS',
   'hangar.statFirepower': 'FIREPOWER',
+  'hangar.statFitted': '{value} · base {base}',
   'hangar.statLevel': 'LEVEL',
   'hangar.statDamage': 'DAMAGE',
   'hangar.statAmmo': 'AMMO / SLOT',

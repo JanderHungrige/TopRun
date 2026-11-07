@@ -131,6 +131,7 @@ export const UI_DE: Readonly<Record<UiKey, string>> = {
   'hangar.statSpeed': 'TEMPO',
   'hangar.statHardpoints': 'STATIONEN',
   'hangar.statFirepower': 'FEUERKRAFT',
+  'hangar.statFitted': '{value} · Basis {base}',
   'hangar.statLevel': 'STUFE',
   'hangar.statDamage': 'SCHADEN',
   'hangar.statAmmo': 'MUNITION / STATION',

@@ -17,12 +17,13 @@ import { drawPlaneSide } from '../render/draw-planes-side';
 import { drawEquipmentIcon, drawWeaponIcon } from '../render/icons';
 import { drawItemPicture } from '../render/items';
 import { COLORS, paragraph, text } from '../render/text';
-import { drawBar, drawPanel, type Rect } from '../ui/widgets';
+import { drawPanel, type Rect } from '../ui/widgets';
 import { equipmentLevelText, planeSpecialName } from '../i18n/content';
 import { t as tr } from '../i18n/i18n';
 import {
   gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, unlockText, weaponNowNext,
 } from './hangar-items';
+import { equipmentEffectRow, planeStats, statRow } from './hangar-stats-view';
 
 export const LIST = { x: 24, y: 132, w: 536, row: 68 };
 export const DETAIL: Rect = { x: 584, y: 76, w: 672, h: 628 };
@@ -145,23 +146,16 @@ function subtitle(save: SaveData, item: ShopItem): string {
 }
 
 /** A labelled bar; `barW` shrinks it for the weapons, whose UPGRADE and TWIN PODS buttons sit on the right. */
-function statRow(ctx: CanvasRenderingContext2D, label: string, value: string, ratio: number, y: number, barW = 280): void {
-  const x = DETAIL.x + 24;
-  text(ctx, label, x, y + 12, { size: 13, color: COLORS.dim, letterSpacing: 1, maxWidth: 150 });
-  drawBar(ctx, { x: x + 160, y: y + 2, w: barW, h: 12 }, ratio, COLORS.cyan);
-  text(ctx, value, x + barW + 176, y + 13, { size: 14, color: COLORS.ink });
-}
-
 /** Gun or second gun (doc 37): the level now and next, level bar and DPS; level 0 = not fitted; `twin`: a new jet's gun;
  *  `heli`: the chain gun, measured against its own top level (doc 49). */
 function gunStats(ctx: CanvasRenderingContext2D, level: number, cap: number, y: number, twin = false, heli = false): void {
   if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: gunSummary(level, twin, heli) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
   if (level < cap) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: gunSummary(level + 1, twin, heli) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
   const d = heli ? heliGunDef(Math.max(1, level)) : jetGunDef(Math.max(1, level), twin);
-  statRow(ctx, tr('hangar.statLevel'), `${level}/${cap}`, level / cap, y + 52);
+  statRow(ctx, DETAIL, tr('hangar.statLevel'), `${level}/${cap}`, level / cap, y + 52);
   const top = heli ? heliGunDef(MAX_HELI_GUN_LEVEL) : gunLevelDef(MAX_GUN_LEVEL);
   const dps = (g: typeof d): number => g.damage * g.shotsPerSec * g.pattern.length;
-  statRow(ctx, 'DPS', level > 0 ? String(Math.round(dps(d))) : '0', level > 0 ? dps(d) / dps(top) : 0, y + 76);
+  statRow(ctx, DETAIL, 'DPS', level > 0 ? String(Math.round(dps(d))) : '0', level > 0 ? dps(d) / dps(top) : 0, y + 76);
 }
 
 /** The Bofors HE gun (doc 46): now and next, level bar and its single-target DPS. */
@@ -173,8 +167,8 @@ function heStats(ctx: CanvasRenderingContext2D, level: number, y: number): void 
   if (level > 0) text(ctx, tr('hangar.gunNow', { level, summary: line(level) }), DETAIL.x + 24, y + 4, { size: 15, color: COLORS.ink, maxWidth: DETAIL.w - 48 });
   if (level < MAX_HE_LEVEL) text(ctx, tr('hangar.gunNext', { level: level + 1, summary: line(level + 1) }), DETAIL.x + 24, y + 28, { size: 15, color: COLORS.green, maxWidth: DETAIL.w - 48 });
   const dps = (l: number): number => { const d = heLevelDef(l); return d ? d.damage * d.shotsPerSec : 0; };
-  statRow(ctx, tr('hangar.statLevel'), `${level}/${MAX_HE_LEVEL}`, level / MAX_HE_LEVEL, y + 52);
-  statRow(ctx, 'DPS', String(Math.round(dps(level))), dps(level) / dps(MAX_HE_LEVEL), y + 76);
+  statRow(ctx, DETAIL, tr('hangar.statLevel'), `${level}/${MAX_HE_LEVEL}`, level / MAX_HE_LEVEL, y + 52);
+  statRow(ctx, DETAIL, 'DPS', String(Math.round(dps(level))), dps(level) / dps(MAX_HE_LEVEL), y + 76);
 }
 
 /** Ammo rows leave room for the LOAD button on the right (doc 45) and stop above the loadout slots. */
@@ -201,9 +195,9 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   const fan = d.behavior === 'fan' ? 5 : 1;
   const twin = doubleFirepower(save.selectedPlane) && save.twinSecondaries.includes(id) ? 2 : 1;
   const arrow = (a: number, b: number | undefined): string => (b !== undefined && b !== a ? `${a} → ${b}` : String(a));
-  statRow(ctx, tr('hangar.statDamage'), arrow(now.damage * fan, next ? next.damage * fan : undefined), (now.damage * fan) / 480, y, 150);
+  statRow(ctx, DETAIL, tr('hangar.statDamage'), arrow(now.damage * fan, next ? next.damage * fan : undefined), (now.damage * fan) / 480, y, 150);
   const ammo = arrow(now.ammoPerSlot, next?.ammoPerSlot);
-  statRow(ctx, tr('hangar.statAmmo'), twin > 1 ? `${ammo} ×2` : ammo, (now.ammoPerSlot * twin) / 14, y + 23, 150);
+  statRow(ctx, DETAIL, tr('hangar.statAmmo'), twin > 1 ? `${ammo} ×2` : ammo, (now.ammoPerSlot * twin) / 14, y + 23, 150);
   const mark = markOf(save, id);
   const marks = `${[1, 2, 3, 4, 5, 6].map((m) => (m <= mark ? '■' : '□')).join(' ')}   ${markName(mark)}`;
   text(ctx, tr('arsenal.statMark'), DETAIL.x + 24, y + 58, { size: 13, color: COLORS.dim, letterSpacing: 1, maxWidth: 150 });
@@ -217,15 +211,7 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
 function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem): void {
   const y = DETAIL.y + 376;
   switch (item.type) {
-    case 'plane': {
-      const p = PLANES[item.id];
-      statRow(ctx, tr('hangar.statHull'), String(p.hull), p.hull / 180, y);
-      statRow(ctx, tr('hangar.statSpeed'), `${p.speed} kn`, p.speed / 420, y + 26);
-      statRow(ctx, tr('hangar.statHardpoints'), String(p.hardpoints), p.hardpoints / 4, y + 52);
-      statRow(ctx, tr('hangar.statFirepower'), `×${p.gunDamageMul.toFixed(1)}`, p.gunDamageMul / 1.5, y + 78);
-      text(ctx, tr('hangar.special', { name: planeSpecialName(p.id) }), DETAIL.x + 24, y + 124, { size: 15, color: COLORS.gold });
-      return;
-    }
+    case 'plane': return planeStats(ctx, DETAIL, save, item.id, y);
     case 'gun':
       gunStats(ctx, save.gunLevel, gunCap(save), y, false, item.heli === true);
       if (doubleFirepower(save.selectedPlane) && mapTwoOpen(save)) text(ctx, tr('hangar.gunNewJets'), DETAIL.x + 24, y + 112, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 48 });
@@ -241,7 +227,10 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
     })), y, AMMO_ROWS);
     case 'he': return heStats(ctx, save.heLevel, y);
     case 'secondary': return weaponStatsRows(ctx, save, item.id, y);
-    case 'equipment': return levelRows(ctx, save.equipment[item.id], equipmentCap(save, item.id), equipmentLevelText(item.id), y);
+    case 'equipment': {
+      const used = equipmentEffectRow(ctx, DETAIL, save, item.id, y);
+      return levelRows(ctx, save.equipment[item.id], equipmentCap(save, item.id), equipmentLevelText(item.id), y + used * 30, { maxW: DETAIL.w - 48, rows: LEVEL_ROWS - used });
+    }
     case 'livery':
       text(ctx, tr('hangar.paintSide'), DETAIL.x + 24, y + 4, { size: 12, color: COLORS.dim, letterSpacing: 1.5 });
       drawPlaneSide(ctx, save.selectedPlane, DETAIL.x + DETAIL.w / 2, y + 112, 1.5, { gear: 1, livery: item.id });

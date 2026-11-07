@@ -3,7 +3,7 @@ id: deep-water
 title: Deep Water
 status: in_progress
 version: 1
-hash: e8ddc404
+hash: b04de6b3
 created: 2026-11-07
 ---
 
@@ -32,7 +32,11 @@ Decided with the owner (one question round, 2026-11-07):
 - [x] Size → a full map: 30 missions, launch game, medals, celebration (owner).
 - [x] Dock looks → generated backdrops (owner, 2026-11-07, on four examples): **space dock A** for map 4; for map 5
   the underwater dock A's look, but the sub *"so out of proportion"* comes out of the room — it is seen partly docked
-  through one of the windows, which leaves floor for the chalkboard and the rest (re-rendered for wave 4).
+  through one of the windows, which leaves floor for the chalkboard and the rest — the owner picked **underwater dock C**
+  (the sub cut off by the round window's edge). Both docks are **animated, slow and calm** (owner: *"flickering
+  light, dust particles, air bubbles moving outside"*): ambient layers in code over the picture — a flickering light,
+  drifting dust motes, bubbles and fish outside the window, the docked sub bobbing, light ripples through the glass;
+  on the space dock blinking console lights and stars drifting past the window.
 
 ## Waves
 | Wave | File | Demo-state | Status |

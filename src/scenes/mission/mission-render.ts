@@ -138,6 +138,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: Player, t: number): void {
     if (p.stealthed) drawPlaneOutline(ctx, p.stats.plane.id, p.x, p.y, 1, `rgba(150,235,255,${(0.55 + Math.sin(t * 9) * 0.25).toFixed(2)})`, opts.sweep);
   }
   if (special === 'cannon' && p.specialActive > 0 && Math.floor(t * 30) % 2 === 0) muzzleFlash(ctx, p.x - 1, p.y - 36);
+  if (special === 'armour' && p.specialActive > 0) armourGlow(ctx, p.x, p.y, t); // Hind Flying Tank (doc 51)
   if (dash) {
     ctx.strokeStyle = 'rgba(180,220,255,0.5)';
     ctx.lineWidth = 2;
@@ -149,6 +150,15 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: Player, t: number): void {
       ctx.stroke();
     }
   }
+}
+
+/** The Hind's Flying Tank: a pulsing amber shell around the helicopter while nothing gets through. */
+function armourGlow(ctx: CanvasRenderingContext2D, x: number, y: number, t: number): void {
+  ctx.strokeStyle = `rgba(255,190,90,${(0.55 + Math.sin(t * 12) * 0.25).toFixed(2)})`;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 34, 0, TAU);
+  ctx.stroke();
 }
 
 /** A-10 GAU-8 muzzle flash at the nose. */

@@ -163,7 +163,7 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
     case 'plane':
       if (!save.ownedPlanes.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (save.selectedPlane === item.id) return none(t('hangar.inUse'));
-      return { kind: 'select', label: t('hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
+      return { kind: 'select', label: t(save.kit === 'heli' ? 'hangar.flyThisHeli' : 'hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
     case 'gun':
       if (save.gunLevel >= gunCap(save)) return none(t('hangar.maxed'));
       return buyAction(save, item, t('hangar.gunUpgrade', { level: save.gunLevel + 1, price }));
@@ -206,7 +206,7 @@ export function twinAction(save: SaveData, item: ShopItem): { label: string; ena
     if (ammoTypeLevel(save, ammo) === 0) return null;
     return canLoad(save, ammo) ? { label: t('arsenal.load'), enabled: true } : { label: t('arsenal.loaded'), enabled: false };
   }
-  if (item.type !== 'secondary' || !mapTwoOpen(save) || !save.ownedSecondaries.includes(item.id)) return null;
+  if (item.type !== 'secondary' || !mapTwoOpen(save) || save.kit === 'heli' || !save.ownedSecondaries.includes(item.id)) return null;
   if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
   return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
 }

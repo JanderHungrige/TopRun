@@ -9,6 +9,8 @@ import { drawSR71Top, sr71Silhouette } from './planes/sr71-top';
 import { drawTornadoTop, tornadoSilhouette } from './planes/tornado-top';
 import type { TopOpts } from './planes/surface';
 import { ah64Silhouette, drawAh64Top } from './helis/ah64-top';
+import { COMANCHE_TOP, HIND_TOP, TIGER_TOP } from './helis/fleet';
+import { drawHeliTop, heliTopSilhouette } from './helis/heli-art';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 
@@ -33,6 +35,9 @@ function silhouette(id: PlaneId, sweep: number): Path2D {
     case 'f35': return f35Silhouette();
     case 'tornado': return tornadoSilhouette(sweep);
     case 'ah64': return ah64Silhouette();
+    case 'tiger': return heliTopSilhouette(TIGER_TOP);
+    case 'rah66': return heliTopSilhouette(COMANCHE_TOP);
+    case 'mi24': return heliTopSilhouette(HIND_TOP);
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }
@@ -76,6 +81,9 @@ export function drawPlaneTop(
     case 'f35': drawF35Top(ctx, look, opts); break;
     case 'tornado': drawTornadoTop(ctx, look, opts); break;
     case 'ah64': drawAh64Top(ctx, look, opts); break;
+    case 'tiger': drawHeliTop(ctx, look, opts, TIGER_TOP); break;
+    case 'rah66': drawHeliTop(ctx, look, opts, COMANCHE_TOP); break;
+    case 'mi24': drawHeliTop(ctx, look, opts, HIND_TOP); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

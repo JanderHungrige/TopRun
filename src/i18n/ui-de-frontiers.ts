@@ -9,4 +9,6 @@ export const UI_DE_FRONTIERS = {
   'hangar.tabHelis': 'HUBSCHRAUBER',
   'hangar.heliGunName': 'M230 Kettenkanone',
   'hangar.heliGunDesc': 'Die 30-mm-Kettenkanone unter der Nase des Apache. Weniger, aber schwerere Schüsse als die Kanone eines Jets, und sie treffen Boden- und Seeziele mit vollem Schaden.',
+  'hangar.flyThisHeli': 'DIESEN HUBSCHRAUBER FLIEGEN',
+  'arsenal.markInfoHeli': 'Jede Baustufe: +25 % Schaden, +1 pro Station; Mk III auch schneller und wendiger. Hubschrauberwaffen gehen bis Mk III.',
 };

@@ -78,6 +78,13 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   }),
   // Map-3 helicopters (doc 49): Apache olive drab, matt.
   ah64: look('#4b5228', STANDARD_SWATCH, { under: '#454b25', ink: 'rgba(14,16,10,0.65)', panel: 'rgba(14,16,10,0.26)', gloss: 0.35 }),
+  // Doc 51: Tiger grey-green, Comanche dark radar grey, Hind sand and green.
+  tiger: look('#5d6655', STANDARD_SWATCH, { under: '#6b7462', ink: 'rgba(14,16,12,0.6)', panel: 'rgba(14,16,12,0.24)', gloss: 0.4 }),
+  rah66: look('#3f4448', STANDARD_SWATCH, { under: '#3a3e42', ink: 'rgba(8,10,12,0.7)', panel: 'rgba(8,10,12,0.25)', gloss: 0.35 }),
+  mi24: look('#8a7b54', STANDARD_SWATCH, {
+    under: '#9db0b8', camo: { kind: 'blobs', colors: ['#4f5a34'], cover: [0.42], size: 1.4, seed: 24 },
+    ink: 'rgba(16,14,10,0.62)', panel: 'rgba(16,14,10,0.24)', gloss: 0.35,
+  }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

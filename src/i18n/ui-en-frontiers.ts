@@ -9,4 +9,6 @@ export const UI_EN_FRONTIERS = {
   'hangar.tabHelis': 'HELICOPTERS',
   'hangar.heliGunName': 'M230 Chain Gun',
   'hangar.heliGunDesc': 'The Apache\'s 30 mm chain gun under the nose. Fewer, heavier rounds than a jet\'s cannon, and they hit ground and sea targets at full damage.',
+  'hangar.flyThisHeli': 'FLY THIS HELICOPTER',
+  'arsenal.markInfoHeli': 'Each mark: +25% damage, +1 per hardpoint; Mk III also faster and more agile. Helicopter weapons go up to Mk III.',
 } as const;

@@ -30,12 +30,14 @@ export interface SpecialRules {
 export function specialRules(special: SpecialId): SpecialRules {
   switch (special) {
     case 'roll':
-    case 'dash': return { invulnerable: true, stealth: false };
+    case 'dash':
+    case 'armour': return { invulnerable: true, stealth: false };
     case 'stealth': return { invulnerable: false, stealth: true };
     case 'wingman':
     case 'cannon':
     case 'nuke':
-    case 'longbow': return { invulnerable: false, stealth: false };
+    case 'longbow':
+    case 'gunpods': return { invulnerable: false, stealth: false };
     default: throw new Error(`unhandled: ${special satisfies never}`);
   }
 }

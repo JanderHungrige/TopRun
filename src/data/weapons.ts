@@ -121,7 +121,7 @@ export type WeaponRole = 'air' | 'ground';
 
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
-  hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground',
+  hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground', shkval: 'ground',
 });
 
 export interface SecondaryDef {
@@ -217,6 +217,12 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     id: 'depthmine', role: 'ground', name: 'Depth Mine', short: 'MINE', price: 5000 * SUB_PRICE, ammoPerSlot: 4,
     damage: 160, radius: 80, hits: 'ground', behavior: 'bomb', cooldown: 0.5, speed: 0,
     turnRate: 0, planes: SUB_IDS, description: 'Sinks below the sub and bursts on the seabed. A wide blast against turrets and anything on the bottom.', campaign: 5,
+  },
+  // Doc 69: the subs' rocket fan.
+  shkval: {
+    id: 'shkval', role: 'ground', name: 'VA-111 Shkval', short: 'SHKVAL', price: 4500 * SUB_PRICE, ammoPerSlot: 5,
+    damage: 30, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 700,
+    turnRate: 0, planes: SUB_IDS, description: 'Supercavitating rocket torpedoes fired in a fan. Fast, unguided, they hit anything in the water.', campaign: 5,
   },
 });
 

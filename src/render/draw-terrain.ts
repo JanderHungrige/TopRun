@@ -1,7 +1,7 @@
 import { TAU } from '../core/math';
 import { createRng, type Rng } from '../core/rng';
-import { underwater, type TheaterDef } from '../data/theaters';
-import { Water } from './sea-floor';
+import type { TheaterDef } from '../data/theaters';
+import { asSea, Water } from './water';
 import { drawFeature, makeBaseTile, makeBlob, type Feature, type FeatureType } from './terrain-art';
 
 const W = 640;
@@ -30,7 +30,8 @@ export class Terrain {
 
   constructor(readonly theater: TheaterDef, seed: number) {
     this.rng = createRng(seed);
-    this.water = underwater(theater.terrain) ? new Water(seed + 1) : null;
+    const sea = asSea(theater.terrain);
+    this.water = sea ? new Water(sea, seed + 1) : null;
     for (let y = -ROW; y < H; y += ROW) this.spawnRow(y);
     for (let i = 0; i < 4; i++) this.spawnCloud(this.rng.range(0, H));
   }
@@ -67,6 +68,7 @@ export class Terrain {
   renderGround(ctx: CanvasRenderingContext2D): void {
     this.renderBase(ctx);
     if (this.theater.terrain === 'canyon') this.renderCanyon(ctx);
+    if (this.theater.terrain === 'trench') this.renderWalls(ctx); // the Trench's rock walls (doc 70)
     const style = this.theater.terrain;
     for (const f of this.features) drawFeature(ctx, f, style, this.theater.palette, this.time);
     this.water?.renderFloor(ctx, this.distance);
@@ -145,6 +147,26 @@ export class Terrain {
     }
   }
 
+  /** The Trench's walls (doc 70): dark rock closing in from both sides, a pale edge where the light still catches. */
+  private renderWalls(ctx: CanvasRenderingContext2D): void {
+    const p = this.theater.palette;
+    for (const side of [0, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side ? W : 0, -20);
+      for (let y = -20; y <= H + 20; y += 24) {
+        const w = this.wallWidth(this.distance - y, side) * 0.8;
+        ctx.lineTo(side ? W - w : w, y);
+      }
+      ctx.lineTo(side ? W : 0, H + 20);
+      ctx.closePath();
+      ctx.fillStyle = p.landDark;
+      ctx.fill();
+      ctx.strokeStyle = p.detail;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
   private renderRain(ctx: CanvasRenderingContext2D, t: number): void {
     ctx.strokeStyle = 'rgba(200,215,230,0.18)';
     ctx.lineWidth = 1;
@@ -201,6 +223,26 @@ export class Terrain {
         if (r.chance(0.3)) add('crater', r.range(14, 40));
         if (r.chance(0.05)) add('crater', r.range(60, 110));
         if (r.chance(0.15)) add('rock', r.range(6, 14));
+        return;
+      case 'kelp': // the Kelp Forest (doc 70): tall stands of kelp, mossy rocks
+        if (r.chance(0.85)) add('kelp', r.range(24, 40));
+        if (r.chance(0.5)) add('kelp', r.range(16, 28));
+        if (r.chance(0.3)) add('stone', r.range(10, 24));
+        if (r.chance(0.12)) add('coral', r.range(12, 22));
+        return;
+      case 'wreck': // the Wreck Field: sunken hulls among rocks and the odd coral
+        if (r.chance(0.2)) add('wreck', r.range(44, 84));
+        if (r.chance(0.3)) add('stone', r.range(10, 24));
+        if (r.chance(0.15)) add('coral', r.range(10, 20));
+        if (r.chance(0.08)) add('drop', r.range(60, 110));
+        return;
+      case 'trench': // the Trench: dark rock in the middle, the walls drawn on their own
+        if (r.chance(0.35)) add('stone', r.range(12, 30));
+        if (r.chance(0.12)) add('drop', r.range(60, 120));
+        return;
+      case 'abyss': // the Abyss: black smokers and dark rock
+        if (r.chance(0.14)) add('vent', r.range(14, 26));
+        if (r.chance(0.22)) add('stone', r.range(10, 24));
         return;
       case 'reef': // the seabed under the sea (doc 68)
         if (r.chance(0.06)) add('drop', r.range(70, 130));

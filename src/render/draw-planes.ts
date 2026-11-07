@@ -13,6 +13,7 @@ import { COMANCHE_TOP, HIND_TOP, TIGER_TOP } from './helis/fleet';
 import { drawHeliTop, heliTopSilhouette } from './helis/heli-art';
 import { DISPLAY_SHIP, drawShip, shipSilhouette } from './ship';
 import { drawU212Top, u212Silhouette } from './subs/u212';
+import { AKULA_SUB, drawSubTop, SEAWOLF_SUB, subSilhouette, VIRGINIA_SUB } from './subs/fleet';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 
@@ -42,6 +43,9 @@ function silhouette(id: PlaneId, sweep: number): Path2D {
     case 'mi24': return heliTopSilhouette(HIND_TOP);
     case 'starship': return shipSilhouette(DISPLAY_SHIP);
     case 'u212': return u212Silhouette();
+    case 'seawolf': return subSilhouette(SEAWOLF_SUB);
+    case 'virginia': return subSilhouette(VIRGINIA_SUB);
+    case 'akula': return subSilhouette(AKULA_SUB);
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }
@@ -90,6 +94,9 @@ export function drawPlaneTop(
     case 'mi24': drawHeliTop(ctx, look, opts, HIND_TOP); break;
     case 'starship': drawShip(ctx, DISPLAY_SHIP, look, { t: opts.t, throttle: opts.throttle }); break;
     case 'u212': drawU212Top(ctx, look, opts); break;
+    case 'seawolf': drawSubTop(ctx, SEAWOLF_SUB, look, opts); break;
+    case 'virginia': drawSubTop(ctx, VIRGINIA_SUB, look, opts); break;
+    case 'akula': drawSubTop(ctx, AKULA_SUB, look, opts); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

@@ -29,5 +29,9 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   moon: ['night', 'dusk', 'night', 'night', 'dusk', 'night'],
   rings: ['dusk', 'night', 'night', 'night', 'dusk', 'night'],
   reef: ['day', 'day', 'dusk', 'day', 'night', 'dusk'],
+  kelp: ['day', 'dusk', 'day', 'day', 'dusk', 'night'],
+  wrecks: ['dusk', 'day', 'dusk', 'night', 'dusk', 'night'],
+  trench: ['night', 'night', 'dusk', 'night', 'night', 'night'],
+  abyss: ['night', 'night', 'night', 'night', 'night', 'night'],
   deep: ['night', 'night', 'night', 'night', 'night', 'night'],
 });

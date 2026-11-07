@@ -66,6 +66,15 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   seaturret: def('seaturret', 'Seabed Turret', 'ground', 70, 0, 18, 50, 'flak', 2.4, ['ground']),
   jelly: def('jelly', 'Jellyfish', 'air', 30, 50, 18, 25, 'none', 0, ['sine']),
   eel: def('eel', 'Electric Eel', 'air', 45, 210, 16, 40, 'single', 2.0, ['sine', 'swoop']),
+  // The deep (doc 70); the torpedo boat runs on the surface, seen from below.
+  hunter: def('hunter', 'Hunter Sub', 'air', 90, 120, 24, 90, 'aimed', 2.2, ['strafe'], 'missile', 10),
+  torpboat: def('torpboat', 'Torpedo Boat', 'air', 100, 60, 26, 110, 'aimed', 3.0, ['straight']),
+  squid: def('squid', 'Squid', 'air', 70, 240, 18, 60, 'aimed', 2.2, ['dive', 'swoop']),
+  crab: def('crab', 'Giant Crab', 'ground', 160, 25, 22, 90, 'aimed', 2.6, ['ground']),
+  sealab: def('sealab', 'Sea Lab', 'ground', 180, 0, 28, 160, 'missile', 9, ['ground'], 'flak', 4.2),
+  angler: def('angler', 'Anglerfish', 'air', 80, 90, 20, 80, 'single', 1.6, ['hover']),
+  // Map 5's mini-boss (doc 70).
+  boomer: def('boomer', 'Missile Sub', 'ground', 2200, 20, 60, 1000, 'spread3', 1.8, ['ground'], 'missile', 4.5),
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(

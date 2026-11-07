@@ -8,6 +8,7 @@ import { ellipse } from './shapes';
 import { SPACE_UNITS } from './enemies/space';
 import { SEA_UNITS } from './enemies/sea';
 import { CREATURES } from './enemies/creatures';
+import { SEA_UNITS_2 } from './enemies/sea-2';
 
 export { exhaust, fire, hash, roundel, scorch, smoke } from './enemies/fx';
 
@@ -54,12 +55,20 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   seaturret: pal('#6f7a7c', '#5a5040', '#98a4a6', '#3d454b', '#7ff0ff'),
   jelly: pal('#e88ac0', '#a85088', '#ffd0ea', '#ff5aaa'),
   eel: pal('#5a6a3a', '#2e3a1e', '#c8c89a', '#3a4a26', '#9ae8ff'),
+  // The deep (doc 70).
+  hunter: pal('#3c4652', '#222a32', '#5a6878', '#ff5a4a'),
+  torpboat: pal('#2a3038', '#14181e', '#4a525c', '#8a3a2a'),
+  squid: pal('#e8c8c0', '#b07870', '#fff0ea', '#a85a50'),
+  crab: pal('#a8503a', '#6a2a1e', '#d08060', '#3a2a20'),
+  sealab: pal('#8a96a0', '#4a545c', '#c0ccd4', '#3d454b', '#ffd27a'),
+  angler: pal('#3a3448', '#1e1a28', '#8a80a0', '#2a2438', '#5ff0e0'),
+  boomer: pal('#3a4248', '#20262c', '#5a646c', '#c8312a', '#7fd0ff'),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
 const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312'), red: '#3b2a22', line: 'rgba(0,0,0,0.55)', live: false };
 
-const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...CREATURES };
+const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...SEA_UNITS_2, ...CREATURES };
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();
 

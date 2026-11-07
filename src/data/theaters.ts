@@ -4,10 +4,14 @@ import { THEATERS_4 } from './theaters-4';
 import { THEATERS_5 } from './theaters-5';
 import { THEATER_IDS, type CampaignId, type TheaterId } from './types';
 
-export type TerrainStyle = 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar' | 'reef';
+export type TerrainStyle =
+  | 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar'
+  | 'reef' | 'kelp' | 'wreck' | 'trench' | 'abyss';
 
-/** The terrains under the sea (doc 68): water instead of sky, bubbles instead of smoke. */
-export const underwater = (style: TerrainStyle): boolean => style === 'reef';
+const UNDERWATER: readonly TerrainStyle[] = ['reef', 'kelp', 'wreck', 'trench', 'abyss'];
+
+/** The terrains under the sea (docs 68, 70): water instead of sky, bubbles instead of smoke. */
+export const underwater = (style: TerrainStyle): boolean => UNDERWATER.includes(style);
 
 export interface TheaterPalette {
   sea: string;

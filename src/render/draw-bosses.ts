@@ -1,5 +1,5 @@
 import { BOSSES, type BossDef, type BossPartDef } from '../data/bosses';
-import { bossPal as pal, HULLS_LATER, LIGHTS_LATER, PALS_LATER } from './bosses-later';
+import { bossPal as pal, HULLS_LATER, LIGHTS_LATER, ORGANIC, organPart, PALS_LATER } from './bosses-later';
 import type { BossId } from '../data/types';
 import { exhaust, fire, hash, roundel, scorch, smoke } from './draw-enemies';
 import { gunTurret, HL, missileRack, monoPal, rect, ring, SH, slab, twinGun, wake, type Pal } from './draw-ground-units';
@@ -56,6 +56,7 @@ function ciws(ctx: Ctx, r: number, a: number, p: Pal): void {
 
 function mount(ctx: Ctx, id: BossId, d: BossPartDef, a: number, p: Pal): void {
   const r = d.r;
+  if (ORGANIC.has(id)) return organPart(ctx, r, d.weapon, p); // the sea monsters' organs (doc 70)
   if (BOSSES[id].layer === 'air') {
     if (d.weapon === 'missile') return pod(ctx, r, p);
     ring(ctx, 0, 0, r, p.trim, p.line);
@@ -67,8 +68,7 @@ function mount(ctx: Ctx, id: BossId, d: BossPartDef, a: number, p: Pal): void {
     return d.weapon === 'flak' ? twinGun(ctx, r * 0.62, a, p) : missileRack(ctx, 4, r * 1.7, a, p);
   }
   if (id === 'leviathan' && d.weapon === 'aimed') return ciws(ctx, r, a, p);
-  const big = id === 'sandstorm';
-  gunTurret(ctx, r, big ? 1 : id === 'leviathan' ? 2 : 3, a, p, big ? 2.2 : 1.65);
+  gunTurret(ctx, r, id === 'sandstorm' ? 1 : id === 'leviathan' ? 2 : 3, a, p, id === 'sandstorm' ? 2.2 : 1.65);
 }
 
 function partWreck(ctx: Ctx, r: number, t: number, seed: number): void {

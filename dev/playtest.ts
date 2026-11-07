@@ -65,8 +65,10 @@ function tryStep(save: SaveData, s: Step): SaveData | null {
 const subGun: Step = { type: 'gun', fleet: 'sub' };
 export const SUB_ORDER: readonly Step[] = [
   subGun, sec('mk48'), subGun, eq('armor'), sec('depthmine'), eq('flares'), subGun, eq('armor'), { mark: 'mk48' }, subGun,
-  { mark: 'depthmine' }, eq('armor'), eq('ecm'), subGun, eq('flares'), eq('damageControl'), eq('armor'), subGun,
-  { mark: 'mk48' }, { mark: 'depthmine' }, eq('engine'), eq('engine'), subGun, eq('ecm'), eq('damageControl'), subGun, subGun,
+  sec('shkval'), { mark: 'depthmine' }, eq('armor'), eq('ecm'), subGun, eq('flares'), eq('damageControl'), eq('armor'), subGun,
+  { mark: 'mk48' }, { mark: 'shkval' }, { mark: 'depthmine' }, eq('engine'), eq('engine'), subGun, eq('ecm'), eq('damageControl'),
+  { mark: 'shkval' }, subGun, subGun, eq('flares'), eq('flares'), eq('radar'), eq('magnet'), eq('engine'), eq('engine'), eq('radar'),
+  eq('magnet'),
 ];
 
 /** The helicopter kit at the start of mission `n` (61–90), money from map 3 only, spent down HELI_ORDER in order. */
@@ -105,7 +107,7 @@ function fleetKitAt(kit: 'heli' | 'sub', first: number, n: number, list: readonl
 
 /** Every station filled: the kit's own weapons in turn (Hydras, Hellfires, Stingers; MK48s and mines), whatever is owned. */
 function loadOut(save: SaveData): SaveData {
-  const owned = (['hydra', 'hellfire', 'stinger', 'mk48', 'depthmine'] as const)
+  const owned = (['hydra', 'hellfire', 'stinger', 'mk48', 'depthmine', 'shkval'] as const)
     .filter((id) => save.ownedSecondaries.includes(id) && secondaryAllowedOn(id, save.selectedPlane));
   let s = save;
   for (let slot = 0; slot < PLANES[s.selectedPlane].hardpoints && owned.length > 0; slot++) {
@@ -198,9 +200,11 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
   return { kit, results };
 }
 
-/** `runs` runs of `id` (121–) with the sub kit a buying pilot owns at that mission (doc 65). */
-export async function flySub(id: string, runs = 3): Promise<{ kit: string; results: RunResult[] }> {
-  const s = subKitAt(Number(id.slice(1))).save;
+/** `runs` runs of `id` (121–) with the sub kit a buying pilot owns at that mission (doc 65), steered in `sub` (default:
+ *  the sub the kit has; doc 69). */
+export async function flySub(id: string, runs = 3, sub?: PlaneId): Promise<{ kit: string; results: RunResult[] }> {
+  const k = subKitAt(Number(id.slice(1))).save;
+  const s = sub ? loadOut({ ...k, ownedPlanes: [...k.ownedPlanes, sub], selectedPlane: sub }) : k;
   const results: RunResult[] = [];
   for (let i = 0; i < runs; i++) results.push(await run(id, s));
   const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 5).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;

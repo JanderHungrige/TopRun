@@ -88,6 +88,10 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   }),
   // Map-5 subs (doc 67): Type 212 dark grey-blue, the sail a shade lighter.
   u212: look('#3a4651', STANDARD_SWATCH, { under: '#4a5763', ink: 'rgba(8,12,16,0.7)', panel: 'rgba(8,12,16,0.3)', gloss: 0.4 }),
+  // Doc 69: Seawolf dark blue-grey, Virginia near-black, Akula dark green-grey.
+  seawolf: look('#33404e', STANDARD_SWATCH, { under: '#435263', ink: 'rgba(6,10,16,0.7)', panel: 'rgba(6,10,16,0.3)', gloss: 0.4 }),
+  virginia: look('#23272c', STANDARD_SWATCH, { under: '#30363c', ink: 'rgba(0,0,0,0.75)', panel: 'rgba(140,150,160,0.16)', gloss: 0.35 }),
+  akula: look('#3c4640', STANDARD_SWATCH, { under: '#4c5850', ink: 'rgba(8,12,10,0.7)', panel: 'rgba(8,12,10,0.3)', gloss: 0.35 }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

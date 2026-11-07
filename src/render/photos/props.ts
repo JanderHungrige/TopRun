@@ -100,6 +100,10 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   trident: { shape: battleship, air: false, s: 0.8 },
   ark: { shape: supercarrier, air: false, s: 0.75 },
   barracuda: { shape: battleship, air: false, s: 0.7 },
+  medusa: { shape: fortress, air: false, s: 0.6 },
+  bastion: { shape: fortress, air: false, s: 0.7 },
+  goliath: { shape: fortress, air: false, s: 0.65 },
+  jormungand: { shape: battleship, air: false, s: 0.8 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

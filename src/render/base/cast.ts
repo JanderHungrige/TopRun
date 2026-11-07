@@ -70,7 +70,8 @@ const face = (t: number, phase: number): FaceState => ({ expression: 'calm', str
 /** Floor x snapped to the art grid, so a walking figure moves in whole art pixels. */
 const snap = (x: number, G: number): number => Math.round(x / G) * G;
 
-export interface CastView { t: number; walker: Walker; face: PilotFace }
+/** `crew`: the plane captain polishing the jet — only in the carrier hangar (the docks have no jet to polish, doc 73). */
+export interface CastView { t: number; walker: Walker; face: PilotFace; crew?: boolean }
 
 function drawPilot(ctx: CanvasRenderingContext2D, G: number, view: CastView): void {
   const w = view.walker;
@@ -108,15 +109,16 @@ function drawCaptain(ctx: CanvasRenderingContext2D, G: number, t: number): void 
 
 /** Both figures, in front of the composed hangar layer (logical units). */
 export function drawCast(ctx: CanvasRenderingContext2D, G: number, view: CastView): void {
-  drawCaptain(ctx, G, view.t);
+  if (view.crew !== false) drawCaptain(ctx, G, view.t);
   drawPilot(ctx, G, view);
 }
 
 /** Soft floor shadows under the figures, on the art layer (art px). */
-export function drawCastShadows(g: CanvasRenderingContext2D, G: number, walker: Walker): void {
+export function drawCastShadows(g: CanvasRenderingContext2D, G: number, walker: Walker, crew = true): void {
   g.fillStyle = hexOf(col(PAL.ink, 0));
   g.globalAlpha = 0.45;
-  for (const [x, y, w] of [[walker.x, PILOT_FLOOR_Y, 50], [MECH.x, MECH.foot, 40]] as const) {
+  const feet: ReadonlyArray<readonly [number, number, number]> = crew ? [[walker.x, PILOT_FLOOR_Y, 50], [MECH.x, MECH.foot, 40]] : [[walker.x, PILOT_FLOOR_Y, 50]];
+  for (const [x, y, w] of feet) {
     const c = Math.round(x / G);
     const r = Math.round(y / G);
     const half = Math.round(w / G / 2);

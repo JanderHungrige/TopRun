@@ -39,9 +39,10 @@ export function paintChalkFrame(p: Pix, G: number): void {
   pbox(p, mid + 18, r1 - 2, 7, 1, col(PAL.yellow, 4));
 }
 
-/** The live board over the frame; `cells` null (not fetched yet) shows the bare slate. */
-export function drawChalkMini(ctx: CanvasRenderingContext2D, cells: Cells | null, version: number): void {
+/** The live board over the frame; `cells` null (not fetched yet) shows the bare slate. Elsewhere (a dock's own
+ *  chalkboard, doc 73) at (x, y) and `scale`. */
+export function drawChalkMini(ctx: CanvasRenderingContext2D, cells: Cells | null, version: number, x: number = MINI.x, y: number = MINI.y, scale = 1): void {
   if (cells) slate.paint(cells, version);
   else slate.paint(BARE, -2);
-  slate.draw(ctx, MINI.x, MINI.y, 1);
+  slate.draw(ctx, x, y, scale);
 }

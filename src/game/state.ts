@@ -70,6 +70,9 @@ export interface GameContext {
   setSave(next: SaveData): void;
   /** Which kit `save` shows (doc 49); the campaign map sets it for the map on show, routes set it otherwise. */
   setKit(kit: Kit): void;
+  /** The map the pilot last looked at: the home base wears its look (doc 73). Runtime only. */
+  readonly home: CampaignId;
+  setHome(c: CampaignId): void;
   /** Replaces the device settings, applies them (sound / music switches, volumes, language) and persists. */
   setSettings(next: Settings): void;
   createProfile(callsign: string, avatar: AvatarId): CreateResult;

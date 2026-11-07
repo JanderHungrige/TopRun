@@ -6,6 +6,8 @@ export type MedalId =
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead' | 'victory2' | 'allstars2'
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall' | 'victory3' | 'allstars3'
   | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep' | 'victory4' | 'allstars4'
+  // Map 5 (doc 72).
+  | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss' | 'victory5' | 'allstars5'
   | 'ace' | 'topace' | 'giant' | 'untouchable' | 'gunslinger' | 'catapult'
   | 'offduty5' | 'offduty10' | 'sorties25' | 'sorties100' | 'triple';
 
@@ -14,6 +16,7 @@ export const MEDAL_IDS: readonly MedalId[] = Object.freeze([
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3',
   'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
+  'reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5',
   'ace', 'topace', 'giant', 'untouchable', 'gunslinger', 'catapult',
   'offduty5', 'offduty10', 'sorties25', 'sorties100', 'triple',
 ] as const);
@@ -40,7 +43,7 @@ export interface MedalDef {
 const m = (id: MedalId, group: MedalGroup, name: string, citation: string, ribbon: readonly string[], shape: MedalShape, metal: MedalMetal): MedalDef =>
   ({ id, group, name, citation, look: { ribbon, shape, metal } });
 
-/** Maps 2–4 (doc 62): a campaign ribbon per theater boss, the map's victory medal and its golden star. */
+/** Maps 2–5 (docs 62, 72): a campaign ribbon per theater boss, the map's victory medal and its golden star. */
 const WORLD_MEDALS = {
   northsea: m('northsea', 'campaign', 'North Sea Campaign Ribbon', 'For storming the sea fortress KRAKEN among the North Sea rigs.', ['#22303d', '#ff9d2e', '#9fb4c3'], 'ribbon', 'bronze'),
   himalaya: m('himalaya', 'campaign', 'Roof of the World Ribbon', 'For downing the heavy gunship CONDOR above the highest peaks on Earth.', ['#3b4a6b', '#e9f2f7', '#c9a46a'], 'ribbon', 'bronze'),
@@ -63,6 +66,14 @@ const WORLD_MEDALS = {
   deep: m('deep', 'campaign', 'Deep Space Campaign Ribbon', 'For bringing down the mothership ARK past the last star.', ['#1a0a24', '#ff6a8a', '#7a6488'], 'ribbon', 'gold'),
   victory4: m('victory4', 'campaign', 'Deep Space Medal', 'For flying all thirty missions of the war in space to victory.', ['#0a1630', '#5fe3ff', '#e9f2f7'], 'star', 'gold'),
   allstars4: m('allstars4', 'campaign', 'Golden Star, Deep Space', 'For three stars on every single mission in space.', ['#ffd25a', '#0a1630', '#ffd25a'], 'star', 'gold'),
+  // Map 5 (doc 72).
+  reef: m('reef', 'campaign', 'Coral Reef Campaign Ribbon', 'For sinking the hunter-killer sub BARRACUDA at the edge of the reef.', ['#0f6a7c', '#ff8a78', '#d8d6aa'], 'ribbon', 'bronze'),
+  kelp: m('kelp', 'campaign', 'Kelp Forest Campaign Ribbon', 'For cutting down MEDUSA, queen of the jellyfish, in the kelp.', ['#0e3a34', '#8ff07a', '#c8d86a'], 'ribbon', 'bronze'),
+  wrecks: m('wrecks', 'campaign', 'Wreck Field Campaign Ribbon', 'For cracking the seabed fortress BASTION among the wrecks.', ['#1a3a50', '#b8743e', '#a6a89a'], 'ribbon', 'silver'),
+  trench: m('trench', 'campaign', 'Trench Campaign Ribbon', 'For stopping the giant squid GOLIATH at the bottom of the trench.', ['#04142a', '#7fb4ff', '#5f6a78'], 'ribbon', 'silver'),
+  abyss: m('abyss', 'campaign', 'Abyss Campaign Ribbon', 'For laying the sea serpent JORMUNGAND to rest in the abyss.', ['#05101c', '#5ff0e0', '#4a5260'], 'ribbon', 'gold'),
+  victory5: m('victory5', 'campaign', 'Deep Water Medal', 'For fighting all thirty missions of the war under the sea to victory.', ['#0b5a66', '#5ff0e0', '#d8d6aa'], 'disc', 'gold'),
+  allstars5: m('allstars5', 'campaign', 'Golden Star, Deep Water', 'For three stars on every single mission under the sea.', ['#ffd25a', '#0b5a66', '#ffd25a'], 'star', 'gold'),
 } as const;
 
 export const MEDALS: Readonly<Record<MedalId, MedalDef>> = Object.freeze({

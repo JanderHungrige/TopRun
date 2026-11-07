@@ -67,7 +67,7 @@ export class CelebrationScene implements Scene {
     if (b.from !== null) drawPlate(ctx, this.world, b.from, 1);
     drawPlate(ctx, this.world, b.shot, b.fade);
     if (b.flyby !== null) drawFlyby(ctx, this.craft.plane, this.craft.livery, b.flyby, this.time);
-    if (b.fireworks) drawFireworks(ctx, this.world, this.time);
+    if (b.fireworks) drawFireworks(ctx, this.world, this.time, b.shot);
     if (b.confetti) drawConfetti(ctx, this.time);
   }
 

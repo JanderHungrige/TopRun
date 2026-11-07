@@ -13,18 +13,18 @@ describe('Pilot rating', () => {
     expect(pilotRating({ ...zero, golds: 1, silvers: 1, bronzes: 1, score: 0 })).toBe(150 + 80 + 40);
   });
 
-  it('caps every ingredient so grinding cannot dominate, max 63 250 with four maps, their medals and the mission score (docs 35, 39, 48, 58, 62)', () => {
+  it('caps every ingredient so grinding cannot dominate, max 77 000 with five maps, their medals and the mission score (docs 35, 39, 48, 58, 62, 72)', () => {
     expect(pilotRating({ ...zero, kills: 99999 })).toBe(4000);
     expect(pilotRating({ stars: 999, medals: 99, kills: 99999, golds: 99, silvers: 0, bronzes: 0, score: 999999 })).toBe(maxRating());
-    expect(maxRating()).toBe(63250);
-    expect(pilotRating({ ...zero, stars: 360 })).toBe(36000);
-    expect(pilotRating({ ...zero, stars: 400 })).toBe(36000);
+    expect(maxRating()).toBe(77000);
+    expect(pilotRating({ ...zero, stars: 450 })).toBe(45000);
+    expect(pilotRating({ ...zero, stars: 500 })).toBe(45000);
   });
 
-  it('adds the best mission scores ÷ 10, capped at 120 missions × 1000 (docs 39, 48, 58)', () => {
+  it('adds the best mission scores ÷ 10, capped at 150 missions × 1000 (docs 39, 48, 58, 72)', () => {
     expect(pilotRating({ ...zero, score: 734 })).toBe(73);
-    expect(pilotRating({ ...zero, score: 120000 })).toBe(12000);
-    expect(pilotRating({ ...zero, score: 129999 })).toBe(12000);
+    expect(pilotRating({ ...zero, score: 150000 })).toBe(15000);
+    expect(pilotRating({ ...zero, score: 159999 })).toBe(15000);
     expect(clampStats({ ...zero, score: -3 }).score).toBe(0);
   });
 
@@ -34,12 +34,14 @@ describe('Pilot rating', () => {
   });
 
   it('maps ratings to naval ranks', () => {
-    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'staradm']);
+    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'staradm', 'deepadm']);
     expect(rankFor(35999)).toBe('legend');
     expect(rankFor(36000)).toBe('ace');
     expect(rankFor(47999)).toBe('ace');
     expect(rankFor(48000)).toBe('staradm');
-    expect(rankFor(maxRating())).toBe('staradm');
+    expect(rankFor(59999)).toBe('staradm');
+    expect(rankFor(60000)).toBe('deepadm');
+    expect(rankFor(maxRating())).toBe('deepadm');
     expect(rankFor(0)).toBe('ensign');
     expect(rankFor(799)).toBe('ensign');
     expect(rankFor(800)).toBe('ltjg');

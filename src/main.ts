@@ -1,4 +1,5 @@
 import { AudioEngine } from './core/audio';
+import type { CampaignId } from './data/types';
 import { Screen, type Viewport } from './core/canvas';
 import { Input } from './core/input';
 import { CloudSync, type CloudUpload } from './core/cloud-sync';
@@ -59,6 +60,13 @@ class Game implements GameContext {
 
   setKit(kit: Kit): void {
     this.kit = kit;
+  }
+
+  /** The map the pilot last looked at (doc 73). */
+  home: CampaignId = 1;
+
+  setHome(c: CampaignId): void {
+    this.home = c;
   }
 
   get settings(): Settings {

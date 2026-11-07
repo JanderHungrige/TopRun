@@ -11,6 +11,7 @@ const THEATER_MEDAL: Readonly<Partial<Record<MedalId, TheaterId>>> = {
   northsea: 'northsea', himalaya: 'himalaya', jungle: 'jungle', nightfall: 'nightfall', thunderhead: 'thunderhead',
   fjords: 'fjords', highlands: 'highlands', delta: 'delta', mesa: 'mesa', ashfall: 'ashfall',
   orbit: 'orbit', belt: 'belt', moon: 'moon', rings: 'rings', deep: 'deep',
+  reef: 'reef', kelp: 'kelp', wrecks: 'wrecks', trench: 'trench', abyss: 'abyss',
 };
 
 /** Each map's victory medal and golden star (doc 62). */
@@ -19,6 +20,7 @@ const MAP_MEDAL: Readonly<Partial<Record<MedalId, { map: CampaignId; kind: 'vict
   victory2: { map: 2, kind: 'victory' }, allstars2: { map: 2, kind: 'stars' },
   victory3: { map: 3, kind: 'victory' }, allstars3: { map: 3, kind: 'stars' },
   victory4: { map: 4, kind: 'victory' }, allstars4: { map: 4, kind: 'stars' },
+  victory5: { map: 5, kind: 'victory' }, allstars5: { map: 5, kind: 'stars' },
 };
 
 const bossCleared = (progress: SaveData['progress'], theater: TheaterId): boolean =>

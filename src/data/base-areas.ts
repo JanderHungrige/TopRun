@@ -1,5 +1,9 @@
+import { SEA_AREAS, SPACE_AREAS } from './base-docks';
+import type { CampaignId } from './types';
+
 // Hangar base (doc 30): the areas of the home-base hangar — where each one is on the 1280 × 720 screen, which row
 // it sits in for ↑ / ↓, where its name plate goes and where the pilot stands in front of it. Left → right order.
+// The base has three looks (doc 73): the carrier hangar, the space dock (map 4) and the sea dock (map 5).
 
 export type BaseAreaId = 'fun' | 'tv' | 'locker' | 'photos' | 'jet' | 'ladder' | 'chalk' | 'exit';
 
@@ -49,3 +53,12 @@ export const RUN_SPEED = 900;
 /** Floor distance covered by one walk cycle (8 key frames). */
 export const STRIDE_PX = 120;
 export const WALK_FRAMES = 8;
+
+/** The base's look: the carrier hangar on maps 1–3, the space-station dock on map 4, the underwater dock on map 5. */
+export type BaseLook = 'carrier' | 'space' | 'sea';
+
+const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'space', 5: 'sea' };
+export const baseLookOf = (c: CampaignId): BaseLook => LOOK_OF[c];
+
+const AREAS_OF: Readonly<Record<BaseLook, Readonly<Record<BaseAreaId, BaseAreaDef>>>> = { carrier: BASE_AREAS, space: SPACE_AREAS, sea: SEA_AREAS };
+export const baseAreas = (look: BaseLook): Readonly<Record<BaseAreaId, BaseAreaDef>> => AREAS_OF[look];

@@ -1,6 +1,6 @@
 import { boardIdentity, boardLink } from '../core/chalkboard-link';
 import type { Scene } from '../core/scene';
-import { BASE_AREA_IDS, BASE_AREAS, RUN_SPEED, WALK_SPEED, type BaseAreaId } from '../data/base-areas';
+import { BASE_AREA_IDS, baseAreas, baseLookOf, RUN_SPEED, WALK_SPEED, type BaseAreaDef, type BaseAreaId, type BaseLook } from '../data/base-areas';
 import {
   areaAt, areaRoute, arrivedAt, neighbour, stepWalker, walkerAt, walkTo, type NavDir, type Walker,
 } from '../game/base-hangar';
@@ -10,6 +10,7 @@ import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { faceOf } from '../render/avatars/person';
 import { drawHangar, type HangarText } from '../render/base';
+import { drawDock } from '../render/base/dock';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { pilotStanding } from './pilot-rating';
 
@@ -31,6 +32,7 @@ const DIRS: readonly NavDir[] = ['left', 'right', 'up', 'down'];
 /**
  * BASE (doc 30): the home-base hangar in animated pixel art. The highlight moves between the areas (arrows,
  * hover), the pilot walks to the highlighted one, ENTER / click opens it once the pilot gets there; ESC → map.
+ * Coming from map 4 it is the space dock, from map 5 the sea dock (doc 73).
  */
 export class HangarBaseScene implements Scene {
   private time = 0;
@@ -43,14 +45,18 @@ export class HangarBaseScene implements Scene {
   private readonly wingman: SpeechBox;
   private readonly names: Readonly<Record<BaseAreaId, string>>;
   private readonly board: readonly string[];
+  private readonly look: BaseLook;
+  private readonly areas: Readonly<Record<BaseAreaId, BaseAreaDef>>;
 
   constructor(private readonly game: GameContext) {
+    this.look = baseLookOf(game.home);
+    this.areas = baseAreas(this.look);
     const back = lastOpened;
     this.greet = back === null;
     this.focus = back ?? 'fun';
     this.walker = back
-      ? walkerAt(BASE_AREAS[back].standX)
-      : walkTo(walkerAt(BASE_AREAS.exit.standX, -1), BASE_AREAS.fun.standX);
+      ? walkerAt(this.areas[back].standX)
+      : walkTo(walkerAt(this.areas.exit.standX, -1), this.areas.fun.standX);
     this.pointer = { x: game.input.pointer.x, y: game.input.pointer.y };
     this.wingman = new SpeechBox(game.audio, {
       portrait: { x: 20, y: 14, w: 84, h: 100 },
@@ -74,22 +80,22 @@ export class HangarBaseScene implements Scene {
     this.wingman.update(dt, this.game.input);
     if (!this.opening && !this.left) this.handleInput();
     this.walker = stepWalker(this.walker, dt, this.opening ? RUN_SPEED : WALK_SPEED);
-    if (this.opening && arrivedAt(this.walker, this.opening)) this.leave(this.opening);
+    if (this.opening && arrivedAt(this.walker, this.opening, this.areas)) this.leave(this.opening);
   }
 
   private handleInput(): void {
     const input = this.game.input;
     if (input.pressed('back') || input.pressed('base')) return this.toMap();
-    for (const dir of DIRS) if (input.pressed(dir)) this.setFocus(neighbour(this.focus, dir));
+    for (const dir of DIRS) if (input.pressed(dir)) this.setFocus(neighbour(this.focus, dir, this.areas));
     const p = input.pointer;
     if (input.device !== 'touch' && (p.x !== this.pointer.x || p.y !== this.pointer.y)) {
       this.pointer.x = p.x;
       this.pointer.y = p.y;
-      const hover = areaAt(p);
+      const hover = areaAt(p, this.areas);
       if (hover) this.setFocus(hover);
     }
     for (const tap of input.taps) {
-      const id = areaAt(tap);
+      const id = areaAt(tap, this.areas);
       if (!id) continue;
       this.setFocus(id);
       return this.open(id);
@@ -101,14 +107,14 @@ export class HangarBaseScene implements Scene {
     if (id === this.focus) return;
     this.focus = id;
     this.game.audio.play('uiMove');
-    this.walker = walkTo(this.walker, BASE_AREAS[id].standX);
+    this.walker = walkTo(this.walker, this.areas[id].standX);
   }
 
   /** The pilot hurries to the area; the route is taken on arrival (update). */
   private open(id: BaseAreaId): void {
     this.opening = id;
     this.game.audio.play('uiSelect');
-    this.walker = walkTo(this.walker, BASE_AREAS[id].standX);
+    this.walker = walkTo(this.walker, this.areas[id].standX);
   }
 
   private leave(id: BaseAreaId): void {
@@ -133,11 +139,12 @@ export class HangarBaseScene implements Scene {
   render(ctx: CanvasRenderingContext2D): void {
     const save = this.game.save;
     const sync = boardLink().sync;
-    drawHangar(ctx, {
+    const view = {
       t: this.time, focus: this.focus, plane: save.selectedPlane, livery: save.livery[save.selectedPlane],
       face: faceOf(this.game.profile), walker: this.walker, board: this.board, text: this.text(),
       chalk: { cells: sync.known ? sync.view : null, version: sync.version },
-    });
+    };
+    if (this.look === 'carrier' || !drawDock(ctx, this.look, view, this.areas)) drawHangar(ctx, view);
     this.wingman.render(ctx);
   }
 }

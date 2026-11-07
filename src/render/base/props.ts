@@ -107,13 +107,18 @@ function cone(p: Pix, x: number, base: number): void {
 
 const CONES: readonly (readonly [number, number])[] = [[1062, 614], [1240, 622]];
 
+/** The TV on its cart with the video recorder (doc 63) — also the docks' TV (doc 73), moved there. */
+export function paintTvSet(p: Pix): void {
+  tvCart(p);
+  vcr(p);
+  tv(p);
+}
+
 /** Everything in front of the jet, on a transparent layer. */
 export function paintProps(p: Pix): void {
   cart(p);
   mug(p);
-  tvCart(p);
-  vcr(p);
-  tv(p);
+  paintTvSet(p);
   for (const [x, base] of CONES) cone(p, x, base);
 }
 

@@ -57,8 +57,10 @@ const SPARKS: Readonly<Record<CampaignId, readonly string[]>> = {
   5: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
 };
 
-/** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. */
-export function drawFireworks(ctx: Ctx, world: CampaignId, t: number): void {
+/** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. Under the sea (world 5's
+ *  first shot, doc 72) the bursts are rings of bubbles that rise and wobble. */
+export function drawFireworks(ctx: Ctx, world: CampaignId, t: number, shot = 0): void {
+  if (world === 5 && shot === 0) return bubbleBursts(ctx, t);
   const colours = SPARKS[world];
   for (let i = Math.max(0, Math.floor((t - 1.6) / 0.55)); i <= Math.floor(t / 0.55); i++) {
     const age = t - i * 0.55;
@@ -74,6 +76,25 @@ export function drawFireworks(ctx: Ctx, world: CampaignId, t: number): void {
       ctx.fillRect(snap(cx + Math.cos(a) * d), snap(cy + Math.sin(a) * d + age * age * 30), ART, ART);
     }
     ctx.fillRect(snap(cx), snap(cy), ART * 2, ART * 2);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function bubbleBursts(ctx: Ctx, t: number): void {
+  ctx.strokeStyle = '#e8fbff';
+  ctx.lineWidth = ART / 2;
+  for (let i = Math.max(0, Math.floor((t - 2.4) / 0.55)); i <= Math.floor(t / 0.55); i++) {
+    const age = t - i * 0.55;
+    if (age < 0 || age > 2.4) continue;
+    const cx = 140 + hash(i * 3.1) * 1000;
+    const cy = 200 + hash(i * 7.7) * 260 - age * 60;
+    ctx.globalAlpha = Math.max(0, 1 - age / 2.4);
+    for (let k = 0; k < 10; k++) {
+      const a = (k / 10) * Math.PI * 2 + i;
+      const d = Math.min(1, age * 2) * (60 + hash(i + k) * 30);
+      const r = ART * (1 + (k % 3) * 0.5);
+      ctx.strokeRect(snap(cx + Math.cos(a) * d + Math.sin(t * 4 + k) * 4), snap(cy + Math.sin(a) * d - age * age * 20), r, r);
+    }
   }
   ctx.globalAlpha = 1;
 }

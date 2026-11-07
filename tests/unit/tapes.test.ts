@@ -27,6 +27,7 @@ describe('Hangar TV (doc 63)', () => {
     const progress = Object.fromEntries(campaignMissions(1).map((m) => [m.id, { stars: 1 }]));
     expect(tapeShelf({ ...defaultSave(), progress })).toEqual([
       { world: 1, finished: true }, { world: 2, finished: false }, { world: 3, finished: false }, { world: 4, finished: false },
+      { world: 5, finished: false },
     ]);
   });
 });

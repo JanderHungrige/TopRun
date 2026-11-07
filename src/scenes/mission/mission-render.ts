@@ -8,6 +8,7 @@ import { drawPickups } from './pickups';
 import { hidden } from './projectiles';
 import { isMiniBoss } from '../../data/reinforcements';
 import { PF_H, PF_W, type Bullet, type Enemy, type World } from './world';
+import { drawCanyon } from './canyon-run';
 
 const SHADOW_DX = 16;
 const SHADOW_DY = 26;
@@ -201,6 +202,7 @@ function drawNuke(ctx: CanvasRenderingContext2D, world: World, t: number): void 
 
 export function renderWorld(ctx: CanvasRenderingContext2D, world: World, p: Player, t: number): void {
   world.terrain.renderGround(ctx);
+  drawCanyon(ctx, world);
   for (const w of world.wrecks) drawWreck(ctx, w.kind, w.x, w.y, t);
   for (const e of world.enemies) if (e.layer === 'ground') drawEnemyUnit(ctx, e, t);
   if (world.boss?.def.layer === 'ground') world.boss.render(ctx);

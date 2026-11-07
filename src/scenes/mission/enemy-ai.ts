@@ -2,13 +2,16 @@ import type { AudioEngine } from '../../core/audio';
 import { ENEMIES, SEA_KINDS } from '../../data/enemies';
 import type { Behavior, EnemyKind } from '../../data/types';
 import { LOITER, loiter, STEALTH } from '../../game/adversaries';
+import { clampToChannel } from '../../game/canyon';
 import { scaleEnemy, steerHoming } from '../../game/combat';
 import { mapTwoHp, payScale } from '../../game/map-two';
 import type { Player } from './player';
 import { fireEnemyWeapon } from './weapons-fire';
 import { PF_H, PF_W, type Enemy, type World } from './world';
 
-export function spawnEnemy(world: World, kind: EnemyKind, x: number, behavior: Behavior, y = -50): Enemy {
+export function spawnEnemy(world: World, kind: EnemyKind, spawnX: number, behavior: Behavior, y = -50): Enemy {
+  const gorge = world.canyonAt(0); // inside a canyon run, enemies come down the channel (doc 52)
+  const x = gorge ? clampToChannel(spawnX, gorge) : spawnX;
   const def = ENEMIES[kind];
   const sc = scaleEnemy(def, world.mission.difficulty);
   const hp = Math.round(sc.hp * mapTwoHp(world.mission.number));

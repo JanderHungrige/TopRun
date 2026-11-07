@@ -12,6 +12,7 @@ import { PLANES } from '../src/data/planes';
 import type { EquipmentId, MissionDef, PlaneId, SecondaryId } from '../src/data/types';
 import { buyMark, canBuyMark } from '../src/game/arsenal';
 import { objectiveMet } from '../src/game/objectives';
+import { clampToChannel } from '../src/game/canyon';
 import { scaleEnemy } from '../src/game/combat';
 import { buy, canBuy, mount, type ShopItem } from '../src/game/economy';
 import { kitView } from '../src/game/kit';
@@ -94,7 +95,7 @@ function loadOut(save: SaveData): SaveData {
   return s;
 }
 
-export interface RunResult { hullsPerMin: number; killShare: number; objective: boolean; bossSec: number | null; minutes: number }
+export interface RunResult { hullsPerMin: number; killShare: number; objective: boolean; bossSec: number | null; minutes: number; crashed: boolean }
 
 interface Bot { dir: { x: number; y: number }; ground: boolean; air: boolean; special: boolean; flare: boolean }
 
@@ -112,6 +113,8 @@ function decide(sc: MissionScene): Bot {
   let tx = target ? target.x : PF_W / 2;
   const danger = w.bullets.find((b) => (b.kind === 'enemy' || b.kind === 'flak') && b.y < p.y && p.y - b.y < 110 && Math.abs(b.x - p.x) < 24);
   if (danger) tx = p.x + (danger.x > p.x ? -60 : 60);
+  // Canyon runs (doc 52): stay well inside the walls of this row and the row ahead, whatever else it wants.
+  for (const lane of [w.canyonAt(p.y), w.canyonAt(p.y - 60)]) if (lane) tx = clampToChannel(tx, lane, 55);
   const dx = Math.max(-1, Math.min(1, (tx - p.x) / 30));
   const dy = Math.max(-1, Math.min(1, (PF_H - 150 - p.y) / 40));
   const missile = w.missiles.some((m) => m.kind === 'enemy' && Math.hypot(m.x - p.x, m.y - p.y) < 160);
@@ -158,7 +161,7 @@ export async function run(id: string, save: SaveData): Promise<RunResult> {
   return {
     hullsPerMin: +(w.perf.damage / p.maxHull / minutes).toFixed(2), killShare: +(w.tally.kills / Math.max(1, w.spawned)).toFixed(2),
     objective: objectiveMet(w.mission.objective, w.tally, true), bossSec: bossIn !== null && bossOut !== null ? +(bossOut - bossIn).toFixed(1) : null,
-    minutes: +minutes.toFixed(2),
+    minutes: +minutes.toFixed(2), crashed: w.crashed,
   };
 }
 

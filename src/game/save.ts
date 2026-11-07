@@ -12,6 +12,7 @@ import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapo
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
 import { freshHeliKit, parseHeliKit, type HeliKit, type Kit } from './kit';
+import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
@@ -69,6 +70,8 @@ export interface SaveData {
   kit: Kit;
   /** The helicopters' own kit (doc 49). */
   heli: HeliKit;
+  /** The spacecraft (doc 54). */
+  ship: ShipKit;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -114,6 +117,7 @@ export function defaultSave(): SaveData {
     admin: false,
     kit: 'jet',
     heli: freshHeliKit(),
+    ship: freshShip(),
   };
 }
 
@@ -220,6 +224,7 @@ export function parseSave(raw: unknown): SaveData | null {
     admin: false,
     kit: 'jet',
     heli: parseHeliKit(raw.heli),
+    ship: parseShip(raw.ship),
   };
 }
 

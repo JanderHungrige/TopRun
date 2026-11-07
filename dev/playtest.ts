@@ -16,6 +16,9 @@ import { clampToChannel } from '../src/game/canyon';
 import { scaleEnemy } from '../src/game/combat';
 import { buy, canBuy, mount, type ShopItem } from '../src/game/economy';
 import { kitView } from '../src/game/kit';
+import { canPlace, place, shipStats } from '../src/game/ship';
+import { buyLaser, buyModule, canBuyLaser, canBuyModule } from '../src/game/ship-shop';
+import { GRID, type ModuleId } from '../src/data/ship-modules';
 import { payScale } from '../src/game/map-two';
 import { defaultSave, type SaveData } from '../src/game/save';
 import type { GameContext, Route } from '../src/game/state';
@@ -175,4 +178,55 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
   for (let i = 0; i < runs; i++) results.push(await run(id, s));
   const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 3).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
   return { kit, results };
+}
+
+// ---------- Map 4: the spacecraft (doc 54) ----------
+
+type ShipStep = ModuleId | 'power';
+
+/** A sensible shipyard list on top of the starter ship: laser power first, then hull, a capsule, rockets, shields. */
+export const SHIP_ORDER: readonly ShipStep[] = [
+  'power', 'power', 'plate', 'capsule', 'power', 'laser', 'rockets', 'reactor', 'shield', 'power', 'engine', 'plate',
+  'rockets', 'laser', 'power', 'shield', 'reactor', 'power', 'plate', 'laser', 'power', 'shield', 'power', 'power', 'power',
+];
+
+/** Where a module goes: the first valid cell, lasers and the capsule up front, engines aft, the rest beside the core. */
+function autoPlace(ship: SaveData['ship'], id: ModuleId): SaveData['ship'] {
+  const cells: { col: number; row: number }[] = [];
+  for (let col = 0; col < GRID.cols; col++) for (let row = 0; row < GRID.rows; row++) cells.push({ col, row });
+  const want = id === 'engine' || id === 'shield' || id === 'reactor' ? 1 : id === 'plate' || id === 'rockets' ? 0 : -1;
+  const score = (c: { col: number; row: number }): number =>
+    Math.abs(c.col - GRID.core.col) * 2 + Math.abs(c.row - GRID.core.row) + (Math.sign(c.row - GRID.core.row) === want ? 0 : 3);
+  for (const c of cells.sort((a, b) => score(a) - score(b))) if (canPlace(ship, id, c.col, c.row).ok) return place(ship, id, c.col, c.row);
+  return ship;
+}
+
+/** The ship at the start of mission `n` (91–), money from map 4 only, bought down SHIP_ORDER and placed by autoPlace. */
+export function shipKitAt(n: number): { save: SaveData; earned: number } {
+  const cleared = Object.fromEntries(Array.from({ length: n - 1 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 2 }]));
+  let save = kitView({ ...defaultSave(), money: 0, progress: cleared }, 'ship');
+  let next = 0;
+  let earned = 0;
+  for (let k = 91; k < n; k++) {
+    const m = missionById(`m${k}`);
+    if (!m) break;
+    earned += income(m);
+    save = { ...save, money: save.money + income(m) };
+    for (let s = SHIP_ORDER[next]; s; s = SHIP_ORDER[next]) {
+      const ok = s === 'power' ? canBuyLaser(save).ok : canBuyModule(save, s).ok;
+      if (!ok) break;
+      save = s === 'power' ? buyLaser(save) : buyModule(save, s);
+      if (s !== 'power') save = { ...save, ship: autoPlace(save.ship, s) };
+      next += 1;
+    }
+  }
+  return { save, earned };
+}
+
+export async function flyShip(id: string, runs = 3): Promise<{ kit: string; results: RunResult[] }> {
+  const k = shipKitAt(Number(id.slice(1)));
+  const results: RunResult[] = [];
+  for (let i = 0; i < runs; i++) results.push(await run(id, k.save));
+  const st = shipStats(k.save.ship);
+  return { kit: `${st.cells.length} modules, laser ${k.save.ship.laserLevel}, hull ${st.hull}, ${st.barrels.length} barrels`, results };
 }

@@ -10,7 +10,14 @@ export const MAP_THREE = Object.freeze({
   ramp: 0.03,
 });
 
-export const onMapThree = (missionNumber: number): boolean => missionNumber > MAP_THREE.from;
+/** Map 4 (doc 56) pays the same way on its own scale, from m91. */
+export const MAP_FOUR = Object.freeze({ from: 90, pay: 8, ramp: 0.03 });
 
-export const mapThreePay = (missionNumber: number): number =>
-  MAP_THREE.pay * (1 + MAP_THREE.ramp * Math.max(0, missionNumber - MAP_THREE.from - 1));
+export const onMapThree = (missionNumber: number): boolean => missionNumber > MAP_THREE.from;
+export const onMapFour = (missionNumber: number): boolean => missionNumber > MAP_FOUR.from;
+
+/** Map 3's pay factor, or map 4's from m91. */
+export function mapThreePay(missionNumber: number): number {
+  const m = onMapFour(missionNumber) ? MAP_FOUR : MAP_THREE;
+  return m.pay * (1 + m.ramp * Math.max(0, missionNumber - m.from - 1));
+}

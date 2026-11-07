@@ -35,6 +35,8 @@ const ADDS: Readonly<Record<TheaterId, readonly Reinforcement[]>> = {
   delta: [r('shilka', 73), r('bunker', 74)],
   mesa: [r('bunker', 79), r('shilka', 79), r('foxbat', 80)],
   ashfall: [r('frigate', 85), r('shilka', 85), r('bunker', 85), r('felon', 87)],
+  // Map 4 (doc 56): its own enemies only.
+  orbit: [],
 };
 
 /** Sea units need a sea theater (land units stand on islands in sea theaters). */

@@ -26,7 +26,7 @@ describe('Third map (doc 48)', () => {
     expect(MISSIONS_3[0]?.reward).toBe(1200);
     expect(MISSIONS_3[29]?.reward).toBe(Math.round((1200 + 29 * 380) * 1.5 / 100) * 100);
     expect(campaignMissions(3)).toEqual(MISSIONS_3);
-    expect(ALL_MISSIONS.slice(60)).toEqual(MISSIONS_3);
+    expect(ALL_MISSIONS.slice(60, 90)).toEqual(MISSIONS_3);
   });
 
   it('has five theaters of six missions, a boss every sixth', () => {

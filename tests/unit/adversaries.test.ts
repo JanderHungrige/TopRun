@@ -24,7 +24,8 @@ describe('New adversaries (doc 44)', () => {
     });
 
     it('brings something new in every theater from the Gulf on', () => {
-      const theaters = new Set(ALL_MISSIONS.filter((m) => m.number >= 8).map((m) => m.theater));
+      // Map 4 is space: it brings its own enemies (doc 56).
+      const theaters = new Set(ALL_MISSIONS.filter((m) => m.number >= 8 && m.campaign <= 3).map((m) => m.theater));
       for (const th of theaters) {
         const found = ALL_MISSIONS.filter((m) => m.theater === th).flatMap((m) => kindsIn(m.id)).filter((k) => NEW_KINDS.includes(k));
         expect(found.length, th).toBeGreaterThan(0);

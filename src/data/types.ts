@@ -6,18 +6,20 @@ export const JET_IDS: readonly JetId[] = Object.freeze(['f16', 'f14', 'sr71', 'a
 /** The map-3 helicopters: the Apache (doc 49), then the Tiger, Comanche and Hind (doc 51). */
 export type HeliId = 'ah64' | 'tiger' | 'rah66' | 'mi24';
 export const HELI_IDS: readonly HeliId[] = Object.freeze(['ah64', 'tiger', 'rah66', 'mi24'] as const);
-/** Everything the pilot can fly: jets and helicopters share the loadout, paint and progress records. */
-export type PlaneId = JetId | HeliId;
-export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS]);
+/** The map-4 spacecraft: one ship, built from modules (doc 54). */
+export type ShipId = 'starship';
+/** Everything the pilot can fly: jets, helicopters and the ship share the loadout, paint and progress records. */
+export type PlaneId = JetId | HeliId | ShipId;
+export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS, 'starship']);
 
 export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[]).includes(id);
 /** A plane as a jet, for what only jets do (minigames, photos, the hangar base): a helicopter reads as the F-16. */
 export const asJet = (id: PlaneId): JetId => (isJet(id) ? id : 'f16');
 
 /** AIM-120 and JDAM are sold once map 2 is open (doc 37); Hydra, Hellfire (doc 49) and Stinger (doc 51) are helicopter weapons. */
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger';
+export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
-  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger',
+  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -27,18 +29,20 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
 
 export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour';
 
-/** Map 1 (m01–m30), map 2 (m31–m60, doc 35) or map 3 (m61–m90, helicopters, doc 48). */
-export type CampaignId = 1 | 2 | 3;
-export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3] as const);
+/** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–, space, doc 56). */
+export type CampaignId = 1 | 2 | 3 | 4;
+export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4] as const);
 
 export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead'
-  | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall';
+  | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall'
+  | 'orbit';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall',
+  'orbit',
 ] as const);
 
 export type EnemyKind =
@@ -46,7 +50,9 @@ export type EnemyKind =
   | 'aa' | 'sam' | 'tank' | 'radar' | 'depot' | 'boat' | 'destroyer'
   // New adversaries and the three mini-bosses (doc 44).
   | 'shilka' | 'bunker' | 'foxbat' | 'jammer' | 'frigate' | 'felon'
-  | 'backfire' | 'fortress' | 'cruiser';
+  | 'backfire' | 'fortress' | 'cruiser'
+  // Map 4, space (doc 56).
+  | 'raider' | 'satgun' | 'corvette';
 
 export type Layer = 'air' | 'ground';
 
@@ -60,7 +66,8 @@ export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 
 export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
   | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus'
-  | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth';
+  | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth'
+  | 'halo';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 

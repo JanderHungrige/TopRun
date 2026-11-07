@@ -11,6 +11,8 @@ import { markOf, weaponStats, type WeaponStats } from './arsenal';
 import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
 import type { SaveData } from './save';
+import type { ShipStats } from './ship';
+import { shipPlayerStats } from './ship-loadout';
 
 export interface SecondaryAmmo {
   id: SecondaryId;
@@ -58,10 +60,13 @@ export interface PlayerStats {
   radarLevel: number;
   /** Paint job of the selected jet (doc 09). */
   livery: LiveryId;
+  /** The spacecraft's layout stats (doc 54); null for jets and helicopters. */
+  ship?: ShipStats | null;
 }
 
 /** The single source of the player's combat stats for a mission. */
 export function derivePlayerStats(save: SaveData): PlayerStats {
+  if (PLANES[save.selectedPlane].kind === 'ship') return shipPlayerStats(save);
   const plane = PLANES[save.selectedPlane];
   const eq = save.equipment;
   const secondaries: SecondaryAmmo[] = [];

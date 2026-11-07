@@ -18,6 +18,7 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   delta: { name: 'Flussdelta', tagline: 'Dem Wasser nach' },
   mesa: { name: 'Tafelberge', tagline: 'Roter Fels, lange Schatten' },
   ashfall: { name: 'Ascheinsel', tagline: 'Feuer unter der Asche' },
+  orbit: { name: 'Niedriger Orbit', tagline: 'Über dem Blau' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -57,6 +58,10 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Tarnmodus',
     description: 'Tarnkappen-Aufklärungshubschrauber. Der schnellste Rotor im Hangar; getarnt stellt der Feind das Feuer ein.',
   },
+  starship: {
+    specialName: 'Überladung',
+    description: 'Ein Schiff, das mit dir wächst: Jedes Modul, das du anbringst, ändert seine Form, Hülle, Geschwindigkeit und Waffen.',
+  },
   mi24: {
     specialName: 'Fliegender Panzer',
     description: 'Der fliegende Panzer. Schwere Panzerung, sechs Waffenstationen und ein paar Sekunden, in denen nichts durchkommt. Träge in der Kurve.',
@@ -74,6 +79,7 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   hydra: { name: 'Hydra-70-Raketenbehälter', description: 'Ein Behälter ungelenkter 70-mm-Raketen, im Fächer abgefeuert. Trifft Luft- und Bodenziele.' },
   hellfire: { name: 'AGM-114 Hellfire', description: 'Lasergelenkte Panzerabwehrrakete. Findet Panzer, Bunker und Boote.' },
   stinger: { name: 'FIM-92 Stinger', description: 'Wärmesuchende Luft-Luft-Rakete für Hubschrauber. Jagt Kampfhubschrauber und Jets.' },
+  spacerocket: { name: 'Weltraumrakete', description: 'Zielsuchende Raketen aus den Raketenflügeln. Sie finden alles, was sich bewegt.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
@@ -130,6 +136,7 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   radar: 'Radar Stations', depot: 'Fuel Depots', boat: 'Patrol Boats', destroyer: 'Destroyers',
   shilka: 'ZSU-23-4 Shilkas', bunker: 'Hardened Bunkers', foxbat: 'MiG-25 Foxbats', jammer: 'Il-22 Jammers',
   frigate: 'Missile Frigates', felon: 'Su-57 Felons', backfire: 'Tu-22M Backfires', fortress: 'AA Fortresses', cruiser: 'Missile Cruisers',
+  raider: 'Raider Fighters', satgun: 'Gun Satellites', corvette: 'Corvettes',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -155,6 +162,9 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   backfire: ['Tu-22M Backfire', 'Tu-22M Backfires'],
   fortress: ['Flakfestung', 'Flakfestungen'],
   cruiser: ['Raketenkreuzer', 'Raketenkreuzer'],
+  raider: ['Raider-Jäger', 'Raider-Jäger'],
+  satgun: ['Geschützsatellit', 'Geschützsatelliten'],
+  corvette: ['Korvette', 'Korvetten'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -173,4 +183,5 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   caiman: 'Flussmonitor',
   mammoth: 'Superschwerer Panzer',
   behemoth: 'Tandemrotor-Kampfhubschrauber',
+  halo: 'Ring-Kampfstation',
 };

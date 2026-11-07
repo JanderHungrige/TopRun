@@ -24,7 +24,7 @@ import { goldCount, playableIds } from './minigames/registry';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
 
 /** The gold banner when a map's finale is won (docs 35, 48). */
-const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = { 1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3' };
+const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = { 1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3', 4: 'debrief.finale4' };
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
   perfect: 'debrief.launchPerfect', good: 'debrief.launchGood', early: 'debrief.launchEarly',
@@ -73,7 +73,7 @@ export class DebriefScene implements Scene {
     this.stars = applied.stars;
     this.newBest = result.success && applied.stars > before;
     const last = campaignMissions(mission.campaign).at(-1);
-    this.finale = result.success && mission.id === last?.id && campaignComplete(applied.save, mission.campaign);
+    this.finale = result.success && mission.id === last?.id && mission.number % 30 === 0 && campaignComplete(applied.save, mission.campaign);
     this.buttons = new ButtonGroup([
       { id: 'map', label: t('debrief.continue'), x: 341, y: 648, w: 220, h: 50, primary: true },
       { id: 'retry', label: t('debrief.flyAgain'), x: 577, y: 648, w: 200, h: 50 },

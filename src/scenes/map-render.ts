@@ -28,10 +28,12 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   delta: { x: 770, y: 512 },
   mesa: { x: 420, y: 330 },
   ashfall: { x: 300, y: 686 },
+  // Map 4 (doc 56).
+  orbit: { x: 250, y: 470 },
 };
 
 /** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48). */
-const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'] };
+const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'], 4: ['#090c1c', '#03040b'] };
 
 const cached = new Map<CampaignId, HTMLCanvasElement>();
 

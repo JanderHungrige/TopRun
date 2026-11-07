@@ -75,6 +75,12 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.lowLevel': [
     'Und es gibt eine dritte Front: Tiefflug, nur Hubschrauber. Die Jets bleiben daheim. Sieh dir den Globus an, {callsign}.',
   ],
+  'adm.space': [
+    'Noch eine Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
+  ],
+  'adm.finale4': [
+    'Das war die letzte Grenze, {callsign}. Es gibt keinen Ort mehr, an den sie fliehen können.',
+  ],
   'adm.finale3': [
     'Die Ascheinsel gehört uns, {callsign}. Du hast diesen Krieg in Baumwipfelhöhe geführt. Ass der Asse.',
   ],

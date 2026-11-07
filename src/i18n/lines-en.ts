@@ -73,6 +73,12 @@ export const LINES_EN = {
   'adm.lowLevel': [
     "And there's a third front: low level, helicopters only. The jets stay home. Check the globe, {callsign}.",
   ],
+  'adm.space': [
+    "One more front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
+  ],
+  'adm.finale4': [
+    "That was the last frontier, {callsign}. There is nowhere left they can run.",
+  ],
   'adm.finale3': [
     "Ash Island is ours, {callsign}. You fought that war at treetop height. Ace of aces.",
   ],

@@ -50,6 +50,10 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   backfire: def('backfire', 'Tu-22M Backfire', 'air', 2000, 70, 44, 900, 'spread3', 1.8, ['loiter'], 'missile', 3.5),
   fortress: def('fortress', 'AA Fortress', 'ground', 2200, 0, 64, 1000, 'flak', 1.6, ['ground'], 'missile', 3.4),
   cruiser: def('cruiser', 'Missile Cruiser', 'ground', 2300, 20, 60, 1100, 'missile', 3.2, ['ground'], 'flak', 1.7),
+  // Space (doc 56): 'ground' is anything big and slow — satellites, warships.
+  raider: def('raider', 'Raider Fighter', 'air', 50, 230, 18, 50, 'aimed', 1.6, ['dive', 'swoop', 'sine']),
+  satgun: def('satgun', 'Gun Satellite', 'ground', 70, 0, 18, 50, 'flak', 2.4, ['ground']),
+  corvette: def('corvette', 'Corvette', 'ground', 380, 22, 46, 230, 'aimed', 1.5, ['ground'], 'missile', 4.6),
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(

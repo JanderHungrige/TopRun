@@ -181,6 +181,9 @@ export class Terrain {
         if (r.chance(0.5)) add('whitecap', r.range(8, 18));
         if (r.chance(0.06)) add('island', r.range(30, 60));
         return;
+      case 'space':
+        if (r.chance(0.07)) add('rock', r.range(10, 30));
+        return;
       default:
         throw new Error(`unhandled: ${this.theater.terrain satisfies never}`);
     }

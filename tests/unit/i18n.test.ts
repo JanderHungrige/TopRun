@@ -71,7 +71,7 @@ describe('Languages', () => {
         expect(MISSIONS_DE[m.id]?.name, m.id).toBeTruthy();
         expect(MISSIONS_DE[m.id]?.briefing, m.id).toBeTruthy();
       }
-      expect(Object.keys(MISSIONS_DE)).toHaveLength(90);
+      expect(Object.keys(MISSIONS_DE)).toHaveLength(ALL_MISSIONS.length);
       THEATER_IDS.forEach((id) => expect(THEATERS_DE[id].name).toBeTruthy());
       PLANE_IDS.forEach((id) => expect(PLANES_DE[id].description).toBeTruthy());
       SECONDARY_IDS.forEach((id) => expect(SECONDARIES_DE[id].description).toBeTruthy());

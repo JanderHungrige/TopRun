@@ -4,7 +4,7 @@ import { atLevel, RADAR_AHEAD } from '../../data/equipment';
 import { PLANES } from '../../data/planes';
 import { SECONDARIES } from '../../data/weapons';
 import type { Device } from '../../core/input';
-import { buttonStates, radarContacts, scopeJammed, warningLights, type ButtonStates } from '../../game/cockpit';
+import { buttonStates, cockpitSkin, radarContacts, scopeJammed, warningLights, type ButtonStates } from '../../game/cockpit';
 import { defaultProfile, type JoyAction, type JoyProfile } from '../../game/joystick';
 import { canSwitch, slotFor } from '../../game/loadout';
 import { objectiveProgress } from '../../game/objectives';
@@ -66,7 +66,7 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
   const nextGround = slotFor(p.secondaries, 'ground', p.groundPick);
   const boss = w.boss && w.boss.phase !== 'gone' ? { x: w.boss.x, y: w.boss.y } : null;
   return {
-    plane: p.stats.plane.id, planeName: PLANES[p.stats.plane.id].name, callsign,
+    skin: cockpitSkin(p.stats.plane.kind), plane: p.stats.plane.id, planeName: PLANES[p.stats.plane.id].name, callsign,
     radar: {
       early: p.stats.earlyWarning,
       jammed: scopeJammed(w.jammed, p.stats.radarLevel),
@@ -96,7 +96,7 @@ export function rightView(w: World, p: Player, labels: CockpitLabels, keys: Cock
   const prog = objectiveProgress(m.objective, w.tally);
   const boss = w.boss && w.boss.phase !== 'gone' ? w.boss : null;
   return {
-    missionNumber: m.number, missionName: missionName(m), objective: objectiveText(m.objective),
+    skin: cockpitSkin(p.stats.plane.kind), missionNumber: m.number, missionName: missionName(m), objective: objectiveText(m.objective),
     progress: prog.required > 0 ? prog : null, kills: w.tally.kills, cash: formatMoney(w.collected),
     route: Math.min(1, w.t / m.length),
     boss: boss ? { name: BOSSES[boss.def.id].name, title: bossTitle(boss.def.id), ratio: boss.hp / boss.maxHp, enraged: boss.enraged } : null,

@@ -5,13 +5,14 @@ import { lampsLive } from './lamps';
 import { LEFT, RIGHT } from './layout';
 import { missionLive } from './mission';
 import { buildLeft, buildRight } from './plates';
+import { useSkin } from './skin';
 import { radarJammed, radarLive } from './radar';
 import { storesLive } from './screens';
 import type { CockpitLabels, LeftConsoleView, RightConsoleView } from './types';
 
 /**
- * The mission HUD side consoles as 80s fighter cockpit panels (doc 05). Every element stays inside its rect from
- * layout.ts. The metal plates, bezels, dial faces and engraved legends are painted once into an offscreen canvas
+ * The mission HUD side consoles as 80s fighter cockpit panels (doc 05), in the craft's skin (doc 61). Every element
+ * stays inside its rect from layout.ts. The metal plates, bezels, dial faces and engraved legends are painted once into an offscreen canvas
  * per console at the current device scale; each frame only blits that and draws the live instruments on top.
  */
 
@@ -57,10 +58,11 @@ function blitPlate(ctx: CanvasRenderingContext2D, c: PlateCache, key: string, x:
 }
 
 export function drawLeftConsole(ctx: CanvasRenderingContext2D, v: LeftConsoleView, t: number): void {
+  useSkin(v.skin);
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const key = `${v.plane}|${v.planeName}|${v.callsign}|${keyOfLabels(v.labels)}`;
+  const key = `${v.skin}|${v.plane}|${v.planeName}|${v.callsign}|${keyOfLabels(v.labels)}`;
   blitPlate(ctx, leftCache, key, LEFT.panel.x, (o) => buildLeft(o, v));
   radarLive(ctx, LEFT.radar, v.radar.contacts, v.radar.early, v.labels.early, t);
   if (v.radar.jammed) radarJammed(ctx, LEFT.radar, t);
@@ -74,13 +76,15 @@ export function drawLeftConsole(ctx: CanvasRenderingContext2D, v: LeftConsoleVie
   keyCap(ctx, LEFT.groundBtn, v.keys.ground);
   if (v.swap) keyCap(ctx, LEFT.stores, v.keys.switch);
   ctx.restore();
+  useSkin('jet');
 }
 
 export function drawRightConsole(ctx: CanvasRenderingContext2D, v: RightConsoleView, t: number): void {
+  useSkin(v.skin);
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const key = keyOfLabels(v.labels);
+  const key = `${v.skin}|${keyOfLabels(v.labels)}`;
   blitPlate(ctx, rightCache, key, RIGHT.panel.x, (o) => buildRight(o, v));
   missionLive(ctx, RIGHT.mission, v, t);
   lampsLive(ctx, RIGHT.warnings, v.warnings, v.labels, t);
@@ -94,5 +98,6 @@ export function drawRightConsole(ctx: CanvasRenderingContext2D, v: RightConsoleV
   keyCap(ctx, RIGHT.specialBtn, v.keys.special);
   keyCap(ctx, RIGHT.pauseBtn, v.keys.pause);
   ctx.restore();
+  useSkin('jet');
 }
 

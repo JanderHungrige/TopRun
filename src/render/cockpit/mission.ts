@@ -1,25 +1,25 @@
 import type { Rect } from './layout';
-import { PHOSPHOR, PHOSPHOR_DIM, rr, screenText } from './metal';
+import { rr, screenText } from './metal';
+import { SK } from './skin';
 import { bar, screenRect, wrapMono } from './screens';
 import type { RightConsoleView } from './types';
 
 /** The right-hand mission MFD: mission tag + name, objective, progress, kills/cash, route, and the boss target box. */
 
-const DARK = '#041409';
 const ALERT = '#ff5a48';
 
 function header(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, v: RightConsoleView): void {
   rr(ctx, x, y - 8, 28, 16, 2);
-  ctx.fillStyle = PHOSPHOR;
+  ctx.fillStyle = SK.ink;
   ctx.fill();
-  screenText(ctx, String(v.missionNumber).padStart(2, '0'), x + 14, y + 0.5, { size: 12, align: 'center', color: DARK, weight: 900 });
+  screenText(ctx, String(v.missionNumber).padStart(2, '0'), x + 14, y + 0.5, { size: 12, align: 'center', color: SK.screenBg, weight: 900 });
   screenText(ctx, v.missionName, x + 36, y, { size: 12.5, maxW: w - 36, weight: 900 });
-  ctx.fillStyle = PHOSPHOR_DIM;
+  ctx.fillStyle = SK.inkDim;
   ctx.fillRect(x, y + 11, w, 1);
 }
 
 function objective(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, v: RightConsoleView): number {
-  screenText(ctx, v.labels.objective, x, y, { size: 9.5, maxW: w, color: PHOSPHOR_DIM, weight: 800, spacing: 1 });
+  screenText(ctx, v.labels.objective, x, y, { size: 9.5, maxW: w, color: SK.inkDim, weight: 800, spacing: 1 });
   const lines = wrapMono(ctx, v.objective, w, 11, 2);
   lines.forEach((l, i) => screenText(ctx, l, x, y + 14 + i * 13, { size: 11, maxW: w }));
   let bottom = y + 14 + lines.length * 13;
@@ -34,18 +34,18 @@ function objective(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
 
 function stats(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, v: RightConsoleView): void {
   const half = w / 2 - 4;
-  screenText(ctx, v.labels.kills, x, y, { size: 9.5, maxW: half - 34, color: PHOSPHOR_DIM, weight: 800, spacing: 1 });
+  screenText(ctx, v.labels.kills, x, y, { size: 9.5, maxW: half - 34, color: SK.inkDim, weight: 800, spacing: 1 });
   screenText(ctx, String(v.kills), x + half, y, { size: 12, align: 'right', maxW: 34, weight: 900 });
-  screenText(ctx, v.labels.cash, x + half + 10, y, { size: 9.5, maxW: half - 70, color: PHOSPHOR_DIM, weight: 800, spacing: 1 });
+  screenText(ctx, v.labels.cash, x + half + 10, y, { size: 9.5, maxW: half - 70, color: SK.inkDim, weight: 800, spacing: 1 });
   screenText(ctx, v.cash, x + w, y, { size: 12, align: 'right', maxW: 70, weight: 900 });
   const ry = y + 17;
-  screenText(ctx, v.labels.route, x, ry, { size: 9.5, maxW: 58, color: PHOSPHOR_DIM, weight: 800, spacing: 1 });
+  screenText(ctx, v.labels.route, x, ry, { size: 9.5, maxW: 58, color: SK.inkDim, weight: 800, spacing: 1 });
   const bx = x + 64;
   const bw = w - 64;
   const f = Math.max(0, Math.min(1, v.route));
-  bar(ctx, bx, ry - 4, bw, 8, f, PHOSPHOR_DIM);
+  bar(ctx, bx, ry - 4, bw, 8, f, SK.inkDim);
   const mx = bx + 2 + (bw - 4) * f;
-  ctx.fillStyle = PHOSPHOR;
+  ctx.fillStyle = SK.ink;
   ctx.beginPath();
   ctx.moveTo(mx, ry - 7);
   ctx.lineTo(mx + 4, ry + 5);
@@ -66,7 +66,7 @@ function corners(ctx: CanvasRenderingContext2D, r: Rect, l: number): void {
 
 function bossBox(ctx: CanvasRenderingContext2D, r: Rect, b: NonNullable<RightConsoleView['boss']>, t: number): void {
   const flash = b.enraged && Math.floor(t * 4) % 2 === 0;
-  const ink = b.enraged ? ALERT : PHOSPHOR;
+  const ink = b.enraged ? ALERT : SK.ink;
   ctx.strokeStyle = ink;
   ctx.lineWidth = 1.6;
   corners(ctx, r, 10);
@@ -77,7 +77,7 @@ function bossBox(ctx: CanvasRenderingContext2D, r: Rect, b: NonNullable<RightCon
   const x = r.x + 10;
   const w = r.w - 20;
   screenText(ctx, b.name, x, r.y + 15, { size: 13, maxW: w, color: ink, weight: 900 });
-  screenText(ctx, b.title, x, r.y + 31, { size: 10, maxW: w, color: b.enraged ? 'rgba(255,90,72,0.75)' : PHOSPHOR_DIM, weight: 800 });
+  screenText(ctx, b.title, x, r.y + 31, { size: 10, maxW: w, color: b.enraged ? 'rgba(255,90,72,0.75)' : SK.inkDim, weight: 800 });
   bar(ctx, x, r.y + r.h - 22, w, 12, b.ratio, flash ? '#ffb0a6' : ink);
 }
 

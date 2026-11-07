@@ -1,25 +1,25 @@
 import type { Contact } from '../../game/cockpit';
 import type { Dial } from './layout';
-import { PHOSPHOR, roundBezel, rr, screenText } from './metal';
+import { roundBezel, rr, screenText } from './metal';
+import { SK } from './skin';
 
-/** Green-phosphor radar CRT: static scope for the plate cache, live sweep + blips per frame. */
+/** Radar CRT in the skin's ink (doc 61): static scope for the plate cache, live sweep + blips per frame. */
 
 const TAU = Math.PI * 2;
 const SCREEN = 0.86; // CRT radius as a fraction of the dial radius
 const TRAIL = 1.7; // afterglow behind the beam (rad)
-const GREEN = '98,240,138';
 
 export function radarStatic(ctx: CanvasRenderingContext2D, d: Dial, seed: number): void {
   const R = d.r * SCREEN;
   roundBezel(ctx, d.cx, d.cy, d.r, R, seed);
   const g = ctx.createRadialGradient(d.cx, d.cy, R * 0.05, d.cx, d.cy, R);
-  g.addColorStop(0, '#0d2e19');
-  g.addColorStop(1, '#03100a');
+  g.addColorStop(0, SK.scope[0]);
+  g.addColorStop(1, SK.scope[1]);
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.arc(d.cx, d.cy, R, 0, TAU);
   ctx.fill();
-  ctx.strokeStyle = `rgba(${GREEN},0.2)`;
+  ctx.strokeStyle = `rgba(${SK.inkRgb},0.2)`;
   ctx.lineWidth = 0.8;
   ctx.beginPath();
   for (const k of [1 / 3, 2 / 3, 0.985]) {
@@ -37,7 +37,7 @@ export function radarStatic(ctx: CanvasRenderingContext2D, d: Dial, seed: number
     ctx.lineTo(d.cx + Math.cos(a) * (R - l), d.cy + Math.sin(a) * (R - l));
   }
   ctx.stroke();
-  ctx.fillStyle = PHOSPHOR; // own ship
+  ctx.fillStyle = SK.ink; // own ship
   ctx.beginPath();
   ctx.moveTo(d.cx, d.cy - 6);
   ctx.lineTo(d.cx + 4.5, d.cy + 4.5);
@@ -58,15 +58,15 @@ function blip(ctx: CanvasRenderingContext2D, c: Contact, x: number, y: number, g
   switch (c.kind) {
     case 'air':
     case 'ground': {
-      ctx.fillStyle = `rgba(${GREEN},${(glow * 0.25).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${SK.inkRgb},${(glow * 0.25).toFixed(3)})`;
       dot(ctx, x, y, 6);
-      ctx.fillStyle = `rgba(${GREEN},${(0.25 + glow * 0.75).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${SK.inkRgb},${(0.25 + glow * 0.75).toFixed(3)})`;
       if (c.kind === 'air') dot(ctx, x, y, 2.6);
       else ctx.fillRect(x - 2.4, y - 2.4, 4.8, 4.8);
       return;
     }
     case 'boss': {
-      ctx.fillStyle = `rgba(${GREEN},${(0.15 + glow * 0.3).toFixed(3)})`;
+      ctx.fillStyle = `rgba(${SK.inkRgb},${(0.15 + glow * 0.3).toFixed(3)})`;
       dot(ctx, x, y, 11);
       ctx.fillStyle = `rgba(190,255,205,${(0.5 + glow * 0.5).toFixed(3)})`;
       ctx.beginPath();
@@ -129,7 +129,7 @@ export function radarJammed(ctx: CanvasRenderingContext2D, d: Dial, t: number): 
     const k = h - Math.floor(h);
     const a = k * TAU * 7;
     const r = Math.sqrt((Math.sin(i * 78.233 + seed) * 0.5 + 0.5)) * R;
-    ctx.fillStyle = `rgba(${GREEN},${(0.25 + k * 0.55).toFixed(2)})`;
+    ctx.fillStyle = `rgba(${SK.inkRgb},${(0.25 + k * 0.55).toFixed(2)})`;
     ctx.fillRect(d.cx + Math.cos(a) * r, d.cy + Math.sin(a) * r, 2 + k * 3, 1.5);
   }
   ctx.restore();
@@ -145,13 +145,13 @@ export function radarLive(
   ctx.arc(d.cx, d.cy, R, 0, TAU);
   ctx.clip();
   const g = ctx.createConicGradient(beam - TRAIL, d.cx, d.cy);
-  g.addColorStop(0, `rgba(${GREEN},0)`);
-  g.addColorStop(TRAIL / TAU, `rgba(${GREEN},0.3)`);
-  g.addColorStop(TRAIL / TAU + 0.002, `rgba(${GREEN},0)`);
-  g.addColorStop(1, `rgba(${GREEN},0)`);
+  g.addColorStop(0, `rgba(${SK.inkRgb},0)`);
+  g.addColorStop(TRAIL / TAU, `rgba(${SK.inkRgb},0.3)`);
+  g.addColorStop(TRAIL / TAU + 0.002, `rgba(${SK.inkRgb},0)`);
+  g.addColorStop(1, `rgba(${SK.inkRgb},0)`);
   ctx.fillStyle = g;
   ctx.fillRect(d.cx - R, d.cy - R, R * 2, R * 2);
-  ctx.strokeStyle = `rgba(${GREEN},0.9)`;
+  ctx.strokeStyle = `rgba(${SK.inkRgb},0.9)`;
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(d.cx, d.cy);

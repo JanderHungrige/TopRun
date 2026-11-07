@@ -1,6 +1,6 @@
 import type { WeaponRole } from '../../data/weapons';
 import type { PlaneId, SecondaryId } from '../../data/types';
-import type { ButtonStates, Contact, WarningLights } from '../../game/cockpit';
+import type { ButtonStates, CockpitSkinId, Contact, WarningLights } from '../../game/cockpit';
 
 /** Every word painted on the consoles, already translated by the scene (doc 07). */
 export interface CockpitLabels {
@@ -39,6 +39,8 @@ export interface Armed {
 }
 
 export interface LeftConsoleView {
+  /** The console's look (doc 61): gunmetal, olive drab or holo glass. */
+  skin: CockpitSkinId;
   plane: PlaneId;
   planeName: string;
   callsign: string;
@@ -60,6 +62,7 @@ export interface LeftConsoleView {
 }
 
 export interface RightConsoleView {
+  skin: CockpitSkinId;
   missionNumber: number;
   missionName: string;
   objective: string;

@@ -1,6 +1,7 @@
 import type { WarningLights } from '../../game/cockpit';
 import type { Rect } from './layout';
 import { bevel, halo, rr, screenText } from './metal';
+import { SK } from './skin';
 import type { CockpitLabels } from './types';
 
 /** The 2×3 annunciator panel: dark glass lamps with legends; lit ones glow in their caution colour. */
@@ -23,14 +24,14 @@ function lampRect(r: Rect, i: number): Rect {
 }
 
 export function lampsStatic(ctx: CanvasRenderingContext2D, r: Rect, labels: CockpitLabels): void {
-  bevel(ctx, r, 6, '#14171a', true);
+  bevel(ctx, r, 6, SK.lampPanel, true);
   ORDER.forEach((id, i) => {
     const l = lampRect(r, i);
-    bevel(ctx, l, 3, '#1b2024', true);
+    bevel(ctx, l, 3, SK.lampOff, true);
     ctx.fillStyle = 'rgba(255,255,255,0.05)';
     ctx.fillRect(l.x + 3, l.y + 3, l.w - 6, 2);
     screenText(ctx, labels[LABEL[id]], l.x + l.w / 2, l.y + l.h / 2 + 0.5, {
-      size: 11, align: 'center', maxW: l.w - 10, color: '#475057', weight: 800, mono: false, spacing: 0.8,
+      size: 11, align: 'center', maxW: l.w - 10, color: SK.lampLegend, weight: 800, mono: false, spacing: 0.8,
     });
   });
 }

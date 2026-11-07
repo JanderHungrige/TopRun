@@ -48,6 +48,7 @@ export class MapScene implements Scene {
   constructor(private readonly game: GameContext, select?: string) {
     this.selected = (select ? missionById(select) : undefined) ?? nextMission(game.save);
     game.setKit(kitOf(this.campaign)); // map 3 shows the helicopters' kit (doc 49)
+    game.setHome(this.campaign); // the base wears this map's look (doc 73)
   }
 
   /** The map on screen: the selected mission's (doc 35). */
@@ -76,6 +77,7 @@ export class MapScene implements Scene {
     }
     if (c !== this.campaign) this.selected = nextMissionOn(this.game.save, c);
     this.game.setKit(kitOf(c));
+    this.game.setHome(c);
     this.game.audio.play('uiSelect');
   }
 

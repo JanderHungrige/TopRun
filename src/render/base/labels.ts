@@ -1,4 +1,4 @@
-import { BASE_AREA_IDS, BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
+import { BASE_AREA_IDS, BASE_AREAS, type BaseAreaDef, type BaseAreaId } from '../../data/base-areas';
 import { NAME_PLATE, pixelFrame, RPG_BOX, type FrameStyle } from '../pixel/frame';
 import { measure, text } from '../text';
 
@@ -42,14 +42,16 @@ function title(ctx: CanvasRenderingContext2D, s: string): void {
   text(ctx, s, 1262 - w / 2, 34, { size: 18, display: true, italic: true, align: 'center', color: GOLD });
 }
 
-/** Plates, strip and title for the highlighted area. */
-export function drawLabels(ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText): void {
+/** Plates, strip and title for the highlighted area, at the look's places (doc 73). */
+export function drawLabels(
+  ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText, areas: Readonly<Record<BaseAreaId, BaseAreaDef>> = BASE_AREAS,
+): void {
   for (const id of BASE_AREA_IDS) {
     if (id === focus) continue;
-    const a = BASE_AREAS[id];
+    const a = areas[id];
     plate(ctx, a.plate.x, a.plate.y, tx.names[id], false);
   }
-  const f = BASE_AREAS[focus];
+  const f = areas[focus];
   plate(ctx, f.plate.x, f.plate.y, tx.names[focus], true);
   strip(ctx, tx.names[focus], tx.hint, tx.keys);
   title(ctx, tx.title);

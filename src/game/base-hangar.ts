@@ -1,10 +1,13 @@
 import {
-  AREA_ROWS, BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaId,
+  AREA_ROWS, BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaDef, type BaseAreaId,
 } from '../data/base-areas';
 import type { Route } from './state';
 
 // Hangar base (doc 30), pure: where each area leads, moving the highlight between areas, hit-testing the
-// hotspots and the pilot walking along the floor to the highlighted area.
+// hotspots and the pilot walking along the floor to the highlighted area. The geometry is the look's (doc 73): the
+// carrier hangar's unless an area table is given.
+
+type Areas = Readonly<Record<BaseAreaId, BaseAreaDef>>;
 
 export type NavDir = 'left' | 'right' | 'up' | 'down';
 
@@ -23,21 +26,21 @@ export function areaRoute(id: BaseAreaId): Route {
   }
 }
 
-const centreX = (id: BaseAreaId): number => {
-  const h = BASE_AREAS[id].hot;
+const centreX = (id: BaseAreaId, areas: Areas): number => {
+  const h = areas[id].hot;
   return h.x + h.w / 2;
 };
 
 /** The area in a row above (`step` −1) or below (+1) whose centre is nearest in x (a tie: the nearer row), or null. */
-function otherRow(id: BaseAreaId, step: -1 | 1): BaseAreaId | null {
-  const row = AREA_ROWS.indexOf(BASE_AREAS[id].row);
+function otherRow(id: BaseAreaId, step: -1 | 1, areas: Areas): BaseAreaId | null {
+  const row = AREA_ROWS.indexOf(areas[id].row);
   let best: BaseAreaId | null = null;
   let bestD = Infinity;
   let bestRows = Infinity;
   for (const other of BASE_AREA_IDS) {
-    const rows = (AREA_ROWS.indexOf(BASE_AREAS[other].row) - row) * step;
+    const rows = (AREA_ROWS.indexOf(areas[other].row) - row) * step;
     if (rows <= 0) continue;
-    const d = Math.abs(centreX(other) - centreX(id));
+    const d = Math.abs(centreX(other, areas) - centreX(id, areas));
     if (d < bestD || (d === bestD && rows < bestRows)) {
       bestD = d;
       bestRows = rows;
@@ -51,13 +54,13 @@ function otherRow(id: BaseAreaId, step: -1 | 1): BaseAreaId | null {
  * Where the highlight goes from `id`: ← / → one area along the left → right order (clamped at the ends);
  * ↑ / ↓ to the nearest area (by x) in any row above / below. Returns `id` itself when the move goes nowhere.
  */
-export function neighbour(id: BaseAreaId, dir: NavDir): BaseAreaId {
+export function neighbour(id: BaseAreaId, dir: NavDir, areas: Areas = BASE_AREAS): BaseAreaId {
   const i = BASE_AREA_IDS.indexOf(id);
   switch (dir) {
     case 'left': return BASE_AREA_IDS[Math.max(0, i - 1)] ?? id;
     case 'right': return BASE_AREA_IDS[Math.min(BASE_AREA_IDS.length - 1, i + 1)] ?? id;
-    case 'up': return otherRow(id, -1) ?? id;
-    case 'down': return otherRow(id, 1) ?? id;
+    case 'up': return otherRow(id, -1, areas) ?? id;
+    case 'down': return otherRow(id, 1, areas) ?? id;
     default: throw new Error(`unhandled: ${dir satisfies never}`);
   }
 }
@@ -66,9 +69,9 @@ export function neighbour(id: BaseAreaId, dir: NavDir): BaseAreaId {
 /** Hit-test order: the TV first — it stands in front of the rec room's doorway (doc 63) — then left to right. */
 const HIT_ORDER: readonly BaseAreaId[] = ['tv', ...BASE_AREA_IDS.filter((id) => id !== 'tv')];
 
-export function areaAt(p: { x: number; y: number }): BaseAreaId | null {
+export function areaAt(p: { x: number; y: number }, areas: Areas = BASE_AREAS): BaseAreaId | null {
   for (const id of HIT_ORDER) {
-    const r = BASE_AREAS[id].hot;
+    const r = areas[id].hot;
     if (p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h) return id;
   }
   return null;
@@ -100,7 +103,7 @@ export function stepWalker(w: Walker, dt: number, speed: number): Walker {
 }
 
 /** Whether the pilot stands at the area's spot. */
-export const arrivedAt = (w: Walker, id: BaseAreaId): boolean => !w.moving && w.x === BASE_AREAS[id].standX;
+export const arrivedAt = (w: Walker, id: BaseAreaId, areas: Areas = BASE_AREAS): boolean => !w.moving && w.x === areas[id].standX;
 
 /** The walk-cycle key frame (0 … WALK_FRAMES − 1) for the distance walked. */
 export function walkFrame(w: Walker): number {

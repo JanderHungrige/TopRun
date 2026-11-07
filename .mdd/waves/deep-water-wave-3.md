@@ -7,7 +7,7 @@ status: complete
 depends_on: deep-water-wave-2
 demo_state: "Map-5 sorties start with a dive from the carrier's well deck; map 5 has its 7 medals, its celebration and the rating's fifth map."
 created: 2026-11-07
-hash:
+hash: f16dc5f8
 ---
 
 # Wave 3: The dive and the honours of the deep

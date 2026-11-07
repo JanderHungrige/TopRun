@@ -100,7 +100,7 @@ function motePos(i: number, t: number, G: number): { c: number; r: number } {
   return { c: Math.round(x / G), r: Math.round((340 + hash(i * 2.3) * 230 + Math.sin(t * 0.3 + i * 2) * 6) / G) };
 }
 
-function dust(g: CanvasRenderingContext2D, G: number, t: number): void {
+export function dust(g: CanvasRenderingContext2D, G: number, t: number): void {
   for (let i = 0; i < 44; i++) {
     const tw = Math.sin(t * (0.8 + hash(i) * 1.6) + i * 5);
     if (tw < 0.15) continue;
@@ -122,7 +122,7 @@ function steam(g: CanvasRenderingContext2D, G: number, t: number): void {
 
 /** The old TV (doc 63): a dim blue screen with a slowly rolling bright band and now and then a burst of snow; the
  *  video recorder's clock blinks its four digits like every unset recorder ever. */
-function tvSet(g: CanvasRenderingContext2D, G: number, t: number): void {
+export function tvSet(g: CanvasRenderingContext2D, G: number, t: number): void {
   const c0 = Math.round(TV_SCREEN.x / G);
   const r0 = Math.round(TV_SCREEN.y / G);
   const w = Math.round(TV_SCREEN.w / G);

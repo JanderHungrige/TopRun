@@ -2,7 +2,7 @@ import { TAU } from '../core/math';
 import { createRng } from '../core/rng';
 import type { TerrainStyle, TheaterPalette } from '../data/theaters';
 
-export type FeatureType = 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad';
+export type FeatureType = 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad' | 'crater';
 
 export interface Feature {
   type: FeatureType;
@@ -119,6 +119,11 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
       fillBlob(ctx, f, 1.25, 'rgba(90,140,60,0.55)');
       fillBlob(ctx, f, 1, p.sea);
       return;
+    case 'crater': // the moon (doc 58): a bright rim, a shadowed bowl
+      fillBlob(ctx, f, 1.12, p.detail);
+      fillBlob(ctx, f, 1, p.landDark);
+      fillBlob(ctx, { ...f, x: f.x + f.r * 0.12, y: f.y + f.r * 0.12 }, 0.78, 'rgba(0,0,0,0.18)');
+      return;
     default:
       throw new Error(`unhandled: ${f.type satisfies never}`);
   }
@@ -156,11 +161,16 @@ export function makeBaseTile(style: TerrainStyle, p: TheaterPalette): HTMLCanvas
   c.height = TILE;
   const g = c.getContext('2d');
   if (!g) return c;
-  const land = style === 'desert' || style === 'canyon';
+  const land = style === 'desert' || style === 'canyon' || style === 'lunar';
   g.fillStyle = land ? p.land : p.sea;
   g.fillRect(0, 0, TILE, TILE);
-  if (style === 'space') {
-    // Map 4 (doc 56): a star field — many faint points, a few bright ones, one faint nebula band.
+  if (style === 'lunar') {
+    // The moon (doc 58): grey regolith, fine grit, small pits.
+    speckle(g, 41, 700, 'rgba(0,0,0,0.08)', 2);
+    speckle(g, 42, 400, 'rgba(255,255,255,0.08)', 1.5);
+    speckle(g, 43, 60, 'rgba(0,0,0,0.16)', 4);
+  } else if (style === 'space' || style === 'belt') {
+    // Map 4 (docs 56, 58): a star field — many faint points, a few bright ones, one faint nebula band.
     waveMarks(g, 31, 6, p.cloud);
     speckle(g, 32, 140, 'rgba(200,215,255,0.35)', 1);
     speckle(g, 33, 26, 'rgba(255,255,255,0.9)', 1.5);

@@ -46,8 +46,8 @@ pilot on a grid (doc 54). When the active kit is the ship (`kitOf(4)`, doc 49), 
 
 - **Left:** the 7 × 9 grid (54 px cells) with the ship drawn on it from its modules; in grid mode a gold cursor, and
   every cell where the picked module (in stock) may go is shaded green.
-- **Middle:** the list — **Laser Power** first, then the seven placeable modules, each with its icon, price (or MAX)
-  and "N in stock · N on the ship".
+- **Middle:** the list — **Laser Power** first, then the placeable modules (the Torpedo Bay since doc 57), each with
+  its icon, price (or MAX) and "N in stock · N on the ship".
 - **Right:** the picked row's name, description and stats (hull, shield, speed, power left, mass, laser barrels, rocket
   wings — the whole ship's) and the **BUY** button. MAP and BASE buttons top right.
 
@@ -90,8 +90,8 @@ pilot on a grid (doc 54). When the active kit is the ship (`kitOf(4)`, doc 49), 
 | 9 | $1,150,000 | 9 | 33 |
 | 10 | $1,600,000 | 9.5 | 37 |
 
-- **Space rockets:** every rocket wing carries 6 homing rockets (70 damage, hit anything) on the GROUND key, refilled
-  every sortie; they are never sold on their own.
+- **Space rockets:** every rocket wing carries 6 homing rockets (70 damage, hit anything) on the AIR key (the GROUND
+  key until doc 57), refilled every sortie; they are never sold on their own.
 - Nothing is on sale before map 4 is open (`mapOpen(save, 4)`); the wallet is the one all kits share (doc 49).
 
 ## Business Rules

@@ -31,6 +31,8 @@ const SPAWNS: Readonly<Record<TerrainStyle, readonly Spawn[]>> = {
   canyon: [['mesa', 0.45, 30, 75], ['rock', 0.5, 8, 20], ['road', 0.05, 200, 380]],
   storm: [['whitecap', 0.8, 8, 18], ['whitecap', 0.6, 8, 14], ['island', 0.08, 30, 60]],
   space: [['rock', 0.1, 10, 30]],
+  belt: [['rock', 0.5, 10, 34], ['rock', 0.1, 40, 70]],
+  lunar: [['crater', 0.4, 14, 40], ['crater', 0.06, 60, 110], ['rock', 0.2, 6, 14]],
 };
 
 interface Cloud { x: number; y: number; puffs: Array<{ dx: number; dy: number; r: number }> }

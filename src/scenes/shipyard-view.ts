@@ -1,7 +1,7 @@
 import { formatMoney } from '../core/math';
-import { GRID, MAX_LASER_LEVEL, type ModuleId } from '../data/ship-modules';
+import { GRID, MAX_LASER_LEVEL, PLACEABLE, SHIP_MARK_FAMILIES, type ModuleId, type ShipMarkFamily } from '../data/ship-modules';
 import { canPlace, shipStats } from '../game/ship';
-import { canBuyLaser, canBuyModule, laserPrice, modulePrice } from '../game/ship-shop';
+import { canBuyLaser, canBuyModule, canBuyShipMark, laserPrice, markValue, modulePrice, shipMarkPrice } from '../game/ship-shop';
 import type { SaveData } from '../game/save';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
@@ -9,10 +9,16 @@ import { liveryLook } from '../render/livery-art';
 import { drawModuleIcon, drawShip } from '../render/ship';
 import { COLORS, paragraph, text } from '../render/text';
 import { drawButton, drawPanel, type Rect } from '../ui/widgets';
+import { markName } from './hangar-items';
 
 // The shipyard's screen (doc 55): the grid with the ship on it, the module list, the stats and the BUY button.
 
 export type YardRow = 'power' | ModuleId;
+
+export const ROWS: readonly YardRow[] = ['power', ...PLACEABLE];
+
+/** The row's module family when it has marks (doc 57). */
+export const familyOf = (row: YardRow): ShipMarkFamily | null => SHIP_MARK_FAMILIES.find((f) => f === row) ?? null;
 
 export interface YardView {
   save: SaveData;
@@ -33,6 +39,7 @@ export const BTN = Object.freeze({
   map: { x: 1150, y: 22, w: 110, h: 44 },
   base: { x: 1030, y: 22, w: 110, h: 44 },
   buy: { x: DETAIL.x + 20, y: DETAIL.y + DETAIL.h - 66, w: DETAIL.w - 40, h: 48 },
+  mark: { x: DETAIL.x + 20, y: DETAIL.y + DETAIL.h - 120, w: DETAIL.w - 40, h: 44 },
 });
 
 const MODULE_KEY: Readonly<Record<YardRow, { name: UiKey; desc: UiKey }>> = {
@@ -43,6 +50,7 @@ const MODULE_KEY: Readonly<Record<YardRow, { name: UiKey; desc: UiKey }>> = {
   engine: { name: 'module.engine', desc: 'moduleDesc.engine' },
   laser: { name: 'module.laser', desc: 'moduleDesc.laser' },
   rockets: { name: 'module.rockets', desc: 'moduleDesc.rockets' },
+  torpedo: { name: 'module.torpedo', desc: 'moduleDesc.torpedo' },
   shield: { name: 'module.shield', desc: 'moduleDesc.shield' },
   reactor: { name: 'module.reactor', desc: 'moduleDesc.reactor' },
 };
@@ -83,7 +91,25 @@ function drawGrid(ctx: CanvasRenderingContext2D, v: YardView): void {
 function rowSub(v: YardView, row: YardRow): string {
   if (row === 'power' || row === 'core') return t('shipyard.powerSub', { level: v.save.ship.laserLevel, max: MAX_LASER_LEVEL });
   const placed = v.save.ship.modules.filter((m) => m.id === row).length;
-  return t('shipyard.stockSub', { stock: v.save.ship.stock[row], placed });
+  const f = familyOf(row);
+  const counts = { stock: v.save.ship.stock[row], placed };
+  return f ? t('shipyard.markSub', { mark: markName(v.save.ship.marks[f]), ...counts }) : t('shipyard.stockSub', counts);
+}
+
+const GAIN: Readonly<Record<ShipMarkFamily, UiKey>> = {
+  plate: 'shipyard.gainPlate', engine: 'shipyard.gainEngine', shield: 'shipyard.gainShield', rockets: 'shipyard.gainRockets', torpedo: 'shipyard.gainTorpedo',
+};
+
+/** The family's value now and at the next mark, and the UPGRADE button (doc 57). */
+function drawMark(ctx: CanvasRenderingContext2D, v: YardView, f: ShipMarkFamily): void {
+  const mark = v.save.ship.marks[f];
+  const price = shipMarkPrice(v.save, f);
+  const fmt = (n: number): string => String(Math.round(n * 100) / 100);
+  const line = price === null ? t('shipyard.markTop', { mark: markName(mark) }) : t(GAIN[f], { now: fmt(markValue(f, mark)), next: fmt(markValue(f, mark + 1)) });
+  text(ctx, line, DETAIL.x + 20, DETAIL.y + 182, { size: 14, color: COLORS.gold, maxWidth: DETAIL.w - 40 });
+  const ok = canBuyShipMark(v.save, f).ok;
+  const label = price === null ? t('hangar.maxed') : `${markName(mark + 1)} · ${t('hangar.upgrade', { price: formatMoney(price) })}`;
+  drawButton(ctx, { id: 'mark', label, ...BTN.mark, enabled: ok, hint: 'U' }, false, v.time);
 }
 
 const priceOf = (v: YardView, row: YardRow): number | null =>
@@ -113,21 +139,21 @@ function drawDetail(ctx: CanvasRenderingContext2D, v: YardView): void {
   text(ctx, t(MODULE_KEY[v.row].name).toUpperCase(), DETAIL.x + 20, DETAIL.y + 36, { size: 22, display: true, italic: true, maxWidth: DETAIL.w - 40 });
   const st = shipStats(v.save.ship);
   paragraph(ctx, t(MODULE_KEY[v.row].desc, { barrels: st.barrels.length }), DETAIL.x + 20, DETAIL.y + 68, DETAIL.w - 40, { size: 14, color: COLORS.ink });
-  const y = DETAIL.y + 230;
-  statLine(ctx, 'shipyard.hull', String(st.hull), y);
-  statLine(ctx, 'shipyard.shield', String(st.shield), y + 30);
-  statLine(ctx, 'shipyard.speed', `${st.speed} kn`, y + 60);
-  statLine(ctx, 'shipyard.powerLeft', String(st.power), y + 90);
-  statLine(ctx, 'shipyard.mass', String(st.mass), y + 120);
-  statLine(ctx, 'shipyard.lasers', String(st.barrels.length), y + 150);
-  statLine(ctx, 'shipyard.wings', String(st.rocketWings), y + 180);
+  const stats: readonly [UiKey, string][] = [
+    ['shipyard.hull', String(st.hull)], ['shipyard.shield', String(st.shield)], ['shipyard.speed', `${st.speed} kn`],
+    ['shipyard.powerLeft', String(st.power)], ['shipyard.mass', String(st.mass)], ['shipyard.lasers', String(st.barrels.length)],
+    ['shipyard.wings', String(st.rocketWings)], ['shipyard.torpedoes', String(st.torpedoBays)],
+  ];
+  stats.forEach(([label, value], i) => statLine(ctx, label, value, DETAIL.y + 222 + i * 26));
+  const f = familyOf(v.row);
+  if (f) drawMark(ctx, v, f);
   const price = priceOf(v, v.row);
   const ok = v.row === 'power' || v.row === 'core' ? canBuyLaser(v.save).ok : canBuyModule(v.save, v.row).ok;
   const label = price === null ? t('hangar.maxed') : t('shipyard.buy', { price: formatMoney(price) });
   drawButton(ctx, { id: 'buy', label, ...BTN.buy, primary: true, enabled: ok, hint: 'ENTER' }, v.mode === 'list' && ok, v.time);
 }
 
-export function drawShipyard(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[] = ['power', 'capsule', 'plate', 'engine', 'laser', 'rockets', 'shield', 'reactor']): void {
+export function drawShipyard(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[] = ROWS): void {
   ctx.fillStyle = '#060a16';
   ctx.fillRect(0, 0, 1280, 720);
   for (let i = 0; i < 90; i++) {

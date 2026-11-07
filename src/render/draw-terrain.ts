@@ -184,6 +184,15 @@ export class Terrain {
       case 'space':
         if (r.chance(0.07)) add('rock', r.range(10, 30));
         return;
+      case 'belt': // asteroids drift through (doc 58)
+        if (r.chance(0.35)) add('rock', r.range(10, 34));
+        if (r.chance(0.08)) add('rock', r.range(40, 70));
+        return;
+      case 'lunar':
+        if (r.chance(0.3)) add('crater', r.range(14, 40));
+        if (r.chance(0.05)) add('crater', r.range(60, 110));
+        if (r.chance(0.15)) add('rock', r.range(6, 14));
+        return;
       default:
         throw new Error(`unhandled: ${this.theater.terrain satisfies never}`);
     }

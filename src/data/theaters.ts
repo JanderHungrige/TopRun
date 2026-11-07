@@ -3,7 +3,7 @@ import { THEATERS_3 } from './theaters-3';
 import { THEATERS_4 } from './theaters-4';
 import { THEATER_IDS, type CampaignId, type TheaterId } from './types';
 
-export type TerrainStyle = 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space';
+export type TerrainStyle = 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar';
 
 export interface TheaterPalette {
   sea: string;

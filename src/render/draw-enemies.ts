@@ -40,6 +40,11 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   raider: pal('#8a93a6', '#3a4152', '#b9c1d2', '#c84a3a', '#7fd0ff'),
   satgun: pal('#a7adb8', '#4e5462', '#d2d6de', '#5b7cff', '#7fd0ff'),
   corvette: pal('#7b8496', '#3c4352', '#a8b0c0', '#c84a3a', '#7fd0ff'),
+  // Space (doc 58).
+  interceptor: pal('#6f7890', '#2f3546', '#a3abc0', '#e8a43a', '#7fd0ff'),
+  gunship: pal('#868a7e', '#46493f', '#b0b4a6', '#c84a3a', '#7fd0ff'),
+  battery: pal('#9a9ca2', '#55575e', '#c6c8cd', '#4f8cff', '#7fd0ff'),
+  warden: pal('#6c7488', '#343a4a', '#98a0b4', '#ff5a6a', '#7fd0ff'),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);

@@ -19,6 +19,10 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   mesa: { name: 'Tafelberge', tagline: 'Roter Fels, lange Schatten' },
   ashfall: { name: 'Ascheinsel', tagline: 'Feuer unter der Asche' },
   orbit: { name: 'Niedriger Orbit', tagline: 'Über dem Blau' },
+  belt: { name: 'Asteroidengürtel', tagline: 'Felsen mit Geschützen' },
+  moon: { name: 'Mondfront', tagline: 'Staub und Krater' },
+  rings: { name: 'Ringriese', tagline: 'Eis in den Ringen' },
+  deep: { name: 'Tiefer Raum', tagline: 'Hinter dem letzten Stern' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -80,6 +84,7 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   hellfire: { name: 'AGM-114 Hellfire', description: 'Lasergelenkte Panzerabwehrrakete. Findet Panzer, Bunker und Boote.' },
   stinger: { name: 'FIM-92 Stinger', description: 'Wärmesuchende Luft-Luft-Rakete für Hubschrauber. Jagt Kampfhubschrauber und Jets.' },
   spacerocket: { name: 'Weltraumrakete', description: 'Zielsuchende Raketen aus den Raketenflügeln. Sie finden alles, was sich bewegt.' },
+  torpedo: { name: 'Plasmatorpedo', description: 'Langsame zielsuchende Plasmageschosse aus den Torpedoschächten, für Kriegsschiffe, Stationen und Bosse.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
@@ -136,7 +141,8 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   radar: 'Radar Stations', depot: 'Fuel Depots', boat: 'Patrol Boats', destroyer: 'Destroyers',
   shilka: 'ZSU-23-4 Shilkas', bunker: 'Hardened Bunkers', foxbat: 'MiG-25 Foxbats', jammer: 'Il-22 Jammers',
   frigate: 'Missile Frigates', felon: 'Su-57 Felons', backfire: 'Tu-22M Backfires', fortress: 'AA Fortresses', cruiser: 'Missile Cruisers',
-  raider: 'Raider Fighters', satgun: 'Gun Satellites', corvette: 'Corvettes',
+  raider: 'Raider Fighters', satgun: 'Gun Satellites', corvette: 'Corvettes', interceptor: 'Interceptors', gunship: 'Gunships',
+  battery: 'Lunar Batteries', warden: 'Battlecruisers',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -165,6 +171,10 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   raider: ['Raider-Jäger', 'Raider-Jäger'],
   satgun: ['Geschützsatellit', 'Geschützsatelliten'],
   corvette: ['Korvette', 'Korvetten'],
+  interceptor: ['Abfangjäger', 'Abfangjäger'],
+  gunship: ['Kanonenboot', 'Kanonenboote'],
+  battery: ['Mondbatterie', 'Mondbatterien'],
+  warden: ['Schlachtkreuzer', 'Schlachtkreuzer'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -184,4 +194,8 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   mammoth: 'Superschwerer Panzer',
   behemoth: 'Tandemrotor-Kampfhubschrauber',
   halo: 'Ring-Kampfstation',
+  quarry: 'Asteroidenfestung',
+  crater: 'Mondzitadelle',
+  trident: 'Dreirumpf-Schlachtschiff',
+  ark: 'Mutterschiff',
 };

@@ -1,4 +1,5 @@
-import { CELL_PX, GRID, MODULES, PLACEABLE, SHIELD, type ModuleId } from '../data/ship-modules';
+import { MARKS, toMark } from '../data/arsenal';
+import { CELL_PX, GRID, MAX_SHIP_MARK, MODULES, PLACEABLE, SHIELD, SHIP_MARK_FAMILIES, type ModuleId, type ShipMarkFamily } from '../data/ship-modules';
 
 // The spacecraft (doc 54): modules placed on a 7 × 9 grid around a fixed core. Placement rules, the layout's stats,
 // its hitbox and barrels. Pure.
@@ -12,7 +13,15 @@ export interface ShipKit {
   stock: Record<ModuleId, number>;
   /** Laser power, 1–10 (doc 55). */
   laserLevel: number;
+  /** Mk I–V per module family (doc 57). */
+  marks: Record<ShipMarkFamily, number>;
 }
+
+export const freshMarks = (): Record<ShipMarkFamily, number> =>
+  Object.fromEntries(SHIP_MARK_FAMILIES.map((f) => [f, 1])) as Record<ShipMarkFamily, number>;
+
+/** What a family's mark multiplies (hull per plate, thrust per engine, shield, rocket and torpedo damage). */
+export const markGain = (mark: number): number => MARKS[toMark(Math.min(MAX_SHIP_MARK, mark))].damageMul;
 
 export const CORE: Placed = { id: 'core', col: GRID.core.col, row: GRID.core.row };
 
@@ -24,7 +33,7 @@ export const STARTER: readonly Placed[] = Object.freeze([
 ]);
 
 export const freshShip = (): ShipKit =>
-  ({ modules: [...STARTER], stock: Object.fromEntries(PLACEABLE.map((id) => [id, 0])) as Record<ModuleId, number>, laserLevel: 1 });
+  ({ modules: [...STARTER], stock: Object.fromEntries(PLACEABLE.map((id) => [id, 0])) as Record<ModuleId, number>, laserLevel: 1, marks: freshMarks() });
 
 /** Every module on the ship, the core first. */
 export const allModules = (s: Pick<ShipKit, 'modules'>): Placed[] => [CORE, ...s.modules];
@@ -121,7 +130,10 @@ export interface ShipStats {
   cells: { dx: number; dy: number }[];
   /** Laser barrels: x offsets in mission pixels, front-most cell of their column. */
   barrels: { dx: number; dy: number }[];
+  /** Shield regrowth per second once quiet (doc 57: grows with the shield's mark). */
+  shieldRegen: number;
   rocketWings: number;
+  torpedoBays: number;
   radar: boolean;
   /** The placed modules (core excluded), for drawing. */
   modules: Placed[];
@@ -129,16 +141,28 @@ export interface ShipStats {
 
 const offset = (m: Placed): { dx: number; dy: number } => ({ dx: (m.col - CORE.col) * CELL_PX, dy: (m.row - CORE.row) * CELL_PX });
 
-export function shipStats(s: Pick<ShipKit, 'modules'>): ShipStats {
+/** A module's hull and thrust at its family's mark: plates and engines grow with theirs (doc 57). */
+function markedValue(id: ModuleId, marks: Partial<Record<ShipMarkFamily, number>>): { hull: number; thrust: number } {
+  const def = MODULES[id];
+  if (id === 'plate') return { hull: Math.round(def.hull * markGain(marks.plate ?? 1)), thrust: 0 };
+  if (id === 'engine') return { hull: def.hull, thrust: def.thrust * markGain(marks.engine ?? 1) };
+  return { hull: def.hull, thrust: def.thrust };
+}
+
+export function shipStats(s: Pick<ShipKit, 'modules'> & { marks?: Partial<Record<ShipMarkFamily, number>> }): ShipStats {
   const list = allModules(s);
+  const marks = s.marks ?? {};
   const sum = (f: (id: ModuleId) => number): number => list.reduce((acc, m) => acc + f(m.id), 0);
+  const count = (id: ModuleId): number => list.filter((m) => m.id === id).length;
   const mass = sum((id) => MODULES[id].mass);
-  const thrust = sum((id) => MODULES[id].thrust);
+  const thrust = sum((id) => markedValue(id, marks).thrust);
+  const shieldGain = markGain(marks.shield ?? 1);
   return {
-    hull: sum((id) => MODULES[id].hull), shield: SHIELD.points * list.filter((m) => m.id === 'shield').length,
+    hull: sum((id) => markedValue(id, marks).hull), shield: Math.round(SHIELD.points * shieldGain) * count('shield'),
+    shieldRegen: SHIELD.regen * shieldGain,
     speed: Math.min(420, Math.round(160 + (260 * thrust) / mass)), mass, thrust, power: powerBalance(list),
     cells: list.map(offset), barrels: list.filter((m) => m.id === 'laser' || m.id === 'core').map(offset),
-    rocketWings: list.filter((m) => m.id === 'rockets').length, radar: list.some((m) => m.id === 'capsule'),
+    rocketWings: count('rockets'), torpedoBays: count('torpedo'), radar: count('capsule') > 0,
     modules: [...s.modules],
   };
 }
@@ -157,9 +181,11 @@ export function parseShip(v: unknown): ShipKit {
     if (id && isRecord(m) && Number.isInteger(m.col) && Number.isInteger(m.row)) modules.push({ id, col: Number(m.col), row: Number(m.row) });
   }
   const stock = isRecord(v.stock) ? v.stock : {};
+  const marks = isRecord(v.marks) ? v.marks : {};
   return {
     modules: trimLayout(modules),
     stock: Object.fromEntries(PLACEABLE.map((id) => [id, whole(stock[id], 0, 40, 0)])) as Record<ModuleId, number>,
     laserLevel: whole(v.laserLevel, 1, 10, 1),
+    marks: Object.fromEntries(SHIP_MARK_FAMILIES.map((f) => [f, whole(marks[f], 1, MAX_SHIP_MARK, 1)])) as Record<ShipMarkFamily, number>,
   };
 }

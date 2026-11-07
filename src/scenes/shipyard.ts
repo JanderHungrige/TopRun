@@ -1,17 +1,17 @@
 import type { Scene } from '../core/scene';
-import { GRID, PLACEABLE, type ModuleId } from '../data/ship-modules';
+import { GRID, type ModuleId } from '../data/ship-modules';
 import { canPlace, place, remove } from '../game/ship';
-import { buyLaser, buyModule, canBuyLaser, canBuyModule } from '../game/ship-shop';
+import { buyLaser, buyModule, buyShipMark, canBuyLaser, canBuyModule, canBuyShipMark } from '../game/ship-shop';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { hit } from '../ui/widgets';
-import { BTN, cellAt, drawShipyard, rowRect, type YardRow, type YardView } from './shipyard-view';
+import { markName } from './hangar-items';
+import { BTN, cellAt, drawShipyard, familyOf, ROWS, rowRect, type YardView } from './shipyard-view';
 
 // The shipyard (doc 55): map 4's hangar. Buy modules into stock and laser power; place modules on the ship's grid.
-// List focus: ↑/↓ pick, ENTER buys, E (or →) goes to the grid. Grid focus: arrows move the cursor, ENTER places the
-// picked module, X / Delete takes the one under the cursor off, E / ESC back to the list. Tap a row, BUY, or a cell.
-
-export const ROWS: readonly YardRow[] = ['power', ...PLACEABLE];
+// List focus: ↑/↓ pick, ENTER buys, U buys the module's next mark (doc 57), E (or →) goes to the grid. Grid focus:
+// arrows move the cursor, ENTER places the picked module, X / Delete takes the one under the cursor off, E / ESC back
+// to the list. Tap a row, BUY, UPGRADE, or a cell.
 
 export class ShipyardScene implements Scene {
   private time = 0;
@@ -43,6 +43,7 @@ export class ShipyardScene implements Scene {
     if (input.pressed('up')) this.pick(this.row - 1);
     if (input.pressed('down')) this.pick(this.row + 1);
     if (input.pressed('confirm')) this.buy();
+    if (input.pressed('upgrade')) this.upgrade();
     if ((input.pressed('special') || input.pressed('right')) && this.picked) this.mode = 'grid';
   }
 
@@ -64,6 +65,7 @@ export class ShipyardScene implements Scene {
     if (hit(p, BTN.map)) return this.leave('map');
     if (hit(p, BTN.base)) return this.leave('base');
     if (hit(p, BTN.buy)) return this.buy();
+    if (hit(p, BTN.mark)) return this.upgrade();
     const i = ROWS.findIndex((_, k) => hit(p, rowRect(k)));
     if (i >= 0) return this.pick(i);
     const cell = cellAt(p);
@@ -88,6 +90,19 @@ export class ShipyardScene implements Scene {
     if (!check.ok) return this.say(t(check.reason === 'insufficient-funds' ? 'hangar.cannotBuy' : check.reason === 'max' ? 'hangar.maxed' : 'hangar.locked'), false);
     this.game.setSave(id ? buyModule(save, id) : buyLaser(save));
     this.say(t('shipyard.bought'), true);
+  }
+
+  /** The picked module family's next mark (doc 57). */
+  private upgrade(): void {
+    const id = this.picked;
+    const f = id ? familyOf(id) : null;
+    if (!id || !f) return;
+    const save = this.game.save;
+    const check = canBuyShipMark(save, f);
+    if (!check.ok) return this.say(t(check.reason === 'insufficient-funds' ? 'hangar.cannotBuy' : check.reason === 'max' ? 'hangar.maxed' : 'hangar.locked'), false);
+    const next = buyShipMark(save, f);
+    this.game.setSave(next);
+    this.say(t('arsenal.markBought', { item: t(`module.${id}`), mark: markName(next.ship.marks[f]) }), true);
   }
 
   private placeAt(col: number, row: number): void {

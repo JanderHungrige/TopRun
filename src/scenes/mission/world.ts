@@ -76,7 +76,7 @@ export interface Bullet {
   laser?: boolean;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'rocket' | 'enemy';
+export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;

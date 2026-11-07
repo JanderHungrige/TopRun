@@ -153,7 +153,7 @@ function updateMissiles(world: World, p: Player, dt: number, hooks: CombatHooks)
     steerMissile(world, m, p, dt);
     m.x += Math.sin(m.heading) * m.speed * dt;
     m.y -= Math.cos(m.heading) * m.speed * dt;
-    if (Math.random() < 0.7) world.particles.trail(m.x - Math.sin(m.heading) * 8, m.y + Math.cos(m.heading) * 8, m.kind === 'enemy' ? 'rgba(255,190,160,1)' : 'rgba(225,225,225,1)');
+    if (Math.random() < 0.7) world.particles.trail(m.x - Math.sin(m.heading) * 8, m.y + Math.cos(m.heading) * 8, m.kind === 'enemy' ? 'rgba(255,190,160,1)' : m.kind === 'torpedo' ? 'rgba(255,150,70,1)' : 'rgba(225,225,225,1)');
     if (m.ttl <= 0 || m.y < -60 || m.y > PF_H + 60 || m.x < -60 || m.x > PF_W + 60) {
       m.dead = true;
       continue;

@@ -13,24 +13,37 @@ import { payScale } from '../../src/game/map-two';
 import { isUnlocked, mapOpen, nextMission } from '../../src/game/progress';
 import { defaultSave, type SaveData } from '../../src/game/save';
 
-// Map 4 (doc 56): space, flown with the spacecraft; wave 5 opens it with Low Orbit, m91–m96.
+// Map 4 (docs 56, 58): space, flown with the spacecraft, m91–m120 in five theaters.
 
+const MAP4 = ['orbit', 'belt', 'moon', 'rings', 'deep'];
 const cleared = (save: SaveData, ids: readonly string[]): SaveData =>
   ({ ...save, progress: { ...save.progress, ...Object.fromEntries(ids.map((id) => [id, { stars: 1 }])) } });
 
-describe('Fourth map (doc 56)', () => {
-  it('holds m91–m96 in Low Orbit, one step below map 3, HALO at the end, flown with the ship', () => {
-    expect(MISSIONS_4.map((m) => m.id)).toEqual(['m91', 'm92', 'm93', 'm94', 'm95', 'm96']);
-    expect(MISSIONS_4.every((m, i) => m.number === i + 91 && m.campaign === 4 && m.theater === 'orbit')).toBe(true);
-    expect(MISSIONS_4.map((m) => m.difficulty)).toEqual([2, 3, 5, 6, 7, 9]);
+describe('Fourth map (docs 56, 58)', () => {
+  it('holds m91–m120 on map 4, one step below map 3, flown with the ship', () => {
+    expect(MISSIONS_4.map((m) => m.id)).toEqual(Array.from({ length: 30 }, (_, i) => `m${i + 91}`));
+    expect(MISSIONS_4.every((m, i) => m.number === i + 91 && m.campaign === 4)).toBe(true);
+    expect(MISSIONS_4.map((m) => m.difficulty).slice(0, 6)).toEqual([2, 3, 5, 6, 7, 9]);
+    expect(MISSIONS_4[29]?.difficulty).toBe(41);
     expect(MISSIONS_4[0]?.reward).toBe(1200);
-    const last = MISSIONS_4[5]?.objective;
-    expect(last).toEqual({ type: 'boss', boss: 'halo' });
-    expect(BOSSES.halo.coreHp).toBe(3200);
-    expect(campaignTheaters(4)).toEqual(['orbit']);
+    expect(MISSIONS_4[29]?.reward).toBe(Math.round((1200 + 29 * 380) * 1.5 / 100) * 100);
     expect(campaignMissions(4)).toEqual(MISSIONS_4);
-    expect(ALL_MISSIONS.slice(90)).toEqual(MISSIONS_4);
+    expect(ALL_MISSIONS.slice(90, 120)).toEqual(MISSIONS_4);
     expect(kitOf(4)).toBe('ship');
+  });
+
+  it('has five theaters of six missions, a boss every sixth, the ARK last (doc 58)', () => {
+    expect(campaignTheaters(4)).toEqual(MAP4);
+    MAP4.forEach((th, k) => {
+      const six = MISSIONS_4.slice(k * 6, k * 6 + 6);
+      expect(six.every((m) => m.theater === th)).toBe(true);
+      expect(six.slice(0, 5).every((m) => m.objective.type !== 'boss')).toBe(true);
+    });
+    const bosses = MISSIONS_4.flatMap((m) => (m.objective.type === 'boss' ? [m.objective.boss] : []));
+    expect(bosses).toEqual(['halo', 'quarry', 'crater', 'trident', 'ark']);
+    expect(bosses.map((b) => BOSSES[b].coreHp)).toEqual([3200, 3800, 4400, 5000, 6200]);
+    expect(bosses.every((b) => BOSSES[b].layer === 'ground')).toBe(true); // the torpedoes reach them (doc 57)
+    for (const m of MISSIONS_4) for (const k of m.pool) expect(['raider', 'satgun', 'corvette', 'interceptor', 'gunship', 'battery', 'drone']).toContain(k);
   });
 
   it('opens after m90, then mission by mission; the admin has it at once', () => {
@@ -52,7 +65,7 @@ describe('Fourth map (doc 56)', () => {
     expect(payScale(96)).toBeCloseTo(MAP_FOUR.pay * (1 + MAP_FOUR.ramp * 5), 9);
   });
 
-  it('gives no finale after m96: a map ends only at a multiple of 30', () => {
+  it('gives no finale after m96, only after m120: a map ends at a multiple of 30', () => {
     const m96 = MISSIONS_4[5];
     if (!m96) throw new Error('missing');
     const result: MissionResult = {
@@ -62,5 +75,9 @@ describe('Fourth map (doc 56)', () => {
     const keys = debriefScript({ mission: m96, result, stars: 2, totalText: '$9,600', campaignDone: true }).map((l) => l.key);
     expect(keys.some((k) => k.startsWith('adm.finale'))).toBe(false);
     expect(keys).not.toContain('adm.space');
+    const m120 = MISSIONS_4[29];
+    if (!m120) throw new Error('missing');
+    const last = debriefScript({ mission: m120, result: { ...result, missionId: 'm120' }, stars: 2, totalText: '$9,600', campaignDone: true });
+    expect(last.map((l) => l.key)).toContain('adm.finale4');
   });
 });

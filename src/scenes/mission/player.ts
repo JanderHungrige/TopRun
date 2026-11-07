@@ -141,7 +141,7 @@ export class Player {
     this.rollSpin = Math.max(0, this.rollSpin - dt);
     this.switchFlash = Math.max(0, this.switchFlash - dt);
     this.quiet += dt;
-    if (this.quiet >= SHIELD.delay) this.shield = Math.min(this.shieldMax, this.shield + SHIELD.regen * dt);
+    if (this.quiet >= SHIELD.delay) this.shield = Math.min(this.shieldMax, this.shield + (this.stats.ship?.shieldRegen ?? SHIELD.regen) * dt);
   }
 
 

@@ -50,7 +50,7 @@ describe('Save', () => {
     });
 
     it('drops unknown plane, secondary and mission ids', () => {
-      const raw = { ...valid(), ownedPlanes: ['f16', 'mig29', 'f14', 'f14'], ownedSecondaries: ['aim9', 'nuke'], progress: { m01: { stars: 2 }, m99: { stars: 3 }, hack: 1 } };
+      const raw = { ...valid(), ownedPlanes: ['f16', 'mig29', 'f14', 'f14'], ownedSecondaries: ['aim9', 'nuke'], progress: { m01: { stars: 2 }, m199: { stars: 3 }, hack: 1 } };
       const s = parseSave(raw);
       expect(s?.ownedPlanes).toEqual(['f16', 'f14']);
       expect(s?.ownedSecondaries).toEqual(['aim9']);

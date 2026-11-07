@@ -1,10 +1,10 @@
 // The spacecraft's modules (doc 54): what each weighs, draws or supplies in power, adds to the hull, and where it may
 // sit on the 7 × 9 grid. Prices are the shipyard's (doc 55).
 
-export type ModuleId = 'core' | 'capsule' | 'plate' | 'engine' | 'laser' | 'rockets' | 'shield' | 'reactor';
-export const MODULE_IDS: readonly ModuleId[] = Object.freeze(['core', 'capsule', 'plate', 'engine', 'laser', 'rockets', 'shield', 'reactor'] as const);
+export type ModuleId = 'core' | 'capsule' | 'plate' | 'engine' | 'laser' | 'rockets' | 'torpedo' | 'shield' | 'reactor';
+export const MODULE_IDS: readonly ModuleId[] = Object.freeze(['core', 'capsule', 'plate', 'engine', 'laser', 'rockets', 'torpedo', 'shield', 'reactor'] as const);
 /** What the pilot can buy and place (the core comes with the ship). */
-export const PLACEABLE: readonly ModuleId[] = Object.freeze(['capsule', 'plate', 'engine', 'laser', 'rockets', 'shield', 'reactor'] as const);
+export const PLACEABLE: readonly ModuleId[] = Object.freeze(['capsule', 'plate', 'engine', 'laser', 'rockets', 'torpedo', 'shield', 'reactor'] as const);
 
 /** Where a module may sit: `front` nothing in front of it, `rear` nothing behind it, `side` an open side. */
 export type Placement = 'fixed' | 'front' | 'rear' | 'side' | 'any';
@@ -31,6 +31,7 @@ export const MODULES: Readonly<Record<ModuleId, ModuleDef>> = Object.freeze({
   engine: { id: 'engine', name: 'Engine', mass: 2, power: -1, hull: 6, thrust: 3, placement: 'rear', max: 0, price: 45000, description: 'Thrust. Needs room behind it for the exhaust.' },
   laser: { id: 'laser', name: 'Laser Cannon', mass: 2, power: -1, hull: 6, thrust: 0, placement: 'front', max: 0, price: 55000, description: 'One more barrel, firing straight ahead from where it sits. Needs a clear line in front.' },
   rockets: { id: 'rockets', name: 'Rocket Wing', mass: 2, power: 0, hull: 6, thrust: 0, placement: 'side', max: 0, price: 40000, description: 'A wing with six homing space rockets. Needs an open side.' },
+  torpedo: { id: 'torpedo', name: 'Torpedo Bay', mass: 3, power: -1, hull: 8, thrust: 0, placement: 'front', max: 0, price: 70000, description: 'Two homing plasma torpedoes for warships, stations and bosses. The tube needs a clear line in front.' },
   shield: { id: 'shield', name: 'Shield Generator', mass: 2, power: -2, hull: 6, thrust: 0, placement: 'any', max: 0, price: 75000, description: '25 shield points that take hits first and grow back after two quiet seconds.' },
   reactor: { id: 'reactor', name: 'Reactor', mass: 3, power: 4, hull: 10, thrust: 0, placement: 'any', max: 0, price: 65000, description: 'Four more units of power for engines, lasers and shields.' },
 });
@@ -41,6 +42,11 @@ export const GRID = Object.freeze({ cols: 7, rows: 9, core: { col: 3, row: 5 } }
 export const SHIELD = Object.freeze({ points: 25, regen: 6, delay: 2 });
 /** Mission pixels per grid cell. */
 export const CELL_PX = 13;
+
+/** The module families with Mk I–V marks (doc 57): each mark upgrades every copy of the module. */
+export type ShipMarkFamily = 'plate' | 'engine' | 'shield' | 'rockets' | 'torpedo';
+export const SHIP_MARK_FAMILIES: readonly ShipMarkFamily[] = Object.freeze(['plate', 'engine', 'shield', 'rockets', 'torpedo'] as const);
+export const MAX_SHIP_MARK = 5;
 
 /** Laser power, levels 1–10 (doc 55): every barrel (the core's and each laser module) fires at this rate and damage. */
 export const LASER_LEVELS: readonly { level: number; price: number; shotsPerSec: number; damage: number }[] = Object.freeze([

@@ -11,6 +11,7 @@ import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
+import { drawLoadoutBackdrop } from '../render/loadout-backdrop';
 import { COLORS, measure, text } from '../render/text';
 import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
@@ -250,11 +251,13 @@ export class HangarScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     const save = this.game.save;
-    const bg = ctx.createLinearGradient(0, 0, 0, 720);
-    bg.addColorStop(0, '#0d1824');
-    bg.addColorStop(1, '#05090f');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, 1280, 720);
+    if (!drawLoadoutBackdrop(ctx, save.kit)) {
+      const bg = ctx.createLinearGradient(0, 0, 0, 720);
+      bg.addColorStop(0, '#0d1824');
+      bg.addColorStop(1, '#05090f');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1280, 720);
+    }
     const title = t(isFleet(save.kit) ? FLEET_UI[save.kit].title : 'hangar.title');
     const money = formatMoney(save.money);
     text(ctx, title, 24, 50, { size: 30, display: true, italic: true });

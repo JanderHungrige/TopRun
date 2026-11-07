@@ -1,5 +1,6 @@
 import type { AudioEngine } from '../core/audio';
 import type { Input } from '../core/input';
+import type { CrewLook } from '../game/crew-looks';
 import { HOLD_AFTER_TYPING, mouthFromText, syllableIndex, typewriter, typingTime } from '../game/dialogue';
 import type { LineRef } from '../game/dialogue-scripts';
 import type { GameContext } from '../game/state';
@@ -56,6 +57,8 @@ export class SpeechBox {
   private mood: Mood = 'neutral';
   private gesture: Gesture = 'none';
   private clock = 0;
+  /** The world's outfit of the chief and Shooter in this box's portrait (doc 76). */
+  look: CrewLook = 'carrier';
 
   constructor(
     private readonly audio: AudioEngine,
@@ -153,7 +156,7 @@ export class SpeechBox {
     ctx.globalAlpha = this.appear;
     frameAround(ctx, p, radio ? RADIO_BOX : PORTRAIT_FRAME, radio ? 1 : 2);
     const mouth = c !== null && talking ? mouthFromText(c.text, c.t) : 0;
-    drawPortrait(ctx, speaker, p, { t: this.clock, mouth, mood: this.mood, gesture: this.gesture, radio });
+    drawPortrait(ctx, speaker, p, { t: this.clock, mouth, mood: this.mood, gesture: this.gesture, radio, look: this.look });
     if (c) this.renderBox(ctx, c, talking);
     ctx.restore();
   }

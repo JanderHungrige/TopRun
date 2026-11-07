@@ -79,10 +79,11 @@ export const fleetOf = (save: SaveData): (typeof FLEET)[FleetKitId] | null => (i
 /** The kit a plane belongs to. */
 export const kitOfPlane = (id: PlaneId): Kit => PLANES[id].kind;
 
-/** The kit a route shows: a mission's own (takeoff, mission, debrief); the hangar keeps the kit it was opened from and
- *  the campaign map sets its own; every other scene shows the jets. */
-export function routeKit(route: Route, current: Kit): Kit {
+/** The kit a route shows: a mission's own (takeoff, mission, debrief); the hangar the kit of the world the pilot is on
+ *  (`home`: from the base too, doc 76); the campaign map sets its own; every other scene shows the jets. */
+export function routeKit(route: Route, current: Kit, home: CampaignId): Kit {
   if (route.to === 'takeoff' || route.to === 'mission' || route.to === 'debrief') return kitOf(route.mission.campaign);
-  if (route.to === 'hangar' || route.to === 'map') return current;
+  if (route.to === 'hangar') return kitOf(home);
+  if (route.to === 'map') return current;
   return 'jet';
 }

@@ -23,7 +23,20 @@ describe('Home docks (doc 73)', () => {
         expect(areaAt({ x: areas[id].hot.x + areas[id].hot.w / 2, y: areas[id].hot.y + areas[id].hot.h / 2 }, areas)).not.toBeNull();
       }
     }
-    for (const L of [SPACE_LAYOUT, SEA_LAYOUT]) for (const r of [L.board, L.slate, L.neon, L.hatch]) expect(inside(r)).toBe(true);
+    for (const L of [SPACE_LAYOUT, SEA_LAYOUT]) for (const r of [L.board, L.slate, L.neon]) expect(inside(r)).toBe(true);
+  });
+
+  it('leads to the map through the space dock\'s windows and the sea dock\'s globe, the pilot to scale (doc 76)', () => {
+    expect(SPACE_LAYOUT.globe).toBeNull();
+    const globe = SEA_LAYOUT.globe;
+    if (!globe) throw new Error('no globe');
+    expect(inside(globe)).toBe(true);
+    const sea = baseAreas('sea');
+    expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, sea)).toBe('exit');
+    const space = baseAreas('space');
+    expect(space.exit.row).toBe('wall');
+    expect(space.exit.hot.h).toBeGreaterThan(300);
+    for (const L of [SPACE_LAYOUT, SEA_LAYOUT]) expect(L.pilot).toBeGreaterThan(0.7);
   });
 
   it('hit-tests, steps and arrives with the dock\'s own geometry', () => {

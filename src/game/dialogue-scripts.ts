@@ -6,7 +6,9 @@ import { enemyName, medalName, theaterName } from '../i18n/content';
 import type { Params } from '../i18n/i18n';
 import type { LineKey } from '../i18n/lines-en';
 import type { CharacterId, Gesture, Mood } from '../render/portraits';
+import type { DiveGrade } from './dive-launch';
 import { HULL_BONUS_RATIO } from './economy';
+import type { SeparationGrade } from './rocket-launch';
 
 // Which character says what, when (doc 06). Pure: returns line references, never text.
 
@@ -121,7 +123,10 @@ export function chiefLine(ev: ChiefEvent, params?: Params): LineRef {
 }
 
 export type ShooterEvent =
-  | 'spool' | 'green' | 'notYet' | 'overspeed' | 'locked' | 'waitForIt' | 'go' | 'launch' | 'perfect' | 'good' | 'late';
+  | 'spool' | 'green' | 'notYet' | 'overspeed' | 'locked' | 'waitForIt' | 'go' | 'launch' | 'perfect' | 'good' | 'late'
+  // the sub's dive (map 4) and the rocket launch (map 5), doc 76
+  | 'flood' | 'dive' | 'divePerfect' | 'diveGood' | 'diveShallow' | 'diveDeep'
+  | 'countdown' | 'liftoff' | 'sepPerfect' | 'sepGood' | 'sepEarly' | 'sepLate' | 'orbit';
 
 export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   spool: { key: 'sh.spool', mood: 'neutral', gesture: 'point' },
@@ -135,12 +140,29 @@ export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood:
   perfect: { key: 'sh.perfect', mood: 'happy', gesture: 'thumbsUp' },
   good: { key: 'sh.good', mood: 'happy', gesture: 'salute' },
   late: { key: 'sh.late', mood: 'neutral', gesture: 'none' },
+  flood: { key: 'sh.flood', mood: 'neutral', gesture: 'none' },
+  dive: { key: 'sh.dive', mood: 'neutral', gesture: 'point' },
+  divePerfect: { key: 'sh.divePerfect', mood: 'happy', gesture: 'thumbsUp' },
+  diveGood: { key: 'sh.diveGood', mood: 'happy', gesture: 'salute' },
+  diveShallow: { key: 'sh.diveShallow', mood: 'worried', gesture: 'none' },
+  diveDeep: { key: 'sh.diveDeep', mood: 'worried', gesture: 'none' },
+  countdown: { key: 'sh.countdown', mood: 'neutral', gesture: 'none' },
+  liftoff: { key: 'sh.liftoff', mood: 'happy', gesture: 'point' },
+  sepPerfect: { key: 'sh.sepPerfect', mood: 'happy', gesture: 'thumbsUp' },
+  sepGood: { key: 'sh.sepGood', mood: 'happy', gesture: 'none' },
+  sepEarly: { key: 'sh.sepEarly', mood: 'worried', gesture: 'none' },
+  sepLate: { key: 'sh.sepLate', mood: 'neutral', gesture: 'none' },
+  orbit: { key: 'sh.orbit', mood: 'happy', gesture: 'salute' },
 };
 
 export function shooterLine(ev: ShooterEvent): LineRef {
   const e = SHOOTER_EVENTS[ev];
   return ref('shooter', e.key, e.mood, e.gesture);
 }
+
+/** Shooter's word on a dive through the gap and on a stage separation (doc 76). */
+export const DIVE_CALL: Readonly<Record<DiveGrade, ShooterEvent>> = { perfect: 'divePerfect', good: 'diveGood', early: 'diveShallow', late: 'diveDeep' };
+export const SEPARATION_CALL: Readonly<Record<SeparationGrade, ShooterEvent>> = { perfect: 'sepPerfect', good: 'sepGood', early: 'sepEarly', late: 'sepLate' };
 
 export type WingmanEvent =
   | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'halfway' | 'objectiveDone'

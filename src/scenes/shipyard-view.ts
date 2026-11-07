@@ -7,6 +7,7 @@ import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { liveryLook } from '../render/livery-art';
 import { drawModuleIcon, drawShip } from '../render/ship';
+import { drawLoadoutBackdrop } from '../render/loadout-backdrop';
 import { COLORS, paragraph, text } from '../render/text';
 import { drawButton, drawPanel, type Rect } from '../ui/widgets';
 import { markName } from './hangar-items';
@@ -154,13 +155,17 @@ function drawDetail(ctx: CanvasRenderingContext2D, v: YardView): void {
   drawButton(ctx, { id: 'buy', label, ...BTN.buy, primary: true, enabled: ok, hint: 'ENTER' }, v.mode === 'list' && ok, v.time);
 }
 
-export function drawShipyard(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[] = ROWS): void {
+function drawStars(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = '#060a16';
   ctx.fillRect(0, 0, 1280, 720);
   for (let i = 0; i < 90; i++) {
     ctx.fillStyle = i % 9 === 0 ? 'rgba(255,255,255,0.8)' : 'rgba(190,205,255,0.35)';
     ctx.fillRect((i * 137.3) % 1280, (i * 71.9 + 13) % 720, 1.5, 1.5);
   }
+}
+
+export function drawShipyard(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[] = ROWS): void {
+  if (!drawLoadoutBackdrop(ctx, 'ship')) drawStars(ctx);
   text(ctx, t('shipyard.title'), 40, 58, { size: 34, display: true, italic: true, color: COLORS.gold });
   text(ctx, formatMoney(v.save.money), 1010, 56, { size: 26, display: true, align: 'right', color: COLORS.green });
   drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BTN.base, hint: 'B' }, false, v.time);

@@ -8,10 +8,11 @@ import { Pix } from '../../src/render/pixel/raster';
 // up from the pocket under the wings; campaign ribbons as bars on the right breast above the name plate.
 
 const C = LOCKER_CHEST;
-/** Map 1's catalogue of 18 (doc 31); the world medals of doc 62 are covered in world-medals.test.ts. */
+/** Map 1's catalogue of 18 (doc 31); the world medals of docs 62 and 72 are covered in world-medals.test.ts. */
 const WORLD: readonly MedalId[] = [
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2', 'fjords', 'highlands', 'delta',
   'mesa', 'ashfall', 'victory3', 'allstars3', 'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
+  'reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5',
 ];
 const MAP1 = MEDAL_IDS.filter((id) => !WORLD.includes(id));
 const rowsOf = (l: UniformLayout, kind: SlotKind): MedalId[][] => {

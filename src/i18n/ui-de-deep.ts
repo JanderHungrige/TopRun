@@ -1,6 +1,7 @@
 // Deep Water UI strings (docs 65–68) — German; keys must match ui-en-deep.ts.
 export const UI_DE_DEEP = {
   'map.title5': 'TIEFSEE',
+  'rank.deepadm': 'Admiral der Tiefe',
   'map.campaign5Complete': '🎖 TIEFSEE GEWONNEN',
   'map.globeLocked5': 'Öffnet nach Mission 120',
   'map.yourSub': 'DEIN U-BOOT',
@@ -12,5 +13,17 @@ export const UI_DE_DEEP = {
   'hangar.flyThisSub': 'DIESES BOOT NEHMEN',
   'hangar.targetsWater': 'alles im Wasser',
   'hangar.targetsSeabed': 'den Meeresgrund',
+  'dive.subtitle': 'TAUCHSTART',
+  'dive.flooding': 'DAS DECK WIRD GEFLUTET …',
+  'dive.keys': 'LEERTASTE HALTEN ZUM TAUCHEN · LOSLASSEN ZUM STEIGEN · UNTER DEM NETZ DURCH',
+  'dive.touch': 'BILDSCHIRM HALTEN ZUM TAUCHEN · LOSLASSEN ZUM STEIGEN · UNTER DEM NETZ DURCH',
+  'dive.depth': 'TIEFE',
+  'dive.button': 'TAUCHEN',
+  'dive.perfect': 'PERFEKTER TAUCHGANG!',
+  'dive.good': 'GUTER TAUCHGANG',
+  'dive.early': 'ZU FLACH',
+  'dive.late': 'ZU TIEF',
+  'dive.snag': 'Im Netz hängen geblieben!',
+  'dive.scrape': 'Über das Riff geschrammt!',
   'arsenal.markInfoSub': 'Jede Stufe: +25 % Schaden, +1 pro Rohr; Mk III zusätzlich schneller und wendiger. U-Boot-Waffen gehen bis Mk III.',
 };

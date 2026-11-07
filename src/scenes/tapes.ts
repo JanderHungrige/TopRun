@@ -8,7 +8,7 @@ import { drawPlate, preloadWorld } from '../render/celebration';
 import { COLORS, text } from '../render/text';
 import { hit, type Rect } from '../ui/widgets';
 
-// The hangar TV's tape shelf (doc 63): an old TV showing the picked world, four VHS tapes beside it — a finished
+// The hangar TV's tape shelf (doc 63): an old TV showing the picked world, five VHS tapes beside it (doc 72) — a finished
 // world's tape plays its celebration (doc 64), a blank one is "not recorded yet". ↑/↓ or ←/→ pick, ENTER / tap plays,
 // ESC back to the hangar base.
 
@@ -16,7 +16,7 @@ const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'ma
 const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0a1630', 5: '#0b5a66' };
 const SCREEN: Rect = { x: 160, y: 168, w: 400, h: 225 };
 
-const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700, y: 150 + i * 112, w: 470, h: 92 });
+const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700, y: 122 + i * 96, w: 470, h: 80 });
 
 export class TapesScene implements Scene {
   private time = 0;
@@ -111,17 +111,17 @@ export class TapesScene implements Scene {
     ctx.fillStyle = tape.finished ? '#f0efea' : '#8a90aa';
     ctx.fillRect(r.x + 120, r.y + 14, r.w - 140, r.h - 28);
     ctx.fillStyle = '#120b14';
-    ctx.fillRect(r.x + 16, r.y + 22, 88, 48);
+    ctx.fillRect(r.x + 16, r.y + 16, 88, 48);
     for (const cx of [r.x + 38, r.x + 82]) {
       ctx.fillStyle = '#f0efea';
       ctx.beginPath();
-      ctx.arc(cx, r.y + 46, 12, 0, Math.PI * 2);
+      ctx.arc(cx, r.y + 40, 12, 0, Math.PI * 2);
       ctx.fill();
     }
     const ink = tape.finished ? '#120b14' : '#3a3f48';
-    text(ctx, t('tapes.world', { n: tape.world }), r.x + 136, r.y + 40, { size: 20, display: true, color: ink, maxWidth: r.w - 170 });
+    text(ctx, t('tapes.world', { n: tape.world }), r.x + 136, r.y + 35, { size: 20, display: true, color: ink, maxWidth: r.w - 170 });
     const sub = tape.finished ? t(WORLD_NAME[tape.world]) : t('tapes.blank');
-    text(ctx, sub, r.x + 136, r.y + 64, { size: 15, color: ink, maxWidth: r.w - 170 });
+    text(ctx, sub, r.x + 136, r.y + 58, { size: 15, color: ink, maxWidth: r.w - 170 });
     if (on) {
       ctx.strokeStyle = COLORS.gold;
       ctx.lineWidth = 4;

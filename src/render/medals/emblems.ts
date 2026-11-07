@@ -3,6 +3,7 @@ import { minus, union, type Mask, type Pix } from '../pixel/raster';
 import type { EmblemId } from './designs';
 import { map, quadPts, solid, stroke, val, type EmblemInk, type Painter } from './emblem-kit';
 import { EXTRA_PAINTERS } from './emblems-2';
+import { DEEP_PAINTERS } from './emblems-3';
 import { poly, starPath } from './metal';
 import { BASE, D1, L1, L2, type Ramp } from './palette';
 
@@ -167,6 +168,7 @@ const trio: Painter = (p, x, y, r, ink, clip) => {
 const PAINTERS: Readonly<Record<EmblemId, Painter>> = {
   wave, sun, flake, mesa, trident, star, stars3, jet: jetUp, palm, sword, reticle, shield, laurelStar, helmet, chevronJet, trio,
   ...EXTRA_PAINTERS,
+  ...DEEP_PAINTERS,
 };
 
 /** Paints emblem `id` of radius r (frame units) at (x, y), inside `clip`. Too small to read → nothing. */

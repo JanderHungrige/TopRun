@@ -84,8 +84,9 @@ palette per world (median cut, no dither), saved as indexed PNGs `w<world><shot>
 - After a world's **finale** debrief (doc 35's rule: the map's last mission won with the whole map cleared): the
   debrief's buttons lead to `{ to: 'celebration', world, then: <ceremony or next> }`.
 - Again any time from the hangar TV's tape shelf (doc 63).
-- Only for a world whose key frames exist (`CELEBRATED`, worlds 1–4; world 5's come with Deep Water's wave 3): another
-  world's finale goes straight to the medal ceremony or the map.
+- Only for a world whose key frames exist (`CELEBRATED`: worlds 1–5 since Deep Water's wave 3, doc 72); a world
+  without them would go straight to the medal ceremony or the map.
+- World 5 (doc 72): under the sea, shot a's fireworks are bubble bursts.
 
 ## Business Rules
 

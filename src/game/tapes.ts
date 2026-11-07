@@ -9,6 +9,6 @@ export interface Tape {
   finished: boolean;
 }
 
-export const WORLDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4] as const);
+export const WORLDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5] as const);
 
 export const tapeShelf = (save: SaveData): Tape[] => WORLDS.map((world) => ({ world, finished: campaignComplete(save, world) }));

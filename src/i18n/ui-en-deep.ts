@@ -1,6 +1,7 @@
 // Deep Water UI strings (docs 65–68): map 5, the SUB PEN.
 export const UI_EN_DEEP = {
   'map.title5': 'DEEP WATER',
+  'rank.deepadm': 'Admiral of the Deep',
   'map.campaign5Complete': '🎖 DEEP WATER WON',
   'map.globeLocked5': 'Opens after mission 120',
   'map.yourSub': 'YOUR SUB',
@@ -13,4 +14,17 @@ export const UI_EN_DEEP = {
   'hangar.targetsWater': 'anything in the water',
   'hangar.targetsSeabed': 'the seabed',
   'arsenal.markInfoSub': 'Each mark: +25% damage, +1 per tube; Mk III also faster and more agile. Sub weapons go up to Mk III.',
+  // The dive launch (doc 71).
+  'dive.subtitle': 'DIVE LAUNCH',
+  'dive.flooding': 'FLOODING THE DECK…',
+  'dive.keys': 'HOLD SPACE TO DIVE · LET GO TO RISE · PASS UNDER THE NET',
+  'dive.touch': 'HOLD THE SCREEN TO DIVE · LET GO TO RISE · PASS UNDER THE NET',
+  'dive.depth': 'DEPTH',
+  'dive.button': 'DIVE',
+  'dive.perfect': 'PERFECT DIVE!',
+  'dive.good': 'GOOD DIVE',
+  'dive.early': 'TOO SHALLOW',
+  'dive.late': 'TOO DEEP',
+  'dive.snag': 'Snagged the net!',
+  'dive.scrape': 'Scraped the reef!',
 } as const;

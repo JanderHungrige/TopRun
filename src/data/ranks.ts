@@ -1,7 +1,7 @@
 // Naval ranks by pilot rating (doc 26). Names live in the UI tables (`rank.<id>`).
 // Shared with the ladder service, so this file imports nothing.
 
-export type RankId = 'ensign' | 'ltjg' | 'lt' | 'lcdr' | 'cdr' | 'capt' | 'radm' | 'adm' | 'fadm' | 'legend' | 'ace' | 'staradm';
+export type RankId = 'ensign' | 'ltjg' | 'lt' | 'lcdr' | 'cdr' | 'capt' | 'radm' | 'adm' | 'fadm' | 'legend' | 'ace' | 'staradm' | 'deepadm';
 
 export interface Rank {
   id: RankId;
@@ -25,6 +25,8 @@ export const RANKS: readonly Rank[] = Object.freeze([
   { id: 'ace', from: 36000 },
   // Above Ace of Aces once map-4 stars count (doc 58).
   { id: 'staradm', from: 48000 },
+  // Above Star Admiral once map-5 stars count (doc 72).
+  { id: 'deepadm', from: 60000 },
 ]);
 
 export const RANK_IDS: readonly RankId[] = Object.freeze(RANKS.map((r) => r.id));

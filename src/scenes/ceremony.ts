@@ -2,7 +2,7 @@ import type { Scene } from '../core/scene';
 import type { MedalId } from '../data/medals';
 import { PRESET_LOOKS, type AvatarLook } from '../game/avatar-look';
 import { beatAt, GUARD, sceneLength, startCeremony, stepCeremony, type CeremonyState, type CueId } from '../game/ceremony';
-import { pilotBase, skinTone, stagePlan, type PilotBase } from '../game/ceremony-stage';
+import { ceremonySet, pilotBase, skinTone, stagePlan, type CeremonySet, type PilotBase } from '../game/ceremony-stage';
 import { typewriter } from '../game/dialogue';
 import { medalLine } from '../game/dialogue-scripts';
 import { earnedMedals } from '../game/medals';
@@ -40,6 +40,8 @@ export class CeremonyScene implements Scene {
   /** The player's look: which pilot cut-out stands there and the skin / hair it is recoloured to. */
   private readonly look: AvatarLook;
   private readonly base: PilotBase;
+  /** The world's stage (doc 75). */
+  private readonly set: CeremonySet;
 
   constructor(private readonly game: GameContext, private readonly medals: readonly MedalId[], private readonly then: Route) {
     this.state = startCeremony(medals.length);
@@ -47,7 +49,8 @@ export class CeremonyScene implements Scene {
     const face = faceOf(game.profile);
     this.look = typeof face === 'string' ? PRESET_LOOKS[face] : face;
     this.base = pilotBase(this.look);
-    preloadStage();
+    this.set = ceremonySet(game.home);
+    preloadStage(this.set);
     this.speech = new SpeechBox(game.audio, {
       portrait: { x: 52, y: 556, w: 92, h: 110 },
       bubble: { x: 172, y: 562, w: 1058, h: 104 },
@@ -127,7 +130,7 @@ export class CeremonyScene implements Scene {
     const beat = beatAt(st.index, st.stage === 'scene' ? st.t : sceneLength(st.index));
     const pinned = this.medals.slice(0, Math.min(this.medals.length, st.index + (beat.pinned ? 1 : 0)));
     const plan = stagePlan(beat);
-    const sg = drawStage(ctx, { plan, base: this.base, skin: skinTone(this.look.skin), hair: this.look.hair, t: this.clock });
+    const sg = drawStage(ctx, { set: this.set, plan, base: this.base, skin: skinTone(this.look.skin), hair: this.look.hair, t: this.clock });
     drawChest(ctx, sg, this.base, this.earlier, pinned);
     if (this.pinAge >= 0) this.sparkle(ctx, sg, pinned.length);
     this.renderCard(ctx, artGrid(ctx));

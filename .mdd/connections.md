@@ -1,8 +1,8 @@
 ---
 generated: 2026-11-07
-doc_count: 75
-connection_count: 239
-overlap_count: 205
+doc_count: 76
+connection_count: 241
+overlap_count: 209
 ---
 
 # MDD Connections
@@ -43,7 +43,8 @@ Game
 │   ├── Deep Water   72-map-five-honours (complete)
 │   ├── Locker   31-locker-uniform (complete)
 │   ├── Medals   24-medals-core (complete), 62-world-medals (complete)
-│   └── PictureWall   32-picture-wall (complete)
+│   ├── PictureWall   32-picture-wall (complete)
+│   └── World Ceremonies   75-world-ceremonies (complete)
 ├── Ladder
 │   ├── Rating   26-pilot-rating (complete)
 │   ├── Screen   28-ladder-screen (complete)
@@ -169,6 +170,7 @@ graph TD
   d72["72-map-five-honours"]:::complete
   d73["73-home-docks"]:::complete
   d74["74-world-order"]:::complete
+  d75["75-world-ceremonies"]:::complete
   d01 --> d02
   d01 --> d03
   d02 --> d03
@@ -408,6 +410,8 @@ graph TD
   d65 --> d74
   d70 --> d74
   d72 --> d74
+  d25 --> d75
+  d74 --> d75
   classDef complete fill:#1f6f3f,color:#fff
   classDef in_progress fill:#8a6a1a,color:#fff
   classDef draft fill:#555,color:#fff
@@ -421,6 +425,7 @@ graph TD
 - `server/ladder/http.ts`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
 - `server/ladder/main.ts`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
 - `server/ladder/store.ts`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
+- `src/assets/ceremony/`: 25-medal-ceremony, 75-world-ceremonies
 - `src/assets/finales/`: 64-world-celebrations, 72-map-five-honours, 74-world-order
 - `src/core/input.ts`: 01-game-core, 43-deep-arsenal
 - `src/core/ladder-api.ts`: 28-ladder-screen, 34-cloud-pilots
@@ -453,6 +458,7 @@ graph TD
 - `src/game/avatar-look.ts`: 29-avatar-builder, 33-image-portraits
 - `src/game/base-hangar.ts`: 30-hangar-base, 40-chalkboard, 63-hangar-tv, 73-home-docks
 - `src/game/celebration.ts`: 64-world-celebrations, 72-map-five-honours
+- `src/game/ceremony-stage.ts`: 25-medal-ceremony, 75-world-ceremonies
 - `src/game/challenge.ts`: 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/game/cockpit.ts`: 05-mission-combat, 43-deep-arsenal, 44-new-adversaries, 61-cockpit-skins, 67-sub-flight
 - `src/game/combat.ts`: 05-mission-combat, 36-new-jets, 43-deep-arsenal, 44-new-adversaries
@@ -523,6 +529,7 @@ graph TD
 - `src/render/carrier/crew.ts`: 04-carrier-takeoff, 20-retro-look
 - `src/render/carrier/sky-sea.ts`: 04-carrier-takeoff, 56-fourth-map, 58-map-four-campaign, 68-underwater-world
 - `src/render/celebration.ts`: 64-world-celebrations, 65-fifth-map, 72-map-five-honours, 74-world-order
+- `src/render/ceremony-stage.ts`: 25-medal-ceremony, 75-world-ceremonies
 - `src/render/cockpit/backplate.ts`: 05-mission-combat, 61-cockpit-skins, 67-sub-flight
 - `src/render/cockpit/buttons.ts`: 05-mission-combat, 61-cockpit-skins
 - `src/render/cockpit/gauges.ts`: 05-mission-combat, 37-double-firepower, 43-deep-arsenal, 46-bofors-he-gun, 61-cockpit-skins
@@ -589,6 +596,7 @@ graph TD
 - `src/scenes/avatar-builder.ts`: 29-avatar-builder, 33-image-portraits
 - `src/scenes/base-hub.ts`: 11-base-hub, 47-admin-pilot
 - `src/scenes/celebration.ts`: 64-world-celebrations, 65-fifth-map, 74-world-order
+- `src/scenes/ceremony.ts`: 25-medal-ceremony, 75-world-ceremonies
 - `src/scenes/debrief.ts`: 03-campaign-map, 20-retro-look, 35-second-map, 38-challenge-level, 39-mission-score, 48-third-map, 56-fourth-map, 64-world-celebrations, 65-fifth-map
 - `src/scenes/hangar-base.ts`: 30-hangar-base, 73-home-docks
 - `src/scenes/hangar-chief.ts`: 06-talking-characters, 43-deep-arsenal, 66-sub-kit

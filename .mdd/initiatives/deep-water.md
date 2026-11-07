@@ -3,7 +3,7 @@ id: deep-water
 title: Deep Water
 status: in_progress
 version: 1
-hash: 9ff73c26
+hash: bff60a42
 created: 2026-11-07
 ---
 
@@ -30,7 +30,9 @@ Decided with the owner (one question round, 2026-11-07):
 - [x] What the player steers → a fleet of 3–4 subs (owner).
 - [x] Enemies → military plus sea monsters (owner).
 - [x] Size → a full map: 30 missions, launch game, medals, celebration (owner).
-- [ ] Dock looks → generated backdrops or drawn in code, after the examples (owner).
+- [x] Dock looks → generated backdrops (owner, 2026-11-07, on four examples): **space dock A** for map 4; for map 5
+  the underwater dock A's look, but the sub *"so out of proportion"* comes out of the room — it is seen partly docked
+  through one of the windows, which leaves floor for the chalkboard and the rest (re-rendered for wave 4).
 
 ## Waves
 | Wave | File | Demo-state | Status |

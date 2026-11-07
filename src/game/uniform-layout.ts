@@ -129,8 +129,11 @@ function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlo
   return { slots: out.flat(), top: cursor };
 }
 
+/** Campaign ribbons stand three a row; more than five rows' worth (maps 2–4, doc 62) go four a row. */
+const ribbonsPerRow = (count: number, c: ChestFrame): number => (count > c.ribbonsPerRow * 5 ? c.ribbonsPerRow + 1 : c.ribbonsPerRow);
+
 function ribbonBlock(ids: readonly MedalId[], c: ChestFrame): UniformSlot[] {
-  const rows = rackRows(ids, c.ribbonsPerRow);
+  const rows = rackRows(ids, ribbonsPerRow(ids.length, c));
   return rows.flatMap((row, r) => ribbonRow(row, r, c.ribbonBottom - (rows.length - r) * (c.ribbonH + 2) + 2, c));
 }
 

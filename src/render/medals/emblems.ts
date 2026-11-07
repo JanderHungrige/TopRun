@@ -1,36 +1,15 @@
 import { path } from '../pixel/path';
 import { minus, union, type Mask, type Pix } from '../pixel/raster';
 import type { EmblemId } from './designs';
-import { bevel, poly, starPath } from './metal';
+import { map, quadPts, solid, stroke, val, type EmblemInk, type Painter } from './emblem-kit';
+import { EXTRA_PAINTERS } from './emblems-2';
+import { poly, starPath } from './metal';
 import { BASE, D1, L1, L2, type Ramp } from './palette';
 
-// Medal art (doc 25): the small emblems on medal fields, seals and medallions. Each is laid out in a unit
-// square (−1 … 1) around (x, y) scaled by r, painted in the design's mark / accent ramps and kept inside `clip`.
+// Medal art (docs 25, 62): the small emblems on medal fields, seals and medallions (helpers in emblem-kit.ts, the
+// world medals' emblems in emblems-2.ts).
 
-export interface EmblemInk { mark: Ramp; accent: Ramp }
-
-type Painter = (p: Pix, x: number, y: number, r: number, ink: EmblemInk, clip: Mask) => void;
-
-const val = (ramp: Ramp, slot = BASE): number => ramp[slot] ?? 0;
-/** Unit-square points around (x, y) at scale r → frame units. */
-const map = (x: number, y: number, r: number, pts: readonly number[]): number[] => pts.map((q, i) => (i % 2 === 0 ? x + q * r : y + q * r));
-const stroke = (p: Pix, x: number, y: number, r: number, pts: readonly number[], w: number): Mask => p.thick(map(x, y, r, pts), w * r);
-
-function quadPts(x0: number, y0: number, cx: number, cy: number, x1: number, y1: number): number[] {
-  const out: number[] = [];
-  for (let i = 0; i <= 8; i++) {
-    const t = i / 8;
-    const u = 1 - t;
-    out.push(u * u * x0 + 2 * u * t * cx + t * t * x1, u * u * y0 + 2 * u * t * cy + t * t * y1);
-  }
-  return out;
-}
-
-/** A shaded shape: base colour, light towards the upper left. */
-function solid(p: Pix, m: Mask, ramp: Ramp, x: number, y: number, r: number, clip: Mask): void {
-  const inside = m.map((v, i) => (v && clip[i] ? 1 : 0));
-  bevel(p, inside, ramp, x, y, r);
-}
+export type { EmblemInk };
 
 const JET = [0, -1, 0.12, -0.7, 0.14, -0.28, 0.84, 0.18, 0.84, 0.34, 0.14, 0.24, 0.12, 0.56, 0.42, 0.8, 0.42, 0.93, 0, 0.84];
 /** A jet seen from above, nose up. */
@@ -187,6 +166,7 @@ const trio: Painter = (p, x, y, r, ink, clip) => {
 
 const PAINTERS: Readonly<Record<EmblemId, Painter>> = {
   wave, sun, flake, mesa, trident, star, stars3, jet: jetUp, palm, sword, reticle, shield, laurelStar, helmet, chevronJet, trio,
+  ...EXTRA_PAINTERS,
 };
 
 /** Paints emblem `id` of radius r (frame units) at (x, y), inside `clip`. Too small to read → nothing. */

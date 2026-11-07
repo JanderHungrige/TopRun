@@ -41,6 +41,8 @@ export class Player {
   heCooldown = 0;
   gun2Side = 1;
   secCooldown = 0;
+  /** Point defence's reload (doc 60). */
+  pdTimer = 0;
   readonly secondaries: SecondarySlot[];
   /** Fired any missile, rocket or bomb this sortie (doc 24, Gunslinger). */
   firedSecondary = false;

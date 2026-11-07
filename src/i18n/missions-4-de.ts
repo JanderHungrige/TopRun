@@ -13,7 +13,7 @@ export const MISSIONS_4_DE: Readonly<Record<string, { name: string; briefing: st
   m101: { name: 'Hohle Felsen', briefing: 'Sie haben Geschütze in die Asteroiden selbst gegraben. Rechne mit Feuer von allen Seiten.' },
   m102: { name: 'Quarry', briefing: 'QUARRY, eine aus einem Asteroiden gehauene Festung, bewacht den Gürtel. Knack sie.' },
   m103: { name: 'Staublinie', briefing: 'Der Krieg hat den Mond erreicht. Batterien in den Kratern schießen auf alles, was darüber fliegt.' },
-  m104: { name: 'Kratergeschütze', briefing: 'Acht Mondbatterien decken die Landezone. Bring sie zum Schweigen.' },
+  m104: { name: 'Kratergeschütze', briefing: 'Sechs Mondbatterien decken die Landezone. Bring sie zum Schweigen.' },
   m105: { name: 'Mondaufgang', briefing: 'Ihre Jäger steigen von der Rückseite auf. 32 Abschüsse.' },
   m106: { name: 'Nachschublinie', briefing: 'Kanonenboote bringen Nachschub zwischen den Mondbasen. Schalte 5 aus.' },
   m107: { name: 'Rückseite', briefing: 'Wir fliegen auf die Rückseite, wo noch keiner von uns war.' },

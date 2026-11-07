@@ -24,14 +24,14 @@ import { PilotLoadScene } from './pilot-load';
 import { PilotsScene } from './pilots';
 import { TakeoffScene } from './takeoff';
 import { TitleScene } from './title';
+import { RocketLaunchScene } from './rocket-launch';
 import { ShipyardScene } from './shipyard';
 
-// Which scene each route opens (docs 01, 53, 55, 56).
+// Which scene each route opens (docs 01, 53, 55, 56, 59).
 
-/** Jets launch from the catapult, helicopters lift off the deck (doc 53); the spacecraft starts in orbit until its
- *  rocket launch (doc 56). */
+/** Jets launch from the catapult, helicopters lift off the deck (doc 53), the spacecraft rides a rocket (doc 59). */
 function takeoffScene(game: GameContext, mission: MissionDef): Scene {
-  if (mission.campaign === 4) return new MissionScene(game, mission, 'skipped');
+  if (mission.campaign === 4) return new RocketLaunchScene(game, mission);
   return mission.campaign === 3 ? new LiftoffScene(game, mission) : new TakeoffScene(game, mission);
 }
 

@@ -5,6 +5,7 @@ import { kitView } from '../../src/game/kit';
 import { derivePlayerStats } from '../../src/game/loadout';
 import { defaultSave, parseSave, type SaveData } from '../../src/game/save';
 import { canPlace, freshShip, place, shipStats, type ShipKit } from '../../src/game/ship';
+import { pointDefenceInterval, pointDefenceTarget } from '../../src/game/point-defence';
 import { buyShipMark, canBuyShipMark, markValue, shipMarkPrice } from '../../src/game/ship-shop';
 
 // The space arsenal (doc 57): the torpedo bay, rocket wings on the AIR key, Mk II–V marks for the ship's modules.
@@ -81,5 +82,29 @@ describe('Space arsenal (doc 57)', () => {
     expect(markValue('torpedo', 5)).toBe(600);
     const raw = JSON.parse(JSON.stringify({ ...defaultSave(), ship: { modules: [], stock: {}, laserLevel: 1, marks: { plate: 9, shield: -3, rockets: 'x' } } }));
     expect(parseSave(raw)?.ship.marks).toEqual({ plate: 5, engine: 1, shield: 1, rockets: 1, torpedo: 1 });
+  });
+});
+
+describe('Point defence (doc 60)', () => {
+  it('fits anywhere, draws one power and counts its turrets', () => {
+    let s = bare({ pointdef: 2 });
+    s = place(s, 'pointdef', C, R + 1);
+    s = place(s, 'pointdef', C, R + 2);
+    expect(shipStats(s)).toMatchObject({ pointDefence: 2, power: 2 });
+  });
+
+  it('picks the nearest live enemy missile within 150 px, never the player\'s own', () => {
+    const m = (x: number, y: number, kind = 'enemy', dead = false): { x: number; y: number; kind: string; dead: boolean } => ({ x, y, kind, dead });
+    const near = m(100, 60);
+    const list = [m(0, 160), near, m(10, 10, 'aim9'), m(5, 5, 'enemy', true), m(90, 0)];
+    expect(pointDefenceTarget(list, 0, 0)).toBe(list[4]); // 90 px away, nearer than the one at (100, 60)
+    expect(pointDefenceTarget([m(0, 151)], 0, 0)).toBeNull();
+    expect(pointDefenceTarget([near, m(0, 120)], 0, 0)).toBe(near);
+  });
+
+  it('fires again after 2.5 s, shared out over the turrets', () => {
+    expect(pointDefenceInterval(1)).toBe(2.5);
+    expect(pointDefenceInterval(2)).toBe(1.25);
+    expect(pointDefenceInterval(0)).toBe(Infinity);
   });
 });

@@ -1,5 +1,6 @@
 import type { Dial, Rect } from './layout';
 import { legend, rr, roundBezel, screenText, subPlate } from './metal';
+import { SK } from './skin';
 
 /** Hull dial, cannon level lamps + power bar, artificial horizon. *Static parts go into the plate cache. */
 
@@ -12,7 +13,7 @@ const BANDS: readonly (readonly [number, number, string])[] = [[0, 0.3, '#e0412f
 export function hullStatic(ctx: CanvasRenderingContext2D, d: Dial, label: string, seed: number): void {
   const R = d.r * HULL_FACE;
   roundBezel(ctx, d.cx, d.cy, d.r, R, seed);
-  ctx.fillStyle = '#0e1012';
+  ctx.fillStyle = SK.dialFace;
   ctx.beginPath();
   ctx.arc(d.cx, d.cy, R, 0, TAU);
   ctx.fill();
@@ -23,7 +24,7 @@ export function hullStatic(ctx: CanvasRenderingContext2D, d: Dial, label: string
     ctx.arc(d.cx, d.cy, R - 6, A0 + a * SWEEP, A0 + b * SWEEP);
     ctx.stroke();
   }
-  ctx.strokeStyle = '#d8dee3';
+  ctx.strokeStyle = SK.legend;
   ctx.beginPath();
   for (let i = 0; i <= 10; i++) {
     const a = A0 + (i / 10) * SWEEP;
@@ -35,7 +36,7 @@ export function hullStatic(ctx: CanvasRenderingContext2D, d: Dial, label: string
   ctx.stroke();
   legend(ctx, label, d.cx, d.cy - R * 0.42, { size: 9, align: 'center', maxW: R * 1.1 });
   rr(ctx, d.cx - 21, d.cy + R * 0.42, 42, 13, 2); // LCD window
-  ctx.fillStyle = '#071209';
+  ctx.fillStyle = SK.lcd;
   ctx.fill();
   ctx.strokeStyle = '#3a4046';
   ctx.lineWidth = 1;
@@ -46,7 +47,7 @@ export function hullLive(ctx: CanvasRenderingContext2D, d: Dial, hull: { ratio: 
   const R = d.r * HULL_FACE;
   const r = Math.max(0, Math.min(1, hull.ratio));
   screenText(ctx, `${Math.round(hull.value)}/${Math.round(hull.max)}`, d.cx, d.cy + R * 0.42 + 6.8, {
-    size: 9.5, align: 'center', maxW: 38, color: r > 0.6 ? '#62f08a' : r > 0.3 ? '#ffb23c' : '#ff5a48',
+    size: 9.5, align: 'center', maxW: 38, color: r > 0.6 ? SK.ink : r > 0.3 ? '#ffb23c' : '#ff5a48',
   });
   const a = A0 + r * SWEEP;
   ctx.save();
@@ -176,11 +177,11 @@ export function attitudeLive(ctx: CanvasRenderingContext2D, d: Dial, bank: numbe
   ctx.clip();
   ctx.translate(d.cx, d.cy);
   ctx.rotate(-Math.max(-1, Math.min(1, bank)) * 0.55);
-  ctx.fillStyle = '#3f78ad';
+  ctx.fillStyle = SK.sky;
   ctx.fillRect(-R * 1.6, -R * 1.6, R * 3.2, R * 1.6 + p);
-  ctx.fillStyle = '#6b4a2b';
+  ctx.fillStyle = SK.ground;
   ctx.fillRect(-R * 1.6, p, R * 3.2, R * 1.6);
-  ctx.strokeStyle = '#f2f4f6';
+  ctx.strokeStyle = SK.horizon;
   ctx.lineWidth = 1.6;
   ctx.beginPath();
   ctx.moveTo(-R * 1.6, p);
@@ -201,7 +202,7 @@ export function attitudeLive(ctx: CanvasRenderingContext2D, d: Dial, bank: numbe
 
 /** Fixed parts over the card: bank scale and the orange aircraft symbol. */
 function attitudeOverlay(ctx: CanvasRenderingContext2D, d: Dial, R: number): void {
-  ctx.strokeStyle = '#f2f4f6';
+  ctx.strokeStyle = SK.horizon;
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   for (const deg of [-60, -45, -30, -20, -10, 10, 20, 30, 45, 60]) {
@@ -211,7 +212,7 @@ function attitudeOverlay(ctx: CanvasRenderingContext2D, d: Dial, R: number): voi
     ctx.lineTo(d.cx + Math.cos(a) * (R - l), d.cy + Math.sin(a) * (R - l));
   }
   ctx.stroke();
-  ctx.strokeStyle = '#ff9d2e';
+  ctx.strokeStyle = SK.symbol;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(d.cx - 26, d.cy);
@@ -221,7 +222,7 @@ function attitudeOverlay(ctx: CanvasRenderingContext2D, d: Dial, R: number): voi
   ctx.lineTo(d.cx + 9, d.cy);
   ctx.lineTo(d.cx + 4, d.cy + 6);
   ctx.stroke();
-  ctx.fillStyle = '#ff9d2e';
+  ctx.fillStyle = SK.symbol;
   ctx.beginPath();
   ctx.arc(d.cx, d.cy, 2.6, 0, TAU);
   ctx.fill();

@@ -1,6 +1,7 @@
 import type { Rect } from './layout';
 import { FONT_TYPE } from '../text';
 import { bevel, halo, legend, rr, screenText, screw } from './metal';
+import { SK } from './skin';
 
 /** Physical backlit push-buttons: a sunken housing in the plate cache, a live cap that lights by state. */
 
@@ -18,11 +19,11 @@ const INSET = 8;
 const cap = (r: Rect): Rect => ({ x: r.x + INSET, y: r.y + INSET, w: r.w - INSET * 2, h: r.h - INSET * 2 - 8 });
 
 export function buttonHousing(ctx: CanvasRenderingContext2D, r: Rect, keyHint: string, seed: number): void {
-  bevel(ctx, r, 9, '#171a1d', true);
+  bevel(ctx, r, 9, SK.housing, true);
   screw(ctx, r.x + 6, r.y + r.h - 6, seed, 2.4);
   if (keyHint) legend(ctx, keyHint, r.x + r.w - 7, r.y + r.h - 7.5, { size: 8, align: 'right', maxW: r.w - 22, color: '#9aa4ad' });
   const c = cap(r);
-  bevel(ctx, { x: c.x - 2, y: c.y - 2, w: c.w + 4, h: c.h + 4 }, 8, '#0b0d0f', true);
+  bevel(ctx, { x: c.x - 2, y: c.y - 2, w: c.w + 4, h: c.h + 4 }, 8, SK.well, true);
 }
 
 export interface Lit { face: string; ink: string; dim: boolean }
@@ -42,7 +43,7 @@ export function capFace(ctx: CanvasRenderingContext2D, r: Rect, state: CapState,
     return { face: `rgb(${col.rgb})`, ink: col.ink, dim: false };
   }
   rr(ctx, c.x, c.y, c.w, c.h, 7);
-  ctx.fillStyle = '#1d2226';
+  ctx.fillStyle = SK.capDark;
   ctx.fill();
   if (state === 'cooldown') {
     rr(ctx, c.x, c.y, c.w, c.h, 7);
@@ -59,7 +60,7 @@ export function capFace(ctx: CanvasRenderingContext2D, r: Rect, state: CapState,
   rr(ctx, c.x + 3, c.y + 3, c.w - 6, c.h * 0.38, 5);
   ctx.fillStyle = 'rgba(255,255,255,0.06)';
   ctx.fill();
-  return { face: '#1d2226', ink: state === 'cooldown' ? `rgba(${col.rgb},0.9)` : state === 'empty' ? '#7d868e' : '#4c5359', dim: true };
+  return { face: SK.capDark, ink: state === 'cooldown' ? `rgba(${col.rgb},0.9)` : state === 'empty' ? '#7d868e' : '#4c5359', dim: true };
 }
 
 /** Standard push-button: legend in the middle, a small status line (EMPTY / N/A) under it when dark. */

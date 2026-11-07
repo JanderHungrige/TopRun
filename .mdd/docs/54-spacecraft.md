@@ -3,7 +3,7 @@ id: 54-spacecraft
 title: Spacecraft - One Ship Built From Modules on a Grid; Shape Is the Hitbox, Lasers Fire From Where They Sit
 edition: TopRun
 depends_on: [49-helicopter-kit, 05-mission-combat, 02-hangar-economy]
-relates: [55-shipyard, 56-fourth-map, 49-helicopter-kit]
+relates: [55-shipyard, 56-fourth-map, 49-helicopter-kit, 61-cockpit-skins]
 source_files:
   - src/data/ship-modules.ts
   - src/game/ship.ts
@@ -18,6 +18,7 @@ source_files:
   - src/scenes/mission/weapons-fire.ts
   - src/scenes/mission/mission-render.ts
   - src/render/ship.ts
+  - src/render/ship-parts.ts
 test_files:
   - tests/unit/ship.test.ts
 routes: []
@@ -97,6 +98,33 @@ bought), its own `SaveData.ship`; the jets' and helicopters' kits stay untouched
 - In the mission (`src/scenes/mission/player.ts`, `src/game/ship-loadout.ts`): the player's `touches()` tests the
   cells, `damage()` soaks the shield first, the shield regrows after `SHIELD.delay` quiet seconds; every barrel fires a
   laser bolt (`Bullet.laser`) at the laser level's rate and damage. Drawn from its modules by `src/render/ship.ts`.
+
+## How it looks (owner, 2026-11-07: "less blocky … more like space stuff")
+
+A **sleek starfighter**: the modules are no longer square blocks but parts of one craft, joined by struts. The cells
+stay the hitbox (doc 54 above); the art may reach a little past a cell (a nose, a wing tip, an exhaust plume).
+
+- **Fairings:** every pair of side-by-side modules is joined by a wide band of hull (shade colour, a light ridge and
+  a seam line), drawn under them, so the parts read as one craft. (Thin dark struts were tried first and looked like a
+  space station.)
+- **Core:** a lozenge fuselage pod pointed forward, a glass canopy with a highlight, an accent stripe, a short nose gun.
+- **Front capsule:** a long pointed nose cone reaching past its cell, canopy windows, an accent chevron, the radar dot.
+- **Armour plate:** a bevelled, chamfered hull section with panel lines — a piece of the hull, not a crate.
+- **Engine:** a nacelle with an intake in front and a bell nozzle behind; the blue plume grows with the throttle.
+- **Laser:** a pylon and a long barrel with a cooling ring and a glowing emitter tip.
+- **Rocket wing:** a swept wing reaching out on its open side (away from its neighbours; with both sides open, away
+  from the core) with three rocket pods under it.
+- **Torpedo bay:** twin launch tubes with orange glowing mouths.
+- **Shield generator:** an emitter dish with rings and a pulsing glow.
+- **Point defence:** a domed turret with twin barrels that slowly sweeps.
+- **Reactor:** a torus with cooling fins round a glowing core.
+- Colours: white-grey hull with shading (`look.base` / `look.under` of the starship livery), dark metal parts,
+  blue-white glass, blue accent stripes, engine blue, torpedo orange, reactor amber. The parts live in
+  `src/render/ship-parts.ts` (`PARTS`, drawn back to front by `LAYER`).
+- A **solid** pass (shadow, hit flash) draws the same silhouettes in one colour without details.
+- The side view (launch, lists) is a matching sleek hull with a canopy, a swept wing and an engine plume.
+- Pure helpers in `src/game/ship.ts`: `moduleLinks(list)` (each side-by-side pair once, for the fairings) and
+  `wingSide(module, list)` (−1 left, +1 right).
 
 ## Save
 

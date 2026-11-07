@@ -3,7 +3,7 @@ id: 05-mission-combat
 title: Mission Combat - Top-Down Vertical Shooter
 edition: TopRun
 depends_on: [01-game-core, 02-hangar-economy, 03-campaign-map, 04-carrier-takeoff]
-relates: [02-hangar-economy, 03-campaign-map, 06-talking-characters, 07-i18n]
+relates: [02-hangar-economy, 03-campaign-map, 06-talking-characters, 07-i18n, 61-cockpit-skins]
 source_files:
   - src/data/enemies.ts
   - src/data/bosses.ts
@@ -32,6 +32,8 @@ source_files:
   - src/render/cockpit/mission.ts
   - src/render/cockpit/lamps.ts
   - src/render/cockpit/buttons.ts
+  - src/render/cockpit/skin.ts
+  - src/render/cockpit/backplate.ts
   - src/render/draw-enemies.ts
   - src/render/enemies/air-units.ts
   - src/render/enemies/kit.ts
@@ -109,7 +111,7 @@ scenes/mission/      world container + systems (player, enemy AI, projectiles, b
                      pickups); mission-scene orchestrates update order and end state
 game/cockpit.ts      radarContacts / buttonStates / warningLights (pure)
 scenes/mission/cockpit-view.ts   world + player → LeftConsoleView / RightConsoleView
-render/cockpit/      drawLeftConsole / drawRightConsole; layout.ts holds the button rects the
+render/cockpit/      drawLeftConsole / drawRightConsole (in the craft's skin, doc 61); layout.ts holds the button rects the
                      scene hit-tests; static metal plates are cached offscreen per labels object
                      (the scene keeps one labels object per language)
 render/              enemy / boss / terrain vector art, particle system

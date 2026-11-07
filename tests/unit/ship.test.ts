@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { CELL_PX, GRID, MODULES, type ModuleId } from '../../src/data/ship-modules';
-import { CORE, canPlace, freshShip, isValidLayout, place, remove, shipStats, trimLayout, type ShipKit } from '../../src/game/ship';
+import { CORE, canPlace, freshShip, isValidLayout, moduleLinks, place, remove, shipStats, trimLayout, wingSide, type ShipKit } from '../../src/game/ship';
 import { buyLaser, buyModule, canBuyLaser, canBuyModule, modulePrice, owned } from '../../src/game/ship-shop';
 import { kitView } from '../../src/game/kit';
 import { derivePlayerStats } from '../../src/game/loadout';
@@ -130,5 +130,25 @@ describe('Shipyard shop (doc 55)', () => {
     expect(stats.secondaries).toEqual([expect.objectContaining({ id: 'spacerocket', ammo: 6 })]);
     const raw = JSON.parse(JSON.stringify({ ...defaultSave(), ship: { modules: [{ id: 'plate', col: 0, row: 0 }, { id: 'core', col: 1, row: 1 }], stock: { laser: 99 }, laserLevel: 42 } }));
     expect(parseSave(raw)?.ship).toMatchObject({ modules: [], laserLevel: 10, stock: { laser: 40 } });
+  });
+});
+
+describe('Starfighter art helpers (doc 54)', () => {
+  it('joins every side-by-side pair of modules once with a strut', () => {
+    const list = [CORE, { id: 'laser', col: C - 1, row: R }, { id: 'engine', col: C, row: R + 1 }, { id: 'plate', col: C - 1, row: R + 1 }] as const;
+    const links = moduleLinks(list);
+    expect(links).toHaveLength(4);
+    expect(links.every(([a, b]) => Math.abs(a.col - b.col) + Math.abs(a.row - b.row) === 1)).toBe(true);
+    expect(moduleLinks([CORE])).toEqual([]);
+  });
+
+  it('sweeps a rocket wing to its open side, away from the core when both are open', () => {
+    const left = { id: 'rockets', col: C - 1, row: R } as const;
+    expect(wingSide(left, [CORE, left])).toBe(-1);
+    const right = { id: 'rockets', col: C + 1, row: R } as const;
+    expect(wingSide(right, [CORE, right])).toBe(1);
+    const below = { id: 'rockets', col: C, row: R + 1 } as const;
+    const blocker = { id: 'plate', col: C - 1, row: R + 1 } as const;
+    expect(wingSide(below, [CORE, below, blocker])).toBe(1);
   });
 });

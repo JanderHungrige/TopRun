@@ -1,13 +1,11 @@
 import type { Rect } from './layout';
 import { FONT_BODY, FONT_TYPE } from '../text';
+import { SK } from './skin';
 
-/** Gunmetal primitives for the cockpit consoles: plates, bevels, screws, scratches, engraved legends. */
+/** Primitives for the cockpit consoles: plates, bevels, fasteners, engraved legends — in the current skin (doc 61). */
 
 /** Screens and stencils type too (doc 20: typewriter everywhere). */
 export const MONO = FONT_TYPE;
-export const PHOSPHOR = '#62f08a';
-export const PHOSPHOR_DIM = 'rgba(98,240,138,0.45)';
-export const LEGEND = '#d8dee3';
 const TAU = Math.PI * 2;
 
 /** Deterministic 0..1 for static decoration. */
@@ -16,44 +14,28 @@ export function rnd(n: number): number {
   return s - Math.floor(s);
 }
 
+/** A panel outline: rounded, or with its corners cut at an angle on the spacecraft (doc 61). */
 export function rr(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
   ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
-}
-
-/** The whole console: gunmetal gradient, brushed streaks, scratches and a seam towards the playfield. */
-export function backplate(ctx: CanvasRenderingContext2D, x: number, seed: number, seamX: number): void {
-  const g = ctx.createLinearGradient(x, 0, x + 320, 720);
-  g.addColorStop(0, '#3b4148');
-  g.addColorStop(0.55, '#2a2f35');
-  g.addColorStop(1, '#1b1e22');
-  ctx.fillStyle = g;
-  ctx.fillRect(x, 0, 320, 720);
-  for (let i = 0; i < 160; i++) {
-    ctx.fillStyle = `rgba(255,255,255,${(0.012 + rnd(seed + i * 3) * 0.03).toFixed(3)})`;
-    ctx.fillRect(x, rnd(seed + i) * 720, 320, 0.5);
+  if (SK.corner === 'round' || r < 2) {
+    ctx.roundRect(x, y, w, h, r);
+    return;
   }
-  ctx.beginPath();
-  for (let i = 0; i < 34; i++) {
-    const sx = x + rnd(seed * 7 + i) * 320;
-    const sy = rnd(seed * 11 + i) * 720;
-    const a = rnd(seed * 13 + i) * Math.PI;
-    const l = 5 + rnd(seed * 17 + i) * 24;
-    ctx.moveTo(sx, sy);
-    ctx.lineTo(sx + Math.cos(a) * l, sy + Math.sin(a) * l);
-  }
-  ctx.strokeStyle = 'rgba(225,232,240,0.09)';
-  ctx.lineWidth = 0.6;
-  ctx.stroke();
-  ctx.fillStyle = '#0a0c0e';
-  ctx.fillRect(seamX - 2, 0, 4, 720);
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillRect(seamX + (seamX > x + 160 ? -3 : 2), 0, 1, 720);
+  const c = Math.min(r * 1.3, w / 3, h / 3);
+  ctx.moveTo(x + c, y);
+  ctx.lineTo(x + w - c, y);
+  ctx.lineTo(x + w, y + c);
+  ctx.lineTo(x + w, y + h - c);
+  ctx.lineTo(x + w - c, y + h);
+  ctx.lineTo(x + c, y + h);
+  ctx.lineTo(x, y + h - c);
+  ctx.lineTo(x, y + c);
+  ctx.closePath();
 }
 
 /** Raised (or sunken) rounded panel with a one-unit bevel: light top-left, dark bottom-right. */
 export function bevel(ctx: CanvasRenderingContext2D, r: Rect, radius: number, fill: string, sunken = false): void {
-  const [a, b] = sunken ? ['#0b0d0f', '#5d656d'] : ['#5f6871', '#0d0f12'];
+  const [a, b] = sunken ? [SK.sunkLo, SK.sunkHi] : [SK.bevelHi, SK.bevelLo];
   if (!sunken) {
     rr(ctx, r.x + 1.5, r.y + 2.5, r.w, r.h, radius);
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
@@ -68,11 +50,16 @@ export function bevel(ctx: CanvasRenderingContext2D, r: Rect, radius: number, fi
   rr(ctx, r.x, r.y, r.w, r.h, radius);
   ctx.fillStyle = fill;
   ctx.fill();
+  if (SK.edgeGlow) {
+    ctx.strokeStyle = `rgba(${SK.edgeGlow},${sunken ? 0.28 : 0.6})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 }
 
-/** Raised sub-plate with a screw in each corner. */
+/** Raised sub-plate with a fastener in each corner. */
 export function subPlate(ctx: CanvasRenderingContext2D, r: Rect, seed: number): void {
-  bevel(ctx, r, 5, '#30363c');
+  bevel(ctx, r, 5, SK.plate);
   const i = 7;
   screw(ctx, r.x + i, r.y + i, seed);
   screw(ctx, r.x + r.w - i, r.y + i, seed + 1);
@@ -80,19 +67,27 @@ export function subPlate(ctx: CanvasRenderingContext2D, r: Rect, seed: number): 
   screw(ctx, r.x + r.w - i, r.y + r.h - i, seed + 3);
 }
 
+/** A fastener in the skin's style: a slotted screw, a domed rivet, or (glass) a small status light. */
 export function screw(ctx: CanvasRenderingContext2D, x: number, y: number, seed: number, r = 3.2): void {
-  ctx.fillStyle = '#0c0e10';
+  const [shadow, head, hi] = SK.metal;
+  if (SK.fastener === 'none') {
+    ctx.fillStyle = `rgba(${SK.edgeGlow ?? '255,255,255'},0.55)`;
+    ctx.fillRect(x - 1, y - 1, 2, 2);
+    return;
+  }
+  ctx.fillStyle = shadow;
   ctx.beginPath();
   ctx.arc(x + 0.4, y + 0.6, r + 0.6, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = '#7b848c';
+  ctx.fillStyle = head;
   ctx.beginPath();
   ctx.arc(x, y, r, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = '#9ea7ae';
+  ctx.fillStyle = hi;
   ctx.beginPath();
   ctx.arc(x - r * 0.25, y - r * 0.25, r * 0.6, 0, TAU);
   ctx.fill();
+  if (SK.fastener === 'rivet') return;
   const a = rnd(seed) * Math.PI;
   ctx.strokeStyle = '#24282c';
   ctx.lineWidth = 0.9;
@@ -105,14 +100,19 @@ export function screw(ctx: CanvasRenderingContext2D, x: number, y: number, seed:
 /** Deep round instrument bezel from radius r down to the face radius `inner`, with four screws on the plate. */
 export function roundBezel(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, inner: number, seed: number): void {
   const g = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
-  g.addColorStop(0, '#6c757e');
-  g.addColorStop(0.5, '#262a2f');
-  g.addColorStop(1, '#0b0c0e');
+  g.addColorStop(0, SK.bezel[0]);
+  g.addColorStop(0.5, SK.bezel[1]);
+  g.addColorStop(1, SK.bezel[2]);
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = '#101215';
+  if (SK.edgeGlow) {
+    ctx.strokeStyle = `rgba(${SK.edgeGlow},0.6)`;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+  }
+  ctx.fillStyle = SK.bezelRing;
   ctx.beginPath();
   ctx.arc(cx, cy, (r + inner) / 2, 0, TAU);
   ctx.fill();
@@ -147,7 +147,7 @@ export function legend(ctx: CanvasRenderingContext2D, s: string, x: number, y: n
   ctx.textBaseline = 'middle';
   ctx.fillStyle = 'rgba(0,0,0,0.7)';
   ctx.fillText(s, x + 0.6, y + 0.9, o.maxW);
-  ctx.fillStyle = o.color ?? LEGEND;
+  ctx.fillStyle = o.color ?? SK.legend;
   ctx.fillText(s, x, y, o.maxW);
   ctx.restore();
 }
@@ -158,7 +158,7 @@ export function screenText(ctx: CanvasRenderingContext2D, s: string, x: number, 
   fitFont(ctx, s, { mono: true, ...o });
   ctx.textAlign = o.align ?? 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = o.color ?? PHOSPHOR;
+  ctx.fillStyle = o.color ?? SK.ink;
   ctx.fillText(s, x, y, o.maxW);
   ctx.restore();
 }

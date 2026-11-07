@@ -76,6 +76,26 @@ function connected(list: readonly Placed[]): boolean {
   return seen.size === list.length;
 }
 
+/** Every side-by-side pair of modules, once each: the struts the art draws between them (doc 54). */
+export function moduleLinks(list: readonly Placed[]): [Placed, Placed][] {
+  const links: [Placed, Placed][] = [];
+  for (const m of list) {
+    for (const [dc, dr] of [[1, 0], [0, 1]] as const) {
+      const n = at(list, m.col + dc, m.row + dr);
+      if (n) links.push([m, n]);
+    }
+  }
+  return links;
+}
+
+/** Which way a rocket wing sweeps: to its open side; with both sides open, away from the core (right when in line). */
+export function wingSide(m: Placed, list: readonly Placed[]): -1 | 1 {
+  const left = !!at(list, m.col - 1, m.row);
+  const right = !!at(list, m.col + 1, m.row);
+  if (left !== right) return left ? 1 : -1;
+  return m.col < CORE.col ? -1 : 1;
+}
+
 export const powerBalance = (list: readonly Placed[]): number => list.reduce((sum, m) => sum + MODULES[m.id].power, 0);
 
 /** A whole layout (core included) keeps every rule. */

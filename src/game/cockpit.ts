@@ -1,3 +1,4 @@
+import type { PlaneDef } from '../data/planes';
 import type { Layer, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
 
@@ -134,4 +135,17 @@ export function warningLights(w: WarningInput): WarningLights {
     ecm: w.ecm,
     damageControl: !w.damageControl ? 'none' : w.damageControlUsed ? 'used' : 'armed',
   };
+}
+
+/** The console skins (doc 61): gunmetal for the jets, olive drab for the helicopters, holo glass for the spacecraft. */
+export type CockpitSkinId = 'jet' | 'heli' | 'ship';
+
+/** The skin a craft's cockpit wears, by the plane's kind. */
+export function cockpitSkin(kind: PlaneDef['kind']): CockpitSkinId {
+  switch (kind) {
+    case 'jet': return 'jet';
+    case 'heli': return 'heli';
+    case 'ship': return 'ship';
+    default: throw new Error(`unhandled: ${kind satisfies never}`);
+  }
 }

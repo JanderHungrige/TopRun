@@ -1,10 +1,13 @@
 import { TAU } from '../core/math';
 import { CELL_PX, GRID, type ModuleId } from '../data/ship-modules';
-import { allModules, type Placed } from '../game/ship';
+import { allModules, moduleLinks, wingSide, type Placed } from '../game/ship';
 import type { Look } from './livery-art';
+import { ellipse, fillPoly } from './shapes';
+import { LAYER, PARTS, type Paint } from './ship-parts';
 
-// The spacecraft drawn from its modules (doc 54): one cell per module, nose up (−y), the core's cell centred on the
-// origin. Used in the mission (CELL_PX per cell), the shipyard (bigger cells) and as the "starship" in plane lists.
+// The spacecraft drawn from its modules as one sleek starfighter (doc 54): hull fairings join side-by-side modules, each
+// module is a part (ship-parts.ts), nose up (−y), the core's cell centred on the origin. Used in the mission
+// (CELL_PX per cell), the shipyard (bigger cells) and as the "starship" in plane lists.
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -26,147 +29,93 @@ export const DISPLAY_SHIP: readonly Placed[] = Object.freeze([
   { id: 'engine', col: GRID.core.col, row: GRID.core.row + 1 },
 ]);
 
+const ACCENT = '#3f74ff';
+const DARK = '#2b3140';
+const GLASS = '#7fd0ff';
+
 const cx = (m: Placed, s: number): number => (m.col - GRID.core.col) * s;
 const cy = (m: Placed, s: number): number => (m.row - GRID.core.row) * s;
 
-function rr(ctx: Ctx, x: number, y: number, w: number, h: number, r: number, fill: string): void {
-  ctx.fillStyle = fill;
+function paint(look: Look, d: ShipDraw): Paint {
+  const solid = d.solid ?? null;
+  return {
+    hull: solid ?? look.base, shade: solid ?? look.under, dark: solid ?? DARK, accent: solid ?? ACCENT,
+    glass: solid ?? GLASS, line: solid ?? look.ink, solid: solid !== null, t: d.t ?? 0, throttle: d.throttle ?? 0.6,
+  };
+}
+
+/** A hull fairing joining two side-by-side modules: a wide band of hull with a seam down its middle. */
+function fairing(ctx: Ctx, a: Placed, b: Placed, s: number, p: Paint): void {
+  const w = s * 0.27;
+  const horizontal = a.row === b.row;
+  const x0 = Math.min(cx(a, s), cx(b, s));
+  const y0 = Math.min(cy(a, s), cy(b, s));
+  const band = horizontal ? [x0, y0 - w, x0 + s, y0 - w, x0 + s, y0 + w, x0, y0 + w] : [x0 - w, y0, x0 + w, y0, x0 + w, y0 + s, x0 - w, y0 + s];
+  fillPoly(ctx, band, p.shade, p.line);
+  if (p.solid) return;
+  const ridge = horizontal ? [x0, y0 - w, x0 + s, y0 - w, x0 + s, y0 - w * 0.45, x0, y0 - w * 0.45] : [x0 - w, y0, x0 - w * 0.45, y0, x0 - w * 0.45, y0 + s, x0 - w, y0 + s];
+  fillPoly(ctx, ridge, 'rgba(255,255,255,0.22)');
+  ctx.strokeStyle = p.line;
   ctx.beginPath();
-  ctx.roundRect(x, y, w, h, r);
-  ctx.fill();
-}
-
-/** One module's details over its cell's base block. `s` = cell size, (x, y) = cell centre. */
-function detail(ctx: Ctx, id: ModuleId, x: number, y: number, s: number, look: Look, d: ShipDraw): void {
-  const h = s / 2;
-  const t = d.t ?? 0;
-  switch (id) {
-    case 'core':
-      rr(ctx, x - h * 0.5, y - h * 0.55, h, h * 1.1, h * 0.4, '#1d2a3a');
-      rr(ctx, x - h * 0.3, y - h * 0.45, h * 0.35, h * 0.5, h * 0.2, 'rgba(160,215,255,0.8)');
-      rr(ctx, x - s * 0.06, y - h * 1.15, s * 0.12, h * 0.6, 1, '#2b2f38');
-      return;
-    case 'capsule':
-      ctx.fillStyle = look.base;
-      ctx.beginPath();
-      ctx.moveTo(x, y - h * 1.25);
-      ctx.lineTo(x + h, y + h * 0.2);
-      ctx.lineTo(x + h, y + h);
-      ctx.lineTo(x - h, y + h);
-      ctx.lineTo(x - h, y + h * 0.2);
-      ctx.closePath();
-      ctx.fill();
-      rr(ctx, x - h * 0.35, y - h * 0.25, h * 0.7, h * 0.45, h * 0.2, 'rgba(160,215,255,0.85)');
-      return;
-    case 'plate':
-      rr(ctx, x - h * 0.75, y - h * 0.75, s * 0.75, s * 0.75, 1.5, 'rgba(0,0,0,0.18)');
-      rr(ctx, x - h * 0.6, y - h * 0.6, s * 0.6, s * 0.15, 1, 'rgba(255,255,255,0.22)');
-      return;
-    case 'engine': {
-      rr(ctx, x - h * 0.6, y + h * 0.35, s * 0.6, h * 0.75, 1.5, '#2b2f38');
-      const f = (d.throttle ?? 0.6) * (0.8 + Math.sin(t * 40 + x) * 0.2);
-      ctx.fillStyle = 'rgba(120,190,255,0.6)';
-      ctx.beginPath();
-      ctx.ellipse(x, y + h * 1.2 + f * h * 0.6, h * 0.42, h * (0.4 + f * 0.9), 0, 0, TAU);
-      ctx.fill();
-      return;
-    }
-    case 'laser':
-      rr(ctx, x - s * 0.09, y - h * 1.3, s * 0.18, s * 0.95, 1, '#2b2f38');
-      rr(ctx, x - s * 0.13, y - h * 1.35, s * 0.26, s * 0.12, 1, 'rgba(120,230,255,0.95)');
-      return;
-    case 'rockets':
-      for (const dx of [-0.45, 0, 0.45]) rr(ctx, x + dx * h - s * 0.07, y - h * 0.9, s * 0.14, s * 0.75, 1, '#d8dee8');
-      rr(ctx, x - h * 0.8, y + h * 0.45, s * 0.8, h * 0.35, 1, '#5b7cff');
-      return;
-    case 'torpedo': {
-      rr(ctx, x - h * 0.55, y - h * 1.2, s * 0.55, s * 0.95, h * 0.25, '#2b2f38');
-      const glow = 0.6 + Math.sin(t * 7 + x) * 0.3;
-      ctx.fillStyle = `rgba(255,150,70,${glow.toFixed(2)})`;
-      ctx.beginPath();
-      ctx.arc(x, y - h * 0.95, h * 0.3, 0, TAU);
-      ctx.fill();
-      return;
-    }
-    case 'pointdef': {
-      rr(ctx, x - h * 0.5, y - h * 0.5, h, h, h * 0.5, '#2b2f38');
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(Math.sin(t * 1.7 + x) * 0.6);
-      for (const dx of [-0.16, 0.16]) rr(ctx, dx * s - s * 0.04, -h * 1.05, s * 0.08, h * 0.8, 1, '#c9d2e0');
-      ctx.restore();
-      return;
-    }
-    case 'shield':
-      ctx.strokeStyle = `rgba(140,210,255,${(0.55 + Math.sin(t * 5) * 0.25).toFixed(2)})`;
-      ctx.lineWidth = Math.max(1, s * 0.09);
-      ctx.beginPath();
-      ctx.arc(x, y, h * 0.55, 0, TAU);
-      ctx.stroke();
-      rr(ctx, x - s * 0.08, y - s * 0.08, s * 0.16, s * 0.16, 1, '#e8f4ff');
-      return;
-    case 'reactor':
-      rr(ctx, x - h * 0.6, y - h * 0.6, s * 0.6, s * 0.6, h * 0.3, '#1d2a3a');
-      ctx.fillStyle = `rgba(255,190,90,${(0.7 + Math.sin(t * 6) * 0.25).toFixed(2)})`;
-      ctx.beginPath();
-      ctx.arc(x, y, h * 0.32, 0, TAU);
-      ctx.fill();
-      return;
-    default:
-      throw new Error(`unhandled: ${id satisfies never}`);
+  if (horizontal) {
+    ctx.moveTo(x0, y0 + w * 0.2);
+    ctx.lineTo(x0 + s, y0 + w * 0.2);
+  } else {
+    ctx.moveTo(x0 + w * 0.2, y0);
+    ctx.lineTo(x0 + w * 0.2, y0 + s);
   }
+  ctx.stroke();
 }
 
-/** The whole ship: every cell's base block (slightly overlapping, so neighbours join), then each module's details. */
+/** The whole ship: the fairings first, then every module's part back to front. */
 export function drawShip(ctx: Ctx, modules: readonly Placed[], look: Look, d: ShipDraw = {}): void {
   const s = d.cell ?? CELL_PX;
   const list = allModules({ modules: [...modules] });
+  const p = paint(look, d);
   ctx.save();
-  for (const m of list) {
-    if (m.id === 'capsule' && !d.solid) continue;
-    rr(ctx, cx(m, s) - s * 0.55, cy(m, s) - s * 0.55, s * 1.1, s * 1.1, s * 0.18, d.solid ?? look.under);
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(0.4, s * 0.025);
+  for (const [a, b] of moduleLinks(list)) fairing(ctx, a, b, s, p);
+  for (const m of [...list].sort((a, b) => LAYER[a.id] - LAYER[b.id])) {
+    ctx.save();
+    ctx.translate(cx(m, s), cy(m, s));
+    PARTS[m.id](ctx, s, p, m.id === 'rockets' ? wingSide(m, list) : 1);
+    ctx.restore();
   }
-  if (d.solid) return ctx.restore();
-  for (const m of list) {
-    if (m.id === 'capsule') continue;
-    rr(ctx, cx(m, s) - s * 0.46, cy(m, s) - s * 0.46, s * 0.92, s * 0.92, s * 0.14, look.base);
-  }
-  for (const m of list) detail(ctx, m.id, cx(m, s), cy(m, s), s, look, d);
   ctx.restore();
 }
 
-/** The ship's outline as one path: every occupied cell. */
+/** The ship's outline as one path: every occupied cell (its hitbox). */
 export function shipSilhouette(modules: readonly Placed[], cell = CELL_PX): Path2D {
-  const p = new Path2D();
-  for (const m of allModules({ modules: [...modules] })) p.rect(cx(m, cell) - cell * 0.55, cy(m, cell) - cell * 0.55, cell * 1.1, cell * 1.1);
-  return p;
+  const path = new Path2D();
+  for (const m of allModules({ modules: [...modules] })) path.rect(cx(m, cell) - cell * 0.5, cy(m, cell) - cell * 0.5, cell, cell);
+  return path;
 }
 
-/** A side view for launch and lists: a sleek hull with a canopy and the engine glow (nose to the right). */
+/** A side view for launch and lists: a sleek hull, canopy, swept wing, engine plume (nose to the right). */
 export function drawShipSide(ctx: Ctx, look: Look, t: number): void {
-  ctx.fillStyle = look.base;
+  const f = 0.8 + Math.sin(t * 30) * 0.2;
+  ellipse(ctx, -50 - f * 4, -7, 10 + f * 6, 3.5, 'rgba(110,180,255,0.55)');
+  ellipse(ctx, -46, -7, 5, 2, 'rgba(230,245,255,0.9)');
+  fillPoly(ctx, [-36, -3, -16, -3, -4, 6, -22, 6], DARK);
+  fillPoly(ctx, [48, -7, 30, -15, 6, -19, -30, -17, -40, -12, -40, -2, -30, 0, 26, 0], look.base, look.ink);
+  fillPoly(ctx, [44, -5, 26, 0, -30, 0, -40, -2, -40, -5, 26, -4], look.under);
+  fillPoly(ctx, [-24, -17, -6, -19, -34, -30, -40, -30], look.base, look.ink);
+  fillPoly(ctx, [-2, -10, 30, -10, 34, -8, -2, -8], ACCENT);
   ctx.beginPath();
-  ctx.moveTo(46, -8);
-  ctx.lineTo(10, -18);
-  ctx.lineTo(-34, -16);
-  ctx.lineTo(-40, -4);
-  ctx.lineTo(-34, 0);
-  ctx.lineTo(30, 0);
-  ctx.closePath();
+  ctx.ellipse(16, -16, 11, 4.5, -0.12, Math.PI, TAU);
+  ctx.fillStyle = GLASS;
   ctx.fill();
-  rr(ctx, 4, -20, 18, 6, 3, 'rgba(160,215,255,0.85)');
-  rr(ctx, -38, -12, 8, 8, 2, '#2b2f38');
-  ctx.fillStyle = 'rgba(120,190,255,0.6)';
-  ctx.beginPath();
-  ctx.ellipse(-46 - Math.sin(t * 30) * 2, -8, 8, 3, 0, 0, TAU);
-  ctx.fill();
+  ellipse(ctx, 13, -18, 4, 1.4, 'rgba(255,255,255,0.7)');
+  fillPoly(ctx, [-44, -13, -38, -13, -38, -3, -44, -3], DARK);
 }
 
-/** One module on its own (shipyard list icons): its base block and details, centred on (x, y). */
+/** One module on its own (shipyard list icons), centred on (x, y). */
 export function drawModuleIcon(ctx: Ctx, id: ModuleId, x: number, y: number, s: number, look: Look, t: number): void {
-  if (id !== 'capsule') {
-    rr(ctx, x - s * 0.55, y - s * 0.55, s * 1.1, s * 1.1, s * 0.18, look.under);
-    rr(ctx, x - s * 0.46, y - s * 0.46, s * 0.92, s * 0.92, s * 0.14, look.base);
-  }
-  detail(ctx, id, x, y, s, look, { t, throttle: 0.6 });
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(0.4, s * 0.025);
+  PARTS[id](ctx, s, paint(look, { t, throttle: 0.6 }), 1);
+  ctx.restore();
 }

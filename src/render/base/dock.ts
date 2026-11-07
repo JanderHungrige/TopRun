@@ -1,14 +1,12 @@
 import type { BaseAreaDef, BaseAreaId } from '../../data/base-areas';
 import { SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
-import { BOARD_H, BOARD_W } from '../../game/chalkboard';
 import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
 import { outline, toCanvas } from '../pixel/post';
 import { Pix } from '../pixel/raster';
-import { text } from '../text';
 import { drawBrackets, tvSet } from './ambient';
 import { drawCast, drawCastShadows } from './cast';
-import { drawChalkMini } from './chalk';
+import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
 import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
@@ -17,8 +15,8 @@ import { paintTvSet } from './props';
 import { neonSprite } from './sprites';
 
 // The home base's docks (doc 73): the generated picture on the art grid, the TV cart, the joystick neon and an exit
-// hatch moved onto it, the docks' calm ambient life, the pulsing brackets; then the shared slate on the picture's
-// chalkboard, the ladder on its scoreboard as amber LED text, the pilot and the name plates on top.
+// hatch moved onto it, the docks' calm ambient life, the pulsing brackets; then world 1's flip board and chalkboard over
+// the picture's own, the pilot and the strip on top (no name plates in the docks).
 
 export type DockLook = 'space' | 'sea';
 
@@ -121,17 +119,6 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
   drawBrackets(g, G, areas[v.focus].hot, v.t);
 }
 
-/** The ladder's three rows as amber LED text, fitted into the picture's scoreboard (logical px). */
-function ledBoard(ctx: CanvasRenderingContext2D, r: DockLayout['board'], rows: readonly string[], t: number): void {
-  const size = Math.min(22, Math.floor(r.h / 3.6));
-  rows.forEach((row, i) => {
-    const flicker = Math.sin(t * 9 + i * 2) > 0.97 ? 0.6 : 1;
-    text(ctx, row.toUpperCase(), r.x + r.w / 2, r.y + (i + 0.78) * (r.h / 3), {
-      size, display: true, align: 'center', color: i === 0 ? '#ffd25a' : '#ffb347', alpha: flicker, maxWidth: r.w - 12,
-    });
-  });
-}
-
 /** Draws a dock covering the 1280 × 720 frame. False while its picture loads (the caller shows the hangar). */
 export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: HangarView, areas: Readonly<Record<BaseAreaId, BaseAreaDef>>): boolean {
   const img = picture(look);
@@ -146,10 +133,9 @@ export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: Hanga
   ctx.drawImage(sc.canvas, m.a ? (Math.round(m.e) - m.e) / m.a : 0, m.d ? (Math.round(m.f) - m.f) / m.d : 0, gr.W * gr.G, gr.H * gr.G);
   ctx.restore();
   const L = LAYOUT[look];
-  const scale = Math.min(L.slate.w / BOARD_W, L.slate.h / BOARD_H);
-  drawChalkMini(ctx, v.chalk.cells, v.chalk.version, L.slate.x + (L.slate.w - BOARD_W * scale) / 2, L.slate.y + (L.slate.h - BOARD_H * scale) / 2, scale);
-  ledBoard(ctx, L.board, v.board, v.t);
+  drawDockChalkboard(ctx, L.slate, v.chalk.cells, v.chalk.version);
+  drawDockFlipBoard(ctx, L.board, L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board, v.t);
   drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false });
-  drawLabels(ctx, v.focus, v.text, areas);
+  drawLabels(ctx, v.focus, v.text, areas, false);
   return true;
 }

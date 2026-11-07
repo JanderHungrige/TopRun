@@ -68,8 +68,9 @@ The TV replays the celebration of every finished world (doc 64).
   THEATER OF OPERATIONS … WORLD 4 · DEEP SPACE) on a sleeve in the world's colour; an unfinished world's tape is a
   blank grey one ("not recorded yet"). The TV shows the picked world's first key frame, snow for a blank tape; the
   picked tape slides out a little under a gold frame.
-- ← / → (or tap) pick a tape, ENTER / tap plays it: `{ to: 'celebration', world, then: { to: 'tapes' } }`; ESC back
-  to the base.
+- ← / → (or tap) pick a tape, ENTER / tap plays it: `{ to: 'celebration', world, then: { to: 'tapes' } }`; ESC or
+  the BACK button (bottom right, the rooms' button — touch had no way back, owner's bug report 2026-11-07) back to the
+  base.
 - Pure (`src/game/tapes.ts`): `tapeShelf(save)` → the four worlds with `finished` (`campaignComplete`, all thirty
   missions of the map cleared).
 

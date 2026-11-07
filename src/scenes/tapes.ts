@@ -5,12 +5,13 @@ import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { drawPlate, preloadWorld } from '../render/celebration';
+import { BACK_BTN, backButton } from '../render/rooms-chrome';
 import { COLORS, text } from '../render/text';
 import { hit, type Rect } from '../ui/widgets';
 
 // The hangar TV's tape shelf (doc 63): an old TV showing the picked world, five VHS tapes beside it (doc 72) — a finished
 // world's tape plays its celebration (doc 64), a blank one is "not recorded yet". ↑/↓ or ←/→ pick, ENTER / tap plays,
-// ESC back to the hangar base.
+// ESC or the BACK button back to the hangar base.
 
 const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5' };
 const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0a1630', 5: '#0b5a66' };
@@ -21,6 +22,7 @@ const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700,
 export class TapesScene implements Scene {
   private time = 0;
   private pick: number;
+  private hoverBack = false;
   private readonly tapes: Tape[];
 
   constructor(private readonly game: GameContext) {
@@ -37,7 +39,8 @@ export class TapesScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     const input = this.game.input;
-    if (input.pressed('back')) {
+    this.hoverBack = input.device !== 'touch' && hit(input.pointer, BACK_BTN);
+    if (input.pressed('back') || input.taps.some((p) => hit(p, BACK_BTN))) {
       this.game.audio.play('uiBack');
       this.game.go({ to: 'base' });
       return;
@@ -138,5 +141,6 @@ export class TapesScene implements Scene {
     this.drawTv(ctx);
     this.tapes.forEach((tape, i) => this.drawTape(ctx, tape, i));
     text(ctx, t('tapes.keys'), 640, 680, { size: 15, align: 'center', color: COLORS.dim });
+    backButton(ctx, this.hoverBack);
   }
 }

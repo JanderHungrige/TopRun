@@ -61,7 +61,9 @@ Everything follows docs 62 (world medals), 64 (celebrations), 63 (the TV) and 26
 - New emblems in `src/render/medals/emblems-3.ts`: `coral`, `kelp`, `anchor`, `chevron`, `lure`, `sub`.
 - Earned and awarded as in doc 62: a ribbon for the theater's boss cleared, the medal for m150, the star for three
   stars on all thirty.
-- **Locker:** 25 campaign ribbons now — the rack takes as many a row as keeps it at five rows (five a row at 25).
+- **Locker:** 25 campaign ribbons now — the rack takes as many a row as keeps it at five rows (five a row at 25), and
+  never grows wider than three full bars: four or five a row are smaller bars (≥ 24 × 7), so the rack stays on the
+  breast between the sleeve seam and the buttons (owner: *"Ribbons … are quite over the uniform borders"*).
 
 ## The celebration (doc 64's pattern)
 

@@ -80,21 +80,20 @@ function sinceFlip(r: number, t: number): number {
   return (t - first) % PERIOD;
 }
 
-/** Centres a row's text on the 14 tiles. */
-function centred(s: string): string {
-  const cut = s.toUpperCase().slice(0, BOARD_COLS);
-  const left = Math.floor((BOARD_COLS - cut.length) / 2);
-  return (' '.repeat(left) + cut).padEnd(BOARD_COLS, ' ');
+/** Centres a row's text on the board's tiles. */
+function centred(s: string, cols: number): string {
+  const cut = s.toUpperCase().slice(0, cols);
+  const left = Math.floor((cols - cut.length) / 2);
+  return (' '.repeat(left) + cut).padEnd(cols, ' ');
 }
 
-/** Draws the three rows of tiles onto the art-resolution compose canvas. */
-export function drawBoardTiles(g: CanvasRenderingContext2D, G: number, rows: readonly string[], t: number): void {
-  const b = boardBox(G);
-  for (let r = 0; r < BOARD_ROWS; r++) {
-    const target = centred(rows[r] ?? '');
+/** Rows of tiles with their top-left at (x0, y0), `cols` wide — the hangar's board, or a dock's (doc 73). */
+export function drawTileRows(g: CanvasRenderingContext2D, x0: number, y0: number, rows: readonly string[], cols: number, t: number): void {
+  rows.forEach((text, r) => {
+    const target = centred(text, cols);
     const since = sinceFlip(r, t);
     const ink = r === 0 ? col(PAL.gold, 4) : col(PAL.white, 3);
-    for (let i = 0; i < BOARD_COLS; i++) {
+    for (let i = 0; i < cols; i++) {
       const want = target[i] ?? ' ';
       const settle = 0.25 + i * 0.04 + hash(r * 31 + i) * 0.3;
       let ch = want;
@@ -105,7 +104,13 @@ export function drawBoardTiles(g: CanvasRenderingContext2D, G: number, rows: rea
         flap = Math.floor(t * 36 + i) % 2 === 0;
       }
       const art = tile(ch, ink, flap);
-      if (art) g.drawImage(art, b.x0 + i * (TILE_W + TILE_GAP), b.y0 + r * (TILE_H + ROW_GAP));
+      if (art) g.drawImage(art, x0 + i * (TILE_W + TILE_GAP), y0 + r * (TILE_H + ROW_GAP));
     }
-  }
+  });
+}
+
+/** Draws the three rows of tiles onto the art-resolution compose canvas. */
+export function drawBoardTiles(g: CanvasRenderingContext2D, G: number, rows: readonly string[], t: number): void {
+  const b = boardBox(G);
+  drawTileRows(g, b.x0, b.y0, rows.slice(0, BOARD_ROWS), BOARD_COLS, t);
 }

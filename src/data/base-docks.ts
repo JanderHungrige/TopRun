@@ -8,9 +8,11 @@ const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x
   ({ id, row, hot, plate, standX });
 
 export interface DockLayout {
-  /** The scoreboard's face: the flip board is fitted into it. */
+  /** The picture's scoreboard: world 1's flip board covers it, `boardRows` rows of tiles (the ladder's three, blank
+   *  rows below on a tall board). */
   board: AreaRect;
-  /** The chalkboard's face: the shared slate is fitted into it. */
+  boardRows: number;
+  /** The picture's chalkboard: world 1's framed chalkboard covers it. */
   slate: AreaRect;
   /** The TV cart's footprint (left, floor line). */
   tv: { x: number; base: number };
@@ -33,8 +35,9 @@ export const SPACE_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.fre
 });
 
 export const SPACE_LAYOUT: DockLayout = {
-  board: { x: 478, y: 100, w: 326, h: 76 },
-  slate: { x: 596, y: 298, w: 226, h: 110 },
+  board: { x: 470, y: 94, w: 340, h: 86 },
+  boardRows: 3,
+  slate: { x: 588, y: 290, w: 240, h: 126 },
   tv: { x: 156, base: 618 },
   neon: { x: 120, y: 240, w: 122, h: 44 },
   hatch: { x: 1100, y: 590, w: 128, h: 56 },
@@ -54,8 +57,9 @@ export const SEA_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freez
 });
 
 export const SEA_LAYOUT: DockLayout = {
-  board: { x: 398, y: 92, w: 192, h: 128 },
-  slate: { x: 470, y: 294, w: 132, h: 124 },
+  board: { x: 388, y: 82, w: 210, h: 148 },
+  boardRows: 4,
+  slate: { x: 466, y: 286, w: 140, h: 138 },
   tv: { x: 182, base: 622 },
   neon: { x: 134, y: 242, w: 132, h: 38 },
   hatch: { x: 1110, y: 640, w: 130, h: 56 },

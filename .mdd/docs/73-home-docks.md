@@ -14,6 +14,8 @@ source_files:
   - src/scenes/hangar-base.ts
   - src/render/base/dock.ts
   - src/render/base/dock-ambient.ts
+  - src/render/base/dock-boards.ts
+  - src/render/base/board.ts
   - src/render/base/props.ts
   - src/render/base/ambient.ts
   - src/render/base/cast.ts
@@ -73,9 +75,16 @@ quantized to 48 colours each (`dev/dock-plates.py` → `src/assets/docks/space.p
 - Every area has its own hotspot, name plate and stand point per look (`SPACE_AREAS`, `SEA_AREAS`); ←/→/↑/↓, hover
   and taps work as in the carrier hangar (`neighbour`, `areaAt`, `arrivedAt` take the look's table).
 - Drawn over the picture: the TV cart and its screen (doc 63, the carrier's own art moved there), the joystick neon over
-  the picture's sign (its letters are made up), the exit hatch, the shared chalkboard's slate fitted into the picture's
-  chalkboard (doc 40), the ladder's three rows as amber LED text on the picture's scoreboard, the pilot (no plane
-  captain — there is no jet to polish), the name plates, the strip and the gold brackets.
+  the picture's sign (its letters are made up), the exit hatch, the pilot (no plane captain — there is no jet to
+  polish), the strip and the gold brackets.
+- **World 1's boards over the picture's** (owner, after the first version with amber LED text and a bare slate: *"I
+  liked the coded one from world 1. Can you overlay both on the image … try to fit those elements perfectly over the
+  parts in the image"*): the split-flap board covers the picture's scoreboard exactly — its tiles stay square, their
+  size follows the board's height and the column count fills its width (space: 3 rows × 23 tiles; sea: 4 rows × 10,
+  the fourth blank), flipping as in the hangar; the chalkboard covers the picture's chalkboard with the hangar's wooden
+  frame and ledge, the live slate (doc 40) centred inside at its 3 : 1 (`src/render/base/dock-boards.ts`).
+- **No name plates in the docks** (owner: *"loose the descriptions in the images as they do not fit. The user will find
+  out by himself."*); the strip at the bottom still names the highlighted area.
 
 ## Ambient — slow and calm
 

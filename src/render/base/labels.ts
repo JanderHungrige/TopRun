@@ -42,17 +42,19 @@ function title(ctx: CanvasRenderingContext2D, s: string): void {
   text(ctx, s, 1262 - w / 2, 34, { size: 18, display: true, italic: true, align: 'center', color: GOLD });
 }
 
-/** Plates, strip and title for the highlighted area, at the look's places (doc 73). */
+/** Plates, strip and title for the highlighted area, at the look's places; the docks show no plates (doc 73: "the user
+ *  will find out by himself"). */
 export function drawLabels(
-  ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText, areas: Readonly<Record<BaseAreaId, BaseAreaDef>> = BASE_AREAS,
+  ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText, areas: Readonly<Record<BaseAreaId, BaseAreaDef>> = BASE_AREAS, plates = true,
 ): void {
   for (const id of BASE_AREA_IDS) {
+    if (!plates) break;
     if (id === focus) continue;
     const a = areas[id];
     plate(ctx, a.plate.x, a.plate.y, tx.names[id], false);
   }
   const f = areas[focus];
-  plate(ctx, f.plate.x, f.plate.y, tx.names[focus], true);
+  if (plates) plate(ctx, f.plate.x, f.plate.y, tx.names[focus], true);
   strip(ctx, tx.names[focus], tx.hint, tx.keys);
   title(ctx, tx.title);
 }

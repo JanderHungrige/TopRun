@@ -26,7 +26,7 @@ describe('Home docks (doc 73)', () => {
     for (const L of [SPACE_LAYOUT, SEA_LAYOUT]) for (const r of [L.board, L.slate, L.neon]) expect(inside(r)).toBe(true);
   });
 
-  it('leads to the map through the space dock\'s windows and the sea dock\'s globe, the pilot to scale (doc 76)', () => {
+  it('leads to the map through the space dock\'s porthole and the sea dock\'s globe, the pilot to scale (doc 76)', () => {
     expect(SPACE_LAYOUT.globe).toBeNull();
     const globe = SEA_LAYOUT.globe;
     if (!globe) throw new Error('no globe');
@@ -35,7 +35,8 @@ describe('Home docks (doc 73)', () => {
     expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, sea)).toBe('exit');
     const space = baseAreas('space');
     expect(space.exit.row).toBe('wall');
-    expect(space.exit.hot.h).toBeGreaterThan(300);
+    expect(areaAt({ x: 910, y: 292 }, space)).toBe('exit'); // the left porthole
+    expect(areaAt({ x: 1162, y: 262 }, space)).toBe('jet'); // the right one, with the starfighter in it
     for (const L of [SPACE_LAYOUT, SEA_LAYOUT]) expect(L.pilot).toBeGreaterThan(0.7);
   });
 

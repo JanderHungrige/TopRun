@@ -1,8 +1,8 @@
 import { hash } from './paint';
 
 // The docks' slow, calm life (doc 73), drawn every frame in whole art pixels over the generated picture. Owner:
-// "flickering light, dust particles, air bubbles moving outside" — the space dock: stars drifting past the window,
-// console lights blinking, the ceiling lights breathing, dust motes; the sea dock: the view through the round window
+// "flickering light, dust particles, air bubbles moving outside" — the space dock (doc 76): stars twinkling in the
+// portholes, the fairy lights and lamps glowing, dust motes; the sea dock: the view through the round window
 // bobbing gently, bubbles rising and fish passing outside, light rippling under the surface, a flickering ceiling lamp,
 // drips from the pipes, dust motes.
 
@@ -34,32 +34,37 @@ function motes(g: Ctx, G: number, t: number, n: number, rgb: string): void {
   }
 }
 
-// ---------- the space dock ----------
+// ---------- the space dock (G, doc 76) ----------
 
-const WINDOW = { x: 1046, y: 74, w: 234, h: 388 };
-const CONSOLE_LIGHTS: ReadonlyArray<readonly [number, number, string, number]> = [
-  [1050, 478, '#5aff7a', 1.3], [1064, 478, '#ff5a4a', 0.7], [1078, 478, '#ffd25a', 2.1], [1116, 494, '#5aff7a', 0.9],
-  [1132, 502, '#5fe3ff', 1.7], [1150, 510, '#ff5a4a', 1.1], [1226, 520, '#5fe3ff', 0.6], [1244, 528, '#5aff7a', 1.5],
-  [1210, 568, '#ffd25a', 2.6], [1250, 574, '#ff5a4a', 0.8],
+/** The two portholes (centre, radii; logical px): the left one leads to the map, the right one shows the starfighter. */
+const PORTHOLES: ReadonlyArray<readonly [number, number, number, number]> = [[910, 292, 74, 104], [1162, 262, 94, 146]];
+/** The fairy lights' bulbs along the hull rib and the portholes' rims. */
+const BULBS: ReadonlyArray<readonly [number, number]> = [
+  [770, 150], [796, 161], [843, 167], [862, 146], [869, 167], [897, 158], [941, 127], [990, 96], [826, 238], [793, 282],
+  [994, 232],
 ];
+/** Lamps that breathe: the one by the rec room, the one over the left porthole, the table lamp by the couch. */
+const LAMPS: ReadonlyArray<readonly [number, number, number]> = [[36, 146, 7], [960, 208, 6], [1178, 420, 5]];
 
 export function spaceAmbient(g: Ctx, G: number, t: number, mask: Mask | null): void {
-  const c0 = Math.round(WINDOW.x / G);
-  const r0 = Math.round(WINDOW.y / G);
-  const w = Math.round(WINDOW.w / G);
-  const h = Math.round(WINDOW.h / G);
-  for (let i = 0; i < 40; i++) {
-    const c = c0 + Math.floor((hash(i * 5.3) * w - t * (0.5 + hash(i) * 0.6)) % w + w) % w;
-    const r = r0 + Math.floor(hash(i * 7.9) * h);
-    if (mask && !mask.dark[r * mask.w + c]) continue;
-    const tw = 0.4 + 0.6 * Math.abs(Math.sin(t * (0.6 + hash(i * 2) * 1.4) + i));
-    px(g, c, r, 1, 1, `rgba(230,240,255,${tw.toFixed(3)})`);
+  for (const [cx, cy, rx, ry] of PORTHOLES) {
+    for (let i = 0; i < 18; i++) {
+      const a = hash(i * 5.3 + cx) * Math.PI * 2;
+      const k = Math.sqrt(hash(i * 7.9 + cy));
+      const c = Math.round((cx + Math.cos(a) * rx * k + ((t * 1.5) % 8) - 4) / G);
+      const r = Math.round((cy + Math.sin(a) * ry * k) / G);
+      if (mask && !mask.dark[r * mask.w + c]) continue;
+      const tw = 0.3 + 0.7 * Math.abs(Math.sin(t * (0.5 + hash(i * 2 + cx) * 1.2) + i));
+      px(g, c, r, 1, 1, `rgba(230,240,255,${tw.toFixed(3)})`);
+    }
   }
-  for (const [x, y, color, rate] of CONSOLE_LIGHTS) {
-    if (Math.sin(t * rate * 2 + x) > 0.1) px(g, Math.round(x / G), Math.round(y / G), 1, 1, color);
-  }
-  for (const [x, y] of [[462, 8], [838, 8]] as const) glow(g, Math.round(x / G), Math.round(y / G), 6, '170,210,255', 0.35 + 0.15 * Math.sin(t * 0.8 + x));
-  motes(g, G, t, 26, '200,215,255');
+  BULBS.forEach(([x, y], i) => {
+    const on = 0.55 + 0.45 * Math.sin(t * 1.3 + i * 1.7);
+    glow(g, Math.round(x / G), Math.round(y / G), 2, '255,200,130', 0.5 * on);
+    px(g, Math.round(x / G), Math.round(y / G), 1, 1, `rgba(255,236,190,${(0.5 + 0.5 * on).toFixed(3)})`);
+  });
+  for (const [x, y, size] of LAMPS) glow(g, Math.round(x / G), Math.round(y / G), size, '255,190,120', 0.3 + 0.1 * Math.sin(t * 0.8 + x));
+  motes(g, G, t, 26, '255,225,200');
 }
 
 // ---------- the sea dock ----------

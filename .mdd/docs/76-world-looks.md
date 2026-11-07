@@ -10,6 +10,9 @@ source_files:
   - src/data/base-docks.ts
   - src/render/base/dock.ts
   - src/render/base/dock-globe.ts
+  - src/render/base/dock-ambient.ts
+  - src/render/base/ambient.ts
+  - dev/scene-plates.py
   - src/render/base/cast.ts
   - src/scenes/hangar.ts
   - src/scenes/shipyard-view.ts
@@ -38,7 +41,7 @@ test_files:
   - tests/unit/dialogue.test.ts
 data_flow: reads-existing
 last_synced: 2026-11-07
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [hangar-base, docks, loadout, portraits, crew, comfyui, map-4, map-5, underwater, space]
@@ -76,14 +79,19 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
 
 ## The docks
 
-- **Map buttons:** in the space dock the big windows are the way to the map (the exit hatch is gone); in the sea dock a
+- **Map buttons:** in the space dock a porthole is the way to the map (the exit hatch is gone); in the sea dock a
   globe on a stand, drawn in code, stands in the room and is the way to the map (the hatch is gone too). The windows'
   and the globe's brackets pulse like every other area's.
 - **To scale:** each dock has its own pilot scale and floor line (`DockLayout.pilot`), set so the pilot is as tall as the
   picture's lockers and doors say a grown-up is; the carrier hangar keeps its own.
-- **Space, new pictures:** two new space docks with a hangar door through which only part of an enormous starfighter is
-  seen (its nose, cockpit and front gear), so the craft is big next to the pilot — like the sea dock's sub seen through the
-  window. The owner picks one; it replaces `space.png` with its areas, board, slate, TV and neon positions measured on it.
+- **Space, new picture (G):** the first round (C–F: a room with a window and a big starfighter in a door) was turned down —
+  *"they all look like a room with a window. Generally please more cozy. The fighter jet does not need to be that
+  prominent … just hinted."* The second round's G is the space dock now: cozy crew quarters inside the hull — ribs and
+  pipes, fairy lights, a couch on a rug, plants, the pink rec room alcove with the arcade, the lockers, the scoreboard
+  over the chalkboard, a shelf of framed photos — with two portholes: the left one leads to the map, the right one shows
+  a sliver of the docked starfighter and is the craft (the hangar). The joystick neon hangs over the rec room's door, the
+  TV cart stands on the rug by the couch, the photo wall is the shelf. Its life: stars twinkling in the portholes, the
+  fairy lights and three lamps glowing, warm dust motes. Pilot scale 0.86 (as tall as the lockers and the arcade).
 
 ## Loadout backgrounds
 
@@ -95,7 +103,8 @@ through the panels. The owner took all four as rendered (2026-11-07).
 
 ## The crew in each world's outfit
 
-- Chief "Wrench" Kowalski (the mechanic) and Lt. "Shooter" Reyes (the launch officer) keep their faces; under the sea the
+- Chief "Wrench" Kowalski (the mechanic) and Lt. "Shooter" Reyes (the launch officer) keep their faces (owner took all four,
+  2026-11-07); under the sea the
   chief wears a submariner's coverall in a sub's machine room and Shooter is the diving officer in a sub's control room; in
   space the chief wears a station technician's suit in the station hangar and Shooter is the launch controller in front of
   the rocket on its pad. Maps 1–3 stay as they are.

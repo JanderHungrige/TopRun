@@ -5,6 +5,8 @@ edition: TopRun
 depends_on: [01-game-core]
 relates: [01-game-core, 05-mission-combat, 06-talking-characters, 07-i18n]
 source_files:
+  - src/game/hangar-stats.ts
+  - src/scenes/hangar-stats-view.ts
   - src/data/types.ts
   - src/data/planes.ts
   - src/data/weapons.ts
@@ -27,6 +29,7 @@ routes: []
 models:
   - localStorage:topgun.save.v1 (money, ownedPlanes, gunLevel, ownedSecondaries, loadout, equipment)
 test_files:
+  - tests/unit/hangar-stats.test.ts
   - tests/unit/economy.test.ts
   - tests/unit/loadout.test.ts
 data_flow: greenfield
@@ -218,4 +221,6 @@ None beyond 01 (no network, local single-player state).
 
 ## Bugs
 
-(none yet — populated by /mdd bug when issues are reported)
+| ID | Description | Status | Fixed In | Reported | Fixed |
+|----|-------------|--------|----------|----------|-------|
+| B1 | Hangar plane card shows the jet's base HULL and SPEED: buying Armor Plating / Engine Tuning (any map, noticed on map 2) never changes the numbers shown, although the mission uses the upgraded values | Completed | src/scenes/hangar-stats-view.ts:26 | 2026-11-07 | 2026-11-07 |

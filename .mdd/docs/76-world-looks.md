@@ -89,8 +89,9 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
 
 The loadout screen (the hangar, the SUB PEN, the shipyard) gets a generated picture per world behind its panels, dimmed so
 the panels and texts stay readable: the carrier's hangar deck (maps 1–2), a helicopter base hangar (map 3), a submarine
-pen (map 4), an orbital shipyard (map 5). `src/assets/loadout/<kit>.png` on the 320 × 180 art grid, drawn at 4 × with a
-dark wash.
+pen (map 4), an orbital shipyard (map 5). `src/assets/loadout/<kit>.png` on the 320 × 180 art grid (the workflow's own
+48-colour pixel branch, sampled at its art-pixel centres), drawn at 4 × under a wash of 36 % so the scene shows around and
+through the panels. The owner took all four as rendered (2026-11-07).
 
 ## The crew in each world's outfit
 

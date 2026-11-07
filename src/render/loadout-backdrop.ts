@@ -7,7 +7,7 @@ import type { Kit } from '../game/kit';
 const FILES = import.meta.glob<string>('../assets/loadout/*.png', { eager: true, query: '?url', import: 'default' });
 const images = new Map<Kit, HTMLImageElement>();
 /** How dark the wash over the picture is. */
-const WASH = 'rgba(4,8,14,0.62)';
+const WASH = 'rgba(4,8,14,0.36)';
 
 function picture(kit: Kit): HTMLImageElement | null {
   let img = images.get(kit);

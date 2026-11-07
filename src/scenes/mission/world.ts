@@ -73,7 +73,7 @@ export interface Bullet {
   rounds?: AmmoType;
 }
 
-export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'rocket' | 'enemy';
+export type MissileKind = 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;

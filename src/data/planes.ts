@@ -69,6 +69,28 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     description: 'Armoured attack helicopter. A 30 mm chain gun under the nose, four stations and the Longbow radar.',
     campaign: 3, kind: 'heli',
   },
+  // Doc 51: the rest of the fleet, bought in the helicopters' hangar.
+  tiger: {
+    id: 'tiger', name: 'Eurocopter Tiger', short: 'TIGER', nickname: 'Tiger',
+    price: 1200000, hull: 125, speed: 265, hardpoints: 4, gunDamageMul: 1.2,
+    special: 'gunpods', specialName: 'Gun Pods', specialCooldown: 15, specialDuration: 8,
+    description: 'Nimble European attack helicopter. Hard-hitting gun, four stations, and gun pods that add a level of firepower.',
+    campaign: 3, kind: 'heli',
+  },
+  rah66: {
+    id: 'rah66', name: 'RAH-66 Comanche', short: 'RAH-66', nickname: 'Comanche',
+    price: 1800000, hull: 115, speed: 285, hardpoints: 4, gunDamageMul: 1.0,
+    special: 'stealth', specialName: 'Low Observable', specialCooldown: 18, specialDuration: 6,
+    description: 'Stealth scout helicopter. The fastest rotor in the hangar; going low-observable makes the enemy hold fire.',
+    campaign: 3, kind: 'heli',
+  },
+  mi24: {
+    id: 'mi24', name: 'Mi-24 Hind', short: 'MI-24', nickname: 'Hind',
+    price: 2800000, hull: 220, speed: 215, hardpoints: 6, gunDamageMul: 1.1,
+    special: 'armour', specialName: 'Flying Tank', specialCooldown: 16, specialDuration: 3,
+    description: 'The flying tank. Heavy armour, six stations and a few seconds where nothing gets through. Slow to turn.',
+    campaign: 3, kind: 'heli',
+  },
 });
 
 /** A record with one entry per plane (jets and helicopters), built from PLANE_IDS. */

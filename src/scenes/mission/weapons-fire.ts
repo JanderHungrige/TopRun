@@ -69,7 +69,7 @@ export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, 
 }
 
 const homingKind = (id: SecondaryId): Missile['kind'] | null =>
-  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' ? id : null);
+  (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' || id === 'stinger' ? id : null);
 
 /**
  * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods

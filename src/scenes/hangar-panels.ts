@@ -27,8 +27,10 @@ import {
 export const LIST = { x: 24, y: 132, w: 536, row: 68 };
 export const DETAIL: Rect = { x: 584, y: 76, w: 672, h: 628 };
 
+/** The loadout row; the Hind's six stations get narrower slots (doc 51). */
 export function slotRects(hardpoints: number): Rect[] {
-  return Array.from({ length: hardpoints }, (_, i) => ({ x: DETAIL.x + 24 + i * 112, y: DETAIL.y + 498, w: 102, h: 46 }));
+  const w = Math.min(102, Math.floor((DETAIL.w - 38) / hardpoints) - 10);
+  return Array.from({ length: hardpoints }, (_, i) => ({ x: DETAIL.x + 24 + i * (w + 10), y: DETAIL.y + 498, w, h: 46 }));
 }
 
 /** Lists longer than this (the 21 paint jobs with map 2, doc 09) run in two columns. */
@@ -208,7 +210,7 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   text(ctx, marks, DETAIL.x + 184, y + 58, { size: 14, color: COLORS.green });
   const guidance = tr(d.behavior === 'homing' ? 'hangar.guided' : d.behavior === 'fan' ? 'hangar.salvo' : 'hangar.freefall');
   text(ctx, tr('hangar.targets', { targets: secondaryTargets(id), guidance }), DETAIL.x + 24, y + 78, { size: 14, color: COLORS.ink, maxWidth: DETAIL.w - 300 });
-  const info = mapTwoOpen(save) && save.kit === 'jet' ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
+  const info = save.kit === 'heli' ? tr('arsenal.markInfoHeli') : mapTwoOpen(save) ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
   text(ctx, info, DETAIL.x + 24, y + 96, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 300 });
 }
 
@@ -293,6 +295,6 @@ export function drawLoadout(ctx: CanvasRenderingContext2D, save: SaveData, highl
   slotRects(plane.hardpoints).forEach((r, i) => {
     const id = save.loadout[plane.id][i] ?? null;
     drawPanel(ctx, r, { fill: id ? 'rgba(30,60,40,0.9)' : 'rgba(0,0,0,0.3)', edge: id && id === highlight ? COLORS.gold : COLORS.panelEdge, radius: 6 });
-    text(ctx, id ? SECONDARIES[id].short : tr('hangar.slot', { n: i + 1 }), r.x + r.w / 2, r.y + r.h / 2 + 5, { size: 14, display: !!id, align: 'center', color: id ? COLORS.green : COLORS.faint });
+    text(ctx, id ? SECONDARIES[id].short : tr('hangar.slot', { n: i + 1 }), r.x + r.w / 2, r.y + r.h / 2 + 5, { size: 14, display: !!id, align: 'center', color: id ? COLORS.green : COLORS.faint, maxWidth: r.w - 8 });
   });
 }

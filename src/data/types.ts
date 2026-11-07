@@ -3,9 +3,9 @@
 /** The three map-1 jets, then the three sold once map 2 is open (doc 36). */
 export type JetId = 'f16' | 'f14' | 'sr71' | 'a10' | 'f35' | 'tornado';
 export const JET_IDS: readonly JetId[] = Object.freeze(['f16', 'f14', 'sr71', 'a10', 'f35', 'tornado'] as const);
-/** The map-3 helicopters (doc 49). */
-export type HeliId = 'ah64';
-export const HELI_IDS: readonly HeliId[] = Object.freeze(['ah64'] as const);
+/** The map-3 helicopters: the Apache (doc 49), then the Tiger, Comanche and Hind (doc 51). */
+export type HeliId = 'ah64' | 'tiger' | 'rah66' | 'mi24';
+export const HELI_IDS: readonly HeliId[] = Object.freeze(['ah64', 'tiger', 'rah66', 'mi24'] as const);
 /** Everything the pilot can fly: jets and helicopters share the loadout, paint and progress records. */
 export type PlaneId = JetId | HeliId;
 export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS]);
@@ -14,10 +14,10 @@ export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[
 /** A plane as a jet, for what only jets do (minigames, photos, the hangar base): a helicopter reads as the F-16. */
 export const asJet = (id: PlaneId): JetId => (isJet(id) ? id : 'f16');
 
-/** AIM-120 and JDAM are sold once map 2 is open (doc 37); the Hydra pod and the Hellfire are helicopter weapons (doc 49). */
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire';
+/** AIM-120 and JDAM are sold once map 2 is open (doc 37); Hydra, Hellfire (doc 49) and Stinger (doc 51) are helicopter weapons. */
+export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
-  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire',
+  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -25,7 +25,7 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
   'armor', 'engine', 'flares', 'ecm', 'damageControl', 'magnet', 'radar',
 ] as const);
 
-export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow';
+export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour';
 
 /** Map 1 (m01–m30), map 2 (m31–m60, doc 35) or map 3 (m61–m90, helicopters, doc 48). */
 export type CampaignId = 1 | 2 | 3;

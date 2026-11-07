@@ -46,6 +46,13 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
     case 'longbow':
       longbowSalvo(world, p, audio);
       break;
+    case 'gunpods':
+      p.powerTimer = Math.max(p.powerTimer, plane.specialDuration); // one gun level up, like a power-up (doc 51)
+      audio.play('special');
+      break;
+    case 'armour':
+      audio.play('special');
+      break;
     default:
       throw new Error(`unhandled: ${plane.special satisfies never}`);
   }

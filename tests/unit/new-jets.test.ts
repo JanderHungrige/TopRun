@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { MISSIONS } from '../../src/data/missions';
 import { PLANES } from '../../src/data/planes';
-import { JET_IDS, PLANE_IDS } from '../../src/data/types';
+import { JET_IDS } from '../../src/data/types';
 import { secondaryAllowedOn } from '../../src/data/weapons';
 import { applyDamage, GROUND_GUN_FACTOR } from '../../src/game/combat';
 import { buy, canBuy, canMount } from '../../src/game/economy';
@@ -19,7 +19,7 @@ describe('New jets (doc 36)', () => {
     expect(NEW.map((id) => PLANES[id].special)).toEqual(['cannon', 'stealth', 'nuke']);
     for (const id of NEW) expect(PLANES[id].campaign).toBe(2);
     for (const id of ['f16', 'f14', 'sr71'] as const) expect(PLANES[id].campaign).toBe(1);
-    expect(PLANES.a10.hull).toBeGreaterThan(Math.max(...PLANE_IDS.filter((p) => p !== 'a10').map((p) => PLANES[p].hull)));
+    expect(PLANES.a10.hull).toBeGreaterThan(Math.max(...JET_IDS.filter((p) => p !== 'a10').map((p) => PLANES[p].hull)));
   });
 
   it('sells them only once map 2 is open', () => {

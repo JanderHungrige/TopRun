@@ -120,7 +120,7 @@ export type WeaponRole = 'air' | 'ground';
 
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
-  hydra: 'ground', hellfire: 'ground',
+  hydra: 'ground', hellfire: 'ground', stinger: 'air',
 });
 
 export interface SecondaryDef {
@@ -189,6 +189,11 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     id: 'hellfire', role: 'ground', name: 'AGM-114 Hellfire', short: 'HELLFIRE', price: 9000 * HELI_PRICE, ammoPerSlot: 4,
     damage: 190, radius: 0, hits: 'ground', behavior: 'homing', cooldown: 0.5, speed: 450,
     turnRate: 3.4, planes: HELI_IDS, description: 'Laser-guided anti-armour missile. Finds tanks, bunkers and boats.', campaign: 3,
+  },
+  stinger: {
+    id: 'stinger', role: 'air', name: 'FIM-92 Stinger', short: 'STINGER', price: 6500 * HELI_PRICE, ammoPerSlot: 4,
+    damage: 85, radius: 0, hits: 'air', behavior: 'homing', cooldown: 0.35, speed: 560,
+    turnRate: 4.0, planes: HELI_IDS, description: 'Heat-seeking air-to-air missile for helicopters. Hunts gunships and jets.', campaign: 3,
   },
 });
 

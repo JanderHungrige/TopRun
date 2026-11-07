@@ -9,7 +9,7 @@
 import { ENEMIES } from '../src/data/enemies';
 import { missionById } from '../src/data/missions';
 import { PLANES } from '../src/data/planes';
-import type { EquipmentId, MissionDef, SecondaryId } from '../src/data/types';
+import type { EquipmentId, MissionDef, PlaneId, SecondaryId } from '../src/data/types';
 import { buyMark, canBuyMark } from '../src/game/arsenal';
 import { objectiveMet } from '../src/game/objectives';
 import { scaleEnemy } from '../src/game/combat';
@@ -20,6 +20,7 @@ import { defaultSave, type SaveData } from '../src/game/save';
 import type { GameContext, Route } from '../src/game/state';
 import { generateTimeline } from '../src/game/waves';
 import { BOSSES } from '../src/data/bosses';
+import { SECONDARIES } from '../src/data/weapons';
 import type { MissionScene } from '../src/scenes/mission/mission-scene';
 import { PF_H, PF_W } from '../src/scenes/mission/world';
 
@@ -34,7 +35,7 @@ const sec = (id: SecondaryId): Step => ({ type: 'secondary', id });
 /** A sensible helicopter shopping list (wave 2): firepower first, then armour and defences, in that order. */
 export const HELI_ORDER: readonly Step[] = [
   gun, sec('hydra'), gun, eq('armor'), sec('hellfire'), eq('flares'), gun, eq('armor'), { mark: 'hydra' }, gun,
-  { mark: 'hellfire' }, eq('armor'), eq('ecm'), gun, eq('flares'), eq('damageControl'), eq('armor'), gun,
+  { mark: 'hellfire' }, sec('stinger'), eq('armor'), eq('ecm'), gun, eq('flares'), eq('damageControl'), eq('armor'), gun,
   { mark: 'hydra' }, { mark: 'hellfire' }, eq('engine'), eq('engine'), gun, eq('ecm'), eq('damageControl'), gun, gun,
   eq('flares'), eq('flares'), eq('radar'), eq('magnet'), eq('engine'), eq('engine'), eq('radar'), eq('magnet'),
 ];
@@ -82,9 +83,9 @@ export function heliKitAt(n: number, list: readonly Step[] = HELI_ORDER): { save
   return { save: loadOut(save), bought, cash: save.money, earned };
 }
 
-/** Every station filled: Hydras and Hellfires alternating, whatever is owned. */
+/** Every station filled: Hydras, Hellfires and Stingers in turn, whatever is owned. */
 function loadOut(save: SaveData): SaveData {
-  const owned = (['hydra', 'hellfire'] as const).filter((id) => save.ownedSecondaries.includes(id));
+  const owned = (['hydra', 'hellfire', 'stinger'] as const).filter((id) => save.ownedSecondaries.includes(id));
   let s = save;
   for (let slot = 0; slot < PLANES[s.selectedPlane].hardpoints && owned.length > 0; slot++) {
     const id = owned[slot % owned.length];
@@ -161,13 +162,14 @@ export async function run(id: string, save: SaveData): Promise<RunResult> {
   };
 }
 
-/** `runs` runs of `id` (61–90) with the kit a buying pilot owns at that mission. */
-export async function fly(id: string, runs = 3): Promise<{ kit: string; results: RunResult[] }> {
+/** `runs` runs of `id` (61–90) with the kit a buying pilot owns at that mission, flown in `heli` (default: the
+ *  helicopter the kit has). */
+export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: string; results: RunResult[] }> {
   const n = Number(id.slice(1));
   const k = heliKitAt(n);
+  const s = heli ? loadOut({ ...k.save, ownedPlanes: [...k.save.ownedPlanes, heli], selectedPlane: heli }) : k.save;
   const results: RunResult[] = [];
-  for (let i = 0; i < runs; i++) results.push(await run(id, k.save));
-  const s = k.save;
-  const kit = `gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => x === 'hydra' || x === 'hellfire').join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
+  for (let i = 0; i < runs; i++) results.push(await run(id, s));
+  const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 3).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
   return { kit, results };
 }

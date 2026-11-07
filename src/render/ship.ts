@@ -79,6 +79,15 @@ function detail(ctx: Ctx, id: ModuleId, x: number, y: number, s: number, look: L
       for (const dx of [-0.45, 0, 0.45]) rr(ctx, x + dx * h - s * 0.07, y - h * 0.9, s * 0.14, s * 0.75, 1, '#d8dee8');
       rr(ctx, x - h * 0.8, y + h * 0.45, s * 0.8, h * 0.35, 1, '#5b7cff');
       return;
+    case 'torpedo': {
+      rr(ctx, x - h * 0.55, y - h * 1.2, s * 0.55, s * 0.95, h * 0.25, '#2b2f38');
+      const glow = 0.6 + Math.sin(t * 7 + x) * 0.3;
+      ctx.fillStyle = `rgba(255,150,70,${glow.toFixed(2)})`;
+      ctx.beginPath();
+      ctx.arc(x, y - h * 0.95, h * 0.3, 0, TAU);
+      ctx.fill();
+      return;
+    }
     case 'shield':
       ctx.strokeStyle = `rgba(140,210,255,${(0.55 + Math.sin(t * 5) * 0.25).toFixed(2)})`;
       ctx.lineWidth = Math.max(1, s * 0.09);

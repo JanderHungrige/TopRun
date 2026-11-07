@@ -28,8 +28,12 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   delta: { x: 770, y: 512 },
   mesa: { x: 420, y: 330 },
   ashfall: { x: 300, y: 686 },
-  // Map 4 (doc 56).
+  // Map 4 (docs 56, 58).
   orbit: { x: 250, y: 470 },
+  belt: { x: 640, y: 672 },
+  moon: { x: 640, y: 384 },
+  rings: { x: 420, y: 214 },
+  deep: { x: 300, y: 104 },
 };
 
 /** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48). */

@@ -6,7 +6,7 @@ import type { EnemyKind, MissionDef, TheaterId } from './types';
 
 /** The six new regular types and the three mini-bosses. */
 export const NEW_KINDS: readonly EnemyKind[] = Object.freeze(['shilka', 'bunker', 'foxbat', 'jammer', 'frigate', 'felon'] as const);
-export const MINI_BOSSES: readonly EnemyKind[] = Object.freeze(['backfire', 'fortress', 'cruiser'] as const);
+export const MINI_BOSSES: readonly EnemyKind[] = Object.freeze(['backfire', 'fortress', 'cruiser', 'warden'] as const);
 export const isMiniBoss = (kind: EnemyKind): boolean => MINI_BOSSES.includes(kind);
 
 interface Reinforcement {
@@ -35,8 +35,12 @@ const ADDS: Readonly<Record<TheaterId, readonly Reinforcement[]>> = {
   delta: [r('shilka', 73), r('bunker', 74)],
   mesa: [r('bunker', 79), r('shilka', 79), r('foxbat', 80)],
   ashfall: [r('frigate', 85), r('shilka', 85), r('bunker', 85), r('felon', 87)],
-  // Map 4 (doc 56): its own enemies only.
+  // Map 4 (docs 56, 58): its own enemies only; the interceptor spreads from m99, the gunship from m109.
   orbit: [],
+  belt: [r('interceptor', 99)],
+  moon: [r('interceptor', 103)],
+  rings: [r('interceptor', 109), r('gunship', 109)],
+  deep: [r('gunship', 115), r('interceptor', 115)],
 };
 
 /** Sea units need a sea theater (land units stand on islands in sea theaters). */
@@ -50,13 +54,16 @@ export function reinforcements(m: MissionDef): EnemyKind[] {
     .map((x) => x.kind);
 }
 
-/** First mission with mid-mission mini-bosses (the Arctic); on map 3 from the highlands on (doc 48). */
+/** First mission with mid-mission mini-bosses (the Arctic); on map 3 from the highlands on (doc 48); on map 4 from the
+ *  Asteroid Belt on, always the battlecruiser (doc 58). */
 export const MINI_BOSS_FROM = 13;
 export const MAP3_MINI_BOSS_FROM = 67;
+export const MAP4_MINI_BOSS_FROM = 97;
 
 /** Mini-bosses of a mission: when (share of the mission length) and which kind. None in boss missions. */
 export function miniBosses(m: MissionDef): Array<{ at: number; kind: EnemyKind }> {
   if (m.objective.type === 'boss' || m.number < MINI_BOSS_FROM || (m.campaign === 3 && m.number < MAP3_MINI_BOSS_FROM)) return [];
+  if (m.campaign === 4) return m.number < MAP4_MINI_BOSS_FROM ? [] : [{ at: 0.55, kind: 'warden' }];
   const sea = THEATERS[m.theater].base === 'sea';
   const pick = (k: number): EnemyKind => ((m.number + k) % 2 === 0 ? 'backfire' : sea ? 'cruiser' : 'fortress');
   const times = m.campaign === 2 ? [0.4, 0.75] : [0.55];

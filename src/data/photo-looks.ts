@@ -25,4 +25,8 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   mesa: ['dawn', 'day', 'day', 'dusk', 'day', 'dusk'],
   ashfall: ['storm', 'dusk', 'day', 'night', 'storm', 'night'],
   orbit: ['night', 'night', 'dusk', 'night', 'night', 'night'],
+  belt: ['night', 'night', 'night', 'dusk', 'night', 'night'],
+  moon: ['night', 'dusk', 'night', 'night', 'dusk', 'night'],
+  rings: ['dusk', 'night', 'night', 'night', 'dusk', 'night'],
+  deep: ['night', 'night', 'night', 'night', 'night', 'night'],
 });

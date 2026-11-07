@@ -45,6 +45,7 @@ integration_contracts: []
 satisfies_contracts: []
 known_issues:
   - "Wave 5 ships only Low Orbit (m91–m96); m97–m120, four more theaters and bosses, the rating's map-4 ranks and the rocket launch follow in waves 6–7."
+  - "Resolved in wave 6: m97–m120, the four theaters and bosses and the map-4 rank (doc 58); the rocket launch stays for wave 7."
 security_read_sites: []
 sister_projects: []
 ---

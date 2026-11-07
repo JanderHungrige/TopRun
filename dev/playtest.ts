@@ -17,8 +17,8 @@ import { scaleEnemy } from '../src/game/combat';
 import { buy, canBuy, mount, type ShopItem } from '../src/game/economy';
 import { kitView } from '../src/game/kit';
 import { canPlace, place, shipStats } from '../src/game/ship';
-import { buyLaser, buyModule, canBuyLaser, canBuyModule } from '../src/game/ship-shop';
-import { GRID, type ModuleId } from '../src/data/ship-modules';
+import { buyLaser, buyModule, buyShipMark, canBuyLaser, canBuyModule, canBuyShipMark } from '../src/game/ship-shop';
+import { GRID, SHIP_MARK_FAMILIES, type ModuleId, type ShipMarkFamily } from '../src/data/ship-modules';
 import { payScale } from '../src/game/map-two';
 import { defaultSave, type SaveData } from '../src/game/save';
 import type { GameContext, Route } from '../src/game/state';
@@ -182,13 +182,33 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
 
 // ---------- Map 4: the spacecraft (doc 54) ----------
 
-type ShipStep = ModuleId | 'power';
+type ShipStep = ModuleId | 'power' | `mk:${ShipMarkFamily}`;
 
-/** A sensible shipyard list on top of the starter ship: laser power first, then hull, a capsule, rockets, shields. */
+/** A sensible shipyard list on top of the starter ship: laser power first, then hull, a capsule, rockets, shields,
+ *  torpedoes, and the marks (doc 57) as the money grows. */
 export const SHIP_ORDER: readonly ShipStep[] = [
-  'power', 'power', 'plate', 'capsule', 'power', 'laser', 'rockets', 'reactor', 'shield', 'power', 'engine', 'plate',
-  'rockets', 'laser', 'power', 'shield', 'reactor', 'power', 'plate', 'laser', 'power', 'shield', 'power', 'power', 'power',
+  'power', 'power', 'plate', 'capsule', 'power', 'laser', 'rockets', 'reactor', 'shield', 'power', 'torpedo', 'engine',
+  'plate', 'mk:plate', 'rockets', 'laser', 'power', 'mk:rockets', 'shield', 'reactor', 'torpedo', 'power', 'mk:shield',
+  'plate', 'laser', 'mk:torpedo', 'power', 'mk:engine', 'mk:plate', 'mk:rockets', 'reactor', 'shield', 'power', 'power',
+  'mk:torpedo', 'mk:shield', 'mk:plate', 'mk:rockets', 'mk:engine', 'power', 'mk:torpedo', 'mk:shield', 'mk:plate',
+  'mk:rockets', 'mk:torpedo', 'mk:shield', 'mk:engine', 'mk:engine',
 ];
+
+const markStep = (s: ShipStep): ShipMarkFamily | null => (s.startsWith('mk:') ? SHIP_MARK_FAMILIES.find((f) => `mk:${f}` === s) ?? null : null);
+
+function canBuyStep(save: SaveData, s: ShipStep): boolean {
+  const f = markStep(s);
+  if (f) return canBuyShipMark(save, f).ok;
+  return s === 'power' ? canBuyLaser(save).ok : canBuyModule(save, s as ModuleId).ok;
+}
+
+function buyStep(save: SaveData, s: ShipStep): SaveData {
+  const f = markStep(s);
+  if (f) return buyShipMark(save, f);
+  if (s === 'power') return buyLaser(save);
+  const next = buyModule(save, s as ModuleId);
+  return { ...next, ship: autoPlace(next.ship, s as ModuleId) };
+}
 
 /** Where a module goes: the first valid cell, lasers and the capsule up front, engines aft, the rest beside the core. */
 function autoPlace(ship: SaveData['ship'], id: ModuleId): SaveData['ship'] {
@@ -213,10 +233,8 @@ export function shipKitAt(n: number): { save: SaveData; earned: number } {
     earned += income(m);
     save = { ...save, money: save.money + income(m) };
     for (let s = SHIP_ORDER[next]; s; s = SHIP_ORDER[next]) {
-      const ok = s === 'power' ? canBuyLaser(save).ok : canBuyModule(save, s).ok;
-      if (!ok) break;
-      save = s === 'power' ? buyLaser(save) : buyModule(save, s);
-      if (s !== 'power') save = { ...save, ship: autoPlace(save.ship, s) };
+      if (!canBuyStep(save, s)) break;
+      save = buyStep(save, s);
       next += 1;
     }
   }
@@ -228,5 +246,6 @@ export async function flyShip(id: string, runs = 3): Promise<{ kit: string; resu
   const results: RunResult[] = [];
   for (let i = 0; i < runs; i++) results.push(await run(id, k.save));
   const st = shipStats(k.save.ship);
-  return { kit: `${st.cells.length} modules, laser ${k.save.ship.laserLevel}, hull ${st.hull}, ${st.barrels.length} barrels`, results };
+  const marks = Object.values(k.save.ship.marks).join('');
+  return { kit: `${st.cells.length} modules, laser ${k.save.ship.laserLevel}, marks ${marks}, hull ${st.hull}, ${st.barrels.length} barrels, ${st.rocketWings}R ${st.torpedoBays}T`, results };
 }

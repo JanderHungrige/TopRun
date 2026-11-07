@@ -17,9 +17,9 @@ export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[
 export const asJet = (id: PlaneId): JetId => (isJet(id) ? id : 'f16');
 
 /** AIM-120 and JDAM are sold once map 2 is open (doc 37); Hydra, Hellfire (doc 49) and Stinger (doc 51) are helicopter weapons. */
-export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket';
+export type SecondaryId = 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
-  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket',
+  'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket', 'torpedo',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -37,12 +37,12 @@ export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead'
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall'
-  | 'orbit';
+  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall',
-  'orbit',
+  'orbit', 'belt', 'moon', 'rings', 'deep',
 ] as const);
 
 export type EnemyKind =
@@ -51,8 +51,8 @@ export type EnemyKind =
   // New adversaries and the three mini-bosses (doc 44).
   | 'shilka' | 'bunker' | 'foxbat' | 'jammer' | 'frigate' | 'felon'
   | 'backfire' | 'fortress' | 'cruiser'
-  // Map 4, space (doc 56).
-  | 'raider' | 'satgun' | 'corvette';
+  // Map 4, space (docs 56, 58); the warden is map 4's mini-boss.
+  | 'raider' | 'satgun' | 'corvette' | 'interceptor' | 'gunship' | 'battery' | 'warden';
 
 export type Layer = 'air' | 'ground';
 
@@ -67,7 +67,7 @@ export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
   | 'kraken' | 'condor' | 'python' | 'scorpion' | 'colossus'
   | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth'
-  | 'halo';
+  | 'halo' | 'quarry' | 'crater' | 'trident' | 'ark';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 

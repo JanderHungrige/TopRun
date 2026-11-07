@@ -1,9 +1,14 @@
-import { LASER_LEVELS, MAX_LASER_LEVEL, MODULES, type ModuleId } from '../data/ship-modules';
+import { MARKS, toMark } from '../data/arsenal';
+import { LASER_LEVELS, MAX_LASER_LEVEL, MAX_SHIP_MARK, MODULES, SHIELD, type ModuleId, type ShipMarkFamily } from '../data/ship-modules';
+import { SECONDARIES } from '../data/weapons';
+import { weaponStats } from './arsenal';
 import { mapOpen } from './progress';
 import type { SaveData } from './save';
+import { markGain } from './ship';
 
-// The shipyard's shop (doc 55): modules bought into stock — each further copy of a module costs a quarter more — and
-// laser power. On sale once map 4 is open. Pure; works on any save (the ship's fields are its own).
+// The shipyard's shop (doc 55): modules bought into stock — each further copy of a module costs a quarter more —,
+// laser power, and Mk II–V marks per module family (doc 57). On sale once map 4 is open. Pure; works on any save (the
+// ship's fields are its own).
 
 export const COPY_STEP = 0.25;
 
@@ -43,4 +48,35 @@ export function buyLaser(save: SaveData): SaveData {
   const price = laserPrice(save);
   if (!canBuyLaser(save).ok || price === null) return save;
   return { ...save, money: save.money - price, ship: { ...save.ship, laserLevel: save.ship.laserLevel + 1 } };
+}
+
+/** A module family's mark (doc 57). */
+export const shipMarkOf = (save: SaveData, f: ShipMarkFamily): number => save.ship.marks[f];
+
+/** The next mark's price: the module's first-copy price × the deep arsenal's factor; null at Mk V. */
+export function shipMarkPrice(save: SaveData, f: ShipMarkFamily): number | null {
+  const mark = shipMarkOf(save, f);
+  if (mark >= MAX_SHIP_MARK) return null;
+  return Math.round((MODULES[f].price * MARKS[toMark(mark + 1)].priceMul) / 1000) * 1000;
+}
+
+export const canBuyShipMark = (save: SaveData, f: ShipMarkFamily): ShipCheck => check(save, shipMarkPrice(save, f));
+
+export function buyShipMark(save: SaveData, f: ShipMarkFamily): SaveData {
+  const price = shipMarkPrice(save, f);
+  if (!canBuyShipMark(save, f).ok || price === null) return save;
+  return { ...save, money: save.money - price, ship: { ...save.ship, marks: { ...save.ship.marks, [f]: shipMarkOf(save, f) + 1 } } };
+}
+
+/** What a family's mark gives, for the shipyard's "now → next" line: hull per plate, thrust per engine, shield per
+ *  generator, damage per rocket or torpedo. */
+export function markValue(f: ShipMarkFamily, mark: number): number {
+  switch (f) {
+    case 'plate': return Math.round(MODULES.plate.hull * markGain(mark));
+    case 'engine': return MODULES.engine.thrust * markGain(mark);
+    case 'shield': return Math.round(SHIELD.points * markGain(mark));
+    case 'rockets': return weaponStats(SECONDARIES.spacerocket, toMark(mark)).damage;
+    case 'torpedo': return weaponStats(SECONDARIES.torpedo, toMark(mark)).damage;
+    default: throw new Error(`unhandled: ${f satisfies never}`);
+  }
 }

@@ -98,6 +98,10 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
     }
   }
   for (const m of world.missiles) {
+    if (m.kind === 'torpedo') {
+      plasmaBolt(ctx, m.x, m.y, m.ttl);
+      continue;
+    }
     ctx.save();
     ctx.translate(m.x, m.y);
     ctx.rotate(m.heading);
@@ -258,4 +262,21 @@ export function clipPlayfield(ctx: CanvasRenderingContext2D): void {
   ctx.beginPath();
   ctx.rect(0, 0, PF_W, PF_H);
   ctx.clip();
+}
+
+/** A plasma torpedo (doc 57): a pulsing orange ball with a white-hot heart. */
+function plasmaBolt(ctx: CanvasRenderingContext2D, x: number, y: number, ttl: number): void {
+  const r = 6 + Math.sin(ttl * 40) * 1.2;
+  ctx.fillStyle = 'rgba(255,140,60,0.35)';
+  ctx.beginPath();
+  ctx.arc(x, y, r * 1.9, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#ffb35a';
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#fff4d8';
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.45, 0, TAU);
+  ctx.fill();
 }

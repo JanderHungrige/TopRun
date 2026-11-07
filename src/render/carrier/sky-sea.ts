@@ -7,6 +7,8 @@ import { cachedGradient } from './pen';
 
 const SKY: Readonly<Record<TerrainStyle, readonly [string, string, string]>> = {
   space: ['#02030a', '#070b1e', '#0d1430'],
+  belt: ['#02030a', '#0b0a12', '#1a1410'],
+  lunar: ['#02030a', '#0a0c14', '#2a2d34'],
   ocean: ['#3d7fc4', '#8cc0e6', '#f3dcb4'],
   desert: ['#4a86c0', '#a9c8e0', '#f5c98e'],
   ice: ['#6f93b8', '#c4d6e6', '#eef3f7'],

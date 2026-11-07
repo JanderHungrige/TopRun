@@ -84,8 +84,8 @@ map 2, like map 2 opened after map 1 (doc 35). Maps 1 and 2 stay exactly as they
 - Briefings, names and objectives: `src/data/missions-3.ts` (English), `src/i18n/missions-3-de.ts` (German).
   Enemy pools lean on the ground (tanks, Shilkas, SAMs, bunkers, boats, enemy Hinds); fewer fast jets — the war is
   fought low.
-- Until the deck liftoff (wave 4), map-3 sorties start in the air: LAUNCH goes straight to the mission
-  (takeoff rating `skipped`, no takeoff bonus, as for anyone who skips).
+- Map-3 sorties start with the helicopters' deck liftoff (doc 53) instead of the catapult; ten map-3 missions lead
+  through a canyon run (doc 52).
 
 ## Five theaters (map 3, a new region)
 

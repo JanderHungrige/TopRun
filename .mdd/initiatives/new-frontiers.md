@@ -3,7 +3,7 @@ id: new-frontiers
 title: New Frontiers
 status: active
 version: 1
-hash: e5acc2a9
+hash: b24e6da4
 created: 2026-11-06
 ---
 
@@ -57,7 +57,7 @@ Decided with the owner (one question round, 2026-11-06):
 | Wave 1 | waves/new-frontiers-wave-1.md | A new pilot made from the 4th preset card with the callsign ADMIN sees every mission of every map unlocked, has unlimited money (∞) in the hangar, carries an ALL ACCESS badge, and never shows up on the online ladder. | complete |
 | Wave 2 | waves/new-frontiers-wave-2.md | After m60 the map picker opens map 3 (m61–m90, five theaters, five bosses); its hangar starts from zero with the Apache free, the jets stay on maps 1–2, and the Apache flies map 3 with its own gun, rockets and Hellfires. | complete |
 | Wave 3 | waves/new-frontiers-wave-3.md | The Comanche, Tiger and Hind are on sale with their own E abilities, helicopter equipment and an air-to-air missile; a bot playtest keeps the map-3 shop at about 1.5 × its income. | complete |
-| Wave 4 | waves/new-frontiers-wave-4.md | Map-3 sorties start with a deck liftoff in gusting wind, and about one map-3 mission in three has a canyon run where touching a wall crashes the helicopter. | planned |
+| Wave 4 | waves/new-frontiers-wave-4.md | Map-3 sorties start with a deck liftoff in gusting wind, and about one map-3 mission in three has a canyon run where touching a wall crashes the helicopter. | complete |
 | Wave 5 | waves/new-frontiers-wave-5.md | After m90 map 4 opens in space; its hangar shows one spacecraft on a grid where the pilot places bought modules (front capsule, rocket wing, …); the ship's shape, hitbox and handling change with them, and it flies map 4's first theater. | planned |
 | Wave 6 | waves/new-frontiers-wave-6.md | All of map 4 (m91–m120, five theaters, five bosses) with the new space weapons and their upgrade ladders. | planned |
 | Wave 7 | waves/new-frontiers-wave-7.md | Map-4 sorties start with a staged rocket launch, and a bot playtest balances map 4. | planned |

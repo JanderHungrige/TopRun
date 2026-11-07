@@ -1,7 +1,7 @@
 ---
 generated: 2026-11-07
-doc_count: 77
-connection_count: 245
+doc_count: 78
+connection_count: 248
 overlap_count: 216
 ---
 
@@ -18,6 +18,7 @@ Game
 │   ├── Challenge Level   38-challenge-level (complete)
 │   ├── FifthMap   65-fifth-map (complete), 70-map-five-campaign (complete)
 │   ├── FourthMap   56-fourth-map (complete), 58-map-four-campaign (complete)
+│   ├── Map Pictures   77-map-pictures (complete)
 │   ├── Mission Score   39-mission-score (complete)
 │   ├── Second Map   35-second-map (complete)
 │   ├── Third Map   48-third-map (complete)
@@ -174,6 +175,7 @@ graph TD
   d74["74-world-order"]:::complete
   d75["75-world-ceremonies"]:::complete
   d76["76-world-looks"]:::complete
+  d77["77-map-pictures"]:::complete
   d01 --> d02
   d01 --> d03
   d02 --> d03
@@ -419,6 +421,9 @@ graph TD
   d74 --> d76
   d33 --> d76
   d06 --> d76
+  d03 --> d77
+  d35 --> d77
+  d74 --> d77
   classDef complete fill:#1f6f3f,color:#fff
   classDef in_progress fill:#8a6a1a,color:#fff
   classDef draft fill:#555,color:#fff
@@ -618,7 +623,7 @@ graph TD
 - `src/scenes/hangar.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 66-sub-kit, 76-world-looks
 - `src/scenes/ladder.ts`: 28-ladder-screen, 47-admin-pilot
 - `src/scenes/map-globe.ts`: 35-second-map, 48-third-map, 56-fourth-map, 65-fifth-map
-- `src/scenes/map-render.ts`: 03-campaign-map, 35-second-map, 48-third-map, 58-map-four-campaign, 65-fifth-map, 70-map-five-campaign, 74-world-order
+- `src/scenes/map-render.ts`: 03-campaign-map, 35-second-map, 48-third-map, 58-map-four-campaign, 65-fifth-map, 70-map-five-campaign, 74-world-order, 77-map-pictures
 - `src/scenes/map.ts`: 03-campaign-map, 20-retro-look, 35-second-map, 37-double-firepower, 38-challenge-level, 47-admin-pilot, 48-third-map, 49-helicopter-kit, 55-shipyard, 56-fourth-map, 65-fifth-map, 66-sub-kit, 73-home-docks, 74-world-order
 - `src/scenes/minigames/registry.ts`: 10-minigames-core, 12-pushup-challenge, 14-formation-flying, 16-missile-evasion, 18-carrier-landing, 19-dogfight-tactics, 21-beach-volleyball, 22-motorbike-vs-jet, 23-piano-bar, 28-ladder-screen
 - `src/scenes/minigames/shell-render.ts`: 10-minigames-core, 20-retro-look

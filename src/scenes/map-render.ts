@@ -6,6 +6,7 @@ import { isCleared, isUnlocked } from '../game/progress';
 import type { SaveData } from '../game/save';
 import { makeBlob } from '../render/terrain-art';
 import { theaterName } from '../i18n/content';
+import { drawMapPicture } from '../render/map-picture';
 import { COLORS, text } from '../render/text';
 
 export const MAP_RECT = { x: 20, y: 76, w: 846, h: 628 };
@@ -126,7 +127,8 @@ function drawStatic(g: CanvasRenderingContext2D, c: CampaignId): void {
   g.restore();
 }
 
-function staticLayer(c: CampaignId): HTMLCanvasElement {
+/** A map's sea, grid and landmasses (no labels, nodes or route), cached; also the layout the map pictures are painted on. */
+export function staticLayer(c: CampaignId): HTMLCanvasElement {
   const hit = cached.get(c);
   if (hit) return hit;
   const canvas = document.createElement('canvas');
@@ -139,8 +141,13 @@ function staticLayer(c: CampaignId): HTMLCanvasElement {
 }
 
 export function drawMapBase(ctx: CanvasRenderingContext2D, c: CampaignId): void {
-  ctx.drawImage(staticLayer(c), 0, 0);
   const { x, y, w, h } = MAP_RECT;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  if (!drawMapPicture(ctx, c, MAP_RECT)) ctx.drawImage(staticLayer(c), 0, 0); // the painted terrain (doc 77), else the blobs
+  ctx.restore();
   ctx.strokeStyle = COLORS.panelEdge;
   ctx.lineWidth = 1.5;
   ctx.strokeRect(x, y, w, h);

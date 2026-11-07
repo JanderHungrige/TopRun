@@ -17,6 +17,7 @@ import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
 import { emptyRecord, parseRecord, type ServiceRecord } from './service-record';
+import { reorderWorlds, WORLD_ORDER } from './world-order';
 
 /** Legacy single-save key (pre-profiles); read once for migration (doc 08). */
 export const SAVE_KEY = 'topgun.save.v1';
@@ -26,6 +27,8 @@ export type Loadout = Array<SecondaryId | null>;
 
 export interface SaveData {
   version: 1;
+  /** The order of the worlds the mission ids are in (doc 74); older saves are moved when read. */
+  worlds: typeof WORLD_ORDER;
   money: number;
   ownedPlanes: PlaneId[];
   selectedPlane: PlaneId;
@@ -93,6 +96,7 @@ const emptyLoadout = (plane: PlaneId): Loadout => Array.from({ length: PLANES[pl
 export function defaultSave(): SaveData {
   return {
     version: 1,
+    worlds: WORLD_ORDER,
     money: START_MONEY,
     ownedPlanes: ['f16'],
     selectedPlane: 'f16',
@@ -191,8 +195,9 @@ function parseEquipment(v: unknown): Record<EquipmentId, number> {
 }
 
 /** Validates an untrusted JSON value into a SaveData. Returns null when it is not a v1 save at all. */
-export function parseSave(raw: unknown): SaveData | null {
-  if (!isRecord(raw) || raw.version !== 1) return null;
+export function parseSave(input: unknown): SaveData | null {
+  if (!isRecord(input) || input.version !== 1) return null;
+  const raw = reorderWorlds(input);
   const ownedPlanes = ids(raw.ownedPlanes, PLANE_IDS);
   if (!ownedPlanes.includes('f16')) ownedPlanes.unshift('f16');
   const selected = ownedPlanes.find((p) => p === raw.selectedPlane && isJet(p)) ?? 'f16';
@@ -201,6 +206,7 @@ export function parseSave(raw: unknown): SaveData | null {
   const progress = parseProgress(raw.progress);
   return {
     version: 1,
+    worlds: WORLD_ORDER,
     money: int(raw.money, 0, 1e9, START_MONEY),
     ownedPlanes,
     selectedPlane: selected,

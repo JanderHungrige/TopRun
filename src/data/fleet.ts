@@ -30,7 +30,7 @@ export const FLEET: Readonly<Record<FleetKitId, FleetDef>> = Object.freeze({
     maxGun: MAX_HELI_GUN_LEVEL, gunDef: heliGunDef, gunPicture: 'chaingun',
   },
   sub: {
-    kit: 'sub', campaign: 5, craft: SUB_IDS, starter: 'u212', price: SUB_PRICE,
+    kit: 'sub', campaign: 4, craft: SUB_IDS, starter: 'u212', price: SUB_PRICE,
     maxGun: MAX_SUB_GUN_LEVEL, gunDef: subGunDef, gunPicture: 'harpoon',
   },
 });

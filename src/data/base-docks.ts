@@ -1,6 +1,6 @@
 import type { AreaRect, BaseAreaDef, BaseAreaId } from './base-areas';
 
-// The home base's other looks (doc 73): the space-station dock (map 4) and the underwater dock (map 5), each a generated
+// The home base's other looks (doc 73): the space-station dock (map 5) and the underwater dock (map 4, doc 74), each a generated
 // picture with every area's hotspot, name plate and stand point placed on the picture's own objects, and the places the
 // game draws over it — the flip board, the chalkboard's slate, the TV cart, the neon sign, the exit hatch.
 
@@ -8,9 +8,11 @@ const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x
   ({ id, row, hot, plate, standX });
 
 export interface DockLayout {
-  /** The scoreboard's face: the flip board is fitted into it. */
+  /** The picture's scoreboard: world 1's flip board covers it, `boardRows` rows of tiles (the ladder's three, blank
+   *  rows below on a tall board). */
   board: AreaRect;
-  /** The chalkboard's face: the shared slate is fitted into it. */
+  boardRows: number;
+  /** The picture's chalkboard: world 1's framed chalkboard covers it. */
   slate: AreaRect;
   /** The TV cart's footprint (left, floor line). */
   tv: { x: number; base: number };
@@ -20,7 +22,7 @@ export interface DockLayout {
   hatch: AreaRect;
 }
 
-/** Space dock A (map 4): rec room left, lockers, the scoreboard on the catwalk, the chalkboard, the starfighter. */
+/** Space dock A (map 5): rec room left, lockers, the scoreboard on the catwalk, the chalkboard, the starfighter. */
 export const SPACE_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freeze({
   fun: area('fun', 'floor', { x: 18, y: 200, w: 264, h: 356 }, { x: 150, y: 188 }, 150),
   tv: area('tv', 'floor', { x: 150, y: 452, w: 92, h: 168 }, { x: 196, y: 440 }, 196),
@@ -33,14 +35,15 @@ export const SPACE_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.fre
 });
 
 export const SPACE_LAYOUT: DockLayout = {
-  board: { x: 478, y: 100, w: 326, h: 76 },
-  slate: { x: 596, y: 298, w: 226, h: 110 },
+  board: { x: 470, y: 94, w: 340, h: 86 },
+  boardRows: 3,
+  slate: { x: 588, y: 290, w: 240, h: 126 },
   tv: { x: 156, base: 618 },
   neon: { x: 120, y: 240, w: 122, h: 44 },
   hatch: { x: 1100, y: 590, w: 128, h: 56 },
 };
 
-/** Underwater dock C (map 5): lockers, the rec room, the scoreboard and the photos over the chalkboard, the big
+/** Underwater dock C (map 4): lockers, the rec room, the scoreboard and the photos over the chalkboard, the big
  *  round window with the sub docked outside. */
 export const SEA_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freeze({
   fun: area('fun', 'floor', { x: 104, y: 188, w: 216, h: 376 }, { x: 200, y: 176 }, 210),
@@ -54,8 +57,9 @@ export const SEA_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freez
 });
 
 export const SEA_LAYOUT: DockLayout = {
-  board: { x: 398, y: 92, w: 192, h: 128 },
-  slate: { x: 470, y: 294, w: 132, h: 124 },
+  board: { x: 388, y: 82, w: 210, h: 148 },
+  boardRows: 4,
+  slate: { x: 466, y: 286, w: 140, h: 138 },
   tv: { x: 182, base: 622 },
   neon: { x: 134, y: 242, w: 132, h: 38 },
   hatch: { x: 1110, y: 640, w: 130, h: 56 },

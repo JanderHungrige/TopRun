@@ -97,7 +97,7 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     price: 0, hull: 60, speed: 290, hardpoints: 0, gunDamageMul: 1.0,
     special: 'gunpods', specialName: 'Overcharge', specialCooldown: 16, specialDuration: 6,
     description: 'One ship that grows with you: every module you place changes its shape, hull, speed and guns.',
-    campaign: 4, kind: 'ship',
+    campaign: 5, kind: 'ship',
   },
   // Map 5 (doc 66): the attack subs; the Type 212 is free.
   u212: {
@@ -105,7 +105,7 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     price: 0, hull: 150, speed: 230, hardpoints: 4, gunDamageMul: 1.0,
     special: 'sonar', specialName: 'Sonar Burst', specialCooldown: 12, specialDuration: 0.6,
     description: 'Quiet German attack sub with fuel-cell drive. Four tubes, a harpoon gun and an active sonar that clears the water around it.',
-    campaign: 5, kind: 'sub',
+    campaign: 4, kind: 'sub',
   },
   // Doc 69: the rest of the fleet, bought in the SUB PEN.
   seawolf: {
@@ -113,21 +113,21 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     price: 2600000, hull: 135, speed: 270, hardpoints: 4, gunDamageMul: 1.2,
     special: 'dash', specialName: 'Supercavitation', specialCooldown: 18, specialDuration: 2.5,
     description: 'The fastest hunter in the pen. Hard-hitting gun, and a burst of speed in a bubble sheath that rams through anything.',
-    campaign: 5, kind: 'sub',
+    campaign: 4, kind: 'sub',
   },
   virginia: {
     id: 'virginia', name: 'Virginia', short: 'VIRGINIA', nickname: 'Virginia',
     price: 4000000, hull: 140, speed: 250, hardpoints: 4, gunDamageMul: 1.0,
     special: 'stealth', specialName: 'Silent Running', specialCooldown: 18, specialDuration: 6,
     description: 'Quiet modern attack sub. Running silent, she slips off every sonar: the enemy holds fire and torpedoes lose her.',
-    campaign: 5, kind: 'sub',
+    campaign: 4, kind: 'sub',
   },
   akula: {
     id: 'akula', name: 'Akula', short: 'AKULA', nickname: 'Akula',
     price: 6400000, hull: 230, speed: 205, hardpoints: 6, gunDamageMul: 1.1,
     special: 'armour', specialName: 'Double Hull', specialCooldown: 16, specialDuration: 3,
     description: 'Big, broad and built twice over. Six tubes and a few seconds where nothing gets through. Slow to turn.',
-    campaign: 5, kind: 'sub',
+    campaign: 4, kind: 'sub',
   },
 });
 

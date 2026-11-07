@@ -3,7 +3,7 @@ id: 69-sub-fleet
 title: Sub Fleet - Seawolf, Virginia and Akula With Their Own E Abilities; the Shkval Rocket Fan
 edition: TopRun
 depends_on: [66-sub-kit, 67-sub-flight, 51-heli-fleet]
-relates: [66-sub-kit, 67-sub-flight, 51-heli-fleet, 70-map-five-campaign]
+relates: [66-sub-kit, 67-sub-flight, 51-heli-fleet, 70-map-five-campaign, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/planes.ts
@@ -34,6 +34,8 @@ sister_projects: []
 ---
 
 # 69 — Sub Fleet
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

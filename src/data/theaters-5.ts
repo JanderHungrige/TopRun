@@ -1,46 +1,45 @@
 import type { TheaterDef } from './theaters';
 
-// Map 5's theaters (docs 65, 70): under the sea — the Coral Reef, the Kelp Forest, the Wreck Field, the Trench, the
-// Abyss; the deeper the map goes, the darker the water.
+// Map 5's theaters (docs 56, 58, 74): space — Low Orbit, the Asteroid Belt, the Lunar Front, the Ring Giant, Deep Space.
 
 export const THEATERS_5 = {
-  reef: {
-    id: 'reef', campaign: 5, index: 20, name: 'Coral Reef', tagline: 'Bright water, sharp teeth', terrain: 'reef', base: 'land',
+  orbit: {
+    id: 'orbit', campaign: 5, index: 20, name: 'Low Orbit', tagline: 'Above the blue', terrain: 'space', base: 'land',
     palette: {
-      sea: '#0f6a7c', seaDeep: '#073a4a', land: '#d8d6aa', landDark: '#a49c72', detail: '#ff8a78',
-      accent: '#5ff0e0', cloud: 'rgba(190,255,245,0.08)',
+      sea: '#05070f', seaDeep: '#020309', land: '#2a3352', landDark: '#151a2c', detail: '#c9d6ff',
+      accent: '#7fb4ff', cloud: 'rgba(170,150,255,0.1)',
     },
-    route: { x0: 120, y0: 610, x1: 420, y1: 540 },
+    route: { x0: 110, y0: 600, x1: 400, y1: 520 },
   },
-  kelp: {
-    id: 'kelp', campaign: 5, index: 21, name: 'Kelp Forest', tagline: 'Lost in the green', terrain: 'kelp', base: 'land',
+  belt: {
+    id: 'belt', campaign: 5, index: 21, name: 'Asteroid Belt', tagline: 'Rocks with guns', terrain: 'belt', base: 'land',
     palette: {
-      sea: '#0e5a52', seaDeep: '#06302c', land: '#9fae84', landDark: '#5e6e4a', detail: '#c8d86a',
-      accent: '#8ff07a', cloud: 'rgba(170,255,200,0.07)',
+      sea: '#07080d', seaDeep: '#030407', land: '#5a4a3c', landDark: '#3b3029', detail: '#9c8a74',
+      accent: '#ffb46b', cloud: 'rgba(255,180,120,0.07)',
     },
-    route: { x0: 500, y0: 600, x1: 800, y1: 520 },
+    route: { x0: 480, y0: 610, x1: 800, y1: 560 },
   },
-  wrecks: {
-    id: 'wrecks', campaign: 5, index: 22, name: 'Wreck Field', tagline: 'Ghost ships', terrain: 'wreck', base: 'land',
+  moon: {
+    id: 'moon', campaign: 5, index: 22, name: 'Lunar Front', tagline: 'Dust and craters', terrain: 'lunar', base: 'land',
     palette: {
-      sea: '#0f4660', seaDeep: '#06263a', land: '#a6a89a', landDark: '#6c6e64', detail: '#b8743e',
-      accent: '#ffb46b', cloud: 'rgba(200,220,255,0.06)',
+      sea: '#0a0b10', seaDeep: '#05060a', land: '#8a8d94', landDark: '#5d6068', detail: '#c4c7ce',
+      accent: '#e6edf7', cloud: 'rgba(255,255,255,0.05)',
     },
-    route: { x0: 800, y0: 440, x1: 640, y1: 280 },
+    route: { x0: 810, y0: 460, x1: 700, y1: 290 },
   },
-  trench: {
-    id: 'trench', campaign: 5, index: 23, name: 'The Trench', tagline: 'Into the dark', terrain: 'trench', base: 'land',
+  rings: {
+    id: 'rings', campaign: 5, index: 23, name: 'Ring Giant', tagline: 'Ice in the rings', terrain: 'belt', base: 'land',
     palette: {
-      sea: '#0a2a4a', seaDeep: '#04142a', land: '#5f6a78', landDark: '#2c3440', detail: '#8a9aac',
-      accent: '#7fb4ff', cloud: 'rgba(160,200,255,0.05)',
+      sea: '#070a14', seaDeep: '#03050b', land: '#9fb4c8', landDark: '#60758c', detail: '#e8f2ff',
+      accent: '#ffd27a', cloud: 'rgba(255,210,140,0.08)',
     },
-    route: { x0: 560, y0: 240, x1: 260, y1: 300 },
+    route: { x0: 580, y0: 250, x1: 260, y1: 300 },
   },
-  abyss: {
-    id: 'abyss', campaign: 5, index: 24, name: 'The Abyss', tagline: 'Where the light ends', terrain: 'abyss', base: 'land',
+  deep: {
+    id: 'deep', campaign: 5, index: 24, name: 'Deep Space', tagline: 'Past the last star', terrain: 'space', base: 'land',
     palette: {
-      sea: '#05101c', seaDeep: '#01060c', land: '#2a2e36', landDark: '#15181e', detail: '#4a5260',
-      accent: '#5ff0e0', cloud: 'rgba(95,240,224,0.06)',
+      sea: '#090410', seaDeep: '#040108', land: '#3a2440', landDark: '#2a1a30', detail: '#7a6488',
+      accent: '#ff6a8a', cloud: 'rgba(255,90,140,0.1)',
     },
     route: { x0: 140, y0: 220, x1: 460, y1: 120 },
   },

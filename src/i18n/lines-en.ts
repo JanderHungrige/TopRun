@@ -74,20 +74,20 @@ export const LINES_EN = {
     "And there's a third front: low level, helicopters only. The jets stay home. Check the globe, {callsign}.",
   ],
   'adm.space': [
-    "One more front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
+    "One last front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
   ],
   'adm.celebrate1': ["The whole fleet is proud of you, {callsign}. Tonight we celebrate, tomorrow the world gets bigger."],
   'adm.celebrate2': ["Two fronts, one pilot. {callsign}, they will tell stories about you in every ready room."],
   'adm.celebrate3': ["From the decks to the valleys, {callsign}. Rotors or wings, you always bring them home."],
-  'adm.celebrate4': ["You took the war to the stars and won it, {callsign}. Look down there: that is the world you saved."],
-  'adm.celebrate5': ["Sky, space and now the deep sea, {callsign}. There is no water left that they can hide in."],
+  'adm.celebrate4': ["From the skies to the bottom of the sea, {callsign}. There is no water left that they can hide in."],
+  'adm.celebrate5': ["You took the war to the stars and won it, {callsign}. Look down there: that is the world you saved."],
   'adm.deepWater': [
-    "Well, almost nowhere. What was left of them has gone under the sea. Your sub pen has a boat waiting, {callsign}. Check the globe.",
-  ],
-  'adm.finale5': [
-    "The abyss is quiet, {callsign}. You hunted them all the way to the bottom of the sea.",
+    "And there's another front: what is left of them has gone under the sea. Your sub pen has a boat waiting, {callsign}. Check the globe.",
   ],
   'adm.finale4': [
+    "The abyss is quiet, {callsign}. You hunted them all the way to the bottom of the sea.",
+  ],
+  'adm.finale5': [
     "That was the last frontier, {callsign}. There is nowhere left they can run.",
   ],
   'adm.finale3': [

@@ -200,29 +200,29 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
   spacerocket: {
     id: 'spacerocket', role: 'air', name: 'Space Rocket', short: 'ROCKETS', price: 0, ammoPerSlot: 6,
     damage: 70, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.4, speed: 520,
-    turnRate: 3.6, planes: ['starship'], description: 'Homing rockets from the rocket wings. They find anything that moves.', campaign: 4,
+    turnRate: 3.6, planes: ['starship'], description: 'Homing rockets from the rocket wings. They find anything that moves.', campaign: 5,
   },
   torpedo: {
     id: 'torpedo', role: 'ground', name: 'Plasma Torpedo', short: 'TORPEDO', price: 0, ammoPerSlot: 2,
     damage: 300, radius: 0, hits: 'ground', behavior: 'homing', cooldown: 0.7, speed: 340,
-    turnRate: 1.2, planes: ['starship'], description: 'Slow homing plasma bolts from the torpedo bays, for warships, stations and bosses.', campaign: 4,
+    turnRate: 1.2, planes: ['starship'], description: 'Slow homing plasma bolts from the torpedo bays, for warships, stations and bosses.', campaign: 5,
   },
   // Sub weapons (doc 66): mount on subs only; prices on the sub scale.
   mk48: {
     id: 'mk48', role: 'air', name: 'MK48 Torpedo', short: 'MK48', price: 3000 * SUB_PRICE, ammoPerSlot: 3,
     damage: 150, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.45, speed: 300,
-    turnRate: 2.6, planes: SUB_IDS, description: 'Wire-guided heavy torpedo. Slow, but it finds anything in the water: subs, drones, mines and monsters.', campaign: 5,
+    turnRate: 2.6, planes: SUB_IDS, description: 'Wire-guided heavy torpedo. Slow, but it finds anything in the water: subs, drones, mines and monsters.', campaign: 4,
   },
   depthmine: {
     id: 'depthmine', role: 'ground', name: 'Depth Mine', short: 'MINE', price: 5000 * SUB_PRICE, ammoPerSlot: 4,
     damage: 160, radius: 80, hits: 'ground', behavior: 'bomb', cooldown: 0.5, speed: 0,
-    turnRate: 0, planes: SUB_IDS, description: 'Sinks below the sub and bursts on the seabed. A wide blast against turrets and anything on the bottom.', campaign: 5,
+    turnRate: 0, planes: SUB_IDS, description: 'Sinks below the sub and bursts on the seabed. A wide blast against turrets and anything on the bottom.', campaign: 4,
   },
   // Doc 69: the subs' rocket fan.
   shkval: {
     id: 'shkval', role: 'ground', name: 'VA-111 Shkval', short: 'SHKVAL', price: 4500 * SUB_PRICE, ammoPerSlot: 5,
     damage: 30, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 700,
-    turnRate: 0, planes: SUB_IDS, description: 'Supercavitating rocket torpedoes fired in a fan. Fast, unguided, they hit anything in the water.', campaign: 5,
+    turnRate: 0, planes: SUB_IDS, description: 'Supercavitating rocket torpedoes fired in a fan. Fast, unguided, they hit anything in the water.', campaign: 4,
   },
 });
 

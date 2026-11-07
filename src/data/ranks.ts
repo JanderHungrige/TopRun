@@ -23,10 +23,10 @@ export const RANKS: readonly Rank[] = Object.freeze([
   { id: 'legend', from: 25000 },
   // Above Top Gun Legend once map-3 stars count (doc 48).
   { id: 'ace', from: 36000 },
-  // Above Ace of Aces once map-4 stars count (doc 58).
-  { id: 'staradm', from: 48000 },
-  // Above Star Admiral once map-5 stars count (doc 72).
-  { id: 'deepadm', from: 60000 },
+  // Above Ace of Aces once map-4 stars count — under the sea (docs 72, 74).
+  { id: 'deepadm', from: 48000 },
+  // Above Admiral of the Deep once map-5 stars count — space, the last world (docs 58, 74).
+  { id: 'staradm', from: 60000 },
 ]);
 
 export const RANK_IDS: readonly RankId[] = Object.freeze(RANKS.map((r) => r.id));

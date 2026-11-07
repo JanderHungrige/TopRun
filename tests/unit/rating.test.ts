@@ -34,14 +34,14 @@ describe('Pilot rating', () => {
   });
 
   it('maps ratings to naval ranks', () => {
-    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'staradm', 'deepadm']);
+    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'deepadm', 'staradm']);
     expect(rankFor(35999)).toBe('legend');
     expect(rankFor(36000)).toBe('ace');
     expect(rankFor(47999)).toBe('ace');
-    expect(rankFor(48000)).toBe('staradm');
-    expect(rankFor(59999)).toBe('staradm');
-    expect(rankFor(60000)).toBe('deepadm');
-    expect(rankFor(maxRating())).toBe('deepadm');
+    expect(rankFor(48000)).toBe('deepadm');
+    expect(rankFor(59999)).toBe('deepadm');
+    expect(rankFor(60000)).toBe('staradm');
+    expect(rankFor(maxRating())).toBe('staradm');
     expect(rankFor(0)).toBe('ensign');
     expect(rankFor(799)).toBe('ensign');
     expect(rankFor(800)).toBe('ltjg');

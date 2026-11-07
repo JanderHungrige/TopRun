@@ -89,12 +89,12 @@ describe('Spacecraft (doc 54)', () => {
 });
 
 describe('Shipyard shop (doc 55)', () => {
-  const mapFour = (money: number): SaveData =>
-    ({ ...defaultSave(), money, progress: Object.fromEntries(Array.from({ length: 90 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 1 }])) });
+  const mapFive = (money: number): SaveData =>
+    ({ ...defaultSave(), money, progress: Object.fromEntries(Array.from({ length: 120 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 1 }])) });
 
-  it('sells modules into stock once map 4 is open, each further copy a quarter dearer', () => {
+  it('sells modules into stock once map 5 is open, each further copy a quarter dearer', () => {
     expect(canBuyModule({ ...defaultSave(), money: 9e6 }, 'plate')).toEqual({ ok: false, reason: 'locked' });
-    let s = mapFour(1_000_000);
+    let s = mapFive(1_000_000);
     expect(modulePrice(s, 'plate')).toBe(MODULES.plate.price);
     s = buyModule(s, 'plate');
     expect(s.ship.stock.plate).toBe(1);
@@ -106,17 +106,17 @@ describe('Shipyard shop (doc 55)', () => {
   });
 
   it('sells one capsule only, never the core, and laser power to level 10', () => {
-    let s = buyModule(mapFour(9_000_000), 'capsule');
+    let s = buyModule(mapFive(9_000_000), 'capsule');
     expect(canBuyModule(s, 'capsule')).toEqual({ ok: false, reason: 'max' });
     expect(modulePrice(s, 'core')).toBeNull();
     for (let i = 0; i < 12; i++) s = buyLaser(s);
     expect(s.ship.laserLevel).toBe(10);
     expect(canBuyLaser(s)).toEqual({ ok: false, reason: 'max' });
-    expect(canBuyLaser(mapFour(10))).toEqual({ ok: false, reason: 'insufficient-funds' });
+    expect(canBuyLaser(mapFive(10))).toEqual({ ok: false, reason: 'insufficient-funds' });
   });
 
   it('flies the ship from its modules: hull, guns, rocket wings, shield; parses forged layouts down', () => {
-    let s = mapFour(9_000_000);
+    let s = mapFive(9_000_000);
     for (const id of ['laser', 'rockets', 'shield', 'plate'] as const) s = buyModule(s, id);
     let ship = place({ ...s.ship, modules: [] }, 'laser', C - 1, R);
     ship = place(ship, 'rockets', C + 1, R);

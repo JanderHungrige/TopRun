@@ -3,7 +3,7 @@ id: 67-sub-flight
 title: Sub Flight - The Type 212 in the Mission; Water Drift, the Sonar Burst, Harpoon Bolts and the Brass Cockpit
 edition: TopRun
 depends_on: [66-sub-kit, 50-helicopter-flight, 61-cockpit-skins, 05-mission-combat]
-relates: [50-helicopter-flight, 66-sub-kit, 68-underwater-world, 61-cockpit-skins]
+relates: [50-helicopter-flight, 66-sub-kit, 68-underwater-world, 61-cockpit-skins, 74-world-order]
 source_files:
   - src/game/heli-flight.ts
   - src/game/sub-flight.ts
@@ -44,6 +44,8 @@ sister_projects: []
 ---
 
 # 67 — Sub Flight
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

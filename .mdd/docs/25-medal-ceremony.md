@@ -3,7 +3,7 @@ id: 25-medal-ceremony
 title: Medal Ceremony - Pixel-Art Award Cut-Scene, Medal and Ribbon-Bar Art
 edition: TopRun
 depends_on: [24-medals-core, 20-retro-look, 17-people-kit, 06-talking-characters]
-relates: [24-medals-core, 20-retro-look, 17-people-kit, 06-talking-characters]
+relates: [24-medals-core, 20-retro-look, 17-people-kit, 06-talking-characters, 75-world-ceremonies]
 source_files:
   - src/game/ceremony.ts
   - src/scenes/ceremony.ts
@@ -40,7 +40,7 @@ test_files:
   - tests/unit/ceremony-layers.test.ts
   - tests/unit/medal-art.test.ts
 data_flow: reads-existing
-last_synced: 2026-10-28
+last_synced: 2026-11-07
 status: complete
 phase: all
 mdd_version: 11
@@ -66,6 +66,8 @@ sister_projects: []
 ---
 
 # 25 — Medal Ceremony
+
+> **World ceremonies (doc 75, 2026-11-07):** on map 4 the ceremony stands on a submarine pier, on map 5 in a space hangar — each with its own picture and crew salute; the officers, card and medals are this doc's.
 
 ## Purpose
 

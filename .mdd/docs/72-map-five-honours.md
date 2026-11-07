@@ -3,7 +3,7 @@ id: 72-map-five-honours
 title: Map Five Honours - Seven Medals, World 5's Celebration, the Fifth Tape, the Rating's Fifth Map and a New Top Rank
 edition: TopRun
 depends_on: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 26-pilot-rating, 70-map-five-campaign]
-relates: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 58-map-four-campaign]
+relates: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 58-map-four-campaign, 74-world-order]
 source_files:
   - src/data/medals.ts
   - src/data/ranks.ts
@@ -44,6 +44,8 @@ sister_projects: []
 
 # 72 — Map Five Honours
 
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
+
 ## Purpose
 
 Wave 3 of Deep Water. The question round set it: **a full map** like the others — its medals and its celebration.
@@ -61,7 +63,9 @@ Everything follows docs 62 (world medals), 64 (celebrations), 63 (the TV) and 26
 - New emblems in `src/render/medals/emblems-3.ts`: `coral`, `kelp`, `anchor`, `chevron`, `lure`, `sub`.
 - Earned and awarded as in doc 62: a ribbon for the theater's boss cleared, the medal for m150, the star for three
   stars on all thirty.
-- **Locker:** 25 campaign ribbons now — the rack takes as many a row as keeps it at five rows (five a row at 25).
+- **Locker:** 25 campaign ribbons now — the rack takes as many a row as keeps it at five rows (five a row at 25), and
+  never grows wider than three full bars: four or five a row are smaller bars (≥ 24 × 7), so the rack stays on the
+  breast between the sleeve seam and the buttons (owner: *"Ribbons … are quite over the uniform borders"*).
 
 ## The celebration (doc 64's pattern)
 

@@ -35,8 +35,8 @@ import { DiveLaunchScene } from './dive-launch';
 /** Jets launch from the catapult, helicopters lift off the deck (doc 53), the spacecraft rides a rocket (doc 59), a sub
  *  dives out of the well deck (doc 71). */
 function takeoffScene(game: GameContext, mission: MissionDef): Scene {
-  if (mission.campaign === 5) return new DiveLaunchScene(game, mission);
-  if (mission.campaign === 4) return new RocketLaunchScene(game, mission);
+  if (mission.campaign === 4) return new DiveLaunchScene(game, mission);
+  if (mission.campaign === 5) return new RocketLaunchScene(game, mission);
   return mission.campaign === 3 ? new LiftoffScene(game, mission) : new TakeoffScene(game, mission);
 }
 
@@ -51,7 +51,7 @@ export function createScene(game: GameContext, route: Route): Scene {
     case 'joystick': return new JoystickSetupScene(game);
     case 'ladder': return new LadderScene(game);
     case 'map': return new MapScene(game, route.select);
-    case 'hangar': return game.save.kit === 'ship' ? new ShipyardScene(game) : new HangarScene(game); // map 4: the shipyard (doc 55)
+    case 'hangar': return game.save.kit === 'ship' ? new ShipyardScene(game) : new HangarScene(game); // map 5: the shipyard (docs 55, 74)
     case 'base': return new HangarBaseScene(game);
     case 'recRoom': return new BaseHubScene(game);
     case 'locker': return new LockerScene(game);

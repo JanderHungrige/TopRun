@@ -29,7 +29,7 @@ export class CelebrationScene implements Scene {
     preloadWorld(world);
     this.summary = worldSummary(game.save, world);
     const save = game.save;
-    const plane: PlaneId = world === 5 ? save.sub.selectedPlane : world === 4 ? 'starship' : world === 3 ? save.heli.selectedPlane : save.selectedPlane;
+    const plane: PlaneId = world === 4 ? save.sub.selectedPlane : world === 5 ? 'starship' : world === 3 ? save.heli.selectedPlane : save.selectedPlane;
     this.craft = { plane, livery: save.livery[plane] };
     this.speech = new SpeechBox(game.audio, {
       portrait: { x: 52, y: 556, w: 92, h: 110 },

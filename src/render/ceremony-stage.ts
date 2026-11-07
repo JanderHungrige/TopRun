@@ -1,14 +1,17 @@
 import { CEREMONY_LAYERS, type LayerBox } from '../data/ceremony-layers';
+import { CEREMONY_SETS } from '../data/ceremony-sets';
 import type { MedalId } from '../data/medals';
 import type { HairColor } from '../game/avatar-look';
-import { pilotCutout, type AdmiralPose, type PilotBase, type PilotPose, type SkinTone, type StagePlan } from '../game/ceremony-stage';
+import { pilotCutout, type AdmiralPose, type CeremonySet, type PilotBase, type PilotPose, type SkinTone, type StagePlan } from '../game/ceremony-stage';
 import { drawMedal, drawRibbonBar } from './medals';
 import { deviceScale, scratch } from './pixel/blit';
 import { makeCanvas } from './pixel/post';
 
 // Medal ceremony (doc 25), layered image version: the key frame's empty deck (with the crew row's saluting overlay
 // when they salute) and the pilot and admiral cut-outs on top, composed on the 320 × 180 art grid (4 logical px per
-// art px) and blitted once. The pilot's skin and hair are recoloured to the player's look; a few gulls glide by.
+// art px) and blitted once. The pilot's skin and hair are recoloured to the player's look; a few gulls glide by. Map 4's
+// and map 5's ceremonies stand on a submarine pier and in a space hangar (doc 75): their own picture and crew salute,
+// the same officers; the hangar's window stars twinkle instead of gulls.
 
 /** A cut-out's name in the layer table (camelCase of its file). */
 type Key = string;
@@ -41,6 +44,14 @@ const HAIR: Readonly<Record<HairColor, readonly string[]>> = {
   red: ['#561e10', '#86361a', '#b8562a'],
 };
 
+/** A stage's picture, its crew row's salute overlay, its window stars (x, y pairs) and whether gulls fly. */
+interface SetLook { plate: string; crew: { file: string; x: number; y: number } | null; stars: readonly number[]; gulls: boolean }
+const SETS: Readonly<Record<CeremonySet, SetLook>> = {
+  deck: { plate: 'plate', crew: CEREMONY_LAYERS.crewSalute, stars: [], gulls: true },
+  pier: { ...CEREMONY_SETS.pier, gulls: true },
+  hangar: { ...CEREMONY_SETS.hangar, gulls: false },
+};
+
 const images = new Map<string, HTMLImageElement>();
 
 function image(file: string): HTMLImageElement | null {
@@ -55,9 +66,11 @@ function image(file: string): HTMLImageElement | null {
   return img.complete && img.naturalWidth > 0 ? img : null;
 }
 
-/** Starts loading every layer (the scene's constructor), so the first frame has them. */
-export function preloadStage(): void {
-  image('plate');
+/** Starts loading the stage and every layer (the scene's constructor), so the first frame has them. */
+export function preloadStage(set: CeremonySet): void {
+  image(SETS[set].plate);
+  const crew = SETS[set].crew;
+  if (crew) image(crew.file);
   for (const box of Object.values(LAYERS)) image(box.file);
 }
 
@@ -141,21 +154,37 @@ function gulls(g: CanvasRenderingContext2D, t: number): void {
   }
 }
 
-export interface StageView { plan: StagePlan; base: PilotBase; skin: SkinTone; hair: HairColor; t: number }
+export interface StageView { set: CeremonySet; plan: StagePlan; base: PilotBase; skin: SkinTone; hair: HairColor; t: number }
+
+/** The window's stars, each twinkling at its own pace. */
+function twinkle(g: CanvasRenderingContext2D, stars: readonly number[], t: number): void {
+  for (let k = 0; k + 1 < stars.length; k += 2) {
+    const a = 0.3 + 0.7 * Math.abs(Math.sin(t * (0.6 + ((k / 2) % 5) * 0.25) + k));
+    g.fillStyle = `rgba(230,240,255,${a.toFixed(2)})`;
+    g.fillRect(stars[k] ?? 0, stars[k + 1] ?? 0, 1, 1);
+  }
+}
+
+/** The stage's picture with the crew row (saluting once they salute), the gulls or the stars. False while it loads. */
+function backdrop(g: CanvasRenderingContext2D, v: StageView): boolean {
+  const look = SETS[v.set];
+  const plate = image(look.plate);
+  if (!plate) return false;
+  g.clearRect(0, 0, ART_W, ART_H);
+  g.drawImage(plate, 0, 0);
+  const crewImg = v.plan.crewSalute && look.crew ? image(look.crew.file) : null;
+  if (look.crew && crewImg) g.drawImage(crewImg, look.crew.x, look.crew.y);
+  twinkle(g, look.stars, v.t);
+  if (look.gulls) gulls(g, v.t);
+  return true;
+}
 
 /** The whole scene stage on the 1280 × 720 frame; returns the grid (the card and medals draw on it). */
 export function drawStage(ctx: CanvasRenderingContext2D, v: StageView): StageGrid {
   const gr = stageGrid(ctx);
   const sc = scratch(ART_W, ART_H);
-  const plate = image('plate');
-  if (!sc || !plate) return gr;
+  if (!sc || !backdrop(sc.g, v)) return gr;
   const g = sc.g;
-  g.clearRect(0, 0, ART_W, ART_H);
-  g.drawImage(plate, 0, 0);
-  const crew = v.plan.crewSalute ? boxOf('crewSalute') : undefined;
-  const crewImg = crew ? image(crew.file) : null;
-  if (crew && crewImg) g.drawImage(crewImg, crew.x, crew.y);
-  gulls(g, v.t);
   const pk = pilotKey(v.base, v.plan.pilot);
   const pilot = pilotCanvas(pk, v.skin, v.hair);
   const pbox = boxOf(pk);

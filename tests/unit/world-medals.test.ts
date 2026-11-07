@@ -13,8 +13,8 @@ import { MEDALS_DE } from '../../src/i18n/medals-de';
 const MAP_MEDALS: Readonly<Record<2 | 3 | 4 | 5, readonly MedalId[]>> = {
   2: ['northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2'],
   3: ['fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3'],
-  4: ['orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4'],
-  5: ['reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5'],
+  4: ['reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5'], // the ids keep the sea's old map number (doc 74)
+  5: ['orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4'],
 };
 
 const flown = (c: CampaignId, stars: number, upTo = 30): SaveData['progress'] =>
@@ -54,7 +54,7 @@ describe('World medals (doc 62)', () => {
     expect(got).not.toContain('allstars');
   });
 
-  it('counts every medal for the rating and fits 25 ribbons on the dress whites, five a row', () => {
+  it('counts every medal for the rating and fits 25 ribbons on the dress whites, five smaller ones a row', () => {
     expect(RATING.maxMedals).toBe(46);
     expect(maxRating()).toBe(65500 + 46 * RATING.medal);
     const ribbons = MEDAL_IDS.filter((id) => MEDALS[id].look.shape === 'ribbon');
@@ -62,5 +62,11 @@ describe('World medals (doc 62)', () => {
     const slots = uniformLayout(ribbons).slots;
     expect(new Set(slots.map((s) => s.row)).size).toBe(5);
     expect(Math.min(...slots.map((s) => s.y))).toBeGreaterThanOrEqual(LOCKER_CHEST.minTop);
+    // The rack stays as wide as three full bars: five a row are smaller bars, still readable (doc 72).
+    const left = Math.min(...slots.map((s) => s.box.x));
+    const right = Math.max(...slots.map((s) => s.box.x + s.box.w));
+    expect(right - left).toBeLessThanOrEqual(3 * LOCKER_CHEST.ribbonW + 2 * 2 + 4);
+    expect(Math.min(...slots.map((s) => s.box.w))).toBeGreaterThanOrEqual(24);
+    expect(Math.min(...slots.map((s) => s.box.h))).toBeGreaterThanOrEqual(7);
   });
 });

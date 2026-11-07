@@ -1,8 +1,15 @@
+import type { CampaignId } from '../data/types';
 import type { AvatarLook } from './avatar-look';
 import type { Beat } from './ceremony';
 
 // Medal ceremony (doc 25), layered image version: which cut-out of the key frame each figure shows at a beat and
 // where the admiral stands. Pure; positions are art pixels on the 320 × 180 grid of the key frame.
+
+/** Where the ceremony is held (doc 75): the carrier deck, a submarine pier (map 4), a space-station hangar (map 5). */
+export type CeremonySet = 'deck' | 'pier' | 'hangar';
+const SET_OF: Readonly<Record<CampaignId, CeremonySet>> = { 1: 'deck', 2: 'deck', 3: 'deck', 4: 'pier', 5: 'hangar' };
+/** The stage of the world the pilot is on. */
+export const ceremonySet = (world: CampaignId): CeremonySet => SET_OF[world];
 
 export type AdmiralPose = 'walkA' | 'walkB' | 'stand' | 'pin' | 'salute';
 export type PilotPose = 'attention' | 'salute';

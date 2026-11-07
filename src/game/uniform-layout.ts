@@ -100,12 +100,13 @@ function medalRow(ids: readonly MedalId[], row: number, top: number, c: ChestFra
   });
 }
 
-function ribbonRow(ids: readonly MedalId[], row: number, top: number, c: ChestFrame): UniformSlot[] {
-  const gap = 2;
-  const x0 = c.ribbonCentre - (ids.length * c.ribbonW + (ids.length - 1) * gap) / 2;
+const RIBBON_GAP = 2;
+
+function ribbonRow(ids: readonly MedalId[], row: number, top: number, c: ChestFrame, w: number, h: number): UniformSlot[] {
+  const x0 = c.ribbonCentre - (ids.length * w + (ids.length - 1) * RIBBON_GAP) / 2;
   return ids.map((id, i) => {
-    const x = x0 + i * (c.ribbonW + gap);
-    return { id, kind: 'ribbon', row, x, y: top, size: c.ribbonH, box: { x, y: top, w: c.ribbonW, h: c.ribbonH } };
+    const x = x0 + i * (w + RIBBON_GAP);
+    return { id, kind: 'ribbon', row, x, y: top, size: h, box: { x, y: top, w, h } };
   });
 }
 
@@ -133,9 +134,19 @@ function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlo
  *  (four for maps 2–4, doc 62; five with map 5, doc 72). */
 const ribbonsPerRow = (count: number, c: ChestFrame): number => Math.max(c.ribbonsPerRow, Math.ceil(count / 5));
 
+/** A row never grows wider than three full-size bars: with more a row the bars get smaller, so the rack stays on the
+ *  breast between the sleeve seam and the buttons (owner, 2026-11-07). */
+export function ribbonSize(perRow: number, c: ChestFrame): { w: number; h: number } {
+  const most = c.ribbonsPerRow * c.ribbonW + (c.ribbonsPerRow - 1) * RIBBON_GAP + 4;
+  const w = Math.min(c.ribbonW, (most - (perRow - 1) * RIBBON_GAP) / perRow);
+  return { w, h: Math.max(7, (c.ribbonH * w) / c.ribbonW) };
+}
+
 function ribbonBlock(ids: readonly MedalId[], c: ChestFrame): UniformSlot[] {
-  const rows = rackRows(ids, ribbonsPerRow(ids.length, c));
-  return rows.flatMap((row, r) => ribbonRow(row, r, c.ribbonBottom - (rows.length - r) * (c.ribbonH + 2) + 2, c));
+  const perRow = ribbonsPerRow(ids.length, c);
+  const { w, h } = ribbonSize(perRow, c);
+  const rows = rackRows(ids, perRow);
+  return rows.flatMap((row, r) => ribbonRow(row, r, c.ribbonBottom - (rows.length - r) * (h + RIBBON_GAP) + RIBBON_GAP, c, w, h));
 }
 
 /** The rack for the earned medals (catalogue order). */

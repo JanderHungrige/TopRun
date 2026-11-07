@@ -3,7 +3,7 @@ id: 56-fourth-map
 title: Fourth Map - Space, Flown With the Spacecraft; Low Orbit (m91–m96), Three Space Enemies and the HALO Station
 edition: TopRun
 depends_on: [48-third-map, 54-spacecraft, 55-shipyard, 03-campaign-map, 05-mission-combat]
-relates: [48-third-map, 54-spacecraft, 55-shipyard, 47-admin-pilot]
+relates: [48-third-map, 54-spacecraft, 55-shipyard, 47-admin-pilot, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/missions.ts
@@ -51,6 +51,8 @@ sister_projects: []
 ---
 
 # 56 — Fourth Map
+
+> **World order (doc 74, 2026-11-07):** space is now **map 5, m121–m150**, the last world; under the sea is map 4. Mission numbers, map numbers and thresholds in this doc are from before the swap: add 30 to its mission numbers (m91 → m121), read map 4 as map 5. The world's own numbers (formulas from its first mission, pay ×8, prices) are unchanged.
 
 ## Purpose
 

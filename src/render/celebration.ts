@@ -53,14 +53,14 @@ const SPARKS: Readonly<Record<CampaignId, readonly string[]>> = {
   1: ['#ffd25a', '#ff7a5a', '#fff4d0', '#6fa8ee'],
   2: ['#c27bff', '#ffd25a', '#5fe3ff', '#ff5a8a'],
   3: ['#ff8a3d', '#ffd84a', '#98ff8a', '#fff4d0'],
-  4: ['#5fe3ff', '#ff6a8a', '#b088e8', '#fff4d0'],
-  5: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
+  4: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
+  5: ['#5fe3ff', '#ff6a8a', '#b088e8', '#fff4d0'],
 };
 
-/** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. Under the sea (world 5's
- *  first shot, doc 72) the bursts are rings of bubbles that rise and wobble. */
+/** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. Under the sea (world 4's
+ *  first shot, docs 72, 74) the bursts are rings of bubbles that rise and wobble. */
 export function drawFireworks(ctx: Ctx, world: CampaignId, t: number, shot = 0): void {
-  if (world === 5 && shot === 0) return bubbleBursts(ctx, t);
+  if (world === 4 && shot === 0) return bubbleBursts(ctx, t);
   const colours = SPARKS[world];
   for (let i = Math.max(0, Math.floor((t - 1.6) / 0.55)); i <= Math.floor(t / 0.55); i++) {
     const age = t - i * 0.55;

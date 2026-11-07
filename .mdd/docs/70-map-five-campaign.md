@@ -3,7 +3,7 @@ id: 70-map-five-campaign
 title: Map Five Campaign - Kelp Forest, Wreck Field, the Trench and the Abyss (m127–m150), Their Enemies and Bosses
 edition: TopRun
 depends_on: [65-fifth-map, 68-underwater-world, 58-map-four-campaign, 44-new-adversaries]
-relates: [65-fifth-map, 68-underwater-world, 69-sub-fleet, 58-map-four-campaign]
+relates: [65-fifth-map, 68-underwater-world, 69-sub-fleet, 58-map-four-campaign, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/missions-5.ts
@@ -47,6 +47,8 @@ sister_projects: []
 ---
 
 # 70 — Map Five Campaign
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

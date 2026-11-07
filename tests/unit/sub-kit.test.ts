@@ -14,9 +14,9 @@ import { defaultSave, parseSave, type SaveData } from '../../src/game/save';
 // The sub kit (doc 66): a second fleet kit beside the helicopters' — the Type 212 free, the harpoon gun, the MK48
 // and the depth mine, the seven equipment items at sub prices.
 
-const mapFive = (save: SaveData): SaveData =>
-  ({ ...save, progress: { ...save.progress, ...Object.fromEntries(ALL_MISSIONS.slice(0, 120).map((m) => [m.id, { stars: 2 }])) } });
-const rich = (): SaveData => mapFive({ ...defaultSave(), money: 9_000_000, gunLevel: 9 });
+const mapFour = (save: SaveData): SaveData =>
+  ({ ...save, progress: { ...save.progress, ...Object.fromEntries(ALL_MISSIONS.slice(0, 90).map((m) => [m.id, { stars: 2 }])) } });
+const rich = (): SaveData => mapFour({ ...defaultSave(), money: 9_000_000, gunLevel: 9 });
 
 describe('Sub kit (doc 66)', () => {
   it('starts the subs from zero with the Type 212 free, the jets and the helicopters untouched', () => {
@@ -25,7 +25,7 @@ describe('Sub kit (doc 66)', () => {
     expect(view).toMatchObject({ kit: 'sub', selectedPlane: 'u212', gunLevel: 1, gun2Level: 0, ammoLevel: 0 });
     expect(view.ownedPlanes).toContain('u212');
     expect(Object.values(view.equipment).every((l) => l === 0)).toBe(true);
-    expect(FLEET.sub).toMatchObject({ campaign: 5, starter: 'u212', price: SUB_PRICE, maxGun: 10 });
+    expect(FLEET.sub).toMatchObject({ campaign: 4, starter: 'u212', price: SUB_PRICE, maxGun: 10 });
   });
 
   it('writes a sub purchase into the sub kit and keeps the other kits as they were', () => {
@@ -42,7 +42,7 @@ describe('Sub kit (doc 66)', () => {
     expect(kitView(stored, 'sub')).toMatchObject({ gunLevel: 2, equipment: { armor: 1 } });
   });
 
-  it('sells the SUB PEN only sub goods, once map 5 is open', () => {
+  it('sells the SUB PEN only sub goods, once map 4 is open', () => {
     const save = rich();
     const subs = kitView(save, 'sub');
     const helis = kitView(save, 'heli');

@@ -3,7 +3,7 @@ id: 66-sub-kit
 title: Sub Kit - Attack Subs as a Kind of Plane, a Fresh Kit for Map 5, the SUB PEN Hangar
 edition: TopRun
 depends_on: [49-helicopter-kit, 65-fifth-map, 02-hangar-economy, 43-deep-arsenal]
-relates: [49-helicopter-kit, 65-fifth-map, 67-sub-flight, 47-admin-pilot]
+relates: [49-helicopter-kit, 65-fifth-map, 67-sub-flight, 47-admin-pilot, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/planes.ts
@@ -56,6 +56,8 @@ sister_projects: []
 ---
 
 # 66 — Sub Kit
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

@@ -3,7 +3,7 @@
 //   const pt = await import('/dev/playtest.ts');
 //   pt.heliKitAt(70)            → { kit: [...], cash, income }
 //   await pt.fly('m70', 3)      → three runs: hulls of damage per minute, kill share, objective, boss time
-//   await pt.flySub('m123', 3)  → the same on map 5 with the sub kit (doc 65)
+//   await pt.flySub('m93', 3)   → the same on map 4 with the sub kit (docs 65, 74)
 // The bot always fires, follows the boss or the nearest target, sidesteps rounds close above it, fires ground and air
 // weapons at matching targets, drops flares at incoming missiles and uses E when charged. It cannot die: damage is
 // counted (the mission's own perf.damage, i-frames included) but never taken off the hull.
@@ -74,8 +74,8 @@ export const SUB_ORDER: readonly Step[] = [
 /** The helicopter kit at the start of mission `n` (61–90), money from map 3 only, spent down HELI_ORDER in order. */
 export const heliKitAt = (n: number, list: readonly Step[] = HELI_ORDER): KitAt => fleetKitAt('heli', 61, n, list);
 
-/** The sub kit at the start of mission `n` (121–), money from map 5 only, spent down SUB_ORDER in order. */
-export const subKitAt = (n: number, list: readonly Step[] = SUB_ORDER): KitAt => fleetKitAt('sub', 121, n, list);
+/** The sub kit at the start of mission `n` (91–120), money from map 4 only, spent down SUB_ORDER in order. */
+export const subKitAt = (n: number, list: readonly Step[] = SUB_ORDER): KitAt => fleetKitAt('sub', 91, n, list);
 
 interface KitAt { save: SaveData; bought: string[]; cash: number; earned: number }
 
@@ -200,18 +200,18 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
   return { kit, results };
 }
 
-/** `runs` runs of `id` (121–) with the sub kit a buying pilot owns at that mission (doc 65), steered in `sub` (default:
+/** `runs` runs of `id` (91–120) with the sub kit a buying pilot owns at that mission (doc 65), steered in `sub` (default:
  *  the sub the kit has; doc 69). */
 export async function flySub(id: string, runs = 3, sub?: PlaneId): Promise<{ kit: string; results: RunResult[] }> {
   const k = subKitAt(Number(id.slice(1))).save;
   const s = sub ? loadOut({ ...k, ownedPlanes: [...k.ownedPlanes, sub], selectedPlane: sub }) : k;
   const results: RunResult[] = [];
   for (let i = 0; i < runs; i++) results.push(await run(id, s));
-  const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 5).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
+  const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 4).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
   return { kit, results };
 }
 
-// ---------- Map 4: the spacecraft (doc 54) ----------
+// ---------- Map 5: the spacecraft (docs 54, 74) ----------
 
 type ShipStep = ModuleId | 'power' | `mk:${ShipMarkFamily}`;
 
@@ -252,13 +252,13 @@ function autoPlace(ship: SaveData['ship'], id: ModuleId): SaveData['ship'] {
   return ship;
 }
 
-/** The ship at the start of mission `n` (91–), money from map 4 only, bought down SHIP_ORDER and placed by autoPlace. */
+/** The ship at the start of mission `n` (121–150), money from map 5 only, bought down SHIP_ORDER and placed by autoPlace. */
 export function shipKitAt(n: number): { save: SaveData; earned: number } {
   const cleared = Object.fromEntries(Array.from({ length: n - 1 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 2 }]));
   let save = kitView({ ...defaultSave(), money: 0, progress: cleared }, 'ship');
   let next = 0;
   let earned = 0;
-  for (let k = 91; k < n; k++) {
+  for (let k = 121; k < n; k++) {
     const m = missionById(`m${k}`);
     if (!m) break;
     earned += income(m);

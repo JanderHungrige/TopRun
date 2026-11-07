@@ -79,5 +79,5 @@ export function afterDebrief(o: { finale: boolean; world: CampaignId; medals: re
   return o.finale && CELEBRATED.includes(o.world) ? { to: 'celebration', world: o.world, then: honours } : honours;
 }
 
-/** The worlds whose celebration exists (docs 64, 72): every world's, world 5's since Deep Water's wave 3. */
+/** The worlds whose celebration exists (docs 64, 72): every world's, the sea's since Deep Water's wave 3. */
 export const CELEBRATED: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5] as const);

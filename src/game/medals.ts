@@ -19,8 +19,8 @@ const MAP_MEDAL: Readonly<Partial<Record<MedalId, { map: CampaignId; kind: 'vict
   victory: { map: 1, kind: 'victory' }, allstars: { map: 1, kind: 'stars' },
   victory2: { map: 2, kind: 'victory' }, allstars2: { map: 2, kind: 'stars' },
   victory3: { map: 3, kind: 'victory' }, allstars3: { map: 3, kind: 'stars' },
-  victory4: { map: 4, kind: 'victory' }, allstars4: { map: 4, kind: 'stars' },
-  victory5: { map: 5, kind: 'victory' }, allstars5: { map: 5, kind: 'stars' },
+  victory5: { map: 4, kind: 'victory' }, allstars5: { map: 4, kind: 'stars' }, // the sea's: map 4 since doc 74
+  victory4: { map: 5, kind: 'victory' }, allstars4: { map: 5, kind: 'stars' }, // space's: map 5 since doc 74
 };
 
 const bossCleared = (progress: SaveData['progress'], theater: TheaterId): boolean =>

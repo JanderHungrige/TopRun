@@ -3,7 +3,7 @@ id: 72-map-five-honours
 title: Map Five Honours - Seven Medals, World 5's Celebration, the Fifth Tape, the Rating's Fifth Map and a New Top Rank
 edition: TopRun
 depends_on: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 26-pilot-rating, 70-map-five-campaign]
-relates: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 58-map-four-campaign]
+relates: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 58-map-four-campaign, 74-world-order]
 source_files:
   - src/data/medals.ts
   - src/data/ranks.ts
@@ -43,6 +43,8 @@ sister_projects: []
 ---
 
 # 72 — Map Five Honours
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

@@ -3,7 +3,7 @@ id: 73-home-docks
 title: Home Docks - The Base Becomes a Space-Station Dock on Map 4 and an Underwater Dock on Map 5
 edition: TopRun
 depends_on: [30-hangar-base, 63-hangar-tv, 40-chalkboard, 65-fifth-map, 56-fourth-map]
-relates: [30-hangar-base, 63-hangar-tv, 64-world-celebrations]
+relates: [30-hangar-base, 63-hangar-tv, 64-world-celebrations, 74-world-order]
 source_files:
   - src/data/base-areas.ts
   - src/data/base-docks.ts
@@ -42,6 +42,8 @@ sister_projects: []
 ---
 
 # 73 — Home Docks
+
+> **World order (doc 74, 2026-11-07):** under the sea is now map 4 (m91–m120) and space map 5 (m121–m150); what this doc says of map 4 / world 4 applies to space, now map 5, and of map 5 / world 5 to the sea, now map 4 (plates renamed: `w4*` the sea's, `w5*` space's; the sea dock on map 4, the space dock on map 5).
 
 ## Purpose
 

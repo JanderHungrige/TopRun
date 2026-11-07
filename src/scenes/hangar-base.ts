@@ -32,7 +32,7 @@ const DIRS: readonly NavDir[] = ['left', 'right', 'up', 'down'];
 /**
  * BASE (doc 30): the home-base hangar in animated pixel art. The highlight moves between the areas (arrows,
  * hover), the pilot walks to the highlighted one, ENTER / click opens it once the pilot gets there; ESC → map.
- * Coming from map 4 it is the space dock, from map 5 the sea dock (doc 73).
+ * Coming from map 4 it is the sea dock, from map 5 the space dock (docs 73, 74).
  */
 export class HangarBaseScene implements Scene {
   private time = 0;

@@ -31,9 +31,9 @@ const WON: Readonly<Record<CampaignId, UiKey>> = {
   1: 'map.campaignComplete', 2: 'map.campaign2Complete', 3: 'map.campaign3Complete', 4: 'map.campaign4Complete', 5: 'map.campaign5Complete',
 };
 /** Threat triangles: red on map 1, violet on map 2 (doc 35), orange on map 3 (doc 48). */
-const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#7fb4ff', 5: '#5ff0e0' };
-/** The briefing's craft line by map (docs 49, 66); map 4 shows the ship instead. */
-const YOUR: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.yourJet', 2: 'map.yourJet', 3: 'map.yourHeli', 4: 'map.yourShip', 5: 'map.yourSub' };
+const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#5ff0e0', 5: '#7fb4ff' };
+/** The briefing's craft line by map (docs 49, 66); map 5 shows the ship instead (doc 74). */
+const YOUR: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.yourJet', 2: 'map.yourJet', 3: 'map.yourHeli', 4: 'map.yourSub', 5: 'map.yourShip' };
 
 export class MapScene implements Scene {
   private t = 0;
@@ -224,7 +224,7 @@ export class MapScene implements Scene {
 
   private renderLoadout(ctx: CanvasRenderingContext2D, x: number, y: number): void {
     const s = this.game.save;
-    if (this.campaign === 4) return this.renderShip(ctx, x, y);
+    if (this.campaign === 5) return this.renderShip(ctx, x, y);
     const weapons = s.loadout[s.selectedPlane].map((id) => (id ? SECONDARIES[id].short : '—')).join(' / ');
     text(ctx, t(YOUR[this.campaign]), x, y, { size: 11, color: COLORS.dim, letterSpacing: 1.5 });
     const level = s.gun2Level > 0 && doubleFirepower(s.selectedPlane) ? `${jetGunLevel(s.selectedPlane, s.gunLevel)} + ${s.gun2Level}` : String(jetGunLevel(s.selectedPlane, s.gunLevel));
@@ -233,7 +233,7 @@ export class MapScene implements Scene {
     this.renderTag(ctx, x, y);
   }
 
-  /** Map 4 (doc 56): the spacecraft — modules, hull, laser level. */
+  /** Map 5 (docs 56, 74): the spacecraft — modules, hull, laser level. */
   private renderShip(ctx: CanvasRenderingContext2D, x: number, y: number): void {
     const s = this.game.save;
     const st = shipStats(s.ship);

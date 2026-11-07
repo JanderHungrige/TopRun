@@ -5,9 +5,10 @@ export type MedalId =
   // Maps 2–4 (doc 62).
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead' | 'victory2' | 'allstars2'
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall' | 'victory3' | 'allstars3'
-  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep' | 'victory4' | 'allstars4'
-  // Map 5 (doc 72).
+  // Under the sea (doc 72; map 4 since doc 74 — the ids keep the world's old number).
   | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss' | 'victory5' | 'allstars5'
+  // Space (doc 62; map 5 since doc 74).
+  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep' | 'victory4' | 'allstars4'
   | 'ace' | 'topace' | 'giant' | 'untouchable' | 'gunslinger' | 'catapult'
   | 'offduty5' | 'offduty10' | 'sorties25' | 'sorties100' | 'triple';
 
@@ -15,8 +16,8 @@ export const MEDAL_IDS: readonly MedalId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan', 'victory', 'allstars',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3',
-  'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
   'reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5',
+  'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
   'ace', 'topace', 'giant', 'untouchable', 'gunslinger', 'catapult',
   'offduty5', 'offduty10', 'sorties25', 'sorties100', 'triple',
 ] as const);
@@ -66,7 +67,7 @@ const WORLD_MEDALS = {
   deep: m('deep', 'campaign', 'Deep Space Campaign Ribbon', 'For bringing down the mothership ARK past the last star.', ['#1a0a24', '#ff6a8a', '#7a6488'], 'ribbon', 'gold'),
   victory4: m('victory4', 'campaign', 'Deep Space Medal', 'For flying all thirty missions of the war in space to victory.', ['#0a1630', '#5fe3ff', '#e9f2f7'], 'star', 'gold'),
   allstars4: m('allstars4', 'campaign', 'Golden Star, Deep Space', 'For three stars on every single mission in space.', ['#ffd25a', '#0a1630', '#ffd25a'], 'star', 'gold'),
-  // Map 5 (doc 72).
+  // Under the sea (doc 72), map 4 since doc 74.
   reef: m('reef', 'campaign', 'Coral Reef Campaign Ribbon', 'For sinking the hunter-killer sub BARRACUDA at the edge of the reef.', ['#0f6a7c', '#ff8a78', '#d8d6aa'], 'ribbon', 'bronze'),
   kelp: m('kelp', 'campaign', 'Kelp Forest Campaign Ribbon', 'For cutting down MEDUSA, queen of the jellyfish, in the kelp.', ['#0e3a34', '#8ff07a', '#c8d86a'], 'ribbon', 'bronze'),
   wrecks: m('wrecks', 'campaign', 'Wreck Field Campaign Ribbon', 'For cracking the seabed fortress BASTION among the wrecks.', ['#1a3a50', '#b8743e', '#a6a89a'], 'ribbon', 'silver'),

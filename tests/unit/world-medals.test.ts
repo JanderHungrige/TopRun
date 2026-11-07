@@ -13,8 +13,8 @@ import { MEDALS_DE } from '../../src/i18n/medals-de';
 const MAP_MEDALS: Readonly<Record<2 | 3 | 4 | 5, readonly MedalId[]>> = {
   2: ['northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2'],
   3: ['fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3'],
-  4: ['orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4'],
-  5: ['reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5'],
+  4: ['reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5'], // the ids keep the sea's old map number (doc 74)
+  5: ['orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4'],
 };
 
 const flown = (c: CampaignId, stars: number, upTo = 30): SaveData['progress'] =>

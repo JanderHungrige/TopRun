@@ -5,7 +5,7 @@ import { EQUIPMENT_IDS, type CampaignId, type EquipmentId, type GunLevel, type P
 import type { SaveData } from './save';
 import type { Route } from './state';
 
-// One wallet, several kits (docs 49, 66): the jets fly maps 1–2, the helicopters map 3, the ship map 4, the subs map 5;
+// One wallet, several kits (docs 49, 66, 74): the jets fly maps 1–2, the helicopters map 3, the subs map 4, the ship map 5;
 // the helicopters and the subs are fleet kits of their own that start from zero. The scenes see a kit view of the save —
 // for a fleet kit the jet-kit fields are swapped for the fleet's — so the hangar, the shop and the loadout code work
 // unchanged on every kit. Pure.
@@ -19,7 +19,7 @@ export interface FleetKit {
   equipment: Record<EquipmentId, number>;
 }
 
-const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'ship', 5: 'sub' };
+const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'sub', 5: 'ship' };
 
 export const kitOf = (c: CampaignId): Kit => KIT_OF[c];
 

@@ -26,7 +26,7 @@ export type ShipBuyFailure = 'locked' | 'max' | 'insufficient-funds';
 export type ShipCheck = { ok: true } | { ok: false; reason: ShipBuyFailure };
 
 function check(save: SaveData, price: number | null): ShipCheck {
-  if (!mapOpen(save, 4)) return { ok: false, reason: 'locked' };
+  if (!mapOpen(save, 5)) return { ok: false, reason: 'locked' };
   if (price === null) return { ok: false, reason: 'max' };
   return save.money < price ? { ok: false, reason: 'insufficient-funds' } : { ok: true };
 }

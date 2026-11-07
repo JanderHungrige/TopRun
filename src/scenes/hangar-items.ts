@@ -265,6 +265,6 @@ export function gunSummary(level: number, twin = false, fleet?: FleetKitId): str
 
 export function secondaryTargets(id: (typeof SECONDARY_IDS)[number]): string {
   const { hits, campaign } = SECONDARIES[id];
-  if (campaign === 5) return t(hits === 'ground' ? 'hangar.targetsSeabed' : 'hangar.targetsWater'); // under the sea (doc 66)
+  if (campaign === 4) return t(hits === 'ground' ? 'hangar.targetsSeabed' : 'hangar.targetsWater'); // under the sea (docs 66, 74)
   return t(hits === 'any' ? 'hangar.targetsAny' : hits === 'air' ? 'hangar.targetsAir' : 'hangar.targetsGround');
 }

@@ -3,7 +3,7 @@ id: 58-map-four-campaign
 title: Map Four Campaign - m97–m120 in Four More Theaters, Four Bosses Ending With the ARK, New Space Enemies, Ranks for Four Maps
 edition: TopRun
 depends_on: [56-fourth-map, 57-space-arsenal, 26-pilot-rating, 44-new-adversaries]
-relates: [56-fourth-map, 48-third-map, 27-online-ladder]
+relates: [56-fourth-map, 48-third-map, 27-online-ladder, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/missions-4.ts
@@ -52,6 +52,8 @@ sister_projects: []
 ---
 
 # 58 — Map Four Campaign
+
+> **World order (doc 74, 2026-11-07):** space is now **map 5, m121–m150**, the last world; under the sea is map 4. Mission numbers, map numbers and thresholds in this doc are from before the swap: add 30 to its mission numbers (m91 → m121), read map 4 as map 5. The world's own numbers (formulas from its first mission, pay ×8, prices) are unchanged.
 
 ## Purpose
 

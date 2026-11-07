@@ -19,8 +19,8 @@ const STRIPES: Readonly<Record<RankId, readonly Stripe[]>> = {
   fadm: ['wide', 'mid', 'mid', 'mid', 'mid'],
   legend: ['wide', 'mid', 'wide'],
   ace: ['wide', 'wide', 'wide'],
-  staradm: ['wide', 'wide', 'wide', 'wide'],
-  deepadm: ['wide', 'wide', 'wide', 'wide', 'wide'],
+  deepadm: ['wide', 'wide', 'wide', 'wide'],
+  staradm: ['wide', 'wide', 'wide', 'wide', 'wide'],
 };
 
 export const RANK_KEY: Readonly<Record<RankId, UiKey>> = {

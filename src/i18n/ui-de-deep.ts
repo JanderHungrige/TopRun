@@ -1,11 +1,11 @@
 // Deep Water UI strings (docs 65–68) — German; keys must match ui-en-deep.ts.
 export const UI_DE_DEEP = {
-  'map.title5': 'TIEFSEE',
+  'map.title4': 'TIEFSEE',
   'rank.deepadm': 'Admiral der Tiefe',
-  'map.campaign5Complete': '🎖 TIEFSEE GEWONNEN',
-  'map.globeLocked5': 'Öffnet nach Mission 120',
+  'map.campaign4Complete': '🎖 TIEFSEE GEWONNEN',
+  'map.globeLocked4': 'Öffnet nach Mission 90',
   'map.yourSub': 'DEIN U-BOOT',
-  'debrief.finale5': '🎖  TIEFSEE GEWONNEN  🎖',
+  'debrief.finale4': '🎖  TIEFSEE GEWONNEN  🎖',
   'hangar.titleSubs': 'U-BOOT-BUNKER',
   'hangar.tabSubs': 'U-BOOTE',
   'hangar.subGunName': 'Harpunenkanone',

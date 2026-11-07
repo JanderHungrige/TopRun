@@ -3,7 +3,7 @@ id: 65-fifth-map
 title: Fifth Map - Under the Sea, Flown With Attack Subs; the Coral Reef (m121–m126) and the BARRACUDA
 edition: TopRun
 depends_on: [56-fourth-map, 58-map-four-campaign, 48-third-map, 03-campaign-map, 05-mission-combat]
-relates: [56-fourth-map, 66-sub-kit, 67-sub-flight, 68-underwater-world, 47-admin-pilot]
+relates: [56-fourth-map, 66-sub-kit, 67-sub-flight, 68-underwater-world, 47-admin-pilot, 74-world-order]
 source_files:
   - src/data/types.ts
   - src/data/missions.ts
@@ -54,6 +54,8 @@ sister_projects: []
 ---
 
 # 65 — Fifth Map
+
+> **World order (doc 74, 2026-11-07):** under the sea is now **map 4, m91–m120**; space is map 5, the last world. Mission numbers, map numbers and thresholds in this doc are from before the swap: take 30 off its mission numbers (m121 → m91), read map 5 as map 4. The world's own numbers (formulas from its first mission, pay ×10, prices) are unchanged.
 
 ## Purpose
 

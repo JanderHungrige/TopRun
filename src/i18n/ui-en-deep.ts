@@ -1,11 +1,11 @@
-// Deep Water UI strings (docs 65–68): map 5, the SUB PEN.
+// Deep Water UI strings (docs 65–68): map 4 (doc 74), the SUB PEN.
 export const UI_EN_DEEP = {
-  'map.title5': 'DEEP WATER',
+  'map.title4': 'DEEP WATER',
   'rank.deepadm': 'Admiral of the Deep',
-  'map.campaign5Complete': '🎖 DEEP WATER WON',
-  'map.globeLocked5': 'Opens after mission 120',
+  'map.campaign4Complete': '🎖 DEEP WATER WON',
+  'map.globeLocked4': 'Opens after mission 90',
   'map.yourSub': 'YOUR SUB',
-  'debrief.finale5': '🎖  DEEP WATER WON  🎖',
+  'debrief.finale4': '🎖  DEEP WATER WON  🎖',
   'hangar.titleSubs': 'SUB PEN',
   'hangar.tabSubs': 'SUBS',
   'hangar.subGunName': 'Harpoon Gun',

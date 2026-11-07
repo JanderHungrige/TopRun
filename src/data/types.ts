@@ -36,8 +36,8 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
 
 export type SpecialId = 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour' | 'sonar';
 
-/** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–m120, space, doc 56),
- *  map 5 (m121–, under the sea, doc 65). */
+/** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–m120, under the sea,
+ *  doc 65), map 5 (m121–m150, space, doc 56) — in that order since doc 74. */
 export type CampaignId = 1 | 2 | 3 | 4 | 5;
 export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5] as const);
 
@@ -45,14 +45,14 @@ export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
   | 'northsea' | 'himalaya' | 'jungle' | 'nightfall' | 'thunderhead'
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall'
-  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep'
-  | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss';
+  | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss'
+  | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall',
-  'orbit', 'belt', 'moon', 'rings', 'deep',
   'reef', 'kelp', 'wrecks', 'trench', 'abyss',
+  'orbit', 'belt', 'moon', 'rings', 'deep',
 ] as const);
 
 export type EnemyKind =

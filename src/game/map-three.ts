@@ -10,9 +10,10 @@ export const MAP_THREE = Object.freeze({
   ramp: 0.03,
 });
 
-/** Map 4 (doc 56) pays the same way on its own scale, from m91; map 5 (doc 65) from m121. */
-export const MAP_FOUR = Object.freeze({ from: 90, pay: 8, ramp: 0.03 });
-export const MAP_FIVE = Object.freeze({ from: 120, pay: 10, ramp: 0.03 });
+/** Map 4 (under the sea, doc 65) pays the same way on its own scale, from m91; map 5 (space, doc 56) from m121. Each
+ *  world kept its pay when the worlds swapped places (doc 74): its shop is priced on it. */
+export const MAP_FOUR = Object.freeze({ from: 90, pay: 10, ramp: 0.03 });
+export const MAP_FIVE = Object.freeze({ from: 120, pay: 8, ramp: 0.03 });
 
 export const onMapThree = (missionNumber: number): boolean => missionNumber > MAP_THREE.from;
 export const onMapFour = (missionNumber: number): boolean => missionNumber > MAP_FOUR.from;

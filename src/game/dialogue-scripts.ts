@@ -76,8 +76,8 @@ export function debriefScript(d: DebriefInput): LineRef[] {
       lines.push(ref('admiral', 'adm.newJets', 'happy', 'point')); // and its jets are on sale (doc 36)
     }
     if (m.campaign === 2) lines.push(ref('admiral', 'adm.lowLevel', 'neutral', 'point')); // map 3 is open now (doc 48)
-    if (m.campaign === 3) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 4 is open now (doc 56)
-    if (m.campaign === 4) lines.push(ref('admiral', 'adm.deepWater', 'neutral', 'point')); // map 5 is open now (doc 65)
+    if (m.campaign === 3) lines.push(ref('admiral', 'adm.deepWater', 'neutral', 'point')); // map 4, under the sea, is open now (doc 74)
+    if (m.campaign === 4) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 5, space, is open now (doc 74)
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));

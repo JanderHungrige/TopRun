@@ -13,8 +13,8 @@ import { buyShipMark, canBuyShipMark, markValue, shipMarkPrice } from '../../src
 const { col: C, row: R } = GRID.core;
 const bare = (stock: Partial<Record<ModuleId, number>>, marks: Partial<ShipKit['marks']> = {}): ShipKit =>
   ({ ...freshShip(), modules: [], stock: { ...freshShip().stock, ...stock }, marks: { ...freshShip().marks, ...marks } });
-const mapFour = (money: number): SaveData =>
-  ({ ...defaultSave(), money, progress: Object.fromEntries(Array.from({ length: 90 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 1 }])) });
+const mapFive = (money: number): SaveData =>
+  ({ ...defaultSave(), money, progress: Object.fromEntries(Array.from({ length: 120 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 1 }])) });
 
 describe('Space arsenal (doc 57)', () => {
   it('fits a torpedo bay with a clear line ahead; it draws one power', () => {
@@ -45,7 +45,7 @@ describe('Space arsenal (doc 57)', () => {
   });
 
   it('arms one station per weapon: ammo and damage from the mark, times the copies', () => {
-    let save = mapFour(0);
+    let save = mapFive(0);
     let ship = bare({ rockets: 2, torpedo: 1, reactor: 1 }, { rockets: 3, torpedo: 1 });
     ship = place(ship, 'rockets', C - 1, R);
     ship = place(ship, 'rockets', C + 1, R);
@@ -60,9 +60,9 @@ describe('Space arsenal (doc 57)', () => {
     expect(stats.secondaries[1]?.weapon.damage).toBe(300);
   });
 
-  it('sells marks II–V at the module price × 1.5 / 4 / 6 / 9 once map 4 is open, even before the module', () => {
+  it('sells marks II–V at the module price × 1.5 / 4 / 6 / 9 once map 5 is open, even before the module', () => {
     expect(canBuyShipMark({ ...defaultSave(), money: 9e6 }, 'plate')).toEqual({ ok: false, reason: 'locked' });
-    let s = mapFour(1_000_000);
+    let s = mapFive(1_000_000);
     const prices: (number | null)[] = [];
     for (let k = 0; k < 4; k++) {
       prices.push(shipMarkPrice(s, 'plate'));

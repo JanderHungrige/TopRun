@@ -8,8 +8,8 @@ import { areaAt, arrivedAt, neighbour, walkerAt } from '../../src/game/base-hang
 const inside = (r: { x: number; y: number; w: number; h: number }): boolean => r.x >= 0 && r.y >= 0 && r.x + r.w <= 1280 && r.y + r.h <= 720;
 
 describe('Home docks (doc 73)', () => {
-  it('shows the carrier hangar on maps 1–3, the space dock on map 4, the sea dock on map 5', () => {
-    expect([1, 2, 3, 4, 5].map((c) => baseLookOf(c as 1 | 2 | 3 | 4 | 5))).toEqual(['carrier', 'carrier', 'carrier', 'space', 'sea']);
+  it('shows the carrier hangar on maps 1–3, the sea dock on map 4, the space dock on map 5 (doc 74)', () => {
+    expect([1, 2, 3, 4, 5].map((c) => baseLookOf(c as 1 | 2 | 3 | 4 | 5))).toEqual(['carrier', 'carrier', 'carrier', 'sea', 'space']);
     expect(baseAreas('carrier')).toBe(BASE_AREAS);
   });
 

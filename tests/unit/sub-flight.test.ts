@@ -8,7 +8,7 @@ import { DRIFT, fleetVelocity, flightScroll, SONAR, sonarHits, sonarRadius, SUB_
 
 describe('Sub flight (doc 67)', () => {
   it('scrolls the seabed slower than the helicopters fly, the jets and the ship at full speed', () => {
-    expect([1, 2, 3, 4, 5].map((c) => flightScroll(c as 1 | 2 | 3 | 4 | 5))).toEqual([1, 1, HELI_FLIGHT.scroll, 1, SUB_FLIGHT.scroll]);
+    expect([1, 2, 3, 4, 5].map((c) => flightScroll(c as 1 | 2 | 3 | 4 | 5))).toEqual([1, 1, HELI_FLIGHT.scroll, SUB_FLIGHT.scroll, 1]); // the sea is map 4 (doc 74)
     expect(SUB_FLIGHT.scroll).toBeLessThan(HELI_FLIGHT.scroll);
   });
 

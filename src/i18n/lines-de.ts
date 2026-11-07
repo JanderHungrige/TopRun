@@ -76,20 +76,20 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Und es gibt eine dritte Front: Tiefflug, nur Hubschrauber. Die Jets bleiben daheim. Sieh dir den Globus an, {callsign}.',
   ],
   'adm.space': [
-    'Noch eine Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
+    'Eine letzte Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
   ],
   'adm.celebrate1': ["Die ganze Flotte ist stolz auf dich, {callsign}. Heute Abend wird gefeiert, morgen wird die Welt größer."],
   'adm.celebrate2': ["Zwei Fronten, ein Pilot. {callsign}, in jedem Bereitschaftsraum wird man von dir erzählen."],
   'adm.celebrate3': ["Von den Decks bis in die Täler, {callsign}. Ob Rotor oder Flügel: Du bringst sie immer heim."],
-  'adm.celebrate4': ["Du hast den Krieg zu den Sternen getragen und gewonnen, {callsign}. Sieh hinunter: Das ist die Welt, die du gerettet hast."],
-  'adm.celebrate5': ["Himmel, Weltall und jetzt die Tiefsee, {callsign}. Es gibt kein Wasser mehr, in dem sie sich verstecken können."],
+  'adm.celebrate4': ["Vom Himmel bis auf den Meeresgrund, {callsign}. Es gibt kein Wasser mehr, in dem sie sich verstecken können."],
+  'adm.celebrate5': ["Du hast den Krieg zu den Sternen getragen und gewonnen, {callsign}. Sieh hinunter: Das ist die Welt, die du gerettet hast."],
   'adm.deepWater': [
-    'Na ja, fast keinen. Was von ihnen übrig ist, ist unter das Meer abgetaucht. In deinem U-Boot-Bunker wartet ein Boot, {callsign}. Sieh dir den Globus an.',
-  ],
-  'adm.finale5': [
-    'Der Abgrund ist still, {callsign}. Du hast sie bis auf den Meeresgrund gejagt.',
+    'Und es gibt noch eine Front: Was von ihnen übrig ist, ist unter das Meer abgetaucht. In deinem U-Boot-Bunker wartet ein Boot, {callsign}. Sieh dir den Globus an.',
   ],
   'adm.finale4': [
+    'Der Abgrund ist still, {callsign}. Du hast sie bis auf den Meeresgrund gejagt.',
+  ],
+  'adm.finale5': [
     'Das war die letzte Grenze, {callsign}. Es gibt keinen Ort mehr, an den sie fliehen können.',
   ],
   'adm.finale3': [

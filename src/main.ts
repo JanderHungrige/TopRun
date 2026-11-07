@@ -29,6 +29,7 @@ import { HangarScene } from './scenes/hangar';
 import { MapScene } from './scenes/map';
 import { MissionScene } from './scenes/mission/mission-scene';
 import { NewPilotScene } from './scenes/new-pilot';
+import { LiftoffScene } from './scenes/liftoff';
 import { AvatarBuilderScene } from './scenes/avatar-builder';
 import { BaseHubScene } from './scenes/base-hub';
 import { CeremonyScene } from './scenes/ceremony';
@@ -225,8 +226,8 @@ function createScene(game: GameContext, route: Route): Scene {
       const mod = moduleFor(route.id);
       return mod ? new MinigameScene(game, mod, route.from) : new BaseHubScene(game);
     }
-    // Map 3 starts in the air until the helicopters' deck liftoff (doc 48, wave 4).
-    case 'takeoff': return route.mission.campaign === 3 ? new MissionScene(game, route.mission, 'skipped') : new TakeoffScene(game, route.mission);
+    // Map 3 takes off from the deck by helicopter (doc 53).
+    case 'takeoff': return route.mission.campaign === 3 ? new LiftoffScene(game, route.mission) : new TakeoffScene(game, route.mission);
     case 'mission': return new MissionScene(game, route.mission, route.takeoff);
     case 'debrief': return new DebriefScene(game, route.mission, route.result);
     default: throw new Error(`unhandled: ${route satisfies never}`);

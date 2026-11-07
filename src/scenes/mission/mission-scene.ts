@@ -11,9 +11,9 @@ import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
 import { bossTitle, enemyName, missionName, objectiveText } from '../../i18n/content';
 import { getLang, t } from '../../i18n/i18n';
-import { COLORS, text } from '../../render/text';
+import { COLORS } from '../../render/text';
 import { pilotContext } from '../../ui/speech';
-import { ButtonGroup, drawPanel, hit } from '../../ui/widgets';
+import { ButtonGroup, hit } from '../../ui/widgets';
 import { Boss } from './boss';
 import { spawnEnemy, updateEnemies } from './enemy-ai';
 import { drawLeftConsole, drawRightConsole } from '../../render/cockpit';
@@ -28,13 +28,8 @@ import { updateCombat } from './projectiles';
 import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
 import { PF_H, PF_W, PF_X, World } from './world';
-
-interface Banner {
-  title: string;
-  sub: string;
-  color: string;
-  time: number;
-}
+import { tickCanyon } from './canyon-run';
+import { renderBanner, renderPause, type Banner } from './mission-overlay';
 
 const PLAYFIELD = { x: PF_X, y: 0, w: PF_W, h: PF_H };
 
@@ -155,6 +150,7 @@ export class MissionScene implements Scene {
     w.jammed = jamming(w.enemies, PF_H);
     this.spawnEvents();
     w.terrain.update(dt, w.scrollSpeed);
+    tickCanyon(w, p, this.game.audio, () => this.canyonWarning());
     for (const wr of w.wrecks) wr.y += w.scrollSpeed * dt;
     updateEnemies(w, p, dt, this.game.audio);
     w.boss?.update(dt, w, p, this.game.audio);
@@ -178,6 +174,12 @@ export class MissionScene implements Scene {
         this.game.music.play('boss');
       }
     }
+  }
+
+  /** CANYON AHEAD: a gorge whose walls crash the helicopter is four seconds away (doc 52). */
+  private canyonWarning(): void {
+    this.banner = { title: t('mission.canyon'), sub: t('mission.canyonSub'), color: COLORS.gold, time: 3.5 };
+    this.game.audio.play('warning');
   }
 
   /** WARNING banner, siren and the wingman's call: a boss or a mini-boss (doc 44) is coming. */
@@ -226,7 +228,7 @@ export class MissionScene implements Scene {
     this.ending = { success, timer: 0 };
     p.invuln = 99;
     this.game.music.play(success ? 'victory' : 'defeat');
-    const reason = t(!p.alive ? 'mission.shotDown' : 'mission.objectiveMissed');
+    const reason = t(w.crashed ? 'mission.crashed' : !p.alive ? 'mission.shotDown' : 'mission.objectiveMissed');
     this.banner = success
       ? { title: t('mission.complete'), sub: t('mission.returnToCarrier'), color: COLORS.gold, time: 99 }
       : { title: t('mission.failed'), sub: reason, color: COLORS.red, time: 99 };
@@ -267,7 +269,7 @@ export class MissionScene implements Scene {
     renderWorld(ctx, w, this.player, this.t);
     drawSwitchCallout(ctx, this.player);
     ctx.restore();
-    this.renderBanner(ctx);
+    renderBanner(ctx, this.banner, this.t);
     this.radio.render(ctx);
     if (this.labelsLang !== getLang()) {
       this.labels = cockpitLabels();
@@ -276,24 +278,7 @@ export class MissionScene implements Scene {
     const keys = cockpitKeys(this.game.input.device, this.game.settings.joystick);
     drawLeftConsole(ctx, leftView(w, this.player, this.game.profile?.callsign ?? 'PILOT', this.labels, keys), this.t);
     drawRightConsole(ctx, rightView(w, this.player, this.labels, keys), this.t);
-    if (this.paused) this.renderPause(ctx);
+    if (this.paused) renderPause(ctx, this.pauseMenu, this.t);
   }
 
-  private renderBanner(ctx: CanvasRenderingContext2D): void {
-    const b = this.banner;
-    if (!b || b.time <= 0) return;
-    const alpha = Math.min(1, b.time * 2);
-    if (b.color === COLORS.red && b.time > 0 && b.title === t('mission.warning') && Math.sin(this.t * 14) < 0) return;
-    text(ctx, b.title, 640, 300, { size: 46, display: true, italic: true, align: 'center', color: b.color, stroke: '#000', strokeWidth: 7, alpha });
-    text(ctx, b.sub, 640, 336, { size: 18, align: 'center', color: COLORS.ink, stroke: '#000', strokeWidth: 4, alpha });
-  }
-
-  private renderPause(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(0, 0, 1280, 720);
-    drawPanel(ctx, { x: 500, y: 230, w: 280, h: 240 });
-    text(ctx, t('mission.paused'), 640, 290, { size: 34, display: true, italic: true, align: 'center', color: COLORS.gold });
-    this.pauseMenu.render(ctx, this.t);
-    text(ctx, t('mission.abortNote'), 640, 462, { size: 12, align: 'center', color: COLORS.dim });
-  }
 }

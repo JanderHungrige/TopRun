@@ -11,6 +11,7 @@ import { Particles } from '../../render/particles';
 import { THEATERS } from '../../data/theaters';
 import type { Boss } from './boss';
 import { HELI_FLIGHT } from '../../game/heli-flight';
+import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/canyon';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -167,9 +168,26 @@ export class World {
    * `mission` arrives with the pilot's challenge level already added to its difficulty; `ease` < 1 is Rookie: slower
    * enemy bullets and fire (doc 38).
    */
+  /** A canyon run (doc 52): its plan, the scrolled distance where it began (null before), its length in px. */
+  readonly canyon: CanyonPlan | null;
+  canyonStart: number | null = null;
+  canyonWarned = false;
+  readonly canyonTotal: number;
+  /** The helicopter hit a canyon wall (doc 52). */
+  crashed = false;
+
   constructor(readonly mission: MissionDef, readonly ease = 1) {
     this.timeline = generateTimeline(mission);
     this.terrain = new Terrain(THEATERS[mission.theater], mission.number * 31 + 7);
+    this.canyon = canyonPlan(mission);
+    this.canyonTotal = (this.canyon?.seconds ?? 0) * BASE_SCROLL * (mission.campaign === 3 ? HELI_FLIGHT.scroll : 1);
+  }
+
+  /** The canyon's channel at screen row `y`, or null where there is no gorge (doc 52). */
+  canyonAt(y: number): Channel | null {
+    if (this.canyonStart === null) return null;
+    const d = this.terrain.travelled - y - this.canyonStart;
+    return d < 0 || d > this.canyonTotal ? null : channel(d, this.canyonTotal);
   }
 
   nextId(): number {

@@ -11,7 +11,7 @@ import { MAX_HE_LEVEL } from '../data/he-gun';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
-import { freshHeliKit, parseHeliKit, type HeliKit, type Kit } from './kit';
+import { freshFleetKit, parseFleetKit, type FleetKit, type Kit } from './kit';
 import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
@@ -69,7 +69,9 @@ export interface SaveData {
   /** Which kit the scenes see (doc 49): set by GameContext only, storage always holds the jets'. */
   kit: Kit;
   /** The helicopters' own kit (doc 49). */
-  heli: HeliKit;
+  heli: FleetKit;
+  /** The subs' own kit (doc 66). */
+  sub: FleetKit;
   /** The spacecraft (doc 54). */
   ship: ShipKit;
 }
@@ -116,7 +118,8 @@ export function defaultSave(): SaveData {
     rookie: false,
     admin: false,
     kit: 'jet',
-    heli: freshHeliKit(),
+    heli: freshFleetKit('heli'),
+    sub: freshFleetKit('sub'),
     ship: freshShip(),
   };
 }
@@ -223,7 +226,8 @@ export function parseSave(raw: unknown): SaveData | null {
     rookie: raw.rookie === true,
     admin: false,
     kit: 'jet',
-    heli: parseHeliKit(raw.heli),
+    heli: parseFleetKit('heli', raw.heli),
+    sub: parseFleetKit('sub', raw.sub),
     ship: parseShip(raw.ship),
   };
 }

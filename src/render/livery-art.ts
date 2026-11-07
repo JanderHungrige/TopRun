@@ -86,6 +86,8 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
     under: '#9db0b8', camo: { kind: 'blobs', colors: ['#4f5a34'], cover: [0.42], size: 1.4, seed: 24 },
     ink: 'rgba(16,14,10,0.62)', panel: 'rgba(16,14,10,0.24)', gloss: 0.35,
   }),
+  // Map-5 subs (doc 67): Type 212 dark grey-blue, the sail a shade lighter.
+  u212: look('#3a4651', STANDARD_SWATCH, { under: '#4a5763', ink: 'rgba(8,12,16,0.7)', panel: 'rgba(8,12,16,0.3)', gloss: 0.4 }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

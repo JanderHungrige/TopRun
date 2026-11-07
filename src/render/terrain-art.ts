@@ -1,8 +1,12 @@
 import { TAU } from '../core/math';
 import { createRng } from '../core/rng';
 import type { TerrainStyle, TheaterPalette } from '../data/theaters';
+import { drawReefFeature, makeReefTile } from './sea-floor';
 
-export type FeatureType = 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad' | 'crater';
+export type FeatureType =
+  | 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad' | 'crater'
+  // Under the sea (doc 68).
+  | 'coral' | 'kelp' | 'stone' | 'drop';
 
 export interface Feature {
   type: FeatureType;
@@ -87,7 +91,8 @@ function drawMesa(ctx: CanvasRenderingContext2D, f: Feature, p: TheaterPalette):
   fillBlob(ctx, f, 0.7, p.land);
 }
 
-export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: TerrainStyle, p: TheaterPalette): void {
+/** One terrain feature; `t` (seconds) sways what moves with the current under the sea. */
+export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: TerrainStyle, p: TheaterPalette, t = 0): void {
   switch (f.type) {
     case 'island': drawIsland(ctx, f, style, p); return;
     case 'pad': fillBlob(ctx, f, 1, 'rgba(120,120,110,0.55)'); return;
@@ -123,6 +128,12 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
       fillBlob(ctx, f, 1.12, p.detail);
       fillBlob(ctx, f, 1, p.landDark);
       fillBlob(ctx, { ...f, x: f.x + f.r * 0.12, y: f.y + f.r * 0.12 }, 0.78, 'rgba(0,0,0,0.18)');
+      return;
+    case 'coral':
+    case 'kelp':
+    case 'stone':
+    case 'drop':
+      drawReefFeature(ctx, f.type, f.x, f.y, f.r, Math.floor(f.rot * 1e5), t, p);
       return;
     default:
       throw new Error(`unhandled: ${f.type satisfies never}`);
@@ -161,6 +172,7 @@ export function makeBaseTile(style: TerrainStyle, p: TheaterPalette): HTMLCanvas
   c.height = TILE;
   const g = c.getContext('2d');
   if (!g) return c;
+  if (style === 'reef') return makeReefTile(p);
   const land = style === 'desert' || style === 'canyon' || style === 'lunar';
   g.fillStyle = land ? p.land : p.sea;
   g.fillRect(0, 0, TILE, TILE);

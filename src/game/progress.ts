@@ -2,18 +2,21 @@ import { ALL_MISSIONS, campaignMissions, MISSIONS } from '../data/missions';
 import type { CampaignId, MissionDef } from '../data/types';
 import type { SaveData } from './save';
 
-// Campaign progress on both maps (docs 03, 35). Pure.
+// Campaign progress on every map (docs 03, 35). Pure.
+
+/** The map whose finale opens a map; map 1 is always open. */
+const PREVIOUS: Readonly<Record<CampaignId, CampaignId>> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
 
 export function isCleared(save: SaveData, mission: MissionDef): boolean {
   return mission.id in save.progress;
 }
 
 /** A map opens once the previous map's finale is cleared: map 2 after m30 (doc 35), map 3 after m60 (doc 48),
- *  map 4 after m90 (doc 56).
+ *  map 4 after m90 (doc 56), map 5 after m120 (doc 65).
  *  Map 1 is always open, and the admin has every map (doc 47). */
 export function mapOpen(save: SaveData, c: CampaignId): boolean {
   if (c === 1 || save.admin) return true;
-  const prev = campaignMissions(c === 4 ? 3 : c === 3 ? 2 : 1);
+  const prev = campaignMissions(PREVIOUS[c]);
   const last = prev[prev.length - 1];
   return last !== undefined && isCleared(save, last);
 }

@@ -12,6 +12,7 @@ import { ah64Silhouette, drawAh64Top } from './helis/ah64-top';
 import { COMANCHE_TOP, HIND_TOP, TIGER_TOP } from './helis/fleet';
 import { drawHeliTop, heliTopSilhouette } from './helis/heli-art';
 import { DISPLAY_SHIP, drawShip, shipSilhouette } from './ship';
+import { drawU212Top, u212Silhouette } from './subs/u212';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 
@@ -40,6 +41,7 @@ function silhouette(id: PlaneId, sweep: number): Path2D {
     case 'rah66': return heliTopSilhouette(COMANCHE_TOP);
     case 'mi24': return heliTopSilhouette(HIND_TOP);
     case 'starship': return shipSilhouette(DISPLAY_SHIP);
+    case 'u212': return u212Silhouette();
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }
@@ -87,6 +89,7 @@ export function drawPlaneTop(
     case 'rah66': drawHeliTop(ctx, look, opts, COMANCHE_TOP); break;
     case 'mi24': drawHeliTop(ctx, look, opts, HIND_TOP); break;
     case 'starship': drawShip(ctx, DISPLAY_SHIP, look, { t: opts.t, throttle: opts.throttle }); break;
+    case 'u212': drawU212Top(ctx, look, opts); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

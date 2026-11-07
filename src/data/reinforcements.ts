@@ -41,6 +41,8 @@ const ADDS: Readonly<Record<TheaterId, readonly Reinforcement[]>> = {
   moon: [r('interceptor', 103)],
   rings: [r('interceptor', 109), r('gunship', 109)],
   deep: [r('gunship', 115), r('interceptor', 115)],
+  // Map 5 (doc 65): its own enemies only.
+  reef: [],
 };
 
 /** Sea units need a sea theater (land units stand on islands in sea theaters). */

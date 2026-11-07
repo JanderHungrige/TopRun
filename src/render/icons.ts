@@ -21,6 +21,8 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'stinger': missile(ctx, 40, 2.6, '#c9cbbf', '#3f6b8a', '#e0e2da'); break;
     case 'spacerocket': missile(ctx, 38, 3, '#dfe6f2', '#5b7cff', '#9fb6ff'); break;
     case 'torpedo': missile(ctx, 54, 6, '#3a4256', '#ff8a3d', '#ffd27a'); break;
+    case 'mk48': mk48(ctx); break;
+    case 'depthmine': depthMine(ctx); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;
@@ -110,6 +112,45 @@ function bomb(ctx: CanvasRenderingContext2D): void {
   ctx.stroke();
   ctx.fillStyle = '#d6b84a';
   ctx.fillRect(12, -7, 3, 14);
+}
+
+/** MK48 torpedo (doc 66): a long dark cylinder, a rounded nose, a ducted screw and the guide wire trailing. */
+function mk48(ctx: CanvasRenderingContext2D): void {
+  ctx.strokeStyle = 'rgba(200,220,230,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(-34, 0);
+  ctx.quadraticCurveTo(-42, 6, -48, 2);
+  ctx.stroke();
+  fillPoly(ctx, [-30, -9, -24, -9, -24, 9, -30, 9], '#7a8288');
+  ctx.beginPath();
+  ctx.roundRect(-26, -5, 58, 10, 5);
+  ctx.fillStyle = '#2f3a44';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.stroke();
+  ctx.fillStyle = '#c8a24a';
+  ctx.fillRect(14, -5, 3, 10);
+}
+
+/** Depth mine (doc 66): a dark sphere with horn fuzes and a red stripe. */
+function depthMine(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = '#4a5058';
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * TAU;
+    ctx.fillRect(Math.cos(a) * 15 - 2, Math.sin(a) * 15 - 2, 4, 4);
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, 13, 0, TAU);
+  ctx.fillStyle = '#262b31';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+  ctx.stroke();
+  ctx.fillStyle = '#c0392b';
+  ctx.fillRect(-13, -1.5, 26, 3);
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.beginPath();
+  ctx.arc(-4, -5, 3, 0, TAU);
+  ctx.fill();
 }
 
 /** 2,000 lb bomb with its guidance tail kit (doc 37). */

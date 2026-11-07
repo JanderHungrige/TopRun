@@ -31,8 +31,10 @@ import { TapesScene } from './tapes';
 
 // Which scene each route opens (docs 01, 53, 55, 56, 59, 63, 64).
 
-/** Jets launch from the catapult, helicopters lift off the deck (doc 53), the spacecraft rides a rocket (doc 59). */
+/** Jets launch from the catapult, helicopters lift off the deck (doc 53), the spacecraft rides a rocket (doc 59); a sub
+ *  goes straight into the water until its dive launch (doc 65). */
 function takeoffScene(game: GameContext, mission: MissionDef): Scene {
+  if (mission.campaign === 5) return new MissionScene(game, mission, 'skipped');
   if (mission.campaign === 4) return new RocketLaunchScene(game, mission);
   return mission.campaign === 3 ? new LiftoffScene(game, mission) : new TakeoffScene(game, mission);
 }

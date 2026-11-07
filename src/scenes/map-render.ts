@@ -34,10 +34,14 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   moon: { x: 640, y: 384 },
   rings: { x: 420, y: 214 },
   deep: { x: 300, y: 104 },
+  // Map 5 (doc 65).
+  reef: { x: 270, y: 686 },
 };
 
-/** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48). */
-const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = { 1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'], 4: ['#090c1c', '#03040b'] };
+/** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48); map 5 a deep teal chart (doc 65). */
+const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = {
+  1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'], 4: ['#090c1c', '#03040b'], 5: ['#0b4452', '#03161e'],
+};
 
 const cached = new Map<CampaignId, HTMLCanvasElement>();
 

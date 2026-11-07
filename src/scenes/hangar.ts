@@ -16,7 +16,8 @@ import { pilotContext } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { ammoTypeOf, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
+import { ammoTypeOf, FLEET_UI, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
+import { isFleet } from '../data/fleet';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
@@ -254,7 +255,7 @@ export class HangarScene implements Scene {
     bg.addColorStop(1, '#05090f');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, 1280, 720);
-    const title = t('hangar.title');
+    const title = t(isFleet(save.kit) ? FLEET_UI[save.kit].title : 'hangar.title');
     const money = formatMoney(save.money);
     text(ctx, title, 24, 50, { size: 30, display: true, italic: true });
     text(ctx, money, 1010, 46, { size: 28, display: true, align: 'right', color: COLORS.green });

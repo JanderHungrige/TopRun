@@ -24,8 +24,10 @@ import { pilotContext, SpeechBox } from '../ui/speech';
 import { goldCount, playableIds } from './minigames/registry';
 import { ButtonGroup, drawPanel } from '../ui/widgets';
 
-/** The gold banner when a map's finale is won (docs 35, 48). */
-const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = { 1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3', 4: 'debrief.finale4' };
+/** The gold banner when a map's finale is won (docs 35, 48, 65). */
+const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = {
+  1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3', 4: 'debrief.finale4', 5: 'debrief.finale5',
+};
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
   perfect: 'debrief.launchPerfect', good: 'debrief.launchGood', early: 'debrief.launchEarly',

@@ -3,7 +3,8 @@ import type { SecondaryId } from '../../data/types';
 import type { WeaponStats } from '../../game/arsenal';
 import { MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
 import { gunDef, powerCap } from '../../game/firepower';
-import { heliVelocity } from '../../game/heli-flight';
+import { isFleet } from '../../data/fleet';
+import { DRIFT, fleetVelocity } from '../../game/sub-flight';
 import { shipGun, touchesShip } from '../../game/ship-loadout';
 import { CELL_PX, SHIELD } from '../../data/ship-modules';
 import { circleHit } from '../../game/combat';
@@ -117,11 +118,12 @@ export class Player {
   }
 
 
-  /** Moves by a normalised direction plus a raw drag delta (touch), clamped to the playfield. A helicopter eases
-   *  toward the stick instead of moving at once (doc 50); a drag moves it directly. */
+  /** Moves by a normalised direction plus a raw drag delta (touch), clamped to the playfield. A helicopter or a sub
+   *  eases toward the stick instead of moving at once (docs 50, 67); a drag moves it directly. */
   move(dir: { x: number; y: number }, drag: { x: number; y: number }, dt: number): void {
     const dash = this.dashVX * dt;
-    const v = this.stats.plane.kind === 'heli' ? heliVelocity(this.drift, dir, this.speed, dt) : { x: dir.x * this.speed, y: dir.y * this.speed };
+    const kind = this.stats.plane.kind;
+    const v = isFleet(kind) ? fleetVelocity(this.drift, dir, this.speed, DRIFT[kind], dt) : { x: dir.x * this.speed, y: dir.y * this.speed };
     this.drift = v;
     this.x = clamp(this.x + v.x * dt + drag.x + dash, 24, PF_W - 24);
     this.y = clamp(this.y + v.y * dt + drag.y, 70, PF_H - 40);

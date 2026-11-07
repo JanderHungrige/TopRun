@@ -6,6 +6,8 @@ import { GROUND_UNITS_2 } from './enemies/ground-2';
 import { fire, hash, scorch, smoke } from './enemies/fx';
 import { ellipse } from './shapes';
 import { SPACE_UNITS } from './enemies/space';
+import { SEA_UNITS } from './enemies/sea';
+import { CREATURES } from './enemies/creatures';
 
 export { exhaust, fire, hash, roundel, scorch, smoke } from './enemies/fx';
 
@@ -45,12 +47,19 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   gunship: pal('#868a7e', '#46493f', '#b0b4a6', '#c84a3a', '#7fd0ff'),
   battery: pal('#9a9ca2', '#55575e', '#c6c8cd', '#4f8cff', '#7fd0ff'),
   warden: pal('#6c7488', '#343a4a', '#98a0b4', '#ff5a6a', '#7fd0ff'),
+  // Under the sea (doc 68); `glass` is the bow light, the turret's lamp, the eel's sparks.
+  minisub: pal('#4c5a5e', '#2a3336', '#6e7f84', '#e8c040', '#ffe27a'),
+  seadrone: pal('#e0b83a', '#7a6420', '#f2d878', '#c8312a', '#7fd0ff'),
+  seamine: pal('#2b2f33', '#16191c', '#4a5056', '#5a5f64'),
+  seaturret: pal('#6f7a7c', '#5a5040', '#98a4a6', '#3d454b', '#7ff0ff'),
+  jelly: pal('#e88ac0', '#a85088', '#ffd0ea', '#ff5aaa'),
+  eel: pal('#5a6a3a', '#2e3a1e', '#c8c89a', '#3a4a26', '#9ae8ff'),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
 const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312'), red: '#3b2a22', line: 'rgba(0,0,0,0.55)', live: false };
 
-const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS };
+const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...CREATURES };
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();
 

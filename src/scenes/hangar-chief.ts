@@ -33,7 +33,7 @@ export class HangarChief {
   }
 
   greet(save: SaveData): void {
-    const ev = save.kit === 'heli' ? 'helloHelis' : newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
+    const ev = save.kit === 'heli' ? 'helloHelis' : save.kit === 'sub' ? 'helloSubs' : newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
     this.box.say(chiefLine(ev));
   }
 

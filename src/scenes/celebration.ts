@@ -15,7 +15,7 @@ import { pilotContext, SpeechBox } from '../ui/speech';
 // fireworks and confetti, the admiral's line and the WORLD COMPLETE card; then `then`. ENTER / tap skips to the card,
 // again leaves; ESC leaves at once.
 
-const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4' };
+const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5' };
 
 export class CelebrationScene implements Scene {
   private time = 0;
@@ -29,7 +29,7 @@ export class CelebrationScene implements Scene {
     preloadWorld(world);
     this.summary = worldSummary(game.save, world);
     const save = game.save;
-    const plane: PlaneId = world === 4 ? 'starship' : world === 3 ? save.heli.selectedPlane : save.selectedPlane;
+    const plane: PlaneId = world === 5 ? save.sub.selectedPlane : world === 4 ? 'starship' : world === 3 ? save.heli.selectedPlane : save.selectedPlane;
     this.craft = { plane, livery: save.livery[plane] };
     this.speech = new SpeechBox(game.audio, {
       portrait: { x: 52, y: 556, w: 92, h: 110 },

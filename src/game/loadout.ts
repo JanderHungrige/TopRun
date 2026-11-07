@@ -2,6 +2,7 @@ import type { AmmoType, Mark } from '../data/arsenal';
 import {
   ARMOR_BONUS, atLevel, DAMAGE_CONTROL_RESTORE, DAMAGE_CONTROL_USES, ECM_BULLET, ECM_TURN, ENGINE_BONUS, FLARE_COUNT,
 } from '../data/equipment';
+import { isFleet } from '../data/fleet';
 import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
 import type { GunLevel, SecondaryId } from '../data/types';
@@ -89,7 +90,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gunLevel: jetGunLevel(plane.id, save.gunLevel) as GunLevel,
     gun2Level: double ? save.gun2Level : 0,
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
-    gunGround: plane.kind === 'heli' ? 1 : rounds.groundFactor, // the chain gun hits the ground fully (doc 49)
+    gunGround: isFleet(plane.kind) ? 1 : rounds.groundFactor, // the chain gun and the harpoon gun hit the ground fully (docs 49, 66)
     gunBurn: rounds.burn,
     rounds: rounds.type,
     heLevel: save.heLevel,

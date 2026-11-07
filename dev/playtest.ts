@@ -3,6 +3,7 @@
 //   const pt = await import('/dev/playtest.ts');
 //   pt.heliKitAt(70)            → { kit: [...], cash, income }
 //   await pt.fly('m70', 3)      → three runs: hulls of damage per minute, kill share, objective, boss time
+//   await pt.flySub('m123', 3)  → the same on map 5 with the sub kit (doc 65)
 // The bot always fires, follows the boss or the nearest target, sidesteps rounds close above it, fires ground and air
 // weapons at matching targets, drops flares at incoming missiles and uses E when charged. It cannot die: damage is
 // counted (the mission's own perf.damage, i-frames included) but never taken off the hull.
@@ -24,7 +25,7 @@ import { defaultSave, type SaveData } from '../src/game/save';
 import type { GameContext, Route } from '../src/game/state';
 import { generateTimeline } from '../src/game/waves';
 import { BOSSES } from '../src/data/bosses';
-import { SECONDARIES } from '../src/data/weapons';
+import { SECONDARIES, secondaryAllowedOn } from '../src/data/weapons';
 import type { MissionScene } from '../src/scenes/mission/mission-scene';
 import { PF_H, PF_W } from '../src/scenes/mission/world';
 
@@ -32,7 +33,7 @@ interface Hook { game: GameContext; scene(): unknown; step(frames?: number): voi
 const hook = (): Hook => (window as unknown as { __toprun: Hook }).__toprun;
 
 type Step = ShopItem | { mark: SecondaryId };
-const gun: Step = { type: 'gun', heli: true };
+const gun: Step = { type: 'gun', fleet: 'heli' };
 const eq = (id: EquipmentId): Step => ({ type: 'equipment', id });
 const sec = (id: SecondaryId): Step => ({ type: 'secondary', id });
 
@@ -60,14 +61,29 @@ function tryStep(save: SaveData, s: Step): SaveData | null {
   return canBuy(save, s).ok ? buy(save, s) : null;
 }
 
+/** A sensible sub shopping list (doc 65, wave 1): harpoon gun, torpedoes and mines, then armour and defences. */
+const subGun: Step = { type: 'gun', fleet: 'sub' };
+export const SUB_ORDER: readonly Step[] = [
+  subGun, sec('mk48'), subGun, eq('armor'), sec('depthmine'), eq('flares'), subGun, eq('armor'), { mark: 'mk48' }, subGun,
+  { mark: 'depthmine' }, eq('armor'), eq('ecm'), subGun, eq('flares'), eq('damageControl'), eq('armor'), subGun,
+  { mark: 'mk48' }, { mark: 'depthmine' }, eq('engine'), eq('engine'), subGun, eq('ecm'), eq('damageControl'), subGun, subGun,
+];
+
 /** The helicopter kit at the start of mission `n` (61–90), money from map 3 only, spent down HELI_ORDER in order. */
-export function heliKitAt(n: number, list: readonly Step[] = HELI_ORDER): { save: SaveData; bought: string[]; cash: number; earned: number } {
+export const heliKitAt = (n: number, list: readonly Step[] = HELI_ORDER): KitAt => fleetKitAt('heli', 61, n, list);
+
+/** The sub kit at the start of mission `n` (121–), money from map 5 only, spent down SUB_ORDER in order. */
+export const subKitAt = (n: number, list: readonly Step[] = SUB_ORDER): KitAt => fleetKitAt('sub', 121, n, list);
+
+interface KitAt { save: SaveData; bought: string[]; cash: number; earned: number }
+
+function fleetKitAt(kit: 'heli' | 'sub', first: number, n: number, list: readonly Step[]): KitAt {
   const cleared = Object.fromEntries(Array.from({ length: n - 1 }, (_, i) => [`m${String(i + 1).padStart(2, '0')}`, { stars: 2 }]));
-  let save = kitView({ ...defaultSave(), money: 0, progress: cleared }, 'heli');
+  let save = kitView({ ...defaultSave(), money: 0, progress: cleared }, kit);
   let next = 0;
   let earned = 0;
   const bought: string[] = [];
-  for (let k = 61; k < n; k++) {
+  for (let k = first; k < n; k++) {
     const m = missionById(`m${k}`);
     if (!m) break;
     const pay = income(m);
@@ -87,9 +103,10 @@ export function heliKitAt(n: number, list: readonly Step[] = HELI_ORDER): { save
   return { save: loadOut(save), bought, cash: save.money, earned };
 }
 
-/** Every station filled: Hydras, Hellfires and Stingers in turn, whatever is owned. */
+/** Every station filled: the kit's own weapons in turn (Hydras, Hellfires, Stingers; MK48s and mines), whatever is owned. */
 function loadOut(save: SaveData): SaveData {
-  const owned = (['hydra', 'hellfire', 'stinger'] as const).filter((id) => save.ownedSecondaries.includes(id));
+  const owned = (['hydra', 'hellfire', 'stinger', 'mk48', 'depthmine'] as const)
+    .filter((id) => save.ownedSecondaries.includes(id) && secondaryAllowedOn(id, save.selectedPlane));
   let s = save;
   for (let slot = 0; slot < PLANES[s.selectedPlane].hardpoints && owned.length > 0; slot++) {
     const id = owned[slot % owned.length];
@@ -134,9 +151,10 @@ export async function run(id: string, save: SaveData): Promise<RunResult> {
   const m = missionById(id);
   if (!m) throw new Error(`no mission ${id}`);
   T.game.setSave(save);
+  const before = T.scene();
   T.go({ to: 'mission', mission: m, takeoff: 'good' });
   let sc = T.scene() as MissionScene;
-  for (let i = 0; i < 200 && sc.constructor.name !== 'MissionScene'; i++) { T.step(1); sc = T.scene() as MissionScene; }
+  for (let i = 0; i < 200 && (sc === before || sc.constructor.name !== 'MissionScene'); i++) { T.step(1); sc = T.scene() as MissionScene; }
   const input = T.game.input as unknown as Record<string, unknown>;
   let bot: Bot = { dir: { x: 0, y: 0 }, ground: false, air: false, special: false, flare: false };
   input.moveVector = () => bot.dir;
@@ -177,6 +195,15 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
   const results: RunResult[] = [];
   for (let i = 0; i < runs; i++) results.push(await run(id, s));
   const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 3).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
+  return { kit, results };
+}
+
+/** `runs` runs of `id` (121–) with the sub kit a buying pilot owns at that mission (doc 65). */
+export async function flySub(id: string, runs = 3): Promise<{ kit: string; results: RunResult[] }> {
+  const s = subKitAt(Number(id.slice(1))).save;
+  const results: RunResult[] = [];
+  for (let i = 0; i < runs; i++) results.push(await run(id, s));
+  const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 5).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
   return { kit, results };
 }
 

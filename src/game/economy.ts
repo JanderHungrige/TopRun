@@ -1,3 +1,4 @@
+import type { FleetKitId } from '../data/fleet';
 import { EQUIPMENT, maxEquipmentLevel } from '../data/equipment';
 import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
@@ -17,8 +18,8 @@ import { recordMission } from './service-record';
 
 export type ShopItem =
   | { type: 'plane'; id: PlaneId }
-  /** `heli`: the helicopters' chain gun (doc 49); prices follow the kit on show either way. */
-  | { type: 'gun'; heli?: true }
+  /** `fleet`: a fleet kit's gun — the chain gun (doc 49) or the harpoon gun (doc 66); prices follow the kit on show. */
+  | { type: 'gun'; fleet?: FleetKitId }
   /** Second gun of the new jets (doc 37). */
   | { type: 'gun2' }
   /** Uranium ammo for the gun, levels 1–6 (doc 43). */
@@ -69,7 +70,7 @@ function knownItem(item: ShopItem): boolean {
   }
 }
 
-/** Map-2 goods (docs 36, 37) cannot be bought before map 2 is open; jet goods never in the helicopters' hangar (doc 49). */
+/** Map-2 goods (docs 36, 37) cannot be bought before map 2 is open; jet goods never in a fleet kit's hangar (docs 49, 66). */
 function onSale(save: SaveData, item: ShopItem): boolean {
   const jets = save.kit === 'jet';
   switch (item.type) {

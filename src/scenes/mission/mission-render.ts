@@ -1,3 +1,4 @@
+import { harpoonBolt, plasmaBolt, sinkingMine, sonarRing, torpedo } from '../../render/shots';
 import { TAU } from '../../core/math';
 import { drawEnemy, drawWreck } from '../../render/draw-enemies';
 import { drawPlaneOutline, drawPlaneTop } from '../../render/draw-planes';
@@ -45,6 +46,7 @@ const ROUNDS_GLOW = { uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary
 
 /** A gun round; loaded ammo burns inside a glow that flickers round by round. */
 function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
+  if (b.harpoon) return harpoonBolt(ctx, b.x, b.y);
   if (b.laser) {
     ctx.fillStyle = 'rgba(110,220,255,0.35)';
     ctx.fillRect(b.x - 3, b.y - 12, 6, 22);
@@ -102,6 +104,10 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
       plasmaBolt(ctx, m.x, m.y, m.ttl);
       continue;
     }
+    if (m.kind === 'mk48' || (m.kind === 'enemy' && world.particles.underwater)) {
+      torpedo(ctx, m.x, m.y, m.heading, m.kind === 'enemy');
+      continue;
+    }
     ctx.save();
     ctx.translate(m.x, m.y);
     ctx.rotate(m.heading);
@@ -123,6 +129,10 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
 function drawBombs(ctx: CanvasRenderingContext2D, world: World): void {
   for (const b of world.bombs) {
     const s = 1 - b.t * 0.9;
+    if (world.particles.underwater) {
+      sinkingMine(ctx, b.x, b.y, s);
+      continue;
+    }
     ctx.fillStyle = '#4c5340';
     ctx.beginPath();
     ctx.ellipse(b.x, b.y, 3.5 * s + 1, 8 * s + 2, 0, 0, TAU);
@@ -254,29 +264,14 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, p: Play
   drawShots(ctx, world);
   drawPlayer(ctx, p, t);
   world.particles.render(ctx);
+  if (world.sonar) sonarRing(ctx, world.sonar.x, world.sonar.y, world.sonar.t);
   world.terrain.renderSky(ctx, t);
   drawNuke(ctx, world, t);
 }
+
 
 export function clipPlayfield(ctx: CanvasRenderingContext2D): void {
   ctx.beginPath();
   ctx.rect(0, 0, PF_W, PF_H);
   ctx.clip();
-}
-
-/** A plasma torpedo (doc 57): a pulsing orange ball with a white-hot heart. */
-function plasmaBolt(ctx: CanvasRenderingContext2D, x: number, y: number, ttl: number): void {
-  const r = 6 + Math.sin(ttl * 40) * 1.2;
-  ctx.fillStyle = 'rgba(255,140,60,0.35)';
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.9, 0, TAU);
-  ctx.fill();
-  ctx.fillStyle = '#ffb35a';
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, TAU);
-  ctx.fill();
-  ctx.fillStyle = '#fff4d8';
-  ctx.beginPath();
-  ctx.arc(x, y, r * 0.45, 0, TAU);
-  ctx.fill();
 }

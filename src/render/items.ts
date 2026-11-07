@@ -6,9 +6,11 @@ import { EQUIPMENT_IDS, SECONDARY_IDS } from '../data/types';
 // to the vector icons (icons.ts) while a picture loads or where none exists.
 
 /** `ammo`: the uranium ammo (doc 43); `incendiary` (doc 45); `he`: the Bofors 40 mm (doc 46); `chaingun`: the
- *  helicopters' M230 (doc 49). */
-export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'incendiary' | 'he' | 'chaingun';
-export const ITEM_IDS: readonly ItemId[] = Object.freeze([...SECONDARY_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', ...EQUIPMENT_IDS]);
+ *  helicopters' M230 (doc 49); `harpoon`: the subs' harpoon gun (doc 66). */
+export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'incendiary' | 'he' | 'chaingun' | 'harpoon';
+export const ITEM_IDS: readonly ItemId[] = Object.freeze([
+  ...SECONDARY_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', 'harpoon', ...EQUIPMENT_IDS,
+]);
 
 const FILES = import.meta.glob<string>('../assets/items/*.png', { eager: true, query: '?url', import: 'default' });
 

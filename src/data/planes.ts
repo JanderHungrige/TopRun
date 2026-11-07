@@ -15,10 +15,10 @@ export interface PlaneDef {
   specialCooldown: number;
   specialDuration: number;
   description: string;
-  /** 1 = sold from the start; 2 = sold once map 2 is open (doc 36); 3 = a map-3 helicopter (doc 49). */
+  /** 1 = sold from the start; 2 = sold once map 2 is open (doc 36); 3 = a map-3 helicopter (doc 49); 5 = a sub (doc 66). */
   campaign: CampaignId;
-  /** Jets fly maps 1–2, helicopters map 3 (doc 49), the spacecraft map 4 (doc 54). */
-  kind: 'jet' | 'heli' | 'ship';
+  /** Jets fly maps 1–2, helicopters map 3 (doc 49), the spacecraft map 4 (doc 54), the subs map 5 (doc 66). */
+  kind: 'jet' | 'heli' | 'ship' | 'sub';
 }
 
 export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
@@ -99,9 +99,17 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     description: 'One ship that grows with you: every module you place changes its shape, hull, speed and guns.',
     campaign: 4, kind: 'ship',
   },
+  // Map 5 (doc 66): the attack subs; the Type 212 is free.
+  u212: {
+    id: 'u212', name: 'Type 212', short: 'U212', nickname: 'Type 212',
+    price: 0, hull: 150, speed: 230, hardpoints: 4, gunDamageMul: 1.0,
+    special: 'sonar', specialName: 'Sonar Burst', specialCooldown: 12, specialDuration: 0.6,
+    description: 'Quiet German attack sub with fuel-cell drive. Four tubes, a harpoon gun and an active sonar that clears the water around it.',
+    campaign: 5, kind: 'sub',
+  },
 });
 
-/** A record with one entry per plane (jets and helicopters), built from PLANE_IDS. */
+/** A record with one entry per plane (jets, helicopters, the ship and the subs), built from PLANE_IDS. */
 export function perPlane<T>(make: (id: PlaneId) => T): Record<PlaneId, T> {
   return Object.fromEntries(PLANE_IDS.map((id) => [id, make(id)])) as Record<PlaneId, T>;
 }

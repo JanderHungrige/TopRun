@@ -99,6 +99,7 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   crater: { shape: fortress, air: false, s: 0.7 },
   trident: { shape: battleship, air: false, s: 0.8 },
   ark: { shape: supercarrier, air: false, s: 0.75 },
+  barracuda: { shape: battleship, air: false, s: 0.7 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

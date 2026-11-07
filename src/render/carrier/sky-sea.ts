@@ -14,6 +14,7 @@ const SKY: Readonly<Record<TerrainStyle, readonly [string, string, string]>> = {
   ice: ['#6f93b8', '#c4d6e6', '#eef3f7'],
   canyon: ['#3f6fa8', '#d9a07a', '#f7b46a'],
   storm: ['#26323f', '#4b5a68', '#77818a'],
+  reef: ['#0b3a4a', '#1d6f8a', '#5fb8c8'],
 };
 
 /** Cloud shade, body and sunlit top per style. */

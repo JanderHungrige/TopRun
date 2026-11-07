@@ -54,6 +54,7 @@ const SPARKS: Readonly<Record<CampaignId, readonly string[]>> = {
   2: ['#c27bff', '#ffd25a', '#5fe3ff', '#ff5a8a'],
   3: ['#ff8a3d', '#ffd84a', '#98ff8a', '#fff4d0'],
   4: ['#5fe3ff', '#ff6a8a', '#b088e8', '#fff4d0'],
+  5: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
 };
 
 /** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. */

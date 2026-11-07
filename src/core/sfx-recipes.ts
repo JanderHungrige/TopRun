@@ -7,7 +7,7 @@ type LayerSfx =
   | 'gun' | 'missile' | 'rocket' | 'bombDrop' | 'explosionSmall' | 'explosionLarge' | 'explosionHuge'
   | 'hit' | 'playerHit' | 'pickup' | 'cash' | 'powerup' | 'flare' | 'catapult' | 'warning'
   | 'uiMove' | 'uiSelect' | 'uiBack' | 'buy' | 'denied' | 'enemyShot' | 'enemyMissile' | 'special' | 'splash'
-  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap' | 'bofors';
+  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap' | 'bofors' | 'sonar';
 /** Procedural babble syllables (see sfx-voice.ts). */
 type VoiceSfx = 'voice' | 'radioVoice';
 export type SfxName = LayerSfx | VoiceSfx;
@@ -99,6 +99,11 @@ const SFX: Record<LayerSfx, Layer[]> = {
   special: [
     tone('sawtooth', 110, 1760, 0.45, 0.1, { a: 0.05, h: 0.15 }), tone('square', 55, 880, 0.45, 0.06, { a: 0.05 }),
     hiss('bandpass', 400, 6000, 0.5, 0.35, { a: 0.25 }), thump(140, 45, 0.08, 0.4, 0.6, { at: 0.4 }),
+  ],
+  // The Type 212's sonar burst (doc 67): a clear ping, its echo off the reef, a deep push of water.
+  sonar: [
+    tone('sine', 1500, 1350, 0.6, 0.18, { a: 0.005, h: 0.08 }), tone('sine', 1500, 1350, 0.5, 0.07, { at: 0.38, a: 0.005, h: 0.05 }),
+    thump(90, 40, 0.06, 0.5, 0.2),
   ],
   splash: [
     hiss('lowpass', 5000, 200, 0.6, 0.7, { a: 0.005, h: 0.05 }), thump(220, 60, 0.06, 0.25, 0.4),

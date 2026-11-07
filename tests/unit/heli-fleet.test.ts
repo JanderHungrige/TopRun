@@ -39,7 +39,7 @@ describe('Helicopter fleet (doc 51)', () => {
 
   it('buys a helicopter into the shared kit: same gun level and equipment, its own stations', () => {
     const start = mapThree(10_000_000);
-    let view = buy(kitView(start, 'heli'), { type: 'gun', heli: true });
+    let view = buy(kitView(start, 'heli'), { type: 'gun', fleet: 'heli' });
     view = buy(view, { type: 'plane', id: 'mi24' });
     view = selectPlane(view, 'mi24');
     const stored = fromKitView(start, view);

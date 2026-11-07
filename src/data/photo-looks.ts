@@ -28,5 +28,6 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   belt: ['night', 'night', 'night', 'dusk', 'night', 'night'],
   moon: ['night', 'dusk', 'night', 'night', 'dusk', 'night'],
   rings: ['dusk', 'night', 'night', 'night', 'dusk', 'night'],
+  reef: ['day', 'day', 'dusk', 'day', 'night', 'dusk'],
   deep: ['night', 'night', 'night', 'night', 'night', 'night'],
 });

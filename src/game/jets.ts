@@ -1,17 +1,18 @@
+import { FLEET, isFleet } from '../data/fleet';
 import { PLANES } from '../data/planes';
 import type { PlaneId, SpecialId } from '../data/types';
 import { kitOfPlane } from './kit';
 import { mapOpen, mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
-// Rules of the jets sold once map 2 is open, of the helicopters (doc 49), and of every plane's E ability (doc 36).
+// Rules of the jets sold once map 2 is open, of the fleet kits (docs 49, 66), and of every plane's E ability (doc 36).
 
-/** In the jets' hangar: map-1 jets always, the A-10, F-35 and Tornado once map 2 is open. In the helicopters'
- *  hangar: the helicopters once map 3 is open (doc 49). */
+/** In the jets' hangar: map-1 jets always, the A-10, F-35 and Tornado once map 2 is open. In a fleet kit's hangar:
+ *  its craft once its map is open (docs 49, 66). */
 export function jetOnSale(save: SaveData, id: PlaneId): boolean {
   const p = PLANES[id];
   if (kitOfPlane(id) !== save.kit) return false;
-  if (p.kind === 'heli') return mapOpen(save, 3);
+  if (isFleet(p.kind)) return mapOpen(save, FLEET[p.kind].campaign);
   return p.campaign === 1 || mapTwoOpen(save);
 }
 
@@ -37,7 +38,8 @@ export function specialRules(special: SpecialId): SpecialRules {
     case 'cannon':
     case 'nuke':
     case 'longbow':
-    case 'gunpods': return { invulnerable: false, stealth: false };
+    case 'gunpods':
+    case 'sonar': return { invulnerable: false, stealth: false };
     default: throw new Error(`unhandled: ${special satisfies never}`);
   }
 }

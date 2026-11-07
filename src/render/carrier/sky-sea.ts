@@ -15,6 +15,10 @@ const SKY: Readonly<Record<TerrainStyle, readonly [string, string, string]>> = {
   canyon: ['#3f6fa8', '#d9a07a', '#f7b46a'],
   storm: ['#26323f', '#4b5a68', '#77818a'],
   reef: ['#0b3a4a', '#1d6f8a', '#5fb8c8'],
+  kelp: ['#0a3a34', '#1d6a5a', '#5fb89a'],
+  wreck: ['#0a2c40', '#1a5674', '#4f94b0'],
+  trench: ['#04142a', '#0a2a4a', '#1d4a72'],
+  abyss: ['#01060c', '#05101c', '#0a1a2c'],
 };
 
 /** Cloud shade, body and sunlit top per style. */

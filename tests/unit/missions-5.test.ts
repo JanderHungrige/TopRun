@@ -4,6 +4,7 @@ import { ENEMIES } from '../../src/data/enemies';
 import { ALL_MISSIONS, campaignMissions } from '../../src/data/missions';
 import { MISSIONS_4 } from '../../src/data/missions-4';
 import { MISSIONS_5 } from '../../src/data/missions-5';
+import { miniBosses } from '../../src/data/reinforcements';
 import { campaignTheaters, THEATERS, underwater } from '../../src/data/theaters';
 import type { MissionResult } from '../../src/data/types';
 import { adminView } from '../../src/game/admin';
@@ -14,9 +15,11 @@ import { payScale } from '../../src/game/map-two';
 import { isUnlocked, mapOpen, nextMission } from '../../src/game/progress';
 import { defaultSave, type SaveData } from '../../src/game/save';
 
-// Map 5 (doc 65): under the sea, steered with the subs; the Coral Reef (m121–m126) first.
+// Map 5 (docs 65, 70): under the sea, steered with the subs; m121–m150 in five theaters.
 
 const SEA_KINDS = ['minisub', 'seadrone', 'seamine', 'seaturret', 'jelly', 'eel'];
+const DEEP_KINDS = ['hunter', 'torpboat', 'squid', 'crab', 'sealab', 'angler'];
+const MAP5 = ['reef', 'kelp', 'wrecks', 'trench', 'abyss'];
 const cleared = (save: SaveData, ids: readonly string[]): SaveData =>
   ({ ...save, progress: { ...save.progress, ...Object.fromEntries(ids.map((id) => [id, { stars: 1 }])) } });
 const win = (id: string): MissionResult => ({
@@ -25,19 +28,45 @@ const win = (id: string): MissionResult => ({
 });
 
 describe('Fifth map (doc 65)', () => {
-  it('holds the Coral Reef, m121–m126, on map 5: a fresh climb, steered with the subs', () => {
-    expect(MISSIONS_5.map((m) => m.id)).toEqual(['m121', 'm122', 'm123', 'm124', 'm125', 'm126']);
-    expect(MISSIONS_5.every((m, i) => m.number === i + 121 && m.campaign === 5 && m.theater === 'reef')).toBe(true);
-    expect(MISSIONS_5.map((m) => m.difficulty)).toEqual([2, 3, 5, 6, 7, 9]);
+  it('holds m121–m150 on map 5: a fresh climb, steered with the subs', () => {
+    expect(MISSIONS_5.map((m) => m.id)).toEqual(Array.from({ length: 30 }, (_, i) => `m${i + 121}`));
+    expect(MISSIONS_5.every((m, i) => m.number === i + 121 && m.campaign === 5)).toBe(true);
+    expect(MISSIONS_5.map((m) => m.difficulty).slice(0, 6)).toEqual([2, 3, 5, 6, 7, 9]);
+    expect(MISSIONS_5[29]?.difficulty).toBe(41);
     expect(MISSIONS_5[0]?.reward).toBe(1200);
     expect(campaignMissions(5)).toEqual(MISSIONS_5);
     expect(ALL_MISSIONS.slice(120)).toEqual(MISSIONS_5);
-    expect(campaignTheaters(5)).toEqual(['reef']);
     expect(kitOf(5)).toBe('sub');
   });
 
-  it('fights under the sea: sea enemies only, the BARRACUDA last, a reef that is underwater', () => {
-    for (const m of MISSIONS_5) for (const k of m.pool) expect(SEA_KINDS).toContain(k);
+  it('has five theaters of six missions, a boss every sixth, the sea serpent last (doc 70)', () => {
+    expect(campaignTheaters(5)).toEqual(MAP5);
+    MAP5.forEach((th, k) => {
+      const six = MISSIONS_5.slice(k * 6, k * 6 + 6);
+      expect(six.every((m) => m.theater === th)).toBe(true);
+      expect(six.slice(0, 5).every((m) => m.objective.type !== 'boss')).toBe(true);
+      expect(underwater(THEATERS[th as keyof typeof THEATERS].terrain)).toBe(true);
+    });
+    const bosses = MISSIONS_5.flatMap((m) => (m.objective.type === 'boss' ? [m.objective.boss] : []));
+    expect(bosses).toEqual(['barracuda', 'medusa', 'bastion', 'goliath', 'jormungand']);
+    expect(bosses.every((b) => BOSSES[b].layer === 'ground')).toBe(true); // torpedoes, gun, Shkval and sonar reach them
+    for (const m of MISSIONS_5) for (const k of m.pool) expect([...SEA_KINDS, ...DEEP_KINDS]).toContain(k);
+  });
+
+  it('sends the missile sub mid-mission from the Kelp Forest on, never in boss missions (doc 70)', () => {
+    const at = (n: number): ReturnType<typeof miniBosses> => {
+      const m = MISSIONS_5[n - 121];
+      if (!m) throw new Error(`missing m${n}`);
+      return miniBosses(m);
+    };
+    expect(at(125)).toEqual([]);
+    expect(at(127)).toEqual([{ at: 0.55, kind: 'boomer' }]);
+    expect(at(132)).toEqual([]);
+    expect(ENEMIES.boomer.layer).toBe('ground');
+  });
+
+  it('fights the Coral Reef with sea enemies only and the BARRACUDA at its end', () => {
+    for (const m of MISSIONS_5.slice(0, 6)) for (const k of m.pool) expect(SEA_KINDS).toContain(k);
     const last = MISSIONS_5[5]?.objective;
     expect(last).toEqual({ type: 'boss', boss: 'barracuda' });
     expect(BOSSES.barracuda).toMatchObject({ coreHp: 1700, layer: 'ground', escort: { kind: 'minisub', every: 6 } });

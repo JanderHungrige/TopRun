@@ -23,6 +23,7 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'torpedo': missile(ctx, 54, 6, '#3a4256', '#ff8a3d', '#ffd27a'); break;
     case 'mk48': mk48(ctx); break;
     case 'depthmine': depthMine(ctx); break;
+    case 'shkval': rocketPod(ctx, '#2f3a44', '#9fd8e8'); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;

@@ -76,5 +76,8 @@ export function worldSummary(save: SaveData, world: CampaignId): WorldSummary {
 /** After a debrief: a finale plays the world's celebration first, then the medal ceremony (if any), then `next`. */
 export function afterDebrief(o: { finale: boolean; world: CampaignId; medals: readonly MedalId[]; next: Route }): Route {
   const honours: Route = o.medals.length > 0 ? { to: 'ceremony', medals: [...o.medals], then: o.next } : o.next;
-  return o.finale ? { to: 'celebration', world: o.world, then: honours } : honours;
+  return o.finale && CELEBRATED.includes(o.world) ? { to: 'celebration', world: o.world, then: honours } : honours;
 }
+
+/** The worlds whose celebration exists; world 5's key frames come with Deep Water's wave 3 (doc 70). */
+export const CELEBRATED: readonly CampaignId[] = Object.freeze([1, 2, 3, 4] as const);

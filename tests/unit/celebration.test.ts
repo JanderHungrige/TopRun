@@ -41,6 +41,8 @@ describe('World celebrations (doc 64)', () => {
     const next = { to: 'map' } as const;
     expect(afterDebrief({ finale: false, world: 2, medals: [], next })).toEqual(next);
     expect(afterDebrief({ finale: false, world: 2, medals: ['ace'], next })).toEqual({ to: 'ceremony', medals: ['ace'], then: next });
+    // World 5 has no key frames yet (Deep Water wave 3): its finale skips the celebration.
+    expect(afterDebrief({ finale: true, world: 5, medals: [], next })).toEqual(next);
     expect(afterDebrief({ finale: true, world: 3, medals: [], next })).toEqual({ to: 'celebration', world: 3, then: next });
     expect(afterDebrief({ finale: true, world: 4, medals: ['victory4'], next }))
       .toEqual({ to: 'celebration', world: 4, then: { to: 'ceremony', medals: ['victory4'], then: next } });

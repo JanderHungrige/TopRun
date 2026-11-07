@@ -47,6 +47,7 @@ path: Game/Campaign/FifthMap
 integration_contracts: []
 satisfies_contracts: []
 known_issues:
+  - "Found in wave 2 (live since wave 1): m121–m125 fell through to map 1's mini-boss rule, so a Backfire bomber or an AA fortress turned up halfway through the reef; fixed by map 5's own rule (doc 70: no mini-boss on the reef, the missile sub from m127)."
   - "Wave 1 ships only the Coral Reef (m121–m126); m127–m150, four more theaters and bosses follow in wave 2, the dive launch, medals, celebration and the rating's fifth map in wave 3."
 security_read_sites: []
 sister_projects: []

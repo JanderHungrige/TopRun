@@ -36,6 +36,10 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   deep: { x: 300, y: 104 },
   // Map 5 (doc 65).
   reef: { x: 270, y: 686 },
+  kelp: { x: 650, y: 672 },
+  wrecks: { x: 790, y: 384 },
+  trench: { x: 420, y: 214 },
+  abyss: { x: 300, y: 104 },
 };
 
 /** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48); map 5 a deep teal chart (doc 65). */

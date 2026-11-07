@@ -1,12 +1,12 @@
 import { TAU } from '../core/math';
 import { createRng } from '../core/rng';
-import type { TerrainStyle, TheaterPalette } from '../data/theaters';
+import { underwater, type TerrainStyle, type TheaterPalette } from '../data/theaters';
 import { drawReefFeature, makeReefTile } from './sea-floor';
 
 export type FeatureType =
   | 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad' | 'crater'
   // Under the sea (doc 68).
-  | 'coral' | 'kelp' | 'stone' | 'drop';
+  | 'coral' | 'kelp' | 'stone' | 'drop' | 'wreck' | 'vent';
 
 export interface Feature {
   type: FeatureType;
@@ -133,6 +133,8 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
     case 'kelp':
     case 'stone':
     case 'drop':
+    case 'wreck':
+    case 'vent':
       drawReefFeature(ctx, f.type, f.x, f.y, f.r, Math.floor(f.rot * 1e5), t, p);
       return;
     default:
@@ -172,7 +174,7 @@ export function makeBaseTile(style: TerrainStyle, p: TheaterPalette): HTMLCanvas
   c.height = TILE;
   const g = c.getContext('2d');
   if (!g) return c;
-  if (style === 'reef') return makeReefTile(p);
+  if (underwater(style)) return makeReefTile(p);
   const land = style === 'desert' || style === 'canyon' || style === 'lunar';
   g.fillStyle = land ? p.land : p.sea;
   g.fillRect(0, 0, TILE, TILE);

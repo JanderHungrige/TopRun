@@ -24,6 +24,10 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   rings: { name: 'Ringriese', tagline: 'Eis in den Ringen' },
   deep: { name: 'Tiefer Raum', tagline: 'Hinter dem letzten Stern' },
   reef: { name: 'Korallenriff', tagline: 'Klares Wasser, scharfe Zähne' },
+  kelp: { name: 'Kelpwald', tagline: 'Verloren im Grün' },
+  wrecks: { name: 'Wrackfeld', tagline: 'Geisterschiffe' },
+  trench: { name: 'Der Graben', tagline: 'Hinab ins Dunkel' },
+  abyss: { name: 'Der Abgrund', tagline: 'Wo das Licht endet' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -75,6 +79,18 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Sonarstoß',
     description: 'Leises deutsches Jagd-U-Boot mit Brennstoffzellenantrieb. Vier Rohre, eine Harpunenkanone und ein Aktivsonar, das das Wasser ringsum freiräumt.',
   },
+  seawolf: {
+    specialName: 'Superkavitation',
+    description: 'Der schnellste Jäger im Bunker. Eine harte Kanone und ein Schub in einer Blasenhülle, der durch alles hindurchrammt.',
+  },
+  virginia: {
+    specialName: 'Schleichfahrt',
+    description: 'Leises modernes Jagd-U-Boot. Auf Schleichfahrt verschwindet sie von jedem Sonar: Der Feind stellt das Feuer ein, Torpedos verlieren sie.',
+  },
+  akula: {
+    specialName: 'Doppelhülle',
+    description: 'Groß, breit und doppelt gebaut. Sechs Rohre und ein paar Sekunden, in denen nichts durchkommt. Träge in der Kurve.',
+  },
 };
 
 export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; description: string }>> = {
@@ -91,6 +107,7 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   spacerocket: { name: 'Weltraumrakete', description: 'Zielsuchende Raketen aus den Raketenflügeln. Sie finden alles, was sich bewegt.' },
   torpedo: { name: 'Plasmatorpedo', description: 'Langsame zielsuchende Plasmageschosse aus den Torpedoschächten, für Kriegsschiffe, Stationen und Bosse.' },
   mk48: { name: 'MK48-Torpedo', description: 'Drahtgelenkter schwerer Torpedo. Langsam, aber er findet alles im Wasser: U-Boote, Drohnen, Minen und Monster.' },
+  shkval: { name: 'VA-111 Schkwal', description: 'Superkavitierende Raketentorpedos, im Fächer abgefeuert. Schnell, ungelenkt, sie treffen alles im Wasser.' },
   depthmine: { name: 'Grundmine', description: 'Sinkt unter das Boot und platzt am Meeresgrund. Eine weite Explosion gegen Geschütze und alles am Boden.' },
 };
 
@@ -151,6 +168,7 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   raider: 'Raider Fighters', satgun: 'Gun Satellites', corvette: 'Corvettes', interceptor: 'Interceptors', gunship: 'Gunships',
   battery: 'Lunar Batteries', warden: 'Battlecruisers',
   minisub: 'Midget Subs', seadrone: 'Sea Drones', seamine: 'Sea Mines', seaturret: 'Seabed Turrets', jelly: 'Jellyfish', eel: 'Electric Eels',
+  hunter: 'Hunter Subs', torpboat: 'Torpedo Boats', squid: 'Squid', crab: 'Giant Crabs', sealab: 'Sea Labs', angler: 'Anglerfish', boomer: 'Missile Subs',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -189,6 +207,13 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   seaturret: ['Meeresboden-Geschütz', 'Meeresboden-Geschütze'],
   jelly: ['Qualle', 'Quallen'],
   eel: ['Zitteraal', 'Zitteraale'],
+  hunter: ['Jagd-U-Boot', 'Jagd-U-Boote'],
+  torpboat: ['Torpedoboot', 'Torpedoboote'],
+  squid: ['Kalmar', 'Kalmare'],
+  crab: ['Riesenkrabbe', 'Riesenkrabben'],
+  sealab: ['Unterwasserlabor', 'Unterwasserlabore'],
+  angler: ['Anglerfisch', 'Anglerfische'],
+  boomer: ['Raketen-U-Boot', 'Raketen-U-Boote'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -213,4 +238,8 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   trident: 'Dreirumpf-Schlachtschiff',
   ark: 'Mutterschiff',
   barracuda: 'Jagd-U-Boot',
+  medusa: 'Quallenkönigin',
+  bastion: 'Meeresgrundfestung',
+  goliath: 'Riesenkalmar',
+  jormungand: 'Seeschlange',
 };

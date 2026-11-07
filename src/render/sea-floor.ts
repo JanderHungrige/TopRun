@@ -1,16 +1,13 @@
 import { TAU } from '../core/math';
-import { createRng, type Rng } from '../core/rng';
+import { createRng } from '../core/rng';
 import type { TheaterPalette } from '../data/theaters';
 
-// Under the sea (doc 68): the reef's seabed — the sand tile, coral heads, kelp, rocks and deep drop-offs — and the water
-// itself: caustics on the sand, schools of reef fish, bubble strings rising from vents, slanted light rays from above and
-// a blue-green tint over everything. Playfield-local coordinates (640 × 720).
+// Under the sea (docs 68, 70): the seabed — the sand tile, coral heads, kelp, rocks, deep drop-offs, sunken wrecks and
+// black smokers. The water over it lives in water.ts. Playfield-local coordinates.
 
-const W = 640;
-const H = 720;
 const TILE = 256;
 
-export type ReefFeature = 'coral' | 'kelp' | 'stone' | 'drop';
+export type ReefFeature = 'coral' | 'kelp' | 'stone' | 'drop' | 'wreck' | 'vent';
 
 const CORAL = ['#ff8a78', '#ffb84a', '#c87ae8', '#ff6fa8', '#f2e27a'] as const;
 
@@ -108,20 +105,35 @@ function fan(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, col
   ctx.stroke();
 }
 
-/** Kelp strands rooted at (x, y), leaning and swaying with the current. */
+/** Kelp strands rooted at (x, y), leaning and swaying with the current; big stands carry leaf blades. */
 function kelp(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, seed: number, t: number): void {
   const rng = createRng(seed);
   const n = 3 + Math.floor(rng.next() * 3);
   ctx.lineCap = 'round';
   for (let i = 0; i < n; i++) {
     const x0 = x + (rng.next() - 0.5) * r;
-    const len = r * (1.2 + rng.next());
-    ctx.strokeStyle = i % 2 ? '#3f7a3a' : '#5a8f3c';
-    ctx.lineWidth = 4;
+    const len = r * (1.6 + rng.next() * 1.4);
+    const color = i % 2 ? '#3f7a3a' : '#5a8f3c';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.max(3, r * 0.16);
     ctx.beginPath();
     ctx.moveTo(x0, y);
-    for (let k = 1; k <= 6; k++) ctx.lineTo(x0 + Math.sin(t * 1.4 + k * 0.6 + i) * k * 1.4, y - (len * k) / 6);
+    const pts: Array<[number, number]> = [];
+    for (let k = 1; k <= 7; k++) {
+      const px = x0 + Math.sin(t * 1.4 + k * 0.6 + i) * k * 1.6;
+      const py = y - (len * k) / 7;
+      pts.push([px, py]);
+      ctx.lineTo(px, py);
+    }
     ctx.stroke();
+    if (r < 22) continue;
+    ctx.fillStyle = color;
+    pts.forEach(([px, py], k) => {
+      const side = k % 2 ? 1 : -1;
+      ctx.beginPath();
+      ctx.ellipse(px + side * r * 0.16, py, r * 0.16, r * 0.06, side * 0.6, 0, TAU);
+      ctx.fill();
+    });
   }
 }
 
@@ -147,7 +159,60 @@ function stone(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, s
   ctx.fill();
 }
 
-/** One seabed feature; `t` sways the kelp and the fans. */
+/** A sunken ship seen from above: a rusty hull lying at an angle, broken deck planks, a fallen mast. */
+function wreck(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, seed: number): void {
+  const rng = createRng(seed);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rng.next() * Math.PI);
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.ellipse(5, 6, r * 0.32, r, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#6a4a36';
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.quadraticCurveTo(r * 0.34, -r * 0.5, r * 0.3, r * 0.7);
+  ctx.lineTo(-r * 0.3, r * 0.7);
+  ctx.quadraticCurveTo(-r * 0.34, -r * 0.5, 0, -r);
+  ctx.fill();
+  ctx.fillStyle = '#3a2a20';
+  ctx.fillRect(-r * 0.22, -r * 0.5, r * 0.44, r * 1.1);
+  ctx.fillStyle = 'rgba(160,110,70,0.5)';
+  for (let k = -4; k <= 5; k++) if (rng.next() > 0.3) ctx.fillRect(-r * 0.22, k * r * 0.1, r * 0.44, r * 0.05);
+  ctx.strokeStyle = '#4a3a2e';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(0, -r * 0.1);
+  ctx.lineTo(r * 0.7, r * 0.2);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(120,170,120,0.35)';
+  for (let k = 0; k < 5; k++) ctx.fillRect((rng.next() - 0.5) * r * 0.5, (rng.next() - 0.5) * r * 1.4, 3, 3);
+  ctx.restore();
+}
+
+/** A black smoker: a dark chimney with a hot glowing mouth that flickers. */
+function vent(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, t: number): void {
+  ctx.fillStyle = '#16181c';
+  ctx.beginPath();
+  ctx.ellipse(x, y, r, r * 0.8, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#2a2c30';
+  ctx.beginPath();
+  ctx.ellipse(x - r * 0.2, y - r * 0.2, r * 0.6, r * 0.45, 0, 0, TAU);
+  ctx.fill();
+  const glow = 0.55 + 0.25 * Math.sin(t * 5);
+  ctx.fillStyle = `rgba(255,120,40,${glow.toFixed(3)})`;
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.28, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,220,140,0.8)';
+  ctx.beginPath();
+  ctx.arc(x, y, r * 0.1, 0, TAU);
+  ctx.fill();
+}
+
+/** One seabed feature; `t` sways the kelp and the fans and flickers the vents. */
 export function drawReefFeature(
   ctx: CanvasRenderingContext2D, type: ReefFeature, x: number, y: number, r: number, seed: number, t: number, p: TheaterPalette,
 ): void {
@@ -155,6 +220,8 @@ export function drawReefFeature(
     case 'coral': coral(ctx, x, y, r, seed, t); return;
     case 'kelp': kelp(ctx, x, y, r, seed, t); return;
     case 'stone': stone(ctx, x, y, r, seed); return;
+    case 'wreck': wreck(ctx, x, y, r, seed); return;
+    case 'vent': vent(ctx, x, y, r, t + seed); return;
     case 'drop': {
       const g = ctx.createRadialGradient(x, y, r * 0.2, x, y, r);
       g.addColorStop(0, p.seaDeep);
@@ -166,129 +233,5 @@ export function drawReefFeature(
       return;
     }
     default: throw new Error(`unhandled: ${type satisfies never}`);
-  }
-}
-
-interface Fish { dx: number; dy: number; phase: number; color: string }
-interface School { x: number; y: number; vx: number; fish: Fish[] }
-interface Bubble { x: number; y: number; r: number; phase: number }
-
-const FISH = ['#ffd84a', '#5fd0ff', '#ff8a3d', '#f2f2f2', '#9a7aff'] as const;
-
-/** The living water over the reef: fish schools, bubble strings, caustics, light rays and the tint. */
-export class Water {
-  private time = 0;
-  private schools: School[] = [];
-  private bubbles: Bubble[] = [];
-  private vents: Array<{ x: number; y: number }> = [];
-  private readonly rng: Rng;
-
-  constructor(seed: number) {
-    this.rng = createRng(seed);
-    for (let i = 0; i < 3; i++) this.vents.push({ x: this.rng.range(30, W - 30), y: this.rng.range(0, H) });
-  }
-
-  update(dt: number, scroll: number): void {
-    this.time += dt;
-    const r = this.rng;
-    for (const v of this.vents) {
-      v.y += scroll;
-      if (r.chance(dt * 6)) this.bubbles.push({ x: v.x + r.range(-3, 3), y: v.y, r: r.range(1.5, 3.5), phase: r.range(0, TAU) });
-    }
-    this.vents = this.vents.filter((v) => v.y < H + 20);
-    if (r.chance(dt * 0.4)) this.vents.push({ x: r.range(30, W - 30), y: -20 });
-    for (const b of this.bubbles) {
-      b.y += scroll - 110 * dt;
-      b.x += Math.sin(this.time * 4 + b.phase) * 14 * dt;
-    }
-    this.bubbles = this.bubbles.filter((b) => b.y > -10);
-    for (const s of this.schools) {
-      s.x += s.vx * dt;
-      s.y += scroll * 0.4;
-    }
-    this.schools = this.schools.filter((s) => s.x > -120 && s.x < W + 120 && s.y < H + 60);
-    if (this.schools.length < 2 && r.chance(dt * 0.25)) this.spawnSchool();
-  }
-
-  private spawnSchool(): void {
-    const r = this.rng;
-    const left = r.chance(0.5);
-    const color = FISH[r.int(0, FISH.length - 1)] ?? '#ffd84a';
-    const fish = Array.from({ length: r.int(7, 13) }, () => ({ dx: r.range(-34, 34), dy: r.range(-22, 22), phase: r.range(0, TAU), color }));
-    this.schools.push({ x: left ? -100 : W + 100, y: r.range(60, H - 160), vx: (left ? 1 : -1) * r.range(50, 80), fish });
-  }
-
-  /** Under the units: the water over the sand, caustics, the fish and the bubbles. */
-  renderFloor(ctx: CanvasRenderingContext2D, distance: number): void {
-    const deep = ctx.createLinearGradient(0, 0, 0, H);
-    deep.addColorStop(0, 'rgba(20,150,180,0.26)');
-    deep.addColorStop(1, 'rgba(8,84,130,0.42)');
-    ctx.fillStyle = deep;
-    ctx.fillRect(0, 0, W, H);
-    this.caustics(ctx, distance);
-    for (const s of this.schools) {
-      const dir = Math.sign(s.vx);
-      for (const f of s.fish) {
-        const x = s.x + f.dx + Math.sin(this.time * 2 + f.phase) * 4;
-        const y = s.y + f.dy + Math.cos(this.time * 1.6 + f.phase) * 3;
-        ctx.fillStyle = f.color;
-        ctx.beginPath();
-        ctx.ellipse(x, y, 5, 2.4, 0, 0, TAU);
-        ctx.moveTo(x - dir * 4, y);
-        ctx.lineTo(x - dir * 9, y - 3);
-        ctx.lineTo(x - dir * 9, y + 3);
-        ctx.fill();
-      }
-    }
-    ctx.strokeStyle = 'rgba(225,245,255,0.6)';
-    ctx.lineWidth = 1;
-    for (const b of this.bubbles) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, TAU);
-      ctx.stroke();
-    }
-  }
-
-  /** A faint moving net of brighter lines over the sand. */
-  private caustics(ctx: CanvasRenderingContext2D, distance: number): void {
-    ctx.strokeStyle = 'rgba(210,255,250,0.13)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    for (let k = 0; k < 14; k++) {
-      const y0 = ((k * 61 + distance) % (H + 60)) - 30;
-      for (let x = 0; x <= W; x += 32) {
-        const y = y0 + Math.sin(x * 0.03 + this.time * 1.2 + k) * 9;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-    }
-    ctx.stroke();
-  }
-
-  /** Over everything: slanted light rays that sway and breathe, then the blue-green tint. */
-  renderOverlay(ctx: CanvasRenderingContext2D): void {
-    for (let i = 0; i < 5; i++) {
-      const x = 40 + i * 140 + Math.sin(this.time * 0.3 + i * 1.7) * 30;
-      const w = 40 + (i % 3) * 22;
-      const a = 0.05 + 0.03 * Math.sin(this.time * 0.8 + i * 2.1);
-      const g = ctx.createLinearGradient(0, 0, 0, H);
-      g.addColorStop(0, `rgba(220,255,250,${a.toFixed(3)})`);
-      g.addColorStop(1, 'rgba(220,255,250,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.moveTo(x, -10);
-      ctx.lineTo(x + w, -10);
-      ctx.lineTo(x + w + 190, H);
-      ctx.lineTo(x + 150, H);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.fillStyle = 'rgba(10,110,130,0.08)';
-    ctx.fillRect(0, 0, W, H);
-    const edge = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
-    edge.addColorStop(0, 'rgba(2,24,36,0)');
-    edge.addColorStop(1, 'rgba(2,24,36,0.36)');
-    ctx.fillStyle = edge;
-    ctx.fillRect(0, 0, W, H);
   }
 }

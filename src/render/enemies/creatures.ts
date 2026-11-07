@@ -1,10 +1,10 @@
 import type { Pal, UnitFn } from '../draw-ground-units';
 import { circle, ellipse } from '../shapes';
 
-// Map 5's sea creatures (doc 68), heads down (+y): the jellyfish and the electric eel. They pulse and wriggle with
-// time; flashed or as a shadow they keep the same outline.
+// Map 5's sea creatures (docs 68, 70), heads down (+y): the jellyfish, the electric eel, the squid and the anglerfish.
+// They pulse and wriggle with time; flashed or as a shadow they keep the same outline.
 
-type CreatureKind = 'jelly' | 'eel';
+type CreatureKind = 'jelly' | 'eel' | 'squid' | 'angler';
 
 /** A translucent bell that pulses, a frilled rim and tentacles trailing behind (up). */
 const jelly: UnitFn = (ctx, p, t) => {
@@ -71,4 +71,61 @@ function sparks(ctx: CanvasRenderingContext2D, p: Pal, x: number, y: number, t: 
   ctx.stroke();
 }
 
-export const CREATURES: Readonly<Record<CreatureKind, UnitFn>> = { jelly, eel };
+/** A pale torpedo body with side fins at the tail end (up), tentacles trailing forward-down, ink at the back. */
+const squid: UnitFn = (ctx, p, t) => {
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 1.6;
+  ctx.strokeStyle = p.mono ? p.body : p.dark;
+  for (let i = -3; i <= 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * 1.4, 8);
+    ctx.lineTo(i * 2.2 + Math.sin(t * 9 + i) * 1.6, 15);
+    ctx.lineTo(i * 2.6 + Math.sin(t * 9 + i + 1) * 2.4, 21);
+    ctx.stroke();
+  }
+  const flap = Math.sin(t * 7) * 2;
+  ctx.fillStyle = p.mono ? p.body : p.dark;
+  ctx.beginPath();
+  ctx.moveTo(0, -18);
+  ctx.lineTo(9 + flap, -10);
+  ctx.lineTo(0, -4);
+  ctx.lineTo(-9 - flap, -10);
+  ctx.closePath();
+  ctx.fill();
+  ellipse(ctx, 0, -2, 5.5, 13, p.body);
+  if (p.mono) return;
+  ellipse(ctx, -1.5, -6, 2, 6, 'rgba(255,255,255,0.3)');
+  for (const sx of [-3, 3]) circle(ctx, sx, 7, 1.3, '#1a1a22');
+};
+
+/** A dark gaping fish: a big head, needle teeth, a stalk with a glowing lure swinging ahead of it. */
+const angler: UnitFn = (ctx, p, t) => {
+  const sway = Math.sin(t * 2.4) * 4;
+  ctx.strokeStyle = p.mono ? p.body : p.light;
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(0, 6);
+  ctx.quadraticCurveTo(sway, 18, sway * 1.5, 24);
+  ctx.stroke();
+  ctx.fillStyle = p.mono ? p.body : p.dark;
+  ctx.beginPath();
+  ctx.moveTo(0, -20);
+  ctx.lineTo(7, -26);
+  ctx.lineTo(4, -14);
+  ctx.lineTo(-4, -14);
+  ctx.lineTo(-7, -26);
+  ctx.closePath();
+  ctx.fill();
+  ellipse(ctx, 0, 0, 14, 16, p.body);
+  if (p.mono) return;
+  ellipse(ctx, 0, 9, 10, 5, '#0a0a10');
+  ctx.fillStyle = '#e8e8f0';
+  for (let i = -4; i <= 4; i++) ctx.fillRect(i * 2.2 - 0.4, 6, 0.8, 3);
+  for (const sx of [-6, 6]) circle(ctx, sx, 1, 1.6, '#c8e8ff');
+  if (p.live) {
+    circle(ctx, sway * 1.5, 25, 6, 'rgba(95,240,224,0.25)');
+    circle(ctx, sway * 1.5, 25, 2.4, p.glass);
+  }
+};
+
+export const CREATURES: Readonly<Record<CreatureKind, UnitFn>> = { jelly, eel, squid, angler };

@@ -17,7 +17,7 @@ test_files:
   - tests/unit/dive-launch.test.ts
 data_flow: reads-existing
 last_synced: 2026-11-07
-status: draft
+status: complete
 phase: all
 mdd_version: 11
 tags: [launch, submarines, dive, well-deck, minigame, takeoff-rating, map-5]

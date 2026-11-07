@@ -58,8 +58,9 @@ palette per world (median cut, no dither), saved as indexed PNGs `w<world><shot>
 | 2 — Second Front | the carrier at anchor in a night harbour below the city lights | the hangar-bay party under coloured bulbs, a crate-stage band | the carrier sailing out of the storm under a rainbow at dawn |
 | 3 — Low Level | a mountain forward base at sunrise, helicopters on the pad, crew waving | four helicopters in formation low over a fjord | the campfire at the forward base at dusk, a guitar |
 | 4 — Deep Space | inside the orbital station, the crew floating with confetti before the planet window | a starfighter past a ringed giant at sunrise | the night side of the planet from orbit, a station in front |
+| 5 — Deep Water (doc 72) | under the sunlit sea over a reef, whales, fish and sun shafts | the underwater base's mess-hall party under a round window, sailors in overalls, a cake | dusk at sea: the carrier at anchor, the sub surfaced beside it, sailors waving |
 
-- Made 2026-11-07 on the M1 (~4.5 min a frame); w3c was re-rendered (seed 11, "only grown-up soldiers in olive
+- Made 2026-11-07 on the M1 (~4.5 min a frame; world 5's ~10 min a frame, the M1 busy); w3c was re-rendered (seed 11, "only grown-up soldiers in olive
   flight suits, no children, no cups") after the first render drew a child and civilians at the campfire. The twelve
   plates are 6–24 KB each, 150 KB together.
 

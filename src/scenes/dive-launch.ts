@@ -1,5 +1,7 @@
 import type { Scene } from '../core/scene';
 import type { MissionDef } from '../data/types';
+import { crewLook } from '../game/crew-looks';
+import { DIVE_CALL, shooterLine, type ShooterEvent } from '../game/dialogue-scripts';
 import { createDive, DIVE, stepDive, type DiveGrade, type DiveInput, type DiveState } from '../game/dive-launch';
 import type { GameContext } from '../game/state';
 import { missionName } from '../i18n/content';
@@ -8,11 +10,13 @@ import type { UiKey } from '../i18n/ui-en';
 import { drawPlaneSide } from '../render/draw-planes-side';
 import { ballastBubbles, drawDiveWorld, PX, SURFACE_Y, toScreen } from '../render/dive';
 import { COLORS, text } from '../render/text';
+import { pilotContext, SpeechBox } from '../ui/speech';
 import { drawButton, drawPanel, hit } from '../ui/widgets';
 import { ACTION_BTN, SKIP_BTN } from './takeoff-hud';
 
 // The sub's dive launch (doc 71): the well deck floods, the sub moves out, and the pilot floods or blows ballast to pass
-// the gap between the anti-sub net and the reef; then the mission starts with the rating.
+// the gap between the anti-sub net and the reef; then the mission starts with the rating. Shooter, the diving officer
+// in her submariner's coverall, calls it (doc 76).
 
 const GRADE: Readonly<Record<DiveGrade, UiKey>> = { perfect: 'dive.perfect', good: 'dive.good', early: 'dive.early', late: 'dive.late' };
 const GAUGE = { x: 36, y: SURFACE_Y, w: 34, metres: 30 };
@@ -23,8 +27,21 @@ export class DiveLaunchScene implements Scene {
   private t = 0;
   private shake = 0;
   private leaving = false;
+  private readonly shooter: SpeechBox;
 
-  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {}
+  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {
+    this.shooter = new SpeechBox(game.audio, {
+      portrait: { x: 130, y: 552, w: 112, h: 136 },
+      bubble: { x: 256, y: 566, w: 470, h: 104 },
+      fontSize: 17, style: 'comic', persistent: true,
+    }, 'shooter', pilotContext(game));
+    this.shooter.look = crewLook(mission.campaign);
+    this.call('flood');
+  }
+
+  private call(ev: ShooterEvent): void {
+    this.shooter.say(shooterLine(ev), true);
+  }
 
   enter(): void {
     this.game.music.stop();
@@ -40,9 +57,13 @@ export class DiveLaunchScene implements Scene {
       this.game.go({ to: 'map', select: this.mission.id });
       return;
     }
+    this.shooter.update(dt, this.game.input);
     const before = this.s;
     this.s = stepDive(this.s, this.readInput(), dt);
-    if (before.phase === 'flood' && this.s.phase === 'dive') this.game.audio.play('uiMove');
+    if (before.phase === 'flood' && this.s.phase === 'dive') {
+      this.game.audio.play('uiMove');
+      this.call('dive');
+    }
     if (before.phase === 'dive' && this.s.phase === 'clear') this.graded();
     if (this.s.phase === 'done' && !this.leaving) {
       this.leaving = true;
@@ -67,6 +88,7 @@ export class DiveLaunchScene implements Scene {
       this.shake = 1;
     }
     a.play(this.s.grade === 'perfect' ? 'cash' : this.s.grade === 'good' ? 'uiSelect' : 'denied');
+    if (this.s.grade) this.call(DIVE_CALL[this.s.grade]);
   }
 
   private get camX(): number {
@@ -123,5 +145,6 @@ export class DiveLaunchScene implements Scene {
     this.drawSub(ctx);
     ctx.restore();
     this.drawHud(ctx);
+    this.shooter.render(ctx);
   }
 }

@@ -1,6 +1,6 @@
 import type { AreaRect } from '../../data/base-areas';
 import { hexOf, PAL, type Ramp } from '../pixel/palette';
-import { ARCADE, BEACON, DOOR, HORIZON, LAMPS, LAMP_Y, MUG, TV_SCREEN, VCR } from './layout';
+import { ARCADE, BEACON, DOOR, HORIZON, LAMPS, LAMP_Y, MUG, TV_CART, TV_SCREEN, VCR } from './layout';
 import { col, hash } from './paint';
 import { FAN_FRAMES, fanSprite, neonSprite, type Placed } from './sprites';
 
@@ -121,12 +121,15 @@ function steam(g: CanvasRenderingContext2D, G: number, t: number): void {
 }
 
 /** The old TV (doc 63): a dim blue screen with a slowly rolling bright band and now and then a burst of snow; the
- *  video recorder's clock blinks its four digits like every unset recorder ever. */
-export function tvSet(g: CanvasRenderingContext2D, G: number, t: number): void {
-  const c0 = Math.round(TV_SCREEN.x / G);
-  const r0 = Math.round(TV_SCREEN.y / G);
-  const w = Math.round(TV_SCREEN.w / G);
-  const h = Math.round(TV_SCREEN.h / G);
+ *  video recorder's clock blinks its four digits like every unset recorder ever. `f` scales it about the cart's floor point
+ *  moved to `at` (a dock's, to the scale of its pilot, doc 76). */
+export function tvSet(g: CanvasRenderingContext2D, G: number, t: number, f = 1, at: { x: number; base: number } = TV_CART): void {
+  const X = (x: number): number => Math.round((at.x + (x - TV_CART.x) * f) / G);
+  const Y = (y: number): number => Math.round((at.base + (y - TV_CART.base) * f) / G);
+  const c0 = X(TV_SCREEN.x);
+  const r0 = Y(TV_SCREEN.y);
+  const w = Math.round((TV_SCREEN.w * f) / G);
+  const h = Math.round((TV_SCREEN.h * f) / G);
   px(g, c0, r0, w, h, hx(PAL.blue, 1));
   px(g, c0, r0 + Math.floor(((t * 0.35) % 1) * h), w, 1, hx(PAL.blue, 2));
   if (hash(Math.floor(t * 3)) > 0.82) {
@@ -134,10 +137,11 @@ export function tvSet(g: CanvasRenderingContext2D, G: number, t: number): void {
   }
   px(g, c0 + 1, r0 + 1, 2, 1, hx(PAL.white, 2));
   if (t % 1 > 0.5) return;
-  const lc = Math.round((VCR.x + 46) / G);
-  const lr = Math.round((VCR.y + 5) / G);
-  for (const dc of [0, 2, 5, 7]) px(g, lc + dc, lr, 1, 2, hx(PAL.green, 4));
-  px(g, lc + 4, lr, 1, 1, hx(PAL.green, 4));
+  const lc = X(VCR.x + 46);
+  const lr = Y(VCR.y + 5);
+  const d = (n: number): number => Math.round(n * f);
+  for (const dc of [0, 2, 5, 7]) px(g, lc + d(dc), lr, Math.max(1, d(1)), Math.max(2, d(2)), hx(PAL.green, 4));
+  px(g, lc + d(4), lr, Math.max(1, d(1)), Math.max(1, d(1)), hx(PAL.green, 4));
 }
 
 /** Pulsing gold corner brackets around a hotspot (logical rect). */

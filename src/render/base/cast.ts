@@ -70,20 +70,22 @@ const face = (t: number, phase: number): FaceState => ({ expression: 'calm', str
 /** Floor x snapped to the art grid, so a walking figure moves in whole art pixels. */
 const snap = (x: number, G: number): number => Math.round(x / G) * G;
 
-/** `crew`: the plane captain polishing the jet — only in the carrier hangar (the docks have no jet to polish, doc 73). */
-export interface CastView { t: number; walker: Walker; face: PilotFace; crew?: boolean }
+/** `crew`: the plane captain polishing the jet — only in the carrier hangar (the docks have no jet to polish, doc 73).
+ *  `scale`: the pilot's, where a dock's picture needs a taller grown-up (doc 76). */
+export interface CastView { t: number; walker: Walker; face: PilotFace; crew?: boolean; scale?: number }
 
 function drawPilot(ctx: CanvasRenderingContext2D, G: number, view: CastView): void {
   const w = view.walker;
   const look = pilotLook(view.face);
-  const opts = { units: 3 / PILOT_SCALE };
+  const s = view.scale ?? PILOT_SCALE;
+  const opts = { units: 3 / s };
   ctx.save();
   ctx.translate(snap(w.x, G), PILOT_FLOOR_Y);
   if (w.moving) {
-    ctx.scale(PILOT_SCALE * w.facing, PILOT_SCALE);
+    ctx.scale(s * w.facing, s);
     drawSideFigure(ctx, look, WALK[walkFrame(w)] ?? WALK[0] ?? walkPose(0), face(view.t, 0), opts);
   } else {
-    ctx.scale(PILOT_SCALE, PILOT_SCALE);
+    ctx.scale(s, s);
     const pose: FrontPose = { turn: 0.22 * w.facing, raise: [0, 0], hands: 'open' };
     drawFrontFigure(ctx, look, pose, face(view.t, 0), undefined, opts);
   }
@@ -114,10 +116,11 @@ export function drawCast(ctx: CanvasRenderingContext2D, G: number, view: CastVie
 }
 
 /** Soft floor shadows under the figures, on the art layer (art px). */
-export function drawCastShadows(g: CanvasRenderingContext2D, G: number, walker: Walker, crew = true): void {
+export function drawCastShadows(g: CanvasRenderingContext2D, G: number, walker: Walker, crew = true, scale = PILOT_SCALE): void {
   g.fillStyle = hexOf(col(PAL.ink, 0));
   g.globalAlpha = 0.45;
-  const feet: ReadonlyArray<readonly [number, number, number]> = crew ? [[walker.x, PILOT_FLOOR_Y, 50], [MECH.x, MECH.foot, 40]] : [[walker.x, PILOT_FLOOR_Y, 50]];
+  const pilot = [walker.x, PILOT_FLOOR_Y, Math.round((50 * scale) / PILOT_SCALE)] as const;
+  const feet: ReadonlyArray<readonly [number, number, number]> = crew ? [pilot, [MECH.x, MECH.foot, 40]] : [pilot];
   for (const [x, y, w] of feet) {
     const c = Math.round(x / G);
     const r = Math.round(y / G);

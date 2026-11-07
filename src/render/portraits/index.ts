@@ -1,3 +1,4 @@
+import { portraitKey, type CrewLook } from '../../game/crew-looks';
 import { AVATAR_IDS } from '../../game/profiles';
 import { fixedFrames, fixedUrls } from './assets';
 import { drawImagePortrait, drawPlaceholder, preloadImages } from './image';
@@ -16,20 +17,23 @@ export interface PortraitState {
   mood: Mood; // kept for the dialogue scripts; image portraits don't show moods
   gesture: Gesture; // kept for the dialogue scripts; image portraits don't show gestures
   radio?: boolean; // draw as a live radio video feed: green phosphor palette, scanlines, flicker, thin frame
+  look?: CrewLook; // the world's outfit of the chief and Shooter (doc 76); the carrier's by default
 }
 
 /** Per-character phase so the cast never blinks or bobs in sync. */
 const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6 };
 const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman'];
+/** The crew's other outfits (doc 76); a missing one falls back to the carrier's. */
+const OUTFITS: readonly string[] = ['chief-sea', 'chief-space', 'shooter-sea', 'shooter-space'];
 
 /** Starts loading the portraits of the cast and of the preset pilots (called once at boot). */
 export function preloadPortraits(): void {
-  preloadImages(fixedUrls([...CAST, ...AVATAR_IDS]));
+  preloadImages(fixedUrls([...CAST, ...OUTFITS, ...AVATAR_IDS]));
 }
 
 /** Head-and-shoulders portrait filling the box (aspect ~5:6), bottom-aligned, clipped to the box. */
 export function drawPortrait(ctx: CanvasRenderingContext2D, id: CharacterId, box: Box, s: PortraitState): void {
-  const frames = fixedFrames(id);
+  const frames = fixedFrames(portraitKey(id, s.look ?? 'carrier')) ?? fixedFrames(id);
   if (frames) drawImagePortrait(ctx, frames, box, { t: s.t, mouth: s.mouth, seed: SEED[id], radio: s.radio });
   else drawPlaceholder(ctx, box, s);
 }

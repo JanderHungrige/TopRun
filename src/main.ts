@@ -180,7 +180,7 @@ class Game implements GameContext {
   }
 
   go(route: Route): void {
-    this.kit = routeKit(route, this.kit);
+    this.kit = routeKit(route, this.kit, this.home);
     this.scenes.go(createScene(this, route));
   }
 

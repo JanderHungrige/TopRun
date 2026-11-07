@@ -1,5 +1,7 @@
 import type { Scene } from '../core/scene';
 import type { MissionDef } from '../data/types';
+import { crewLook } from '../game/crew-looks';
+import { SEPARATION_CALL, shooterLine, type ShooterEvent } from '../game/dialogue-scripts';
 import { createLaunch, LAUNCH, stepLaunch, type LaunchInput, type LaunchState } from '../game/rocket-launch';
 import type { GameContext } from '../game/state';
 import { missionName } from '../i18n/content';
@@ -8,6 +10,7 @@ import { liveryLook } from '../render/livery-art';
 import { drawFalling, drawFreeShip, drawStack, PIECES, type StackPiece } from '../render/rocket';
 import { ellipse } from '../render/shapes';
 import { COLORS, text } from '../render/text';
+import { pilotContext, SpeechBox } from '../ui/speech';
 import { drawButton, hit } from '../ui/widgets';
 import { drawFuel, drawLaunchPrompt, drawLaunchSky, drawSeparateButton } from './rocket-hud';
 import { ACTION_BTN, SKIP_BTN } from './takeoff-hud';
@@ -21,14 +24,28 @@ const CLOUDS: readonly [number, number][] = [[1.5, 300], [2.6, 820], [3.8, 180],
 
 interface Falling { piece: StackPiece; x: number; y: number; vx: number; vy: number; rot: number; vr: number }
 
-/** The spacecraft's rocket launch (doc 59): countdown, two stage burns, E separates each spent stage, then orbit. */
+/** The spacecraft's rocket launch (doc 59): countdown, two stage burns, E separates each spent stage, then orbit.
+ *  Shooter calls it from launch control (doc 76). */
 export class RocketLaunchScene implements Scene {
   private s: LaunchState = createLaunch();
   private t = 0;
   private falling: Falling[] = [];
   private leaving = false;
+  private readonly shooter: SpeechBox;
 
-  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {}
+  constructor(private readonly game: GameContext, private readonly mission: MissionDef) {
+    this.shooter = new SpeechBox(game.audio, {
+      portrait: { x: 24, y: 552, w: 112, h: 136 },
+      bubble: { x: 150, y: 566, w: 470, h: 104 },
+      fontSize: 17, style: 'comic', persistent: true,
+    }, 'shooter', pilotContext(game));
+    this.shooter.look = crewLook(mission.campaign);
+    this.call('countdown');
+  }
+
+  private call(ev: ShooterEvent): void {
+    this.shooter.say(shooterLine(ev), true);
+  }
 
   enter(): void {
     this.game.music.stop();
@@ -42,6 +59,7 @@ export class RocketLaunchScene implements Scene {
       this.game.go({ to: 'map', select: this.mission.id });
       return;
     }
+    this.shooter.update(dt, this.game.input);
     const before = this.s;
     this.s = stepLaunch(this.s, this.readInput(), dt);
     this.events(before);
@@ -71,11 +89,16 @@ export class RocketLaunchScene implements Scene {
     const a = this.game.audio;
     const s = this.s;
     if (s.phase === 'countdown' && Math.ceil(LAUNCH.countdown - s.t) !== Math.ceil(LAUNCH.countdown - before.t)) a.play('uiMove');
-    if (before.phase === 'countdown' && s.phase === 'burn') a.play('powerup');
+    if (before.phase === 'countdown' && s.phase === 'burn') {
+      a.play('powerup');
+      this.call('liftoff');
+    }
+    if (before.phase !== 'orbit' && s.phase === 'orbit') this.call('orbit');
     if (before.phase === 'burn' && s.phase === 'spent') a.play('uiMove');
     if (s.grades.length === before.grades.length) return;
     const grade = s.grades[s.grades.length - 1];
     a.play(grade === 'perfect' ? 'cash' : grade === 'good' ? 'uiSelect' : 'denied');
+    if (grade && s.phase !== 'orbit') this.call(SEPARATION_CALL[grade]);
     const nose = this.noseY(before);
     const drop = (piece: StackPiece, vx: number, vr: number): void => {
       const p = PIECES[piece];
@@ -130,5 +153,6 @@ export class RocketLaunchScene implements Scene {
     if (!free) drawFuel(ctx, this.s, this.t);
     drawSeparateButton(ctx, this.s, this.t);
     if (!free) drawButton(ctx, { id: 'skip', label: t('takeoff.skip'), ...SKIP_BTN, hint: 'S' }, false, this.t);
+    this.shooter.render(ctx);
   }
 }

@@ -7,16 +7,18 @@ import { Pix } from '../pixel/raster';
 import { drawBrackets, tvSet } from './ambient';
 import { drawCast, drawCastShadows } from './cast';
 import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
+import { drawDockGlobe } from './dock-globe';
 import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
-import { NEON, TV_CART } from './layout';
+import { NEON, PILOT_SCALE, TV_CART } from './layout';
 import { paintTvSet } from './props';
 import { neonSprite } from './sprites';
 
-// The home base's docks (doc 73): the generated picture on the art grid, the TV cart, the joystick neon and an exit
-// hatch moved onto it, the docks' calm ambient life, the pulsing brackets; then world 1's flip board and chalkboard over
-// the picture's own, the pilot and the strip on top (no name plates in the docks).
+// The home base's docks (doc 73): the generated picture on the art grid, the TV cart and the joystick neon moved onto it,
+// the sea dock's globe (the way to the map; in space it is the windows, doc 76), the docks' calm ambient life, the pulsing
+// brackets; then world 1's flip board and chalkboard over the picture's own, the pilot to the dock's scale and the strip
+// on top (no name plates in the docks).
 
 export type DockLook = 'space' | 'sea';
 
@@ -56,39 +58,20 @@ function backdrop(look: DockLook, img: HTMLImageElement, gr: Grid): HTMLCanvasEl
   });
 }
 
-/** The TV cart, video recorder and CRT painted where the carrier hangar keeps them; drawn offset onto the dock. */
-function tvLayer(gr: Grid): HTMLCanvasElement | null {
-  return layers.get(`tv|${gr.W}x${gr.H}|${gr.G.toFixed(4)}`, () => {
-    const p = new Pix(gr.W, gr.H, 1 / gr.G, 0, 0);
+/** The TV cart, video recorder and CRT on the dock's floor, to the scale of its pilot (doc 76). */
+function tvLayer(gr: Grid, look: DockLook): HTMLCanvasElement | null {
+  const L = LAYOUT[look];
+  const f = tvScale(look);
+  return layers.get(`tv|${look}|${gr.W}x${gr.H}|${gr.G.toFixed(4)}`, () => {
+    const p = new Pix(gr.W, gr.H, f / gr.G, (L.tv.x - TV_CART.x * f) / gr.G, (L.tv.base - TV_CART.base * f) / gr.G);
     paintTvSet(p);
     outline(p, false);
     return toCanvas(p);
   });
 }
 
-/** A steel exit hatch with a hand wheel, on the floor (art px). */
-function hatch(g: CanvasRenderingContext2D, G: number, r: DockLayout['hatch']): void {
-  const c0 = Math.round(r.x / G);
-  const r0 = Math.round(r.y / G);
-  const w = Math.round(r.w / G);
-  const h = Math.round(r.h / G);
-  g.fillStyle = '#14181c';
-  g.fillRect(c0, r0, w, h);
-  g.fillStyle = '#5a646c';
-  g.fillRect(c0 + 1, r0 + 1, w - 2, h - 2);
-  g.fillStyle = '#3a4248';
-  g.fillRect(c0 + 3, r0 + 3, w - 6, h - 6);
-  g.fillStyle = '#c8a24a';
-  for (let k = 0; k < w; k += 4) g.fillRect(c0 + k, r0, 2, 1);
-  g.fillStyle = '#9aa6ae';
-  const cx = c0 + Math.round(w / 2);
-  const cy = r0 + Math.round(h / 2);
-  g.fillRect(cx - 4, cy, 9, 1);
-  g.fillRect(cx, cy - 3, 1, 7);
-  g.fillRect(cx - 2, cy - 2, 5, 5);
-  g.fillStyle = '#3a4248';
-  g.fillRect(cx - 1, cy - 1, 3, 3);
-}
+/** The TV grows with the pilot: the carrier hangar's cart at its pilot's scale, times the dock's pilot over that one. */
+const tvScale = (look: DockLook): number => LAYOUT[look].pilot / PILOT_SCALE;
 
 /** The joystick neon over the picture's own sign (whose letters are made up). */
 function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: number): void {
@@ -106,16 +89,11 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
   if (look === 'space') spaceAmbient(g, G, v.t, masks.get(look) ?? null);
   else seaAmbient(g, G, v.t, back);
   neon(g, G, L.neon, v.t);
-  hatch(g, G, L.hatch);
-  drawCastShadows(g, G, v.walker, false);
-  const dx = Math.round((L.tv.x - TV_CART.x) / G);
-  const dy = Math.round((L.tv.base - TV_CART.base) / G);
-  const tv = tvLayer(gr);
-  if (tv) g.drawImage(tv, dx, dy);
-  g.save();
-  g.translate(dx, dy);
-  tvSet(g, G, v.t);
-  g.restore();
+  if (L.globe) drawDockGlobe(g, G, L.globe, v.t);
+  drawCastShadows(g, G, v.walker, false, L.pilot);
+  const tv = tvLayer(gr, look);
+  if (tv) g.drawImage(tv, 0, 0);
+  tvSet(g, G, v.t, tvScale(look), L.tv);
   drawBrackets(g, G, areas[v.focus].hot, v.t);
 }
 
@@ -135,7 +113,7 @@ export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: Hanga
   const L = LAYOUT[look];
   drawDockChalkboard(ctx, L.slate, v.chalk.cells, v.chalk.version);
   drawDockFlipBoard(ctx, L.board, L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board, v.t);
-  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false });
+  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false, scale: L.pilot });
   drawLabels(ctx, v.focus, v.text, areas, false);
   return true;
 }

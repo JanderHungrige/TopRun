@@ -4,6 +4,7 @@ import { formatMoney } from '../core/math';
 import { PLANES } from '../data/planes';
 import type { PlaneId } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
+import { kitCrewLook } from '../game/crew-looks';
 import { chiefLine } from '../game/dialogue-scripts';
 import type { ShopItem } from '../game/economy';
 import { newJetsWaiting } from '../game/jets';
@@ -33,6 +34,7 @@ export class HangarChief {
   }
 
   greet(save: SaveData): void {
+    this.box.look = kitCrewLook(save.kit); // in the SUB PEN in his submariner's coverall (doc 76)
     const ev = save.kit === 'heli' ? 'helloHelis' : save.kit === 'sub' ? 'helloSubs' : newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
     this.box.say(chiefLine(ev));
   }

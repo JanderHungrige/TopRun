@@ -76,6 +76,10 @@ export const LINES_EN = {
   'adm.space': [
     "One more front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
   ],
+  'adm.celebrate1': ["The whole fleet is proud of you, {callsign}. Tonight we celebrate, tomorrow the world gets bigger."],
+  'adm.celebrate2': ["Two fronts, one pilot. {callsign}, they will tell stories about you in every ready room."],
+  'adm.celebrate3': ["From the decks to the valleys, {callsign}. Rotors or wings, you always bring them home."],
+  'adm.celebrate4': ["You took the war to the stars and won it, {callsign}. Look down there: that is the world you saved."],
   'adm.finale4': [
     "That was the last frontier, {callsign}. There is nowhere left they can run.",
   ],

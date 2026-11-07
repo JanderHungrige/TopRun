@@ -16,8 +16,8 @@ function walkUntilStopped(w: Walker, speed: number, cap = 2000): { w: Walker; fr
 }
 
 describe('Hangar base areas', () => {
-  it('lists seven areas left to right, each with a hotspot, a plate and a stand point inside the screen', () => {
-    expect(BASE_AREA_IDS).toEqual(['fun', 'locker', 'photos', 'jet', 'ladder', 'chalk', 'exit']);
+  it('lists eight areas left to right, each with a hotspot, a plate and a stand point inside the screen', () => {
+    expect(BASE_AREA_IDS).toEqual(['fun', 'tv', 'locker', 'photos', 'jet', 'ladder', 'chalk', 'exit']);
     let lastX = -Infinity;
     for (const id of BASE_AREA_IDS) {
       const a = BASE_AREAS[id];
@@ -32,10 +32,10 @@ describe('Hangar base areas', () => {
     }
   });
 
-  it('hotspots do not overlap', () => {
+  it('hotspots do not overlap, except the TV standing in front of the rec room (doc 63)', () => {
     for (const a of BASE_AREA_IDS) {
       for (const b of BASE_AREA_IDS) {
-        if (a >= b) continue;
+        if (a >= b || (a === 'fun' && b === 'tv')) continue;
         const r = BASE_AREAS[a].hot;
         const s = BASE_AREAS[b].hot;
         const overlap = r.x < s.x + s.w && s.x < r.x + r.w && r.y < s.y + s.h && s.y < r.y + r.h;
@@ -46,6 +46,7 @@ describe('Hangar base areas', () => {
 
   it('maps every area to its route', () => {
     expect(areaRoute('fun')).toEqual({ to: 'recRoom' });
+    expect(areaRoute('tv')).toEqual({ to: 'tapes' });
     expect(areaRoute('locker')).toEqual({ to: 'locker' });
     expect(areaRoute('photos')).toEqual({ to: 'photoWall' });
     expect(areaRoute('jet')).toEqual({ to: 'hangar' });
@@ -66,7 +67,9 @@ describe('Hangar base areas', () => {
 
 describe('Hangar base navigation', () => {
   it('← / → step through the left-to-right order and stop at the ends', () => {
-    expect(neighbour('fun', 'right')).toBe('locker');
+    expect(neighbour('fun', 'right')).toBe('tv');
+    expect(neighbour('tv', 'right')).toBe('locker');
+    expect(neighbour('tv', 'left')).toBe('fun');
     expect(neighbour('locker', 'right')).toBe('photos');
     expect(neighbour('photos', 'right')).toBe('jet');
     expect(neighbour('jet', 'right')).toBe('ladder');
@@ -75,16 +78,16 @@ describe('Hangar base navigation', () => {
     expect(neighbour('chalk', 'right')).toBe('exit');
     expect(neighbour('exit', 'right')).toBe('exit');
     expect(neighbour('exit', 'left')).toBe('chalk');
-    expect(neighbour('locker', 'left')).toBe('fun');
+    expect(neighbour('locker', 'left')).toBe('tv');
     expect(neighbour('fun', 'left')).toBe('fun');
   });
 
   it('↑ / ↓ go to the nearest area in any row above / below (wall, chalkboard, floor; a tie: the nearer row)', () => {
     const up: Record<BaseAreaId, BaseAreaId> = {
-      fun: 'photos', locker: 'photos', photos: 'photos', jet: 'chalk', ladder: 'ladder', chalk: 'ladder', exit: 'chalk',
+      fun: 'photos', tv: 'photos', locker: 'photos', photos: 'photos', jet: 'chalk', ladder: 'ladder', chalk: 'ladder', exit: 'chalk',
     };
     const down: Record<BaseAreaId, BaseAreaId> = {
-      fun: 'fun', locker: 'locker', photos: 'locker', jet: 'jet', ladder: 'chalk', chalk: 'jet', exit: 'exit',
+      fun: 'fun', tv: 'tv', locker: 'locker', photos: 'locker', jet: 'jet', ladder: 'chalk', chalk: 'jet', exit: 'exit',
     };
     for (const id of BASE_AREA_IDS) {
       expect(neighbour(id, 'up'), `${id} up`).toBe(up[id]);

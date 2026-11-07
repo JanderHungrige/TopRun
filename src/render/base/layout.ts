@@ -34,6 +34,11 @@ export const JET = { cx: 800, ground: 574, w: 540, h: 215 } as const;
 export const MECH = { x: 952, foot: 598, scale: 0.42 } as const;
 export const CART = { x: 452, y: 540, w: 78, base: 606 } as const;
 export const MUG = { x: 514, y: 530 } as const;
+/** The TV cart in front of the rec room (doc 63): the rolling cart, the video recorder on it, the CRT on that. */
+export const TV_CART = { x: 132, y: 494, w: 76, base: 560 } as const;
+export const VCR = { x: 134, y: 480, w: 72, h: 14 } as const;
+export const TV = { x: 136, y: 420, w: 70, h: 60 } as const;
+export const TV_SCREEN = { x: 141, y: 426, w: 46, h: 44 } as const;
 
 /** The pilot figure's scale (people kit: 328 units tall → ~164 logical px). */
 export const PILOT_SCALE = 0.5;

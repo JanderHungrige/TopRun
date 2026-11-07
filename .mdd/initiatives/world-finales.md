@@ -1,9 +1,9 @@
 ---
 id: world-finales
 title: World Finales
-status: active
+status: complete
 version: 1
-hash: 9138c553
+hash: 1ee9b5cf
 created: 2026-11-07
 ---
 
@@ -29,10 +29,11 @@ Decided with the owner (one question round, 2026-11-07):
 - [x] Which medals → like map 1, maps 2–4 (owner).
 - [x] Celebration technique → pixel art from generated key frames (owner).
 - [x] Replay → a TV / VCR in the hangar base, image approved first (owner).
-- [ ] The TV's look and place in the hangar → owner's pick from the preview (wave 2).
+- [x] The TV's look and place in the hangar → owner: "Love the style", on its own cart in front of the rec room, the
+      toolbox stays (wave 2).
 
 ## Waves
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
 | Wave 1 | waves/world-finales-wave-1.md | Clearing a theater boss on maps 2–4 awards its campaign ribbon, finishing a map its victory medal, three stars everywhere its golden star — shown in the ceremony and on the locker's dress whites; the rating counts them. | complete |
-| Wave 2 | waves/world-finales-wave-2.md | After a world's finale a pixel-art celebration plays (four worlds, each with its own key frames, the player's craft and fireworks), skippable; the hangar base has an old TV with a video recorder that replays any finished world's celebration. | planned |
+| Wave 2 | waves/world-finales-wave-2.md | After a world's finale a pixel-art celebration plays (four worlds, each with its own key frames, the player's craft and fireworks), skippable; the hangar base has an old TV with a video recorder that replays any finished world's celebration. | complete |

@@ -78,6 +78,10 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   'adm.space': [
     'Noch eine Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
   ],
+  'adm.celebrate1': ["Die ganze Flotte ist stolz auf dich, {callsign}. Heute Abend wird gefeiert, morgen wird die Welt größer."],
+  'adm.celebrate2': ["Zwei Fronten, ein Pilot. {callsign}, in jedem Bereitschaftsraum wird man von dir erzählen."],
+  'adm.celebrate3': ["Von den Decks bis in die Täler, {callsign}. Ob Rotor oder Flügel: Du bringst sie immer heim."],
+  'adm.celebrate4': ["Du hast den Krieg zu den Sternen getragen und gewonnen, {callsign}. Sieh hinunter: Das ist die Welt, die du gerettet hast."],
   'adm.finale4': [
     'Das war die letzte Grenze, {callsign}. Es gibt keinen Ort mehr, an den sie fliehen können.',
   ],

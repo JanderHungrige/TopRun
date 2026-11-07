@@ -2,6 +2,7 @@
 export const UI_EN_HANGAR = {
   'hbase.title': 'HOME BASE',
   'hbase.fun': 'FUN MISSIONS',
+  'hbase.tv': 'TV',
   'hbase.locker': 'LOCKER',
   'hbase.photos': 'PICTURE WALL',
   'hbase.jet': 'LOADOUT',
@@ -9,6 +10,7 @@ export const UI_EN_HANGAR = {
   'hbase.chalk': 'CHALKBOARD',
   'hbase.exit': 'EXIT · MAP',
   'hbase.hint.fun': 'Off-duty minigames: play for medals and bragging rights.',
+  'hbase.hint.tv': 'Watch your finished worlds again.',
   'hbase.hint.locker': 'Your dress whites with every medal you have earned.',
   'hbase.hint.photos': 'A photo for every mission you have cleared.',
   'hbase.hint.jet': 'Your jet: weapons, equipment and paint jobs.',
@@ -26,4 +28,14 @@ export const UI_EN_HANGAR = {
   'chalk.dry': 'A dry sponge only smears. Dip it in the bucket!',
   'chalk.keys': 'Drag or hold SPACE: draw  ·  X tool  ·  E dip sponge  ·  ESC back',
   'chalk.keysTouch': 'Tap a chalk or the sponge  ·  draw on the board  ·  tap the bucket to wet the sponge',
+  // The hangar TV and the world celebrations (docs 63, 64).
+  'tapes.title': 'VIDEO TAPES',
+  'tapes.world': 'WORLD {n}',
+  'tapes.blank': 'not recorded yet',
+  'tapes.keys': '←/→ choose  ·  ENTER play  ·  ESC back',
+  'tapes.play': 'PLAY',
+  'celebration.complete': 'WORLD {n} COMPLETE',
+  'celebration.stars': 'STARS {stars} / {max}',
+  'celebration.medals': 'MEDALS {medals} / {max}',
+  'celebration.skip': 'ENTER skip',
 } as const;

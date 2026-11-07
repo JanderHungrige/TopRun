@@ -2,13 +2,15 @@ import { PAL } from '../pixel/palette';
 import { path } from '../pixel/path';
 import { bayer, type Pix } from '../pixel/raster';
 import { box, col, disc, fillPath, hline, seg, shade, vline } from './paint';
-import { CART, MUG } from './layout';
+import { CART, MUG, TV, TV_CART, TV_SCREEN, VCR } from './layout';
 
-// Hangar base (doc 30): the props standing in front of the jet (their own static layer, drawn after it) — the
-// red rolling tool cart with drawers, a wrench and the coffee mug on top, and a pair of safety cones.
+// Hangar base (docs 30, 63): the props standing in front of the jet (their own static layer, drawn after it) — the
+// red rolling tool cart with drawers, a wrench and the coffee mug on top, a pair of safety cones, and in front of the
+// rec room the TV cart: an old CRT on a video recorder, tapes on the lower shelf.
 
 const R = PAL.red;
 const S = PAL.steel;
+const J = PAL.jersey;
 
 function cart(p: Pix): void {
   const { x, y, w, base } = CART;
@@ -31,6 +33,58 @@ function cart(p: Pix): void {
   }
   seg(p, x + 6, y - 8, x + 34, y - 6, col(S, 4), 2);
   disc(p, x + 6, y - 8, 3, 3, col(S, 4));
+}
+
+/** The rolling steel AV cart: two shelves, legs, castors; VHS tapes on the lower shelf. */
+function tvCart(p: Pix): void {
+  const { x, y, w, base } = TV_CART;
+  box(p, x - 2, y, w + 4, 4, col(S, 3));
+  hline(p, x - 2, x + w + 2, y, col(S, 5));
+  box(p, x - 2, y + 34, w + 4, 4, col(S, 3));
+  hline(p, x - 2, x + w + 2, y + 34, col(S, 5));
+  for (const lx of [x, x + w - 4]) box(p, lx, y, 4, base - y - 6, col(S, 2));
+  for (const [i, c] of [[0, PAL.ink], [1, PAL.navy], [2, PAL.ink]] as const) {
+    const ty = y + 28 - i * 7;
+    box(p, x + 10 + i * 3, ty, 50, 6, col(c, 1));
+    box(p, x + 24 + i * 3, ty + 1, 22, 4, col(PAL.white, 3));
+  }
+  for (const wx of [x + 4, x + w - 4]) {
+    disc(p, wx, base - 4, 5, 5, col(PAL.ink, 1));
+    disc(p, wx, base - 4, 2, 2, col(S, 3));
+  }
+}
+
+/** The video recorder: a black box with the tape slot, buttons and the clock's window (lit in ambient). */
+function vcr(p: Pix): void {
+  const { x, y, w, h } = VCR;
+  box(p, x, y, w, h, col(PAL.ink, 1));
+  hline(p, x, x + w, y, col(S, 2));
+  box(p, x + 6, y + 4, 26, 3, col(PAL.ink, 0));
+  box(p, x + 44, y + 4, 18, 6, col(PAL.ink, 0));
+  for (let i = 0; i < 4; i++) box(p, x + 8 + i * 6, y + 9, 4, 2, col(S, 3));
+}
+
+/** The CRT: a wood-grain cabinet, the bulging screen, two dials and a speaker grille, rabbit-ear antennas. */
+function tv(p: Pix): void {
+  const { x, y, w, h } = TV;
+  const sc = TV_SCREEN;
+  seg(p, x + 22, y, x + 8, y - 26, col(S, 4), 1);
+  seg(p, x + 26, y, x + 40, y - 24, col(S, 4), 1);
+  disc(p, x + 8, y - 26, 2, 2, col(S, 5));
+  disc(p, x + 40, y - 24, 2, 2, col(S, 5));
+  box(p, x + 18, y - 3, 12, 4, col(PAL.ink, 2));
+  box(p, x, y, w, h, col(J, 3));
+  for (let gy = y + 6; gy < y + h - 4; gy += 7) hline(p, x + 2, x + w - 2, gy, col(J, 2));
+  hline(p, x, x + w, y, col(J, 5));
+  vline(p, x + w - 1, y, y + h, col(J, 1));
+  box(p, sc.x - 2, sc.y - 2, sc.w + 4, sc.h + 4, col(PAL.ink, 1));
+  box(p, sc.x, sc.y, sc.w, sc.h, col(PAL.glass, 2));
+  box(p, x + sc.w + 9, y + 4, 12, h - 8, col(J, 1));
+  for (const dy of [12, 26]) {
+    disc(p, x + sc.w + 15, y + dy, 4, 4, col(S, 2));
+    disc(p, x + sc.w + 15, y + dy, 2, 2, col(S, 4));
+  }
+  for (let gy = y + 38; gy < y + h - 6; gy += 4) hline(p, x + sc.w + 11, x + sc.w + 19, gy, col(PAL.ink, 1));
 }
 
 function mug(p: Pix): void {
@@ -57,6 +111,9 @@ const CONES: readonly (readonly [number, number])[] = [[1062, 614], [1240, 622]]
 export function paintProps(p: Pix): void {
   cart(p);
   mug(p);
+  tvCart(p);
+  vcr(p);
+  tv(p);
   for (const [x, base] of CONES) cone(p, x, base);
 }
 
@@ -64,5 +121,6 @@ export function paintProps(p: Pix): void {
 export function paintPropShadows(p: Pix): void {
   const down = (v: number): number => shade(v, -2);
   disc(p, CART.x + CART.w / 2, CART.base, CART.w * 0.7, 6, down, bayer(0.5));
+  disc(p, TV_CART.x + TV_CART.w / 2, TV_CART.base, TV_CART.w * 0.7, 5, down, bayer(0.5));
   for (const [x, base] of CONES) disc(p, x, base, 18, 4, down, bayer(0.5));
 }

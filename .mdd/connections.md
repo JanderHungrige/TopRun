@@ -1,8 +1,8 @@
 ---
 generated: 2026-11-07
-doc_count: 62
-connection_count: 189
-overlap_count: 169
+doc_count: 65
+connection_count: 199
+overlap_count: 178
 ---
 
 # MDD Connections
@@ -12,6 +12,7 @@ overlap_count: 169
 ```
 Game
 ├── Campaign   03-campaign-map (complete)
+│   ├── Celebration   64-world-celebrations (complete)
 │   ├── Challenge Level   38-challenge-level (complete)
 │   ├── FourthMap   56-fourth-map (complete), 58-map-four-campaign (complete)
 │   ├── Mission Score   39-mission-score (complete)
@@ -32,11 +33,11 @@ Game
 │   ├── SpaceArsenal   57-space-arsenal (complete)
 │   └── Spacecraft   54-spacecraft (complete)
 ├── Honours
-│   ├── Base   30-hangar-base (complete)
+│   ├── Base   30-hangar-base (complete), 63-hangar-tv (complete)
 │   │   └── Chalkboard   40-chalkboard (complete)
 │   ├── Ceremony   25-medal-ceremony (complete)
 │   ├── Locker   31-locker-uniform (complete)
-│   ├── Medals   24-medals-core (complete)
+│   ├── Medals   24-medals-core (complete), 62-world-medals (complete)
 │   └── PictureWall   32-picture-wall (complete)
 ├── Ladder
 │   ├── Rating   26-pilot-rating (complete)
@@ -147,6 +148,9 @@ graph TD
   d59["59-rocket-launch"]:::complete
   d60["60-point-defence"]:::complete
   d61["61-cockpit-skins"]:::complete
+  d62["62-world-medals"]:::complete
+  d63["63-hangar-tv"]:::complete
+  d64["64-world-celebrations"]:::complete
   d01 --> d02
   d01 --> d03
   d02 --> d03
@@ -336,6 +340,16 @@ graph TD
   d05 --> d61
   d49 --> d61
   d54 --> d61
+  d24 --> d62
+  d25 --> d62
+  d31 --> d62
+  d26 --> d62
+  d30 --> d63
+  d64 --> d63
+  d25 --> d64
+  d35 --> d64
+  d48 --> d64
+  d58 --> d64
   classDef complete fill:#1f6f3f,color:#fff
   classDef in_progress fill:#8a6a1a,color:#fff
   classDef draft fill:#555,color:#fff
@@ -354,11 +368,12 @@ graph TD
 - `src/core/math.ts`: 01-game-core, 28-ladder-screen, 47-admin-pilot
 - `src/core/sfx-recipes.ts`: 01-game-core, 36-new-jets, 40-chalkboard, 46-bofors-he-gun
 - `src/data/arsenal.ts`: 43-deep-arsenal, 45-incendiary-ammo
-- `src/data/base-areas.ts`: 30-hangar-base, 40-chalkboard
+- `src/data/base-areas.ts`: 30-hangar-base, 40-chalkboard, 63-hangar-tv
 - `src/data/bosses-4.ts`: 56-fourth-map, 58-map-four-campaign
 - `src/data/bosses.ts`: 05-mission-combat, 35-second-map, 48-third-map, 56-fourth-map
 - `src/data/enemies.ts`: 05-mission-combat, 44-new-adversaries, 56-fourth-map, 58-map-four-campaign
 - `src/data/equipment.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries
+- `src/data/medals.ts`: 24-medals-core, 62-world-medals
 - `src/data/missions-4.ts`: 56-fourth-map, 58-map-four-campaign
 - `src/data/missions.ts`: 03-campaign-map, 35-second-map, 48-third-map, 56-fourth-map
 - `src/data/photo-looks.ts`: 32-picture-wall, 58-map-four-campaign
@@ -373,7 +388,7 @@ graph TD
 - `src/game/adversaries.ts`: 44-new-adversaries, 45-incendiary-ammo
 - `src/game/arsenal.ts`: 43-deep-arsenal, 45-incendiary-ammo, 49-helicopter-kit
 - `src/game/avatar-look.ts`: 29-avatar-builder, 33-image-portraits
-- `src/game/base-hangar.ts`: 30-hangar-base, 40-chalkboard
+- `src/game/base-hangar.ts`: 30-hangar-base, 40-chalkboard, 63-hangar-tv
 - `src/game/challenge.ts`: 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/game/cockpit.ts`: 05-mission-combat, 43-deep-arsenal, 44-new-adversaries, 61-cockpit-skins
 - `src/game/combat.ts`: 05-mission-combat, 36-new-jets, 43-deep-arsenal, 44-new-adversaries
@@ -387,30 +402,33 @@ graph TD
 - `src/game/loadout.ts`: 02-hangar-economy, 37-double-firepower, 38-challenge-level, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 54-spacecraft
 - `src/game/map-three.ts`: 48-third-map, 56-fourth-map
 - `src/game/map-two.ts`: 43-deep-arsenal, 48-third-map
+- `src/game/medals.ts`: 24-medals-core, 62-world-medals
 - `src/game/minigames/core.ts`: 10-minigames-core, 47-admin-pilot
 - `src/game/profiles.ts`: 08-pilot-profiles, 38-challenge-level
 - `src/game/progress.ts`: 03-campaign-map, 35-second-map, 47-admin-pilot, 48-third-map, 56-fourth-map
-- `src/game/rating.ts`: 26-pilot-rating, 35-second-map, 39-mission-score, 48-third-map, 58-map-four-campaign
+- `src/game/rating.ts`: 26-pilot-rating, 35-second-map, 39-mission-score, 48-third-map, 58-map-four-campaign, 62-world-medals
 - `src/game/save.ts`: 01-game-core, 28-ladder-screen, 35-second-map, 37-double-firepower, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 47-admin-pilot, 49-helicopter-kit, 54-spacecraft
 - `src/game/ship-loadout.ts`: 54-spacecraft, 55-shipyard, 57-space-arsenal
 - `src/game/ship-shop.ts`: 55-shipyard, 57-space-arsenal
 - `src/game/ship.ts`: 54-spacecraft, 57-space-arsenal, 60-point-defence
-- `src/game/state.ts`: 01-game-core, 38-challenge-level, 49-helicopter-kit
+- `src/game/state.ts`: 01-game-core, 38-challenge-level, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations
+- `src/game/uniform-layout.ts`: 31-locker-uniform, 62-world-medals
 - `src/game/waves.ts`: 05-mission-combat, 35-second-map, 44-new-adversaries, 58-map-four-campaign
 - `src/i18n/content-de.ts`: 07-i18n, 35-second-map, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries, 48-third-map, 49-helicopter-kit, 51-heli-fleet, 57-space-arsenal, 58-map-four-campaign
-- `src/i18n/lines-de.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map
-- `src/i18n/lines-en.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map
+- `src/i18n/lines-de.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map, 64-world-celebrations
+- `src/i18n/lines-en.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map, 64-world-celebrations
+- `src/i18n/medals-de.ts`: 24-medals-core, 62-world-medals
 - `src/i18n/missions-4-de.ts`: 56-fourth-map, 58-map-four-campaign
 - `src/i18n/ui-de-arsenal.ts`: 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/i18n/ui-de-avatar.ts`: 29-avatar-builder, 33-image-portraits
 - `src/i18n/ui-de-frontiers.ts`: 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence
-- `src/i18n/ui-de-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit
+- `src/i18n/ui-de-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations
 - `src/i18n/ui-de-ladder.ts`: 28-ladder-screen, 47-admin-pilot
 - `src/i18n/ui-de.ts`: 07-i18n, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
 - `src/i18n/ui-en-arsenal.ts`: 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/i18n/ui-en-avatar.ts`: 29-avatar-builder, 33-image-portraits
 - `src/i18n/ui-en-frontiers.ts`: 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence
-- `src/i18n/ui-en-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit
+- `src/i18n/ui-en-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations
 - `src/i18n/ui-en-ladder.ts`: 28-ladder-screen, 47-admin-pilot
 - `src/i18n/ui-en.ts`: 07-i18n, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
 - `src/main.ts`: 01-game-core, 28-ladder-screen, 34-cloud-pilots, 38-challenge-level, 47-admin-pilot, 49-helicopter-kit, 53-deck-liftoff
@@ -420,7 +438,10 @@ graph TD
 - `src/render/avatars/pilot1.ts`: 08-pilot-profiles, 20-retro-look
 - `src/render/avatars/pilot2.ts`: 08-pilot-profiles, 20-retro-look
 - `src/render/avatars/pilot3.ts`: 08-pilot-profiles, 20-retro-look
+- `src/render/base/ambient.ts`: 30-hangar-base, 63-hangar-tv
 - `src/render/base/index.ts`: 30-hangar-base, 40-chalkboard
+- `src/render/base/layout.ts`: 30-hangar-base, 63-hangar-tv
+- `src/render/base/props.ts`: 30-hangar-base, 63-hangar-tv
 - `src/render/bosses-4.ts`: 56-fourth-map, 58-map-four-campaign
 - `src/render/carrier/crew.ts`: 04-carrier-takeoff, 20-retro-look
 - `src/render/carrier/sky-sea.ts`: 04-carrier-takeoff, 56-fourth-map, 58-map-four-campaign
@@ -446,6 +467,8 @@ graph TD
 - `src/render/icons.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 46-bofors-he-gun, 51-heli-fleet, 57-space-arsenal
 - `src/render/items.ts`: 02-hangar-economy, 43-deep-arsenal
 - `src/render/livery-art.ts`: 09-paint-jobs, 36-new-jets, 51-heli-fleet
+- `src/render/medals/designs.ts`: 25-medal-ceremony, 62-world-medals
+- `src/render/medals/emblems.ts`: 25-medal-ceremony, 62-world-medals
 - `src/render/minigames/evasion-world.ts`: 16-missile-evasion, 58-map-four-campaign
 - `src/render/minigames/flyby-controller.ts`: 13-tower-flyby, 20-retro-look
 - `src/render/minigames/formation-radio.ts`: 14-formation-flying, 20-retro-look
@@ -483,7 +506,7 @@ graph TD
 - `src/scenes/avatar-builder-render.ts`: 29-avatar-builder, 33-image-portraits
 - `src/scenes/avatar-builder.ts`: 29-avatar-builder, 33-image-portraits
 - `src/scenes/base-hub.ts`: 11-base-hub, 47-admin-pilot
-- `src/scenes/debrief.ts`: 03-campaign-map, 20-retro-look, 35-second-map, 38-challenge-level, 39-mission-score, 48-third-map, 56-fourth-map
+- `src/scenes/debrief.ts`: 03-campaign-map, 20-retro-look, 35-second-map, 38-challenge-level, 39-mission-score, 48-third-map, 56-fourth-map, 64-world-celebrations
 - `src/scenes/hangar-chief.ts`: 06-talking-characters, 43-deep-arsenal
 - `src/scenes/hangar-items.ts`: 02-hangar-economy, 09-paint-jobs, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet
 - `src/scenes/hangar-panels.ts`: 02-hangar-economy, 09-paint-jobs, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet
@@ -508,7 +531,7 @@ graph TD
 - `src/scenes/mission/world.ts`: 05-mission-combat, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun, 51-heli-fleet, 52-canyon-runs, 57-space-arsenal
 - `src/scenes/new-pilot.ts`: 08-pilot-profiles, 33-image-portraits, 34-cloud-pilots, 47-admin-pilot
 - `src/scenes/pilots.ts`: 08-pilot-profiles, 28-ladder-screen, 34-cloud-pilots, 38-challenge-level, 47-admin-pilot
-- `src/scenes/routes.ts`: 55-shipyard, 56-fourth-map, 59-rocket-launch
+- `src/scenes/routes.ts`: 55-shipyard, 56-fourth-map, 59-rocket-launch, 63-hangar-tv, 64-world-celebrations
 - `src/scenes/shipyard-view.ts`: 55-shipyard, 57-space-arsenal, 60-point-defence
 - `src/scenes/shipyard.ts`: 55-shipyard, 57-space-arsenal
 - `src/ui/speech.ts`: 06-talking-characters, 20-retro-look, 25-medal-ceremony
@@ -546,3 +569,4 @@ graph TD
 - 29-avatar-builder lists missing source file src/render/avatars/suit.ts
 - 29-avatar-builder lists missing source file src/render/avatars/hair-kit.ts
 - 49-helicopter-kit lists missing source file src/data/helis.ts
+- 64-world-celebrations lists missing source file src/data/celebrations.ts

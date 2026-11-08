@@ -102,8 +102,8 @@ table in the foreground go together.
   straight across between them); the hangar door up the lane right of the coffee table (x 790, in the door's left side at
   y 495 — about 0.6, the jet's nose stays in view); the opening onto the flight deck on its threshold (y 580).
 - **Sea dock** (map 4): now the lounge D41 with its own depth (doc 93: horizon 240, pilot 1.05).
-- **Space dock** (map 5): horizon 220, pilot 0.94 (was 0.86, for the same reason). The arcade alcove and the lockers a step
-  back (y 545). The shelf with the photos stays on the front line: the TV cart stands in front of it.
+- **Space dock** (map 5): now the lounge H81 with its own depth (doc 94: horizon 190, pilot 1.05, the holo map table walked
+  behind).
 - No look needs a walk-behind mask besides the helicopter base's map table: the lanes and spots keep clear of the couches,
   the tables and the TV cart (the cast is drawn over the picture and the cart).
 - The **jungle base** keeps the front line (no `standY`, no `horizon`) until it is reworked.

@@ -1,9 +1,10 @@
 import type { AreaRect, AreaTable, BaseAreaDef, BaseAreaId } from './base-areas';
 
-// The home base's other looks (docs 73, 76): the space-station dock (map 5) and the underwater dock (map 4), each a
-// generated picture with every area's hotspot, name plate and stand point placed on the picture's own objects, and the
-// places the game draws over it — the flip board, the chalkboard's slate, the TV cart, the neon sign, the sea dock's
-// globe. The way to the map is the space dock's porthole and the sea dock's globe (doc 76).
+// The home base's picture looks (docs 73, 76, 86, 91): the carrier lounge (maps 1–3), the underwater dock (map 4), the
+// space-station dock (map 5) and the jungle hut (map 6), each a generated picture with every area's hotspot, name plate and
+// stand point placed on the picture's own objects, and the places the game draws over it — the flip board, the chalkboard's
+// slate, the TV cart, the neon sign, a globe. The way to the map is the carrier's opening onto the flight deck, the space
+// dock's porthole and the globes (doc 76).
 
 const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number): BaseAreaDef =>
   ({ id, row, hot, plate, standX });
@@ -24,6 +25,31 @@ export interface DockLayout {
   /** The pilot's scale on this dock's floor, so a grown-up is as tall as its lockers and doors say (doc 76). */
   pilot: number;
 }
+
+/** The carrier lounge D (maps 1–3, doc 91): the rec room alcove with the arcade and the lockers on the left, the scoreboard
+ *  over the long chalkboard, the couch on its rug, the open steel door into the hangar hall (the craft), the cork board on the
+ *  right wall and the big opening onto the flight deck (the way to the map); the TV cart stands on the free floor by the
+ *  couch. */
+export const CARRIER_AREAS: AreaTable = Object.freeze({
+  fun: area('fun', 'floor', { x: 76, y: 160, w: 200, h: 360 }, { x: 176, y: 148 }, 176),
+  tv: area('tv', 'floor', { x: 886, y: 375, w: 156, h: 282 }, { x: 964, y: 363 }, 964),
+  locker: area('locker', 'floor', { x: 216, y: 246, w: 118, h: 274 }, { x: 275, y: 234 }, 275),
+  photos: area('photos', 'mid', { x: 956, y: 254, w: 62, h: 118 }, { x: 987, y: 242 }, 987),
+  jet: area('jet', 'floor', { x: 726, y: 226, w: 158, h: 266 }, { x: 805, y: 214 }, 690), // the pilot stands aside, the hall stays in view
+  ladder: area('ladder', 'wall', { x: 378, y: 166, w: 244, h: 92 }, { x: 500, y: 154 }, 500),
+  chalk: area('chalk', 'mid', { x: 378, y: 264, w: 356, h: 136 }, { x: 556, y: 252 }, 556),
+  exit: area('exit', 'floor', { x: 1044, y: 150, w: 196, h: 380 }, { x: 1142, y: 138 }, 1142),
+});
+
+export const CARRIER_LAYOUT: DockLayout = {
+  board: { x: 382, y: 170, w: 236, h: 82 },
+  boardRows: 3,
+  slate: { x: 384, y: 270, w: 344, h: 124 },
+  tv: { x: 888, base: 655 },
+  neon: { x: 106, y: 108, w: 140, h: 42 },
+  globe: null,
+  pilot: 1,
+};
 
 /** Space dock G (map 5, doc 76): cozy crew quarters — the rec room alcove with the arcade, the lockers, the scoreboard over
  *  the chalkboard, the shelf of framed photos, the couch on its rug; the left porthole leads to the map, the right one

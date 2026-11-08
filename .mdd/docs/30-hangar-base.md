@@ -53,6 +53,8 @@ security_read_sites: []
 sister_projects: []
 ---
 
+> **Carrier picture (doc 91, 2026-11-08):** the base on maps 1–3 is now the generated carrier lounge (day / evening / night) drawn like the docks (doc 73); this code-drawn hangar stands in only while the picture loads, and `BASE_AREAS` stays its geometry.
+
 # 30 — Hangar Base
 
 > **2026-10-28 update — the jet opens the LOADOUT (owner: *"The Fighter jet in the base does not lead to the loadout.

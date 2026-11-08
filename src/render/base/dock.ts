@@ -1,5 +1,7 @@
 import { areaDef, type AreaTable } from '../../data/base-areas';
-import { JUNGLE_LAYOUT, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
+import { CARRIER_LAYOUT, JUNGLE_LAYOUT, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
+import type { BaseLook } from '../../data/base-areas';
+import type { BaseLight } from '../../game/base-light';
 import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
 import { outline, toCanvas } from '../pixel/post';
@@ -9,6 +11,7 @@ import { drawCast, drawCastShadows } from './cast';
 import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
 import { drawDockGlobe } from './dock-globe';
 import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
+import { carrierAmbient } from './dock-carrier';
 import { jungleAmbient } from './dock-jungle';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
@@ -16,34 +19,38 @@ import { NEON, PILOT_SCALE, TV_CART } from './layout';
 import { paintTvSet } from './props';
 import { neonSprite } from './sprites';
 
-// The home base's docks (doc 73): the generated picture on the art grid, the TV cart and the joystick neon moved onto it,
-// the sea dock's globe (the way to the map; in space it is the windows, doc 76), the docks' calm ambient life, the pulsing
-// brackets; then world 1's flip board and chalkboard over the picture's own, the pilot to the dock's scale and the strip
-// on top (no name plates in the docks).
+// The home base's picture looks (docs 73, 91): the generated picture on the art grid (the carrier lounge's in the base's
+// light), the TV cart and the joystick neon moved onto it, the sea dock's globe (the way to the map; in space it is the
+// windows, on the carrier the opening onto the flight deck, doc 76), the calm ambient life, the pulsing brackets; then
+// world 1's flip board and chalkboard over the picture's own, the pilot to the look's scale and the strip on top (no name
+// plates).
 
-export type DockLook = 'space' | 'sea' | 'jungle';
+export type DockLook = BaseLook;
 
 const FILES = import.meta.glob<string>('../../assets/docks/*.png', { eager: true, query: '?url', import: 'default' });
-const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
-const images = new Map<DockLook, HTMLImageElement>();
+const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { carrier: CARRIER_LAYOUT, space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
+const images = new Map<string, HTMLImageElement>();
 const masks = new Map<DockLook, Mask>();
 const layers = new SpriteCache(4);
 
-function picture(look: DockLook): HTMLImageElement | null {
-  let img = images.get(look);
+/** The picture's file: the carrier lounge comes in the base's light (doc 91). */
+const fileOf = (look: DockLook, light: BaseLight): string => (look === 'carrier' ? `carrier-${light}` : look);
+
+function picture(file: string): HTMLImageElement | null {
+  let img = images.get(file);
   if (!img) {
-    const url = FILES[`../../assets/docks/${look}.png`];
+    const url = FILES[`../../assets/docks/${file}.png`];
     if (!url || typeof Image === 'undefined') return null;
     img = new Image();
     img.src = url;
-    images.set(look, img);
+    images.set(file, img);
   }
   return img.complete && img.naturalWidth > 0 ? img : null;
 }
 
 /** The picture on the art grid (cached per grid), and the stars' mask (where it is dark). */
-function backdrop(look: DockLook, img: HTMLImageElement, gr: Grid): HTMLCanvasElement | null {
-  return layers.get(`${look}|${gr.W}x${gr.H}`, () => {
+function backdrop(look: DockLook, file: string, img: HTMLImageElement, gr: Grid): HTMLCanvasElement | null {
+  return layers.get(`${file}|${gr.W}x${gr.H}`, () => {
     const c = document.createElement('canvas');
     c.width = gr.W;
     c.height = gr.H;
@@ -83,8 +90,10 @@ function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: 
   g.drawImage(s.canvas, s.c + Math.round((r.x + r.w / 2 - (NEON.x + NEON.w / 2)) / G), s.r + Math.round((r.y + r.h / 2 - (NEON.y + NEON.h / 2)) / G));
 }
 
-function ambient(g: CanvasRenderingContext2D, G: number, look: DockLook, t: number, back: HTMLCanvasElement): void {
+function ambient(g: CanvasRenderingContext2D, G: number, look: DockLook, v: HangarView, back: HTMLCanvasElement): void {
+  const t = v.t;
   switch (look) {
+    case 'carrier': carrierAmbient(g, G, t, v.light); return;
     case 'space': spaceAmbient(g, G, t, masks.get(look) ?? null); return;
     case 'sea': seaAmbient(g, G, t, back); return;
     case 'jungle': jungleAmbient(g, G, t); return;
@@ -96,7 +105,7 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
   const L = LAYOUT[look];
   const G = gr.G;
   g.drawImage(back, 0, 0);
-  ambient(g, G, look, v.t, back);
+  ambient(g, G, look, v, back);
   neon(g, G, L.neon, v.t);
   if (L.globe) drawDockGlobe(g, G, L.globe, v.t, look === 'jungle' ? 'jungle' : 'earth');
   drawCastShadows(g, G, v.walker, false, L.pilot);
@@ -108,9 +117,10 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
 
 /** Draws a dock covering the 1280 × 720 frame. False while its picture loads (the caller shows the hangar). */
 export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: HangarView, areas: AreaTable): boolean {
-  const img = picture(look);
+  const file = fileOf(look, v.light);
+  const img = picture(file);
   const gr = artGrid(ctx);
-  const back = img ? backdrop(look, img, gr) : null;
+  const back = img ? backdrop(look, file, img, gr) : null;
   const sc = scratch(gr.W, gr.H);
   if (!back || !sc) return false;
   compose(sc.g, gr, look, back, v, areas);

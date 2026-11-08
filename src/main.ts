@@ -17,6 +17,7 @@ import {
 } from './game/profiles';
 import { adminStored, adminView, isAdminPilot } from './game/admin';
 import { fromKitView, kitView, routeKit, type Kit } from './game/kit';
+import { randomLight, type BaseLight } from './game/base-light';
 import { cloudProfile } from './game/cloud-pilot';
 import type { Submission } from './game/ladder';
 import type { PilotMatch } from './game/ladder-cloud';
@@ -67,6 +68,13 @@ class Game implements GameContext {
 
   setHome(c: CampaignId): void {
     this.home = c;
+  }
+
+  /** The carrier base's light (doc 91), at random from the start. */
+  baseLight: BaseLight = randomLight(Math.random());
+
+  setBaseLight(light: BaseLight): void {
+    this.baseLight = light;
   }
 
   get settings(): Settings {

@@ -1,10 +1,11 @@
-import { JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
+import { CARRIER_AREAS, JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
 import type { CampaignId } from './types';
 
 // Hangar base (doc 30): the areas of the home-base hangar — where each one is on the 1280 × 720 screen, which row
 // it sits in for ↑ / ↓, where its name plate goes and where the pilot stands in front of it. Left → right order.
-// The base has four looks (docs 73, 74, 86): the carrier hangar, the sea dock (map 4), the space dock (map 5) and the
-// jungle base's crew hut (map 6), which alone has the ground base and the lab (doc 82).
+// The base has four looks (docs 73, 74, 86, 91): the carrier lounge (maps 1–3), the sea dock (map 4), the space dock
+// (map 5) and the jungle base's crew hut (map 6), which alone has the ground base and the lab (doc 82). BASE_AREAS is the
+// code-drawn carrier hangar's (doc 30), which stands in while a picture loads.
 
 export type BaseAreaId = 'fun' | 'tv' | 'locker' | 'photos' | 'jet' | 'base' | 'lab' | 'ladder' | 'chalk' | 'exit';
 
@@ -75,5 +76,5 @@ export type BaseLook = 'carrier' | 'space' | 'sea' | 'jungle';
 const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space', 6: 'jungle' };
 export const baseLookOf = (c: CampaignId): BaseLook => LOOK_OF[c];
 
-const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: BASE_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
+const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: CARRIER_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
 export const baseAreas = (look: BaseLook): AreaTable => AREAS_OF[look];

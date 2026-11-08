@@ -29,6 +29,8 @@ export function blitLayer(ctx: CanvasRenderingContext2D, art: CanvasImageSource,
 }
 
 export const BACK_BTN: Rect = { x: 1112, y: 672, w: 136, h: 40 };
+/** The eye left of BACK on the rooms with a picture (picture mode, doc 76). */
+export const EYE_BTN: Rect = { x: 1056, y: 672, w: 48, h: 40 };
 export const GOLD = '#ffd76a';
 export const LILAC = '#c9b8e8';
 export const CREAM = '#f3ead2';

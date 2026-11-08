@@ -4,15 +4,16 @@ import { labList, projectState, startProject } from '../game/lab';
 import { researchPerDay } from '../game/outpost';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
-import { BACK_BTN, backButton, hintLine } from '../render/rooms-chrome';
+import { BACK_BTN, backButton, EYE_BTN, hintLine } from '../render/rooms-chrome';
 import { COLORS, text } from '../render/text';
+import { PictureView } from '../ui/picture-view';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { hit } from '../ui/widgets';
 import { PROJECTS, type ProjectId } from '../data/research';
 import { drawProject, drawProjects, projectName, rowRect, startButton } from './lab-view';
 
 // The LAB (doc 83): Dr. Moreau's projects — ↑/↓ or a click picks one, ENTER starts it; after every sortie the lab's
-// research goes into the running one (game/outpost-day.ts).
+// research goes into the running one (game/outpost-day.ts). V or the eye shows the lab without the panels (doc 76).
 
 const FILES = import.meta.glob<string>('../assets/outpost/*.png', { eager: true, query: '?url', import: 'default' });
 
@@ -32,8 +33,10 @@ export class LabScene implements Scene {
   private focus = 0;
   private hoverBack = false;
   private readonly doc: SpeechBox;
+  private readonly picture: PictureView;
 
   constructor(private readonly game: GameContext) {
+    this.picture = new PictureView(game.audio, EYE_BTN, 'pixel');
     this.doc = new SpeechBox(game.audio, {
       portrait: { x: 20, y: 70, w: 100, h: 120 },
       bubble: { x: 132, y: 76, w: 640, h: 104 },
@@ -54,6 +57,7 @@ export class LabScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     const input = this.game.input;
+    if (this.picture.update(dt, input)) return;
     this.doc.update(dt, input);
     this.hoverBack = input.device !== 'touch' && hit(input.pointer, BACK_BTN);
     if (input.pressed('back') || input.taps.some((p) => hit(p, BACK_BTN))) {
@@ -104,8 +108,10 @@ export class LabScene implements Scene {
     ctx.imageSmoothingEnabled = false;
     if (img) ctx.drawImage(img, 0, 0, 1280, 720);
     ctx.fillStyle = 'rgba(4,10,8,0.3)';
-    ctx.fillRect(0, 0, 1280, 720);
+    if (!this.picture.on) ctx.fillRect(0, 0, 1280, 720);
     ctx.restore();
+    const touch = this.game.input.device === 'touch';
+    if (this.picture.on) return this.picture.draw(ctx, touch);
     text(ctx, t('lab.title'), 1256, 46, { size: 30, display: true, italic: true, align: 'right', color: COLORS.gold });
     const sub = o.buildings.lab > 0
       ? `${t('outpost.level', { n: o.buildings.lab })} · ${t('lab.perSortie', { n: researchPerDay(o) })}${o.research > 0 ? ` · ${t('lab.banked', { n: o.research })}` : ''}`
@@ -116,7 +122,8 @@ export class LabScene implements Scene {
     const id = list[this.focus];
     if (id) drawProject(ctx, o, id, this.time);
     this.doc.render(ctx);
-    hintLine(ctx, t('lab.keys'), 30, 1060);
+    hintLine(ctx, t('lab.keys'), 30, 1016);
     backButton(ctx, this.hoverBack);
+    this.picture.draw(ctx, touch);
   }
 }

@@ -158,7 +158,7 @@ export const UI_EN = {
   'hangar.notAllowed': 'Not allowed on this jet',
   'hangar.cannotBuy': 'Cannot buy',
   'hangar.hintTouch': 'Tap a hardpoint to clear it or to mount the selected weapon',
-  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · U upgrade · R unmount · ESC map · B base',
+  'hangar.hintKeys': '←/→ tabs · ↑/↓ items · ENTER buy/mount · U upgrade · R unmount · V picture · ESC map · B base',
   // Takeoff
   'takeoff.title': 'MISSION {n}: {name}',
   'takeoff.subtitle': 'CARRIER LAUNCH',

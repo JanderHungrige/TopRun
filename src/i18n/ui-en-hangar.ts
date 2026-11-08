@@ -38,4 +38,7 @@ export const UI_EN_HANGAR = {
   'celebration.stars': 'STARS {stars} / {max}',
   'celebration.medals': 'MEDALS {medals} / {max}',
   'celebration.skip': 'ENTER skip',
+  // Picture mode (doc 76).
+  'picture.back': 'V · ESC · ENTER · click: show the panels again',
+  'picture.backTouch': 'Tap anywhere to show the panels again',
 } as const;

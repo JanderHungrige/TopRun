@@ -10,9 +10,10 @@ import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import type { GameContext } from '../game/state';
-import { drawLoadoutBackdrop } from '../render/loadout-backdrop';
+import { drawLoadoutBackdrop, drawPlainBackdrop } from '../render/loadout-backdrop';
 import { COLORS, measure, text } from '../render/text';
 import { pilotContext } from '../ui/speech';
+import { PictureView } from '../ui/picture-view';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
@@ -22,9 +23,10 @@ import { wallet } from '../game/outpost';
 import { isMech } from '../game/jets';
 import { priceText } from './hangar-mech';
 
-/** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
+/** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC); left of them the eye (picture mode, doc 76). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
 const MAP_BTN = { x: 1150, y: 14, w: 110, h: 44 };
+const EYE_BTN = { x: 966, y: 14, w: 54, h: 44 };
 
 export class HangarScene implements Scene {
   private t = 0;
@@ -34,9 +36,11 @@ export class HangarScene implements Scene {
   private toastTime = 0;
   private slotCursor = 0;
   private readonly chief: HangarChief;
+  private readonly picture: PictureView;
 
   constructor(private readonly game: GameContext) {
     this.chief = new HangarChief(game.audio, pilotContext(game));
+    this.picture = new PictureView(game.audio, EYE_BTN, 'panel');
   }
 
   enter(): void {
@@ -110,6 +114,7 @@ export class HangarScene implements Scene {
     this.t += dt;
     this.toastTime = Math.max(0, this.toastTime - dt);
     const input = this.game.input;
+    if (this.picture.update(dt, input)) return;
     this.chief.update(dt, input);
     if (input.taps.length > 0 || input.pressed('confirm') || input.pressed('up') || input.pressed('down')) this.chief.poke();
     if (input.pressed('back')) return this.leave('map');
@@ -255,28 +260,25 @@ export class HangarScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     const save = this.game.save;
-    if (!drawLoadoutBackdrop(ctx, save.kit)) {
-      const bg = ctx.createLinearGradient(0, 0, 0, 720);
-      bg.addColorStop(0, '#0d1824');
-      bg.addColorStop(1, '#05090f');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, 1280, 720);
-    }
+    if (!drawLoadoutBackdrop(ctx, save.kit, !this.picture.on)) drawPlainBackdrop(ctx);
+    const touch = this.game.input.device === 'touch';
+    if (this.picture.on) return this.picture.draw(ctx, touch);
     const title = t(isFleet(save.kit) ? FLEET_UI[save.kit].title : 'hangar.title');
     const money = priceText(save, wallet(save));
     text(ctx, title, 24, 50, { size: 30, display: true, italic: true });
-    text(ctx, money, 1010, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
+    text(ctx, money, 950, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
     drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BASE_BTN, hint: 'B' }, false, this.t);
     drawButton(ctx, { id: 'back', label: t('hangar.map'), ...MAP_BTN, hint: 'ESC' }, false, this.t);
+    this.picture.draw(ctx, touch);
     this.tabButtons().forEach((b) => drawButton(ctx, b, false, this.t));
     drawList(ctx, save, this.items, this.focus[this.tab] ?? 0, this.t);
     const item = this.item;
     if (item) drawDetail(ctx, save, item, this.t);
     if (this.tab === 1) drawLoadout(ctx, save, item?.type === 'secondary' ? item.id : null);
     this.renderAction(ctx);
-    const hintText = t(this.game.input.device === 'touch' ? 'hangar.hintTouch' : 'hangar.hintKeys');
+    const hintText = t(touch ? 'hangar.hintTouch' : 'hangar.hintKeys');
     const hintX = Math.max(220, 52 + measure(ctx, title, 30, true));
-    text(ctx, hintText, hintX, 48, { size: 12, color: COLORS.faint, maxWidth: 990 - measure(ctx, money, 28, true) - hintX });
+    text(ctx, hintText, hintX, 48, { size: 12, color: COLORS.faint, maxWidth: 930 - measure(ctx, money, 28, true) - hintX });
     this.chief.render(ctx);
     if (this.toastTime > 0) {
       text(ctx, this.toast, DETAIL.x + 24, DETAIL.y + DETAIL.h - 36, { size: 16, color: COLORS.gold, alpha: Math.min(1, this.toastTime * 2), maxWidth: DETAIL.w - 340 });

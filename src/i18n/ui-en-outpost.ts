@@ -1,7 +1,7 @@
 // The ground base and the lab (docs 82, 83).
 export const UI_EN_OUTPOST = {
   'outpost.title': 'GROUND BASE',
-  'outpost.keys': '←/→ BUILDING · ↑/↓ BUTTON · ENTER BUILD · ESC BACK',
+  'outpost.keys': '←/→ BUILDING · ↑/↓ BUTTON · ENTER BUILD · V PICTURE · ESC BACK',
   'outpost.generator': 'Generator',
   'outpost.refinery': 'Refinery',
   'outpost.factory': 'Munitions Factory',
@@ -32,7 +32,7 @@ export const UI_EN_OUTPOST = {
   'outpost.magazine': 'MAGAZINE',
   'outpost.held': '{kind}: {n} / {max}',
   'lab.title': 'LAB',
-  'lab.keys': '↑/↓ PROJECT · ENTER START · ESC BACK',
+  'lab.keys': '↑/↓ PROJECT · ENTER START · V PICTURE · ESC BACK',
   'lab.perSortie': '{n} research per sortie',
   'lab.banked': '{n} kept for the next project',
   'lab.start': 'START RESEARCH',

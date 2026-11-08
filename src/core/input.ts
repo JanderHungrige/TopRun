@@ -5,7 +5,7 @@ import { pollGamepad } from './gamepad';
 
 export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'groundWeapon' | 'weaponSwitch' | 'flare' | 'special'
-  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete' | 'globe' | 'upgrade';
+  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete' | 'globe' | 'upgrade' | 'view';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
 
@@ -20,6 +20,7 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
   KeyG: ['globe'], // the campaign map's globe: switch between map 1 and map 2 (doc 35)
   KeyU: ['upgrade'], // the LOADOUT's weapon mark upgrade (doc 43)
+  KeyV: ['view'], // picture mode: hide the panels over a screen's picture (doc 76)
 };
 
 /** Pure action bookkeeping: sources (keys, pad buttons) map to actions; presses are latched per tick. */

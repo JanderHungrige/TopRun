@@ -45,7 +45,7 @@ export const UI_EN_FRONTIERS = {
   'shipyard.noStock': 'None in stock: buy one first',
   'shipyard.cantGo': "Can't go there: it breaks a rule",
   'shipyard.cantRemove': 'Other modules hang on it',
-  'shipyard.hintList': 'ENTER buy · U upgrade · E place on the ship · ESC map',
+  'shipyard.hintList': 'ENTER buy · U upgrade · E place on the ship · V picture · ESC map',
   'shipyard.hintGrid': 'ARROWS move · ENTER place · X take off · E back to the list',
   'shipyard.hull': 'HULL',
   'shipyard.shield': 'SHIELD',

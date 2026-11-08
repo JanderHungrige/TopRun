@@ -41,6 +41,8 @@ sister_projects: []
 
 # 91 — Carrier Picture
 
+> **Heli base (doc 92, 2026-11-08):** map 3 now has its own base, the helicopter base's hangar corner, and the light is drawn anew after missions of maps 1–3; the carrier lounge shows on maps 1–2.
+
 ## Purpose
 
 Owner, 2026-11-08, on the first base (still drawn in code): *"Here we have the same problem with the disproportionate

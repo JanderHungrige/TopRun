@@ -152,4 +152,20 @@ describe('Hangar base walker', () => {
     expect(walkFrame({ ...w, dist: STRIDE_PX })).toBe(0);
     expect(walkFrame({ ...w, dist: STRIDE_PX * 2.5 })).toBe(WALK_FRAMES / 2);
   });
+
+  it('walks into the room up a lane and back out of it, at half pace in depth (doc 92)', () => {
+    const FRONT = 640;
+    let w = walkTo(walkerAt(200), 900, 512, 750);
+    expect(w.path).toEqual([[750, FRONT], [750, 512], [900, 512]]);
+    w = walkUntilStopped(w, 300).w;
+    expect([w.x, w.y, w.lane, w.moving]).toEqual([900, 512, 750, false]);
+    expect(w.dist).toBeCloseTo(550 + 128 + 150, 6);
+    const up = stepWalker(walkTo(walkerAt(750), 750, 512), 0.1, 300);
+    expect(up.y).toBeCloseTo(FRONT - 15, 6); // 300 px/s at half pace
+    expect(up.facing).toBe(1);
+    const back = walkTo(w, 1030);
+    expect(back.path).toEqual([[750, 512], [750, FRONT], [1030, FRONT]]);
+    const along = walkTo(w, 728, 556, 750);
+    expect(along.path).toEqual([[750, 512], [750, 556], [728, 556]]); // same lane: no detour to the front line
+  });
 });

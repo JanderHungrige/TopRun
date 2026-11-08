@@ -1,8 +1,8 @@
 import { boardIdentity, boardLink } from '../core/chalkboard-link';
 import type { Scene } from '../core/scene';
-import { areaDef, BASE_AREA_IDS, baseAreas, baseLookOf, RUN_SPEED, WALK_SPEED, type AreaTable, type BaseAreaId, type BaseLook } from '../data/base-areas';
+import { BASE_AREA_IDS, baseAreas, baseLookOf, RUN_SPEED, WALK_SPEED, type AreaTable, type BaseAreaId, type BaseLook } from '../data/base-areas';
 import {
-  areaAt, areaRoute, arrivedAt, neighbour, stepWalker, walkerAt, walkTo, type NavDir, type Walker,
+  areaAt, areaRoute, arrivedAt, neighbour, stepWalker, walkerAtArea, walkToArea, type NavDir, type Walker,
 } from '../game/base-hangar';
 import { baseLine } from '../game/dialogue-scripts';
 import type { GameContext } from '../game/state';
@@ -56,8 +56,8 @@ export class HangarBaseScene implements Scene {
     this.greet = back === null;
     this.focus = back ?? 'fun';
     this.walker = back
-      ? walkerAt(areaDef(this.areas, back).standX)
-      : walkTo(walkerAt(areaDef(this.areas, 'exit').standX, -1), areaDef(this.areas, 'fun').standX);
+      ? walkerAtArea(back, this.areas)
+      : walkToArea(walkerAtArea('exit', this.areas, -1), 'fun', this.areas);
     this.pointer = { x: game.input.pointer.x, y: game.input.pointer.y };
     this.wingman = new SpeechBox(game.audio, {
       portrait: { x: 20, y: 14, w: 84, h: 100 },
@@ -108,14 +108,14 @@ export class HangarBaseScene implements Scene {
     if (id === this.focus) return;
     this.focus = id;
     this.game.audio.play('uiMove');
-    this.walker = walkTo(this.walker, areaDef(this.areas, id).standX);
+    this.walker = walkToArea(this.walker, id, this.areas);
   }
 
   /** The pilot hurries to the area; the route is taken on arrival (update). */
   private open(id: BaseAreaId): void {
     this.opening = id;
     this.game.audio.play('uiSelect');
-    this.walker = walkTo(this.walker, areaDef(this.areas, id).standX);
+    this.walker = walkToArea(this.walker, id, this.areas);
   }
 
   private leave(id: BaseAreaId): void {

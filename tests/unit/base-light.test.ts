@@ -11,13 +11,14 @@ describe('Carrier base light (doc 91)', () => {
     expect(randomLight(-0.1)).toBe('day');
   });
 
-  it('draws a new light after a mission of map 1 or 2', () => {
+  it('draws a new light after a mission of maps 1–3 (the carrier lounge, the helicopter base, doc 92)', () => {
     expect(lightAfterMission(1, 'night', 0.1)).toBe('day');
     expect(lightAfterMission(2, 'day', 0.5)).toBe('evening');
     expect(lightAfterMission(2, 'night', 0.9)).toBe('night');
+    expect(lightAfterMission(3, 'night', 0.1)).toBe('day');
   });
 
   it('keeps the light after a mission of any other map', () => {
-    for (const c of [3, 4, 5, 6] as const) expect(lightAfterMission(c, 'evening', 0.95)).toBe('evening');
+    for (const c of [4, 5, 6] as const) expect(lightAfterMission(c, 'evening', 0.95)).toBe('evening');
   });
 });

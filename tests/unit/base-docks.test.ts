@@ -1,20 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { areaDef, areaIds, BASE_AREAS, baseAreas, baseLookOf } from '../../src/data/base-areas';
-import { CARRIER_AREAS, CARRIER_LAYOUT, JUNGLE_LAYOUT, SEA_LAYOUT, SPACE_LAYOUT } from '../../src/data/base-docks';
-import { areaAt, arrivedAt, neighbour, walkerAt } from '../../src/game/base-hangar';
+import { CARRIER_AREAS, CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT, scaleAt, SEA_LAYOUT, SPACE_LAYOUT } from '../../src/data/base-docks';
+import { areaAt, arrivedAt, neighbour, walkerAt, walkerAtArea } from '../../src/game/base-hangar';
 
 // The home docks (doc 73): the base wears the look of the map the pilot came from; each look has its own geometry.
 
 const inside = (r: { x: number; y: number; w: number; h: number }): boolean => r.x >= 0 && r.y >= 0 && r.x + r.w <= 1280 && r.y + r.h <= 720;
 
 describe('Home docks (doc 73)', () => {
-  it('shows the carrier hangar on maps 1–3, the sea dock on map 4, the space dock on map 5 (doc 74), the jungle base on map 6', () => {
-    expect([1, 2, 3, 4, 5, 6].map((c) => baseLookOf(c as 1 | 2 | 3 | 4 | 5 | 6))).toEqual(['carrier', 'carrier', 'carrier', 'sea', 'space', 'jungle']);
+  it('shows the carrier lounge on maps 1–2, the helicopter base on map 3, the sea dock on map 4, the space dock on map 5 (doc 74), the jungle base on map 6', () => {
+    expect([1, 2, 3, 4, 5, 6].map((c) => baseLookOf(c as 1 | 2 | 3 | 4 | 5 | 6))).toEqual(['carrier', 'carrier', 'heli', 'sea', 'space', 'jungle']);
     expect(baseAreas('carrier')).toBe(CARRIER_AREAS); // the lounge picture (doc 91); BASE_AREAS stays the code-drawn hangar's
   });
 
   it('places every area of the docks on the screen, and the pilot stands on the floor in front of it', () => {
-    for (const look of ['carrier', 'space', 'sea', 'jungle'] as const) {
+    for (const look of ['carrier', 'heli', 'space', 'sea', 'jungle'] as const) {
       const areas = baseAreas(look);
       for (const id of areaIds(areas)) {
         const a = areaDef(areas, id);
@@ -29,7 +29,7 @@ describe('Home docks (doc 73)', () => {
 
   it('gives only the jungle base the ground base and the lab (doc 86)', () => {
     expect(areaIds(baseAreas('jungle'))).toEqual(['fun', 'tv', 'locker', 'photos', 'jet', 'base', 'lab', 'ladder', 'chalk', 'exit']);
-    for (const look of ['carrier', 'space', 'sea'] as const) expect(areaIds(baseAreas(look))).toHaveLength(8);
+    for (const look of ['carrier', 'heli', 'space', 'sea'] as const) expect(areaIds(baseAreas(look))).toHaveLength(8);
     const globe = JUNGLE_LAYOUT.globe;
     if (!globe) throw new Error('no globe');
     expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, baseAreas('jungle'))).toBe('exit');
@@ -70,5 +70,21 @@ describe('Home docks (doc 73)', () => {
     const slate = CARRIER_LAYOUT.slate;
     expect(tv.x).toBeGreaterThanOrEqual(CARRIER_LAYOUT.tv.x - 4);
     expect(slate.w / slate.h).toBeGreaterThan(2.5); // the long horizontal chalkboard
+  });
+
+  it('gives the helicopter base depth: deeper spots up the lane, the pilot smaller there, the map table in front (doc 92)', () => {
+    expect(baseLookOf(3)).toBe('heli');
+    const heli = baseAreas('heli');
+    expect(areaAt({ x: 1000, y: 600 }, heli)).toBe('exit'); // the map table
+    expect(areaAt({ x: 1000, y: 300 }, heli)).toBe('jet'); // the gate with the helicopter
+    const gate = areaDef(heli, 'jet');
+    expect(gate.standY).toBeLessThan(600);
+    expect(gate.via).toBe(750);
+    expect(scaleAt(HELI_LAYOUT, 640)).toBeCloseTo(HELI_LAYOUT.pilot, 6);
+    expect(scaleAt(HELI_LAYOUT, gate.standY ?? 640)).toBeLessThan(HELI_LAYOUT.pilot / 2);
+    expect(scaleAt(CARRIER_LAYOUT, 512)).toBe(CARRIER_LAYOUT.pilot); // no depth on the carrier
+    expect(HELI_LAYOUT.front).toBe(true);
+    const w = walkerAtArea('jet', heli);
+    expect([w.x, w.y, w.lane]).toEqual([900, gate.standY, 750]);
   });
 });

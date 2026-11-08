@@ -4,14 +4,15 @@ import { canPlace, place, remove } from '../game/ship';
 import { buyLaser, buyModule, buyShipMark, canBuyLaser, canBuyModule, canBuyShipMark } from '../game/ship-shop';
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
+import { PictureView } from '../ui/picture-view';
 import { hit } from '../ui/widgets';
 import { markName } from './hangar-items';
-import { BTN, cellAt, drawShipyard, familyOf, ROWS, rowRect, type YardView } from './shipyard-view';
+import { BTN, cellAt, drawShipyard, drawYardBackdrop, familyOf, ROWS, rowRect, type YardView } from './shipyard-view';
 
 // The shipyard (doc 55): map 4's hangar. Buy modules into stock and laser power; place modules on the ship's grid.
 // List focus: ↑/↓ pick, ENTER buys, U buys the module's next mark (doc 57), E (or →) goes to the grid. Grid focus:
 // arrows move the cursor, ENTER places the picked module, X / Delete takes the one under the cursor off, E / ESC back
-// to the list. Tap a row, BUY, UPGRADE, or a cell.
+// to the list. Tap a row, BUY, UPGRADE, or a cell. V or the eye shows the picture alone (doc 76).
 
 export class ShipyardScene implements Scene {
   private time = 0;
@@ -20,8 +21,11 @@ export class ShipyardScene implements Scene {
   private cursor = { col: GRID.core.col, row: GRID.core.row - 1 };
   private note = '';
   private noteT = 0;
+  private readonly picture: PictureView;
 
-  constructor(private readonly game: GameContext) {}
+  constructor(private readonly game: GameContext) {
+    this.picture = new PictureView(game.audio, BTN.eye, 'panel');
+  }
 
   enter(): void {
     this.game.music.play('menu');
@@ -36,6 +40,7 @@ export class ShipyardScene implements Scene {
     this.time += dt;
     this.noteT = Math.max(0, this.noteT - dt);
     const input = this.game.input;
+    if (this.picture.update(dt, input)) return;
     for (const tap of input.taps) this.tap(tap);
     if (input.pressed('base')) return this.leave('base');
     if (this.mode === 'grid') return this.updateGrid();
@@ -135,10 +140,16 @@ export class ShipyardScene implements Scene {
   }
 
   render(ctx: CanvasRenderingContext2D): void {
+    const touch = this.game.input.device === 'touch';
+    if (this.picture.on) {
+      drawYardBackdrop(ctx, false);
+      return this.picture.draw(ctx, touch);
+    }
     const view: YardView = {
       save: this.game.save, row: ROWS[this.row] ?? 'power', rowIndex: this.row, mode: this.mode, cursor: this.cursor,
       note: this.noteT > 0 ? this.note : '', time: this.time,
     };
     drawShipyard(ctx, view);
+    this.picture.draw(ctx, touch);
   }
 }

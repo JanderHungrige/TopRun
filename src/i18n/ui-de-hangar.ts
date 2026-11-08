@@ -38,4 +38,7 @@ export const UI_DE_HANGAR = {
   'celebration.stars': 'STERNE {stars} / {max}',
   'celebration.medals': 'MEDAILLEN {medals} / {max}',
   'celebration.skip': 'ENTER überspringen',
+  // Bildmodus (doc 76).
+  'picture.back': 'V · ESC · ENTER · Klick: Anzeigen wieder einblenden',
+  'picture.backTouch': 'Irgendwo tippen: Anzeigen wieder einblenden',
 } as const;

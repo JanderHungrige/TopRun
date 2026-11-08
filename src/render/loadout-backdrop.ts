@@ -26,15 +26,24 @@ export function preloadLoadoutBackdrop(kit: Kit): void {
   picture(kit);
 }
 
-/** The kit's picture filling the 1280 × 720 frame under its wash; false when there is none (yet). */
-export function drawLoadoutBackdrop(ctx: CanvasRenderingContext2D, kit: Kit): boolean {
+/** The kit's picture filling the 1280 × 720 frame under its wash (none in picture mode); false when there is none (yet). */
+export function drawLoadoutBackdrop(ctx: CanvasRenderingContext2D, kit: Kit, wash = true): boolean {
   const img = picture(kit);
   if (!img) return false;
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(img, 0, 0, 1280, 720);
   ctx.fillStyle = WASH;
-  ctx.fillRect(0, 0, 1280, 720);
+  if (wash) ctx.fillRect(0, 0, 1280, 720);
   ctx.restore();
   return true;
+}
+
+/** The plain night-blue backdrop while a picture loads. */
+export function drawPlainBackdrop(ctx: CanvasRenderingContext2D): void {
+  const bg = ctx.createLinearGradient(0, 0, 0, 720);
+  bg.addColorStop(0, '#0d1824');
+  bg.addColorStop(1, '#05090f');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, 1280, 720);
 }

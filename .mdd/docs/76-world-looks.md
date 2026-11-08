@@ -17,6 +17,10 @@ source_files:
   - src/scenes/hangar.ts
   - src/scenes/shipyard-view.ts
   - src/render/loadout-backdrop.ts
+  - src/ui/picture-view.ts
+  - src/scenes/shipyard.ts
+  - src/scenes/outpost.ts
+  - src/scenes/lab.ts
   - src/render/portraits/index.ts
   - src/ui/speech.ts
   - src/scenes/hangar-chief.ts
@@ -40,7 +44,7 @@ test_files:
   - tests/unit/base-docks.test.ts
   - tests/unit/dialogue.test.ts
 data_flow: reads-existing
-last_synced: 2026-11-07
+last_synced: 2026-11-08
 status: complete
 phase: all
 mdd_version: 11
@@ -99,7 +103,19 @@ The loadout screen (the hangar, the SUB PEN, the shipyard) gets a generated pict
 the panels and texts stay readable: the carrier's hangar deck (maps 1–2), a helicopter base hangar (map 3), a submarine
 pen (map 4), an orbital shipyard (map 5). `src/assets/loadout/<kit>.png` on the 320 × 180 art grid (the workflow's own
 48-colour pixel branch, sampled at its art-pixel centres), drawn at 4 × under a wash of 36 % so the scene shows around and
-through the panels. The owner took all four as rendered (2026-11-07).
+through the panels. The owner took all four as rendered (2026-11-07); map 6's mech bay (`mech.png`) came with the
+jungle planet (doc 86).
+
+### Picture mode
+
+Owner, 2026-11-08: *"Add a hide button in the hangar so one can admire the new backgrounds too."* The screens with a
+generated picture behind their panels — the LOADOUT (every kit), the shipyard, the GROUND BASE and the LAB — have an
+**eye button** beside their exits (the loadout and the shipyard: left of BASE; the ground base and the lab: left of
+BACK) and the key **V**. It hides every panel, text, button and speech box and lifts the dark wash, so the picture shows
+whole and at full brightness; the ground base keeps its buildings (they stand on the picture). Only the eye button
+stays, faint, and a hint line that fades after three seconds. V, ESC, ENTER, a click or a tap anywhere brings the panels
+back; nothing else reacts meanwhile (ESC does not leave the screen). The mode is the scene's own and starts off every
+time the screen opens (`PictureView`, `src/ui/picture-view.ts`).
 
 ## The crew in each world's outfit
 

@@ -39,6 +39,7 @@ const DETAIL: Rect = { x: 870, y: 110, w: 370, h: 540 };
 export const BTN = Object.freeze({
   map: { x: 1150, y: 22, w: 110, h: 44 },
   base: { x: 1030, y: 22, w: 110, h: 44 },
+  eye: { x: 966, y: 22, w: 54, h: 44 }, // picture mode (doc 76)
   buy: { x: DETAIL.x + 20, y: DETAIL.y + DETAIL.h - 66, w: DETAIL.w - 40, h: 48 },
   mark: { x: DETAIL.x + 20, y: DETAIL.y + DETAIL.h - 120, w: DETAIL.w - 40, h: 44 },
 });
@@ -164,10 +165,15 @@ function drawStars(ctx: CanvasRenderingContext2D): void {
   }
 }
 
+/** The orbital shipyard's picture, under its wash unless in picture mode (doc 76). */
+export function drawYardBackdrop(ctx: CanvasRenderingContext2D, wash = true): void {
+  if (!drawLoadoutBackdrop(ctx, 'ship', wash)) drawStars(ctx);
+}
+
 export function drawShipyard(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[] = ROWS): void {
-  if (!drawLoadoutBackdrop(ctx, 'ship')) drawStars(ctx);
+  drawYardBackdrop(ctx);
   text(ctx, t('shipyard.title'), 40, 58, { size: 34, display: true, italic: true, color: COLORS.gold });
-  text(ctx, formatMoney(v.save.money), 1010, 56, { size: 26, display: true, align: 'right', color: COLORS.green });
+  text(ctx, formatMoney(v.save.money), 950, 56, { size: 26, display: true, align: 'right', color: COLORS.green });
   drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BTN.base, hint: 'B' }, false, v.time);
   drawButton(ctx, { id: 'map', label: t('shipyard.map'), ...BTN.map, hint: 'ESC' }, false, v.time);
   drawGrid(ctx, v);

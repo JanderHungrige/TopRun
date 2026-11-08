@@ -1,7 +1,7 @@
 // The ground base and the lab (docs 82, 83) — German; keys must match ui-en-outpost.ts.
 export const UI_DE_OUTPOST = {
   'outpost.title': 'BODENBASIS',
-  'outpost.keys': '←/→ GEBÄUDE · ↑/↓ KNOPF · ENTER BAUEN · ESC ZURÜCK',
+  'outpost.keys': '←/→ GEBÄUDE · ↑/↓ KNOPF · ENTER BAUEN · V BILD · ESC ZURÜCK',
   'outpost.generator': 'Generator',
   'outpost.refinery': 'Raffinerie',
   'outpost.factory': 'Munitionsfabrik',
@@ -32,7 +32,7 @@ export const UI_DE_OUTPOST = {
   'outpost.magazine': 'MAGAZIN',
   'outpost.held': '{kind}: {n} / {max}',
   'lab.title': 'LABOR',
-  'lab.keys': '↑/↓ PROJEKT · ENTER STARTEN · ESC ZURÜCK',
+  'lab.keys': '↑/↓ PROJEKT · ENTER STARTEN · V BILD · ESC ZURÜCK',
   'lab.perSortie': '{n} Forschung pro Einsatz',
   'lab.banked': '{n} aufgehoben fürs nächste Projekt',
   'lab.start': 'FORSCHUNG STARTEN',

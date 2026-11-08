@@ -5,7 +5,8 @@ import { build, buildRounds, canBuild, canBuildRounds, powerShare, roundsOrder }
 import type { GameContext } from '../game/state';
 import { t } from '../i18n/i18n';
 import { drawBuilding } from '../render/outpost-buildings';
-import { BACK_BTN, backButton, hintLine } from '../render/rooms-chrome';
+import { BACK_BTN, backButton, EYE_BTN, hintLine } from '../render/rooms-chrome';
+import { PictureView } from '../ui/picture-view';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { hit, type Rect } from '../ui/widgets';
 import { roundsName } from './hangar-mech';
@@ -13,7 +14,7 @@ import { buildButton, buildingName, drawBuildingPanel, drawTopBar, orderButtons 
 
 // The GROUND BASE (doc 82): the jungle clearing with the base's five buildings on it, each drawn at its level; ←/→ or a
 // click picks one, ENTER builds or upgrades it with money; at the factory ↑/↓ pick an order of rounds instead; Major
-// Brennan comments.
+// Brennan comments. V or the eye shows the clearing without the panels (doc 76).
 
 const FILES = import.meta.glob<string>('../assets/outpost/*.png', { eager: true, query: '?url', import: 'default' });
 
@@ -43,8 +44,10 @@ export class OutpostScene implements Scene {
   private row = 0;
   private hoverBack = false;
   private readonly major: SpeechBox;
+  private readonly picture: PictureView;
 
   constructor(private readonly game: GameContext) {
+    this.picture = new PictureView(game.audio, EYE_BTN, 'pixel');
     this.major = new SpeechBox(game.audio, {
       portrait: { x: 20, y: 76, w: 100, h: 120 },
       bubble: { x: 132, y: 82, w: 600, h: 104 },
@@ -65,6 +68,7 @@ export class OutpostScene implements Scene {
   update(dt: number): void {
     this.time += dt;
     const input = this.game.input;
+    if (this.picture.update(dt, input)) return;
     this.major.update(dt, input);
     this.hoverBack = input.device !== 'touch' && hit(input.pointer, BACK_BTN);
     if (input.pressed('back') || input.taps.some((p) => hit(p, BACK_BTN))) {
@@ -149,6 +153,8 @@ export class OutpostScene implements Scene {
     }
     ctx.restore();
     for (const id of BUILDING_IDS) drawBuilding(ctx, id, save.outpost.buildings[id], PLOT_X[id], GROUND, this.time);
+    const touch = this.game.input.device === 'touch';
+    if (this.picture.on) return this.picture.draw(ctx, touch);
     const r = plotRect(this.focus);
     ctx.strokeStyle = `rgba(255,215,106,${(0.6 + Math.sin(this.time * 5) * 0.3).toFixed(2)})`;
     ctx.lineWidth = 3;
@@ -156,7 +162,8 @@ export class OutpostScene implements Scene {
     drawTopBar(ctx, save.money, save.outpost);
     drawBuildingPanel(ctx, save.outpost, this.focus, save.money, this.time, this.focus === 'factory' ? this.row : 0);
     this.major.render(ctx);
-    hintLine(ctx, t('outpost.keys'), 24, 1060);
+    hintLine(ctx, t('outpost.keys'), 24, 1020);
     backButton(ctx, this.hoverBack);
+    this.picture.draw(ctx, touch);
   }
 }

@@ -45,7 +45,7 @@ export const UI_DE_FRONTIERS = {
   'shipyard.noStock': 'Keins auf Lager: erst eins kaufen',
   'shipyard.cantGo': 'Passt da nicht hin: verletzt eine Regel',
   'shipyard.cantRemove': 'Daran hängen andere Module',
-  'shipyard.hintList': 'ENTER kaufen · U aufrüsten · E ans Schiff setzen · ESC Karte',
+  'shipyard.hintList': 'ENTER kaufen · U aufrüsten · E ans Schiff setzen · V Bild · ESC Karte',
   'shipyard.hintGrid': 'PFEILE bewegen · ENTER setzen · X abnehmen · E zurück zur Liste',
   'shipyard.hull': 'HÜLLE',
   'shipyard.shield': 'SCHILD',

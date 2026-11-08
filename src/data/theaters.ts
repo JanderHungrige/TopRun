@@ -2,16 +2,23 @@ import { THEATERS_2 } from './theaters-2';
 import { THEATERS_3 } from './theaters-3';
 import { THEATERS_4 } from './theaters-4';
 import { THEATERS_5 } from './theaters-5';
+import { THEATERS_6 } from './theaters-6';
 import { THEATER_IDS, type CampaignId, type TheaterId } from './types';
 
 export type TerrainStyle =
   | 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar'
-  | 'reef' | 'kelp' | 'wreck' | 'trench' | 'abyss';
+  | 'reef' | 'kelp' | 'wreck' | 'trench' | 'abyss'
+  // The jungle planet (doc 81).
+  | 'clearing' | 'rainforest' | 'swamp' | 'ruins' | 'hive';
 
 const UNDERWATER: readonly TerrainStyle[] = ['reef', 'kelp', 'wreck', 'trench', 'abyss'];
+const JUNGLE: readonly TerrainStyle[] = ['clearing', 'rainforest', 'swamp', 'ruins', 'hive'];
 
 /** The terrains under the sea (docs 68, 70): water instead of sky, bubbles instead of smoke. */
 export const underwater = (style: TerrainStyle): boolean => UNDERWATER.includes(style);
+
+/** The jungle planet's floors (doc 81): walked by the mechs, under a canopy instead of clouds. */
+export const jungle = (style: TerrainStyle): boolean => JUNGLE.includes(style);
 
 export interface TheaterPalette {
   sea: string;
@@ -81,7 +88,7 @@ const THEATERS_1 = {
   },
 } satisfies Record<string, TheaterDef>;
 
-export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4, ...THEATERS_5 });
+export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4, ...THEATERS_5, ...THEATERS_6 });
 
 /** The theaters of one campaign map, in route order. */
 export const campaignTheaters = (c: CampaignId): TheaterId[] => THEATER_IDS.filter((id) => THEATERS[id].campaign === c);

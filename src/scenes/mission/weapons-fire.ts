@@ -6,6 +6,7 @@ import { headingTo } from '../../game/combat';
 import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import { fireHe } from './shells';
+import { fireBeam, fireLance, lobShell } from './mech-mission';
 import type { Missile, World } from './world';
 
 export const GUN_SPEED = 900;
@@ -71,7 +72,7 @@ export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, 
 
 const homingKind = (id: SecondaryId): Missile['kind'] | null =>
   (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' || id === 'stinger' || id === 'spacerocket'
-    || id === 'torpedo' || id === 'mk48' ? id : null);
+    || id === 'torpedo' || id === 'mk48' || id === 'seeker' ? id : null);
 
 /**
  * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods
@@ -83,6 +84,7 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
   const def = SECONDARIES[slot.id];
   const pods = slot.twin && slot.ammo >= 2 ? [-1, 1] : [0];
   slot.ammo -= pods.length;
+  p.spent[slot.id] = (p.spent[slot.id] ?? 0) + pods.length;
   p.firedSecondary = true;
   p.secCooldown = def.cooldown;
   p.sideToggle *= -1;
@@ -100,6 +102,18 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
     case 'bomb':
       for (const s of pods) world.bombs.push({ x: p.x + s * 16, y: p.y, t: 0, damage: slot.weapon.damage, radius: slot.weapon.radius, dead: false });
       audio.play('bombDrop');
+      break;
+    case 'lob':
+      for (const s of pods) lobShell(world, p, slot.weapon, s * 14 + 10 * p.sideToggle);
+      audio.play('cannon');
+      break;
+    case 'lance':
+      for (const s of pods) fireLance(world, p, slot.weapon, s * 14 + 12 * p.sideToggle);
+      audio.play('special');
+      break;
+    case 'beam':
+      for (const s of pods) fireBeam(world, p, slot.weapon, s * 14 + 12 * p.sideToggle, audio);
+      audio.play('nukeLaunch', { volume: 0.5 });
       break;
     default:
       throw new Error(`unhandled: ${def.behavior satisfies never}`);

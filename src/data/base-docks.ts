@@ -1,4 +1,4 @@
-import type { AreaRect, BaseAreaDef, BaseAreaId } from './base-areas';
+import type { AreaRect, AreaTable, BaseAreaDef, BaseAreaId } from './base-areas';
 
 // The home base's other looks (docs 73, 76): the space-station dock (map 5) and the underwater dock (map 4), each a
 // generated picture with every area's hotspot, name plate and stand point placed on the picture's own objects, and the
@@ -28,7 +28,7 @@ export interface DockLayout {
 /** Space dock G (map 5, doc 76): cozy crew quarters — the rec room alcove with the arcade, the lockers, the scoreboard over
  *  the chalkboard, the shelf of framed photos, the couch on its rug; the left porthole leads to the map, the right one
  *  shows a sliver of the docked starfighter (the craft). */
-export const SPACE_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freeze({
+export const SPACE_AREAS: AreaTable = Object.freeze({
   fun: area('fun', 'floor', { x: 116, y: 196, w: 170, h: 344 }, { x: 200, y: 184 }, 200),
   tv: area('tv', 'floor', { x: 618, y: 400, w: 136, h: 246 }, { x: 686, y: 388 }, 686),
   locker: area('locker', 'floor', { x: 318, y: 232, w: 164, h: 300 }, { x: 400, y: 220 }, 400),
@@ -51,7 +51,7 @@ export const SPACE_LAYOUT: DockLayout = {
 
 /** Underwater dock C (map 4): lockers, the rec room, the scoreboard and the photos over the chalkboard, the big
  *  round window with the sub docked outside. */
-export const SEA_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freeze({
+export const SEA_AREAS: AreaTable = Object.freeze({
   fun: area('fun', 'floor', { x: 104, y: 188, w: 216, h: 376 }, { x: 200, y: 176 }, 210),
   tv: area('tv', 'floor', { x: 178, y: 384, w: 136, h: 240 }, { x: 246, y: 372 }, 246),
   locker: area('locker', 'floor', { x: 322, y: 278, w: 148, h: 280 }, { x: 396, y: 266 }, 396),
@@ -70,4 +70,30 @@ export const SEA_LAYOUT: DockLayout = {
   neon: { x: 134, y: 242, w: 132, h: 38 },
   globe: { x: 1100, y: 430, w: 124, h: 240 },
   pilot: 0.84,
+};
+
+/** The jungle base's crew hut (map 6, doc 86): the lockers and the rec room on the left, the scoreboard over the chalkboard,
+ *  the lab's door with its green window, the cork board, the big window onto the ground base's compound and the open
+ *  gate with a mech parked outside (the craft); a planet globe drawn in code is the way to the map. */
+export const JUNGLE_AREAS: AreaTable = Object.freeze({
+  fun: area('fun', 'floor', { x: 138, y: 226, w: 128, h: 330 }, { x: 202, y: 214 }, 206),
+  tv: area('tv', 'floor', { x: 282, y: 430, w: 130, h: 230 }, { x: 347, y: 418 }, 352),
+  locker: area('locker', 'floor', { x: 0, y: 270, w: 136, h: 410 }, { x: 68, y: 258 }, 90),
+  photos: area('photos', 'mid', { x: 698, y: 290, w: 84, h: 72 }, { x: 740, y: 278 }, 736),
+  jet: area('jet', 'floor', { x: 1040, y: 150, w: 240, h: 490 }, { x: 1160, y: 138 }, 1110),
+  base: area('base', 'wall', { x: 828, y: 222, w: 164, h: 200 }, { x: 910, y: 210 }, 910),
+  lab: area('lab', 'floor', { x: 552, y: 262, w: 140, h: 252 }, { x: 622, y: 250 }, 622),
+  ladder: area('ladder', 'wall', { x: 376, y: 210, w: 120, h: 78 }, { x: 436, y: 198 }, 440),
+  chalk: area('chalk', 'mid', { x: 352, y: 296, w: 180, h: 104 }, { x: 442, y: 284 }, 450),
+  exit: area('exit', 'floor', { x: 922, y: 446, w: 112, h: 210 }, { x: 978, y: 434 }, 960),
+});
+
+export const JUNGLE_LAYOUT: DockLayout = {
+  board: { x: 380, y: 214, w: 112, h: 68 },
+  boardRows: 3,
+  slate: { x: 360, y: 303, w: 162, h: 90 },
+  tv: { x: 288, base: 656 },
+  neon: { x: 146, y: 196, w: 114, h: 34 },
+  globe: { x: 930, y: 452, w: 100, h: 200 },
+  pilot: 0.9,
 };

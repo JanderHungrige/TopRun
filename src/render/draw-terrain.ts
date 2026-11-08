@@ -2,6 +2,9 @@ import { TAU } from '../core/math';
 import { createRng, type Rng } from '../core/rng';
 import type { TheaterDef } from '../data/theaters';
 import { asSea, Water } from './water';
+import { jungle } from '../data/theaters';
+import { Footprints } from './footprints';
+import { JungleCanopy, jungleRow } from './jungle-canopy';
 import { drawFeature, makeBaseTile, makeBlob, type Feature, type FeatureType } from './terrain-art';
 
 const W = 640;
@@ -25,6 +28,9 @@ export class Terrain {
   private readonly rng: Rng;
   /** Under the sea (doc 68): fish, bubbles, caustics and light rays instead of clouds. */
   private readonly water: Water | null;
+  /** On the jungle planet (doc 81): the canopy overhead and the mechs' footprints. */
+  private readonly canopy: JungleCanopy | null;
+  readonly prints = new Footprints();
   private time = 0;
   lightning = 0;
 
@@ -32,6 +38,7 @@ export class Terrain {
     this.rng = createRng(seed);
     const sea = asSea(theater.terrain);
     this.water = sea ? new Water(sea, seed + 1) : null;
+    this.canopy = jungle(theater.terrain) ? new JungleCanopy(theater.terrain, theater.palette, seed + 2) : null;
     for (let y = -ROW; y < H; y += ROW) this.spawnRow(y);
     for (let i = 0; i < 4; i++) this.spawnCloud(this.rng.range(0, H));
   }
@@ -45,6 +52,8 @@ export class Terrain {
     this.distance += dy;
     this.time += dt;
     this.water?.update(dt, dy);
+    this.canopy?.update(dt, dy);
+    this.prints.update(dt, dy);
     for (const f of this.features) f.y += dy;
     for (const c of this.clouds) c.y += dy * 1.7;
     this.features = this.features.filter((f) => f.y - f.r * 4 < H + 40);
@@ -71,11 +80,13 @@ export class Terrain {
     if (this.theater.terrain === 'trench') this.renderWalls(ctx); // the Trench's rock walls (doc 70)
     const style = this.theater.terrain;
     for (const f of this.features) drawFeature(ctx, f, style, this.theater.palette, this.time);
+    this.prints.render(ctx);
     this.water?.renderFloor(ctx, this.distance);
   }
 
   renderSky(ctx: CanvasRenderingContext2D, t: number): void {
     if (this.water) return this.water.renderOverlay(ctx);
+    if (this.canopy) return this.canopy.render(ctx);
     // Each cloud is filled as one shape so overlapping puffs keep a single, even transparency.
     ctx.fillStyle = this.theater.palette.cloud;
     ctx.globalAlpha = 0.7;
@@ -250,6 +261,13 @@ export class Terrain {
         if (r.chance(0.4)) add('coral', r.range(12, 26));
         if (r.chance(0.22)) add('stone', r.range(10, 24));
         if (r.chance(0.32)) add('kelp', r.range(16, 30));
+        return;
+      case 'clearing':
+      case 'rainforest':
+      case 'swamp':
+      case 'ruins':
+      case 'hive':
+        jungleRow(this.theater.terrain, add, r);
         return;
       default:
         throw new Error(`unhandled: ${this.theater.terrain satisfies never}`);

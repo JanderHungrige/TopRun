@@ -31,6 +31,9 @@ export type Route =
   | { to: 'ladder' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
+  /** The ground base on the jungle planet (doc 82) and its lab (doc 83), from the jungle base's crew hut. */
+  | { to: 'outpost' }
+  | { to: 'lab' }
   /** The home-base hangar (doc 30). */
   | { to: 'base' }
   /** The rec room: the off-duty minigame list behind the hangar's FUN MISSIONS area (doc 11). */

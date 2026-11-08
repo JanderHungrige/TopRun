@@ -33,7 +33,7 @@ describe('Fifth map: space (docs 56, 58, 74)', () => {
     expect(MISSIONS_5[0]?.reward).toBe(1200);
     expect(MISSIONS_5[29]?.reward).toBe(Math.round((1200 + 29 * 380) * 1.5 / 100) * 100);
     expect(campaignMissions(5)).toEqual(MISSIONS_5);
-    expect(ALL_MISSIONS.slice(120)).toEqual(MISSIONS_5);
+    expect(ALL_MISSIONS.slice(120, 150)).toEqual(MISSIONS_5);
     expect(kitOf(5)).toBe('ship');
   });
 
@@ -101,5 +101,6 @@ describe('Fifth map: space (docs 56, 58, 74)', () => {
     const after150 = debriefScript({ mission: m150, result: win('m150'), stars: 2, totalText: '$9,600', campaignDone: true }).map((l) => l.key);
     expect(after150).toContain('adm.finale5');
     expect(after150).not.toContain('adm.space');
+    expect(after150).toContain('adm.jungle'); // map 6 opens after space (doc 78)
   });
 });

@@ -1,4 +1,5 @@
 import type { LineKey } from './lines-en';
+import { JUNGLE_LINES_DE } from './lines-jungle-de';
 import { LAUNCH_LINES_DE } from './lines-launch-de';
 
 // German spoken lines (doc 06). Same {placeholders} as English; the compiler rejects a missing key.
@@ -77,7 +78,7 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Und es gibt eine dritte Front: Tiefflug, nur Hubschrauber. Die Jets bleiben daheim. Sieh dir den Globus an, {callsign}.',
   ],
   'adm.space': [
-    'Eine letzte Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
+    'Noch eine Front, {callsign}, und die liegt über dem Himmel. In deiner Werft wartet ein Raumschiff. Sieh dir den Globus an.',
   ],
   'adm.celebrate1': ["Die ganze Flotte ist stolz auf dich, {callsign}. Heute Abend wird gefeiert, morgen wird die Welt größer."],
   'adm.celebrate2': ["Zwei Fronten, ein Pilot. {callsign}, in jedem Bereitschaftsraum wird man von dir erzählen."],
@@ -91,7 +92,7 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Der Abgrund ist still, {callsign}. Du hast sie bis auf den Meeresgrund gejagt.',
   ],
   'adm.finale5': [
-    'Das war die letzte Grenze, {callsign}. Es gibt keinen Ort mehr, an den sie fliehen können.',
+    'Der Weltraum gehört uns, {callsign}. Da oben gibt es keinen Ort mehr, an den sie fliehen können.',
   ],
   'adm.finale3': [
     'Die Ascheinsel gehört uns, {callsign}. Du hast diesen Krieg in Baumwipfelhöhe geführt. Ass der Asse.',
@@ -295,5 +296,5 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Neu auf der Basis: {game}! Willst du es ausprobieren?',
     'Schau mal, {game} ist jetzt offen. Probierst du es?',
   ],
-  ...LAUNCH_LINES_DE,
+  ...LAUNCH_LINES_DE, ...JUNGLE_LINES_DE,
 };

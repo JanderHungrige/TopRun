@@ -1,4 +1,4 @@
-import { BASE_AREAS } from '../../data/base-areas';
+import { areaDef, BASE_AREAS } from '../../data/base-areas';
 import { SpriteCache } from '../pixel/blit';
 import { hexOf, PAL } from '../pixel/palette';
 import { makeCanvas } from '../pixel/post';
@@ -16,7 +16,7 @@ import { col, hash, pbox } from './paint';
 export interface BoardBox { x0: number; y0: number; w: number; h: number }
 
 export function boardBox(G: number): BoardBox {
-  const hot = BASE_AREAS.ladder.hot;
+  const hot = areaDef(BASE_AREAS, 'ladder').hot;
   const w = BOARD_COLS * (TILE_W + TILE_GAP) - TILE_GAP;
   const h = BOARD_ROWS * TILE_H + (BOARD_ROWS - 1) * ROW_GAP;
   return { x0: Math.round((hot.x + hot.w / 2) / G - w / 2), y0: Math.round(140 / G), w, h };

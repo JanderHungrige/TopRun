@@ -50,6 +50,7 @@ const SETS: Readonly<Record<CeremonySet, SetLook>> = {
   deck: { plate: 'plate', crew: CEREMONY_LAYERS.crewSalute, stars: [], gulls: true },
   pier: { ...CEREMONY_SETS.pier, gulls: true },
   hangar: { ...CEREMONY_SETS.hangar, gulls: false },
+  clearing: { ...CEREMONY_SETS.clearing, gulls: true },
 };
 
 const images = new Map<string, HTMLImageElement>();

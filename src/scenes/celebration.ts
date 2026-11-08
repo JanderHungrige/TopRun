@@ -15,7 +15,7 @@ import { pilotContext, SpeechBox } from '../ui/speech';
 // fireworks and confetti, the admiral's line and the WORLD COMPLETE card; then `then`. ENTER / tap skips to the card,
 // again leaves; ESC leaves at once.
 
-const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5' };
+const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6' };
 
 export class CelebrationScene implements Scene {
   private time = 0;

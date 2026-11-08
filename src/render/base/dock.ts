@@ -1,5 +1,5 @@
-import type { BaseAreaDef, BaseAreaId } from '../../data/base-areas';
-import { SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
+import { areaDef, type AreaTable } from '../../data/base-areas';
+import { JUNGLE_LAYOUT, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
 import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
 import { outline, toCanvas } from '../pixel/post';
@@ -9,6 +9,7 @@ import { drawCast, drawCastShadows } from './cast';
 import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
 import { drawDockGlobe } from './dock-globe';
 import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
+import { jungleAmbient } from './dock-jungle';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
 import { NEON, PILOT_SCALE, TV_CART } from './layout';
@@ -20,10 +21,10 @@ import { neonSprite } from './sprites';
 // brackets; then world 1's flip board and chalkboard over the picture's own, the pilot to the dock's scale and the strip
 // on top (no name plates in the docks).
 
-export type DockLook = 'space' | 'sea';
+export type DockLook = 'space' | 'sea' | 'jungle';
 
 const FILES = import.meta.glob<string>('../../assets/docks/*.png', { eager: true, query: '?url', import: 'default' });
-const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { space: SPACE_LAYOUT, sea: SEA_LAYOUT };
+const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
 const images = new Map<DockLook, HTMLImageElement>();
 const masks = new Map<DockLook, Mask>();
 const layers = new SpriteCache(4);
@@ -82,23 +83,31 @@ function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: 
   g.drawImage(s.canvas, s.c + Math.round((r.x + r.w / 2 - (NEON.x + NEON.w / 2)) / G), s.r + Math.round((r.y + r.h / 2 - (NEON.y + NEON.h / 2)) / G));
 }
 
-function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HTMLCanvasElement, v: HangarView, areas: Readonly<Record<BaseAreaId, BaseAreaDef>>): void {
+function ambient(g: CanvasRenderingContext2D, G: number, look: DockLook, t: number, back: HTMLCanvasElement): void {
+  switch (look) {
+    case 'space': spaceAmbient(g, G, t, masks.get(look) ?? null); return;
+    case 'sea': seaAmbient(g, G, t, back); return;
+    case 'jungle': jungleAmbient(g, G, t); return;
+    default: throw new Error(`unhandled: ${look satisfies never}`);
+  }
+}
+
+function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HTMLCanvasElement, v: HangarView, areas: AreaTable): void {
   const L = LAYOUT[look];
   const G = gr.G;
   g.drawImage(back, 0, 0);
-  if (look === 'space') spaceAmbient(g, G, v.t, masks.get(look) ?? null);
-  else seaAmbient(g, G, v.t, back);
+  ambient(g, G, look, v.t, back);
   neon(g, G, L.neon, v.t);
-  if (L.globe) drawDockGlobe(g, G, L.globe, v.t);
+  if (L.globe) drawDockGlobe(g, G, L.globe, v.t, look === 'jungle' ? 'jungle' : 'earth');
   drawCastShadows(g, G, v.walker, false, L.pilot);
   const tv = tvLayer(gr, look);
   if (tv) g.drawImage(tv, 0, 0);
   tvSet(g, G, v.t, tvScale(look), L.tv);
-  drawBrackets(g, G, areas[v.focus].hot, v.t);
+  drawBrackets(g, G, areaDef(areas, v.focus).hot, v.t);
 }
 
 /** Draws a dock covering the 1280 × 720 frame. False while its picture loads (the caller shows the hangar). */
-export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: HangarView, areas: Readonly<Record<BaseAreaId, BaseAreaDef>>): boolean {
+export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: HangarView, areas: AreaTable): boolean {
   const img = picture(look);
   const gr = artGrid(ctx);
   const back = img ? backdrop(look, img, gr) : null;

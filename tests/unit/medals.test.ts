@@ -105,8 +105,8 @@ describe('Medals', () => {
   });
 
   describe('catalogue', () => {
-    it('has 46 medals (the 18 of map 1 and the world medals of docs 62 and 72) with English and German names and citations', () => {
-      expect(MEDAL_IDS).toHaveLength(46);
+    it('has 53 medals (the 18 of map 1 and the world medals of docs 62, 72 and 85) with English and German names and citations', () => {
+      expect(MEDAL_IDS).toHaveLength(53);
       for (const id of MEDAL_IDS) {
         expect(MEDALS[id].name.length).toBeGreaterThan(3);
         expect(MEDALS[id].citation.length).toBeGreaterThan(10);

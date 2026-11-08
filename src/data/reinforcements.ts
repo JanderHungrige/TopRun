@@ -6,7 +6,7 @@ import type { EnemyKind, MissionDef, TheaterId } from './types';
 
 /** The six new regular types and the three mini-bosses. */
 export const NEW_KINDS: readonly EnemyKind[] = Object.freeze(['shilka', 'bunker', 'foxbat', 'jammer', 'frigate', 'felon'] as const);
-export const MINI_BOSSES: readonly EnemyKind[] = Object.freeze(['backfire', 'fortress', 'cruiser', 'warden', 'boomer'] as const);
+export const MINI_BOSSES: readonly EnemyKind[] = Object.freeze(['backfire', 'fortress', 'cruiser', 'warden', 'boomer', 'brute'] as const);
 export const isMiniBoss = (kind: EnemyKind): boolean => MINI_BOSSES.includes(kind);
 
 interface Reinforcement {
@@ -47,6 +47,12 @@ const ADDS: Readonly<Record<TheaterId, readonly Reinforcement[]>> = {
   moon: [r('interceptor', 133)],
   rings: [r('interceptor', 139), r('gunship', 139)],
   deep: [r('gunship', 145), r('interceptor', 145)],
+  // Map 6, the jungle planet (doc 78): its own enemies only; the dropship spreads from m159, the beetle from m171.
+  landing: [],
+  canopy: [r('dropship', 159)],
+  swamp: [r('walker', 165)],
+  ruins: [r('dropship', 171), r('beetle', 171)],
+  hive: [r('dropship', 177), r('hovertank', 177)],
 };
 
 /** Sea units need a sea theater (land units stand on islands in sea theaters). */
@@ -66,12 +72,15 @@ export const MINI_BOSS_FROM = 13;
 export const MAP3_MINI_BOSS_FROM = 67;
 export const MAP4_MINI_BOSS_FROM = 97;
 export const MAP5_MINI_BOSS_FROM = 127;
+/** On map 6 from the canopy on: the brute walker (doc 78). */
+export const MAP6_MINI_BOSS_FROM = 157;
 
 /** Mini-bosses of a mission: when (share of the mission length) and which kind. None in boss missions. */
 export function miniBosses(m: MissionDef): Array<{ at: number; kind: EnemyKind }> {
   if (m.objective.type === 'boss' || m.number < MINI_BOSS_FROM || (m.campaign === 3 && m.number < MAP3_MINI_BOSS_FROM)) return [];
   if (m.campaign === 4) return m.number < MAP4_MINI_BOSS_FROM ? [] : [{ at: 0.55, kind: 'boomer' }]; // doc 70
   if (m.campaign === 5) return m.number < MAP5_MINI_BOSS_FROM ? [] : [{ at: 0.55, kind: 'warden' }]; // doc 58
+  if (m.campaign === 6) return m.number < MAP6_MINI_BOSS_FROM ? [] : [{ at: 0.55, kind: 'brute' }]; // doc 78
   const sea = THEATERS[m.theater].base === 'sea';
   const pick = (k: number): EnemyKind => ((m.number + k) % 2 === 0 ? 'backfire' : sea ? 'cruiser' : 'fortress');
   const times = m.campaign === 2 ? [0.4, 0.75] : [0.55];

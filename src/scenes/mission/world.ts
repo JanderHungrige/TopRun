@@ -12,6 +12,7 @@ import { THEATERS, underwater } from '../../data/theaters';
 import type { Boss } from './boss';
 import { flightScroll } from '../../game/sub-flight';
 import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/canyon';
+import type { Beam, Lance } from './mech-mission';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -79,7 +80,7 @@ export interface Bullet {
 }
 
 export type MissileKind =
-  | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'rocket' | 'enemy';
+  | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'seeker' | 'rocket' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -104,6 +105,8 @@ export interface Bomb {
   damage: number;
   radius: number;
   dead: boolean;
+  /** A mortar shell thrown ahead (px/s up the screen) instead of dropped (doc 79). */
+  lob?: number;
 }
 
 export interface Flare {
@@ -169,6 +172,10 @@ export class World {
   blast: { x: number; y: number; t: number } | null = null;
   /** The Type 212's sonar ring running out from where it pinged (doc 67); `t` counts up. */
   sonar: { x: number; y: number; t: number } | null = null;
+  /** The mechs (doc 80): the Strider's stomp ring, plasma lance bolts and rail beams. */
+  stomp: { x: number; y: number; t: number } | null = null;
+  lances: Lance[] = [];
+  beams: Beam[] = [];
   private ids = 0;
 
   /**

@@ -3,9 +3,10 @@ import {
   ARMOR_BONUS, atLevel, DAMAGE_CONTROL_RESTORE, DAMAGE_CONTROL_USES, ECM_BULLET, ECM_TURN, ENGINE_BONUS, FLARE_COUNT,
 } from '../data/equipment';
 import { isFleet } from '../data/fleet';
+import { roundsOf, type RoundsId } from '../data/outpost';
 import type { LiveryId } from '../data/liveries';
 import { PLANES, type PlaneDef } from '../data/planes';
-import type { GunLevel, SecondaryId } from '../data/types';
+import type { GunLevel, MechId, SecondaryId } from '../data/types';
 import { SECONDARIES, type WeaponRole } from '../data/weapons';
 import { loadedRounds } from './ammo';
 import { markOf, weaponStats, type WeaponStats } from './arsenal';
@@ -63,6 +64,8 @@ export interface PlayerStats {
   livery: LiveryId;
   /** The spacecraft's layout stats (doc 54); null for jets and helicopters. */
   ship?: ShipStats | null;
+  /** A mech's camo (doc 87); null for everything else or a mech never painted. */
+  paint?: string | null;
 }
 
 /** The single source of the player's combat stats for a mission. */
@@ -82,6 +85,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     if (existing) existing.ammo += ammo;
     else secondaries.push({ id, ammo, twin, mark, weapon });
   }
+  if (plane.kind === 'mech') loadFromMagazine(secondaries, save.outpost.magazine);
   const rounds = loadedRounds(save);
   return {
     plane,
@@ -107,7 +111,20 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     earlyWarning: eq.radar > 0,
     radarLevel: eq.radar,
     livery: save.livery[plane.id],
+    paint: plane.kind === 'mech' ? save.mechPaint[plane.id as MechId] ?? null : null,
   };
+}
+
+/** A mech's racks take their rounds from the base's magazine (doc 79): no more than it holds, shared in loadout order
+ *  between the weapons firing the same rounds; energy weapons keep their charges. */
+function loadFromMagazine(secondaries: SecondaryAmmo[], magazine: Readonly<Record<RoundsId, number>>): void {
+  const left = { ...magazine };
+  for (const s of secondaries) {
+    const r = roundsOf(s.id);
+    if (!r) continue;
+    s.ammo = Math.max(0, Math.min(s.ammo, left[r]));
+    left[r] -= s.ammo;
+  }
 }
 
 type Stores = ReadonlyArray<{ id: SecondaryId; ammo: number }>;

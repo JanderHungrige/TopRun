@@ -10,6 +10,8 @@ import { equipmentPrice, gun2Price, gunCap, gunPrice, weaponOnSale } from './fir
 import { hePrice } from './he-gun';
 import { jetOnSale } from './jets';
 import { payScale } from './map-two';
+import { spend, wallet } from './outpost';
+import { runDay, type DayReport } from './outpost-day';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 import { recordSortie } from './challenge';
@@ -95,17 +97,16 @@ export function canBuy(save: SaveData, item: ShopItem): Check<BuyFailure> {
     const owned = item.type === 'plane' || item.type === 'secondary';
     return { ok: false, reason: owned ? 'already-owned' : 'max-level' };
   }
-  if (save.money < price) return { ok: false, reason: 'insufficient-funds' };
+  if (wallet(save) < price) return { ok: false, reason: 'insufficient-funds' };
   return { ok: true };
 }
 
-/** Returns a new save with the item bought. Throws if canBuy fails — call canBuy first. */
+/** Returns a new save with the item bought — with alloy in the mech kit (doc 79). Throws if canBuy fails — call canBuy first. */
 export function buy(save: SaveData, item: ShopItem): SaveData {
   const check = canBuy(save, item);
   if (!check.ok) throw new Error(`cannot buy: ${check.reason}`);
   const price = priceOf(save, item) ?? 0;
-  const next: SaveData = structuredClone(save);
-  next.money -= price;
+  const next: SaveData = structuredClone(spend(save, price));
   switch (item.type) {
     case 'plane': next.ownedPlanes.push(item.id); break;
     case 'gun': next.gunLevel = (save.gunLevel + 1) as GunLevel; break;
@@ -180,8 +181,11 @@ export function computeStars(result: MissionResult): number {
 }
 
 /** Applies a finished mission to the save: money and best stars. */
-/** Pays out, records the sortie (doc 24) and stores the best run's photo data when `now` is given. */
-export function applyResult(save: SaveData, mission: MissionDef, result: MissionResult, now?: number): { save: SaveData; payout: Payout; stars: number } {
+/** Pays out, records the sortie (doc 24), runs a day at the ground base on map 6 (doc 82) and stores the best run's photo
+ *  data when `now` is given. */
+export function applyResult(
+  save: SaveData, mission: MissionDef, result: MissionResult, now?: number,
+): { save: SaveData; payout: Payout; stars: number; base: DayReport | null } {
   const firstClear = !(mission.id in save.progress);
   const payout = computePayout(mission, result, firstClear);
   const stars = computeStars(result);
@@ -191,6 +195,8 @@ export function applyResult(save: SaveData, mission: MissionDef, result: Mission
   const logged = recordSortie(save, mission, result, now ?? 0);
   next.challenge = logged.challenge;
   next.sorties = logged.sorties;
+  const day = runDay(save.outpost, mission, result);
+  if (day) next.outpost = day.outpost;
   if (result.success) {
     const prev = save.progress[mission.id];
     const better = !prev || stars >= prev.stars;
@@ -199,5 +205,5 @@ export function applyResult(save: SaveData, mission: MissionDef, result: Mission
       ? { stars: Math.max(stars, prev?.stars ?? 0), at: now, plane: save.selectedPlane, livery: save.livery[save.selectedPlane], score }
       : { ...(prev ?? {}), stars: Math.max(stars, prev?.stars ?? 0), score };
   }
-  return { save: next, payout, stars };
+  return { save: next, payout, stars, base: day?.report ?? null };
 }

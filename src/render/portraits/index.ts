@@ -21,10 +21,10 @@ export interface PortraitState {
 }
 
 /** Per-character phase so the cast never blinks or bobs in sync. */
-const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6 };
-const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman'];
-/** The crew's other outfits (doc 76); a missing one falls back to the carrier's. */
-const OUTFITS: readonly string[] = ['chief-sea', 'chief-space', 'shooter-sea', 'shooter-space'];
+const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6, major: 2.5, doc: 5.3 };
+const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman', 'major', 'doc'];
+/** The crew's other outfits (docs 76, 86); a missing one falls back to the carrier's. */
+const OUTFITS: readonly string[] = ['chief-sea', 'chief-space', 'chief-jungle', 'shooter-sea', 'shooter-space', 'shooter-jungle'];
 
 /** Starts loading the portraits of the cast and of the preset pilots (called once at boot). */
 export function preloadPortraits(): void {

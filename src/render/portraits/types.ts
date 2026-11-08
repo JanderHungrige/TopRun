@@ -3,7 +3,8 @@ import type { Pix } from '../pixel/raster';
 
 // Talking portraits (doc 06, pixel look doc 20): types shared by the character modules and the avatars.
 
-export type CharacterId = 'admiral' | 'chief' | 'shooter' | 'wingman';
+/** The jungle base's Major "Dozer" Brennan and Dr. Ada "Flask" Moreau (docs 82, 83) besides the carrier's cast. */
+export type CharacterId = 'admiral' | 'chief' | 'shooter' | 'wingman' | 'major' | 'doc';
 export type Mood = 'neutral' | 'happy' | 'stern' | 'worried';
 export type Gesture = 'none' | 'thumbsUp' | 'point' | 'salute' | 'facepalm';
 export interface Box { x: number; y: number; w: number; h: number }

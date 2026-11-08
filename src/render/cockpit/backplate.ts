@@ -107,6 +107,24 @@ function grid(ctx: Ctx, x: number, seed: number): void {
   ctx.stroke();
 }
 
+/** The mech's hazard stripes along the console's foot (doc 80). */
+function hazard(ctx: Ctx, x: number): void {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, 700, 320, 20);
+  ctx.clip();
+  for (let k = -1; k < 18; k++) {
+    ctx.fillStyle = k % 2 ? '#1a1608' : '#d8b830';
+    ctx.beginPath();
+    ctx.moveTo(x + k * 20, 720);
+    ctx.lineTo(x + k * 20 + 20, 700);
+    ctx.lineTo(x + k * 20 + 40, 700);
+    ctx.lineTo(x + k * 20 + 20, 720);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
 export function backplate(ctx: Ctx, x: number, seed: number, seamX: number): void {
   const g = ctx.createLinearGradient(x, 0, x + 320, 720);
   g.addColorStop(0, SK.back[0]);
@@ -129,6 +147,10 @@ export function backplate(ctx: Ctx, x: number, seed: number, seamX: number): voi
       break;
     case 'sub':
       ripples(ctx, x, seed);
+      break;
+    case 'mech':
+      worn(ctx, x, seed);
+      hazard(ctx, x);
       break;
     default:
       throw new Error(`unhandled: ${SK.id satisfies never}`);

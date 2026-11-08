@@ -4,7 +4,7 @@ import { ALL_MISSIONS } from '../data/missions';
 import { perPlane, PLANES } from '../data/planes';
 import {
   EQUIPMENT_IDS, isJet, PLANE_IDS, SECONDARY_IDS,
-  type EquipmentId, type GunLevel, type PlaneId, type SecondaryId,
+  type EquipmentId, type GunLevel, type MechId, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { AMMO_TYPES, MAX_AMMO_LEVEL, MAX_INCENDIARY_LEVEL, MAX_MARK, type AmmoType } from '../data/arsenal';
 import { MAX_HE_LEVEL } from '../data/he-gun';
@@ -16,6 +16,8 @@ import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
 import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
+import { freshOutpost, parseOutpost, type Outpost } from './outpost';
+import { parsePaints, type Paint } from './mech-paint';
 import { emptyRecord, parseRecord, type ServiceRecord } from './service-record';
 import { reorderWorlds, WORLD_ORDER } from './world-order';
 
@@ -77,6 +79,12 @@ export interface SaveData {
   sub: FleetKit;
   /** The spacecraft (doc 54). */
   ship: ShipKit;
+  /** The mechs' own kit (doc 79). */
+  mech: FleetKit;
+  /** The ground base on the jungle planet (doc 82). */
+  outpost: Outpost;
+  /** Each mech's hand-painted camo (doc 87); a mech missing here wears its default. */
+  mechPaint: Partial<Record<MechId, Paint>>;
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -125,6 +133,9 @@ export function defaultSave(): SaveData {
     heli: freshFleetKit('heli'),
     sub: freshFleetKit('sub'),
     ship: freshShip(),
+    mech: freshFleetKit('mech'),
+    outpost: freshOutpost(),
+    mechPaint: {},
   };
 }
 
@@ -235,6 +246,9 @@ export function parseSave(input: unknown): SaveData | null {
     heli: parseFleetKit('heli', raw.heli),
     sub: parseFleetKit('sub', raw.sub),
     ship: parseShip(raw.ship),
+    mech: parseFleetKit('mech', raw.mech),
+    outpost: parseOutpost(raw.outpost),
+    mechPaint: parsePaints(raw.mechPaint),
   };
 }
 

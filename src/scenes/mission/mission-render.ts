@@ -1,4 +1,5 @@
 import { harpoonBolt, plasmaBolt, sinkingMine, sonarRing, torpedo } from '../../render/shots';
+import { mortarShell, plasmaLance, railBeam, stompRing } from '../../render/mech-shots';
 import { TAU } from '../../core/math';
 import { drawEnemy, drawWreck } from '../../render/draw-enemies';
 import { drawPlaneOutline, drawPlaneTop } from '../../render/draw-planes';
@@ -133,6 +134,10 @@ function drawBombs(ctx: CanvasRenderingContext2D, world: World): void {
       sinkingMine(ctx, b.x, b.y, s);
       continue;
     }
+    if (b.lob) {
+      mortarShell(ctx, b); // the mechs' mortar (doc 79)
+      continue;
+    }
     ctx.fillStyle = '#4c5340';
     ctx.beginPath();
     ctx.ellipse(b.x, b.y, 3.5 * s + 1, 8 * s + 2, 0, 0, TAU);
@@ -170,9 +175,11 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: Player, t: number): void {
   const rolling = special === 'roll' && p.specialActive > 0;
   const bank = rolling ? Math.cos((1 - p.specialActive / 0.7) * TAU) : p.bank;
   const dash = special === 'dash' && p.specialActive > 0;
-  const opts = { bank, t, throttle: dash ? 1 : 0.4 + p.forward * 0.5, sweep: 0.2 + p.forward * 0.8, livery: p.stats.livery };
+  const opts = {
+    bank, t, throttle: dash ? 1 : 0.4 + p.forward * 0.5, sweep: 0.2 + p.forward * 0.8, livery: p.stats.livery, stride: p.stride, leap: p.leap, paint: p.stats.paint,
+  };
   ctx.globalAlpha = p.stealthed ? 0.3 : 1;
-  drawPlaneTop(ctx, p.stats.plane.id, p.x + SHADOW_DX, p.y + SHADOW_DY, 1, { ...opts, shadow: true });
+  drawPlaneTop(ctx, p.stats.plane.id, p.x + SHADOW_DX * (1 + p.leap * 3), p.y + SHADOW_DY * (1 + p.leap * 3), 1, { ...opts, shadow: true });
   ctx.globalAlpha = 1;
   if (p.wingman) {
     drawPlaneTop(ctx, 'f14', p.wingman.x + SHADOW_DX, p.wingman.y + SHADOW_DY, 0.9, { shadow: true });
@@ -265,10 +272,18 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, p: Play
   drawPlayer(ctx, p, t);
   world.particles.render(ctx);
   if (world.sonar) sonarRing(ctx, world.sonar.x, world.sonar.y, world.sonar.t);
+  mechShots(ctx, world, t);
   world.terrain.renderSky(ctx, t);
   drawNuke(ctx, world, t);
 }
 
+
+/** The mechs' stomp ring, lance bolts and rail beams (docs 79, 80). */
+function mechShots(ctx: CanvasRenderingContext2D, world: World, t: number): void {
+  if (world.stomp) stompRing(ctx, world.stomp.x, world.stomp.y, world.stomp.t);
+  for (const l of world.lances) plasmaLance(ctx, l, t);
+  for (const b of world.beams) railBeam(ctx, b);
+}
 
 export function clipPlayfield(ctx: CanvasRenderingContext2D): void {
   ctx.beginPath();

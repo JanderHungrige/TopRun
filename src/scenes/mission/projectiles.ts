@@ -193,7 +193,7 @@ function missileHits(world: World, m: Missile, audio: AudioEngine): void {
 function updateBombs(world: World, dt: number, audio: AudioEngine): void {
   for (const b of world.bombs) {
     b.t += dt;
-    b.y += (world.scrollSpeed - 110) * dt;
+    b.y += (world.scrollSpeed - 110 - (b.lob ?? 0)) * dt;
     if (b.t < 0.6) continue;
     b.dead = true;
     world.particles.explosion(b.x, b.y, 'large', true);

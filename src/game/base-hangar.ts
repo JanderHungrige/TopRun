@@ -1,5 +1,5 @@
 import {
-  AREA_ROWS, BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaDef, type BaseAreaId,
+  AREA_ROWS, areaDef, areaIds, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type AreaTable, type BaseAreaId,
 } from '../data/base-areas';
 import type { Route } from './state';
 
@@ -7,7 +7,7 @@ import type { Route } from './state';
 // hotspots and the pilot walking along the floor to the highlighted area. The geometry is the look's (doc 73): the
 // carrier hangar's unless an area table is given.
 
-type Areas = Readonly<Record<BaseAreaId, BaseAreaDef>>;
+type Areas = AreaTable;
 
 export type NavDir = 'left' | 'right' | 'up' | 'down';
 
@@ -19,6 +19,8 @@ export function areaRoute(id: BaseAreaId): Route {
     case 'locker': return { to: 'locker' };
     case 'photos': return { to: 'photoWall' };
     case 'jet': return { to: 'hangar' };
+    case 'base': return { to: 'outpost' };
+    case 'lab': return { to: 'lab' };
     case 'ladder': return { to: 'ladder' };
     case 'chalk': return { to: 'chalkboard' };
     case 'exit': return { to: 'map' };
@@ -27,18 +29,18 @@ export function areaRoute(id: BaseAreaId): Route {
 }
 
 const centreX = (id: BaseAreaId, areas: Areas): number => {
-  const h = areas[id].hot;
+  const h = areaDef(areas, id).hot;
   return h.x + h.w / 2;
 };
 
 /** The area in a row above (`step` −1) or below (+1) whose centre is nearest in x (a tie: the nearer row), or null. */
 function otherRow(id: BaseAreaId, step: -1 | 1, areas: Areas): BaseAreaId | null {
-  const row = AREA_ROWS.indexOf(areas[id].row);
+  const row = AREA_ROWS.indexOf(areaDef(areas, id).row);
   let best: BaseAreaId | null = null;
   let bestD = Infinity;
   let bestRows = Infinity;
-  for (const other of BASE_AREA_IDS) {
-    const rows = (AREA_ROWS.indexOf(areas[other].row) - row) * step;
+  for (const other of areaIds(areas)) {
+    const rows = (AREA_ROWS.indexOf(areaDef(areas, other).row) - row) * step;
     if (rows <= 0) continue;
     const d = Math.abs(centreX(other, areas) - centreX(id, areas));
     if (d < bestD || (d === bestD && rows < bestRows)) {
@@ -55,23 +57,23 @@ function otherRow(id: BaseAreaId, step: -1 | 1, areas: Areas): BaseAreaId | null
  * ↑ / ↓ to the nearest area (by x) in any row above / below. Returns `id` itself when the move goes nowhere.
  */
 export function neighbour(id: BaseAreaId, dir: NavDir, areas: Areas = BASE_AREAS): BaseAreaId {
-  const i = BASE_AREA_IDS.indexOf(id);
+  const ids = areaIds(areas);
+  const i = ids.indexOf(id);
   switch (dir) {
-    case 'left': return BASE_AREA_IDS[Math.max(0, i - 1)] ?? id;
-    case 'right': return BASE_AREA_IDS[Math.min(BASE_AREA_IDS.length - 1, i + 1)] ?? id;
+    case 'left': return ids[Math.max(0, i - 1)] ?? id;
+    case 'right': return ids[Math.min(ids.length - 1, i + 1)] ?? id;
     case 'up': return otherRow(id, -1, areas) ?? id;
     case 'down': return otherRow(id, 1, areas) ?? id;
     default: throw new Error(`unhandled: ${dir satisfies never}`);
   }
 }
 
-/** The area whose hotspot contains the point (logical px), if any. */
-/** Hit-test order: the TV first — it stands in front of the rec room's doorway (doc 63) — then left to right. */
-const HIT_ORDER: readonly BaseAreaId[] = ['tv', ...BASE_AREA_IDS.filter((id) => id !== 'tv')];
-
+/** The area whose hotspot contains the point (logical px), if any. Hit-test order: the TV first — it stands in front of
+ *  the rec room's doorway (doc 63) — then left to right. */
 export function areaAt(p: { x: number; y: number }, areas: Areas = BASE_AREAS): BaseAreaId | null {
-  for (const id of HIT_ORDER) {
-    const r = areas[id].hot;
+  const ids = areaIds(areas);
+  for (const id of ['tv' as const, ...ids.filter((id) => id !== 'tv')]) {
+    const r = areaDef(areas, id).hot;
     if (p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h) return id;
   }
   return null;
@@ -103,7 +105,7 @@ export function stepWalker(w: Walker, dt: number, speed: number): Walker {
 }
 
 /** Whether the pilot stands at the area's spot. */
-export const arrivedAt = (w: Walker, id: BaseAreaId, areas: Areas = BASE_AREAS): boolean => !w.moving && w.x === areas[id].standX;
+export const arrivedAt = (w: Walker, id: BaseAreaId, areas: Areas = BASE_AREAS): boolean => !w.moving && w.x === areaDef(areas, id).standX;
 
 /** The walk-cycle key frame (0 … WALK_FRAMES − 1) for the distance walked. */
 export function walkFrame(w: Walker): number {

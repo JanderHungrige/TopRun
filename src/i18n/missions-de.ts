@@ -2,6 +2,7 @@ import { MISSIONS_2_DE } from './missions-2-de';
 import { MISSIONS_3_DE } from './missions-3-de';
 import { MISSIONS_4_DE } from './missions-4-de';
 import { MISSIONS_5_DE } from './missions-5-de';
+import { MISSIONS_6_DE } from './missions-6-de';
 
 // German mission names and briefings, keyed by mission id (m01 … m30; map 2's m31 … m60 in missions-2-de.ts).
 const MISSIONS_1_DE: Readonly<Record<string, { name: string; briefing: string }>> = {
@@ -37,4 +38,4 @@ const MISSIONS_1_DE: Readonly<Record<string, { name: string; briefing: string }>
   m30: { name: 'Leviathan', briefing: 'LEVIATHAN, der feindliche Superträger. Beende diesen Krieg. Gute Jagd, Pilot.' },
 };
 
-export const MISSIONS_DE: Readonly<Record<string, { name: string; briefing: string }>> = { ...MISSIONS_1_DE, ...MISSIONS_2_DE, ...MISSIONS_3_DE, ...MISSIONS_4_DE, ...MISSIONS_5_DE };
+export const MISSIONS_DE: Readonly<Record<string, { name: string; briefing: string }>> = { ...MISSIONS_1_DE, ...MISSIONS_2_DE, ...MISSIONS_3_DE, ...MISSIONS_4_DE, ...MISSIONS_5_DE, ...MISSIONS_6_DE };

@@ -40,5 +40,11 @@ export function formatMoney(v: number): string {
   return `$${Math.round(v).toLocaleString('en-US')}`;
 }
 
+/** Alloy, the mech kit's currency (doc 79): "◆1,234". */
+export function formatAlloy(v: number): string {
+  if (v >= UNLIMITED_MONEY) return '◆∞';
+  return `◆${Math.round(v).toLocaleString('en-US')}`;
+}
+
 /** Rating points: 12345 → "12,345" (same grouping as money). */
 export const formatPoints = (v: number): string => Math.round(v).toLocaleString('en-US');

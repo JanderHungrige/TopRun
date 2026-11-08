@@ -21,6 +21,8 @@ export const SPEAKER_NAMES: Readonly<Record<CharacterId, string>> = {
   chief: 'CHIEF "WRENCH" KOWALSKI',
   shooter: 'LT. SAM "SHOOTER" REYES',
   wingman: 'LT. "DUKE" CARTER',
+  major: 'MAJ. TOM "DOZER" BRENNAN',
+  doc: 'DR. ADA "FLASK" MOREAU',
 };
 
 const VOICE: Readonly<Record<CharacterId, { pitch: number; radio: boolean }>> = {
@@ -28,6 +30,8 @@ const VOICE: Readonly<Record<CharacterId, { pitch: number; radio: boolean }>> = 
   chief: { pitch: 0.75, radio: false },
   shooter: { pitch: 1.3, radio: false },
   wingman: { pitch: 1.05, radio: true },
+  major: { pitch: 0.7, radio: false },
+  doc: { pitch: 1.2, radio: false },
 };
 
 export interface SpeechLayout {

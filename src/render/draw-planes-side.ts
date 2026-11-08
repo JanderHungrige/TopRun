@@ -14,6 +14,7 @@ import { drawHeliSide } from './helis/heli-art';
 import { drawShipSide } from './ship';
 import { drawU212Side } from './subs/u212';
 import { AKULA_SUB, drawSubSide, SEAWOLF_SUB, VIRGINIA_SUB } from './subs/fleet';
+import { drawMechSide } from './mechs/mech-side';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
 
@@ -24,6 +25,9 @@ export interface SideDrawOpts {
   gear?: number; // 1 = down, 0 = retracted
   hook?: boolean; // arrestor hook lowered
   livery?: LiveryId; // paint job, default 'standard'
+  /** A mech's camo (doc 87) and its gait's phase (doc 80). */
+  paint?: string | null;
+  stride?: number;
 }
 
 export function drawPlaneSide(
@@ -53,10 +57,14 @@ export function drawPlaneSide(
     case 'seawolf': drawSubSide(ctx, SEAWOLF_SUB, look, opts); break;
     case 'virginia': drawSubSide(ctx, VIRGINIA_SUB, look, opts); break;
     case 'akula': drawSubSide(ctx, AKULA_SUB, look, opts); break;
+    case 'strider':
+    case 'ranger':
+    case 'hornet':
+    case 'titan': drawMechSide(ctx, id, { t: opts.t, paint: o.paint ?? null, stride: o.stride ?? 0 }); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21, starship: -40, u212: -56, seawolf: -58, virginia: -57, akula: -57 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21, starship: -40, u212: -56, seawolf: -58, virginia: -57, akula: -57, strider: -14, ranger: -16, hornet: -14, titan: -20 };

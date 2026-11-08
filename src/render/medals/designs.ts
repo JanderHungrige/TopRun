@@ -9,7 +9,9 @@ export type EmblemId =
   // The world medals (doc 62).
   | 'rig' | 'peak' | 'moon' | 'bolt' | 'volcano' | 'orbit' | 'rock' | 'planet' | 'rotor' | 'rocket'
   // Map 5's medals (doc 72).
-  | 'coral' | 'kelp' | 'anchor' | 'chevron' | 'lure' | 'sub';
+  | 'coral' | 'kelp' | 'anchor' | 'chevron' | 'lure' | 'sub'
+  // Map 6's medals (doc 85).
+  | 'boot' | 'palmtree' | 'eye' | 'pyramid' | 'hive' | 'mech';
 
 /** A paint for emblem parts: a hex colour or the medal's own metal. */
 export type Paint = string | 'metal';
@@ -73,6 +75,13 @@ export const DESIGNS: Readonly<Record<MedalId, Design>> = {
   abyss: { emblem: 'lure', enamel: '#05101c', mark: '#4a5260', accent: '#5ff0e0' },
   victory5: { emblem: 'sub', enamel: '#0b5a66', mark: 'metal', accent: '#5ff0e0', rivets: true },
   allstars5: { emblem: 'stars3', enamel: '#0b5a66', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
+  landing: { emblem: 'boot', enamel: '#5a3a24', mark: '#c99a62', accent: '#3a2414' },
+  canopy: { emblem: 'palmtree', enamel: '#1f3a1c', mark: '#6fae4a', accent: '#c8ff6a' },
+  swamp: { emblem: 'eye', enamel: '#1d2a22', mark: '#7d8f5a', accent: '#ffd23a' },
+  ruins: { emblem: 'pyramid', enamel: '#3a4a2a', mark: '#c4c0a0', accent: '#ffb84a' },
+  hive: { emblem: 'hive', enamel: '#2a1a2a', mark: '#a06a90', accent: '#ff7ad2' },
+  victory6: { emblem: 'mech', enamel: '#2f6a1e', mark: 'metal', accent: '#c8ff6a', rivets: true },
+  allstars6: { emblem: 'stars3', enamel: '#2f6a1e', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
   ace: { emblem: 'star', enamel: '#2f3f66', mark: '#f2f2ee', accent: '#f2f2ee', tiers: 2 },
   topace: { emblem: 'star', enamel: '#b8202a', mark: 'metal', accent: 'metal', tiers: 3 },
   giant: { emblem: 'sword', enamel: '#5b2a86', field: '#f2f2ee', mark: '#5b2a86', accent: '#c88c28' },

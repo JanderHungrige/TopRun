@@ -55,6 +55,7 @@ const SPARKS: Readonly<Record<CampaignId, readonly string[]>> = {
   3: ['#ff8a3d', '#ffd84a', '#98ff8a', '#fff4d0'],
   4: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
   5: ['#5fe3ff', '#ff6a8a', '#b088e8', '#fff4d0'],
+  6: ['#c8ff6a', '#ffd25a', '#ff7ad2', '#6affd0'],
 };
 
 /** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. Under the sea (world 4's

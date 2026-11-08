@@ -24,6 +24,7 @@ STAR_COUNT = 24
 STAGES = {
     'pier': {'crop': (48, 192), 'window': None},
     'hangar': {'crop': (48, 192), 'window': (46, 34, 192, 50)},
+    'clearing': {'crop': (48, 192), 'window': None},
 }
 
 

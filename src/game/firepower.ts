@@ -6,6 +6,8 @@ import {
   GUN2_PRICES, gunLevelDef, jetGunDef, MAP1_GUN_LEVEL, MAX_GUN2_LEVEL, MAX_GUN_LEVEL, SECONDARIES, TWIN_GUN_LEVEL, type GunLevelDef,
 } from '../data/weapons';
 import { fleetOf } from './kit';
+import { knownWeapons } from './lab';
+import { bayEquipmentCap, bayGunCap } from './outpost';
 import { mapOpen, mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
@@ -15,16 +17,19 @@ import type { SaveData } from './save';
 /** Top gun level on sale for this pilot: 7, or 20 once map 2 is open (doc 43); a fleet kit's own top (docs 49, 66). */
 export function gunCap(save: SaveData): number {
   const fleet = fleetOf(save);
-  if (fleet) return fleet.maxGun;
+  if (fleet) return fleet.kit === 'mech' ? Math.min(fleet.maxGun, bayGunCap(save.outpost)) : fleet.maxGun; // the mech bay's level (doc 79)
   return mapTwoOpen(save) ? MAX_GUN_LEVEL : MAP1_GUN_LEVEL;
 }
 
 /** Price of a gun level in the kit on show: the jets' table or the fleet kit's gun (docs 49, 66). */
 export const gunPrice = (save: SaveData, level: number): number => (fleetOf(save)?.gunDef ?? gunLevelDef)(level).price;
 
-/** Top level of a piece of equipment on sale for this pilot; the fleet kits stop at the map-1 caps (doc 49). */
-export const equipmentCap = (save: SaveData, id: EquipmentId): number =>
-  (mapTwoOpen(save) && save.kit === 'jet' ? maxEquipmentLevel(id) : map1EquipmentLevel(id));
+/** Top level of a piece of equipment on sale for this pilot; the fleet kits stop at the map-1 caps (doc 49), the mechs
+ *  at what their mech bay builds (doc 79). */
+export function equipmentCap(save: SaveData, id: EquipmentId): number {
+  if (save.kit === 'mech') return Math.min(map1EquipmentLevel(id), bayEquipmentCap(save.outpost));
+  return mapTwoOpen(save) && save.kit === 'jet' ? maxEquipmentLevel(id) : map1EquipmentLevel(id);
+}
 
 /** Price of the next level of a piece of equipment, or null at the top; a fleet kit pays its price factor times. */
 export function equipmentPrice(save: SaveData, id: EquipmentId): number | null {
@@ -38,6 +43,7 @@ export function equipmentPrice(save: SaveData, id: EquipmentId): number | null {
 export function weaponOnSale(save: SaveData, id: SecondaryId): boolean {
   const c = SECONDARIES[id].campaign;
   const fleet = fleetOf(save);
+  if (fleet?.kit === 'mech') return c === fleet.campaign && knownWeapons(save.outpost).includes(id); // invented, never bought (doc 83)
   if (fleet) return c === fleet.campaign && mapOpen(save, c);
   return c === 1 || (c === 2 && mapTwoOpen(save));
 }

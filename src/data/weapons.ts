@@ -1,7 +1,7 @@
 import { HELI_PRICE } from './heli-kit';
 import { SUB_PRICE } from './sub-kit';
 import { PLANES } from './planes';
-import { HELI_IDS, SUB_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
+import { HELI_IDS, MECH_IDS, SUB_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
 
 export interface GunBarrel {
   dx: number;
@@ -114,7 +114,9 @@ export function jetGunDef(level: number, twin: boolean): GunLevelDef {
 }
 
 export type SecondaryHits = 'air' | 'ground' | 'any';
-export type SecondaryBehavior = 'homing' | 'fan' | 'bomb';
+/** `lob`: a mortar shell thrown ahead that bursts on the ground; `lance`: a slow bolt that burns through everything in
+ *  its path; `beam`: an instant beam up the whole screen (the mech weapons, doc 79). */
+export type SecondaryBehavior = 'homing' | 'fan' | 'bomb' | 'lob' | 'lance' | 'beam';
 
 /** Which weapon key fires it (doc 05): AIR (R) or GROUND (Q). */
 export type WeaponRole = 'air' | 'ground';
@@ -122,6 +124,7 @@ export type WeaponRole = 'air' | 'ground';
 export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object.freeze({
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
   hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground', shkval: 'ground',
+  pod: 'ground', seeker: 'air', mortar: 'ground', plasma: 'air', rail: 'ground',
 });
 
 export interface SecondaryDef {
@@ -140,7 +143,8 @@ export interface SecondaryDef {
   turnRate: number;
   planes: readonly PlaneId[] | null;
   description: string;
-  /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49); 5 = a sub weapon (doc 66). */
+  /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49); 4 = a sub weapon (doc 66);
+   *  6 = a mech weapon (doc 79), known from the start or invented in the lab, never bought. */
   campaign: CampaignId;
 }
 
@@ -223,6 +227,32 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     id: 'shkval', role: 'ground', name: 'VA-111 Shkval', short: 'SHKVAL', price: 4500 * SUB_PRICE, ammoPerSlot: 5,
     damage: 30, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 700,
     turnRate: 0, planes: SUB_IDS, description: 'Supercavitating rocket torpedoes fired in a fan. Fast, unguided, they hit anything in the water.', campaign: 4,
+  },
+  // Mech weapons (doc 79): mechs only; the pod, the seeker and the mortar fire rounds of the base's magazine.
+  pod: {
+    id: 'pod', role: 'ground', name: 'Rocket Pod', short: 'POD', price: 0, ammoPerSlot: 8,
+    damage: 30, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 620,
+    turnRate: 0, planes: MECH_IDS, description: 'A shoulder pod of unguided rockets fired in a fan. Hits anything; its rockets come from the base\'s magazine.', campaign: 6,
+  },
+  seeker: {
+    id: 'seeker', role: 'air', name: 'Seeker Missiles', short: 'SEEKER', price: 0, ammoPerSlot: 4,
+    damage: 130, radius: 0, hits: 'any', behavior: 'homing', cooldown: 0.4, speed: 470,
+    turnRate: 3.6, planes: MECH_IDS, description: 'Homing missiles that find anything that moves. Built in the base\'s factory.', campaign: 6,
+  },
+  mortar: {
+    id: 'mortar', role: 'ground', name: 'Mortar', short: 'MORTAR', price: 0, ammoPerSlot: 5,
+    damage: 150, radius: 85, hits: 'ground', behavior: 'lob', cooldown: 0.55, speed: 0,
+    turnRate: 0, planes: MECH_IDS, description: 'Lobs a heavy shell ahead that bursts on the ground. A wide blast against walkers, guns and nests.', campaign: 6,
+  },
+  plasma: {
+    id: 'plasma', role: 'air', name: 'Plasma Lance', short: 'PLASMA', price: 0, ammoPerSlot: 6,
+    damage: 90, radius: 0, hits: 'any', behavior: 'lance', cooldown: 0.5, speed: 380,
+    turnRate: 0, planes: MECH_IDS, description: 'A slow green bolt that burns through everything in its path. Charged by the generator, no rounds needed.', campaign: 6,
+  },
+  rail: {
+    id: 'rail', role: 'ground', name: 'Rail Cannon', short: 'RAIL', price: 0, ammoPerSlot: 4,
+    damage: 260, radius: 0, hits: 'any', behavior: 'beam', cooldown: 0.9, speed: 0,
+    turnRate: 0, planes: MECH_IDS, description: 'An instant beam the whole height of the screen that hits everything in line. Charged by the generator.', campaign: 6,
   },
 });
 

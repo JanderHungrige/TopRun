@@ -7,7 +7,7 @@ import { ceremonySet } from '../../src/game/ceremony-stage';
 
 describe('World ceremonies (doc 75)', () => {
   it('holds the ceremony where the pilot\'s world is', () => {
-    expect(CAMPAIGN_IDS.map(ceremonySet)).toEqual(['deck', 'deck', 'deck', 'pier', 'hangar']);
+    expect(CAMPAIGN_IDS.map(ceremonySet)).toEqual(['deck', 'deck', 'deck', 'pier', 'hangar', 'clearing']);
   });
 
   it('has a picture and a saluting crew row for each new stage, on the 320 × 180 grid; stars only in the hangar', () => {

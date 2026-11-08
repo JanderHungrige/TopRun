@@ -1,4 +1,3 @@
-import { formatMoney } from '../core/math';
 import { BOSSES } from '../data/bosses';
 import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
 import { ALL_MISSIONS } from '../data/missions';
@@ -12,6 +11,7 @@ import { canBuyMark, markCap, markOf, markPrice, weaponStats, type WeaponStats }
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
 import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
 import { jetOnSale } from '../game/jets';
+import { wallet } from '../game/outpost';
 import { mapTwoOpen } from '../game/progress';
 import { isLiveryUnlocked, liveryOnShow } from '../game/liveries';
 import type { SaveData } from '../game/save';
@@ -20,6 +20,7 @@ import {
 } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
+import { bayShort, buyKey, mechCraft, mechWeapons, priceText } from './hangar-mech';
 
 export interface Tab {
   name: UiKey;
@@ -38,17 +39,24 @@ export const FLEET_UI: Readonly<Record<FleetKitId, {
     title: 'hangar.titleSubs', tab: 'hangar.tabSubs', gunName: 'hangar.subGunName', gunDesc: 'hangar.subGunDesc',
     flyThis: 'hangar.flyThisSub', markInfo: 'arsenal.markInfoSub',
   },
+  mech: {
+    title: 'hangar.titleMechs', tab: 'hangar.tabMechs', gunName: 'hangar.mechGunName', gunDesc: 'hangar.mechGunDesc',
+    flyThis: 'hangar.flyThisMech', markInfo: 'arsenal.markInfoMech',
+  },
 };
 
-/** A fleet kit's hangar (docs 49, 66): its craft, its gun and weapons, equipment — no paint yet. */
-const fleetTabs = (save: SaveData, fleet: FleetKitId): readonly Tab[] => [
-  { name: FLEET_UI[fleet].tab, items: PLANE_IDS.filter((id) => jetOnSale(save, id)).map((id) => ({ type: 'plane', id })) },
-  {
-    name: 'hangar.tabWeapons',
-    items: [{ type: 'gun', fleet }, ...SECONDARY_IDS.filter((id) => weaponOnSale(save, id)).map((id) => ({ type: 'secondary' as const, id }))],
-  },
-  { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
-];
+/** A fleet kit's hangar (docs 49, 66): its craft, its gun and weapons, equipment — no paint yet. The mech bay lists every
+ *  mech and every mech weapon, the ones it can't build yet too (doc 79). */
+function fleetTabs(save: SaveData, fleet: FleetKitId): readonly Tab[] {
+  const mech = fleet === 'mech';
+  const craft = mech ? mechCraft() : PLANE_IDS.filter((id) => jetOnSale(save, id));
+  const weapons = mech ? mechWeapons() : SECONDARY_IDS.filter((id) => weaponOnSale(save, id));
+  return [
+    { name: FLEET_UI[fleet].tab, items: craft.map((id) => ({ type: 'plane', id })) },
+    { name: 'hangar.tabWeapons', items: [{ type: 'gun', fleet }, ...weapons.map((id) => ({ type: 'secondary' as const, id }))] },
+    { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
+  ];
+}
 
 /** The shop's tabs; the JETS tab lists the map-2 jets only once map 2 is open (doc 36); maps 3 and 5 show their fleets. */
 export const tabs = (save: SaveData): readonly Tab[] => (isFleet(save.kit) ? fleetTabs(save, save.kit) : [
@@ -113,28 +121,29 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
   switch (item.type) {
     case 'plane':
       if (save.selectedPlane === item.id) return t('hangar.inUse');
-      return save.ownedPlanes.includes(item.id) ? t('hangar.owned') : formatMoney(PLANES[item.id].price);
+      if (save.ownedPlanes.includes(item.id)) return t('hangar.owned');
+      return bayShort(save, item.id) ? t('mechbay.bayLevel', { level: bayShort(save, item.id) ?? 0 }) : priceText(save, PLANES[item.id].price);
     case 'gun':
-      return save.gunLevel >= gunCap(save) ? t('hangar.maxLevel', { level: save.gunLevel }) : t('hangar.levelPrice', { level: save.gunLevel, price: formatMoney(price ?? 0) });
+      return save.gunLevel >= gunCap(save) ? t('hangar.maxLevel', { level: save.gunLevel }) : t('hangar.levelPrice', { level: save.gunLevel, price: priceText(save, price ?? 0) });
     case 'gun2':
       if (save.gun2Level >= MAX_GUN2_LEVEL) return t('hangar.maxLevel', { level: MAX_GUN2_LEVEL });
-      return save.gun2Level === 0 ? formatMoney(price ?? 0) : t('hangar.levelPrice', { level: save.gun2Level, price: formatMoney(price ?? 0) });
+      return save.gun2Level === 0 ? priceText(save, price ?? 0) : t('hangar.levelPrice', { level: save.gun2Level, price: priceText(save, price ?? 0) });
     case 'ammo': return ammoStatus(save, 'uranium', price);
     case 'incendiary': return ammoStatus(save, 'incendiary', price);
     case 'he':
       if (price === null) return t('hangar.maxLevel', { level: save.heLevel });
-      return save.heLevel === 0 ? formatMoney(price) : t('hangar.levelPrice', { level: save.heLevel, price: formatMoney(price) });
+      return save.heLevel === 0 ? priceText(save, price) : t('hangar.levelPrice', { level: save.heLevel, price: priceText(save, price) });
     case 'secondary': {
       const mounted = save.loadout[save.selectedPlane].filter((x) => x === item.id).length;
       const mark = markOf(save, item.id) > 1 ? `${markName(markOf(save, item.id))} · ` : '';
       if (save.ownedSecondaries.includes(item.id)) return mark + (mounted ? t('hangar.mounted', { n: mounted }) : t('hangar.owned'));
-      return formatMoney(price ?? 0);
+      return save.kit === 'mech' ? t('mechbay.lab') : priceText(save, price ?? 0);
     }
     case 'equipment': {
       const lvl = save.equipment[item.id];
       const max = equipmentCap(save, item.id);
       if (price === null) return max === 1 ? t('hangar.installed') : t('hangar.maxLevel', { level: lvl });
-      return max > 1 ? t('hangar.levelPrice', { level: lvl, price: formatMoney(price) }) : formatMoney(price);
+      return max > 1 ? t('hangar.levelPrice', { level: lvl, price: priceText(save, price) }) : priceText(save, price);
     }
     case 'livery':
       if (save.livery[save.selectedPlane] === item.id) return t('hangar.inUse');
@@ -148,7 +157,7 @@ function ammoStatus(save: SaveData, type: AmmoType, price: number | null): strin
   const level = ammoTypeLevel(save, type);
   const loaded = level > 0 && save.ammoType === type ? `${t('arsenal.loaded')} · ` : '';
   if (price === null) return loaded + t('hangar.maxLevel', { level });
-  return loaded + (level === 0 ? formatMoney(price) : t('hangar.levelPrice', { level, price: formatMoney(price) }));
+  return loaded + (level === 0 ? priceText(save, price) : t('hangar.levelPrice', { level, price: priceText(save, price) }));
 }
 
 /** True when a status string means "owned / done" (drawn green). */
@@ -163,19 +172,20 @@ const none = (label: string, note = '', reason: ItemAction['reason'] = null): It
 function buyAction(save: SaveData, item: ShopItem, label: string): ItemAction {
   const price = priceOf(save, item) ?? 0;
   const check = canBuy(save, item);
-  const short = Math.max(0, price - save.money);
+  const short = Math.max(0, price - wallet(save));
   const funds = !check.ok && check.reason === 'insufficient-funds';
   return {
     kind: 'buy', label, enabled: check.ok, shortfall: short, reason: funds ? 'funds' : null,
-    note: funds ? t('hangar.needMore', { amount: formatMoney(short) }) : '',
+    note: funds ? t('hangar.needMore', { amount: priceText(save, short) }) : '',
   };
 }
 
 export function itemAction(save: SaveData, item: ShopItem): ItemAction {
-  const price = formatMoney(priceOf(save, item) ?? 0);
+  const price = priceText(save, priceOf(save, item) ?? 0);
   switch (item.type) {
     case 'plane':
-      if (!save.ownedPlanes.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
+      if (bayShort(save, item.id)) return none(t('mechbay.bayLevel', { level: bayShort(save, item.id) ?? 0 }), t('mechbay.bayNote'));
+      if (!save.ownedPlanes.includes(item.id)) return buyAction(save, item, t(buyKey(save), { price }));
       if (save.selectedPlane === item.id) return none(t('hangar.inUse'));
       return { kind: 'select', label: t(isFleet(save.kit) ? FLEET_UI[save.kit].flyThis : 'hangar.flyThis'), enabled: true, note: '', reason: null, shortfall: 0 };
     case 'gun':
@@ -192,12 +202,13 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
       return buyAction(save, item, t('hangar.gunUpgrade', { level: level + 1, price }));
     }
     case 'secondary':
+      if (!save.ownedSecondaries.includes(item.id) && save.kit === 'mech') return none(t('mechbay.lab'), t('mechbay.labNote'));
       if (!save.ownedSecondaries.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
       if (!secondaryAllowedOn(item.id, save.selectedPlane)) return none(t('hangar.f14Only'), t('hangar.f14OnlyNote'), 'restricted');
       return { kind: 'mount', label: t('hangar.mount'), enabled: true, note: '', reason: null, shortfall: 0 };
     case 'equipment':
       if (priceOf(save, item) === null) return none(t('hangar.maxed'));
-      return buyAction(save, item, t(save.equipment[item.id] > 0 ? 'hangar.upgrade' : 'hangar.buy', { price }));
+      return buyAction(save, item, t(save.equipment[item.id] > 0 ? 'hangar.upgrade' : buyKey(save), { price }));
     case 'livery':
       if (!isLiveryUnlocked(save.progress, item.id)) return none(t('hangar.locked'), unlockText(item.id));
       if (save.livery[save.selectedPlane] === item.id) return none(t('hangar.inUse'));
@@ -222,7 +233,7 @@ export function twinAction(save: SaveData, item: ShopItem): { label: string; ena
   }
   if (item.type !== 'secondary' || !mapTwoOpen(save) || save.kit !== 'jet' || !save.ownedSecondaries.includes(item.id)) return null;
   if (save.twinSecondaries.includes(item.id)) return { label: t('hangar.twinOwned'), enabled: false };
-  return { label: t('hangar.buyTwin', { price: formatMoney(SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
+  return { label: t('hangar.buyTwin', { price: priceText(save, SECONDARIES[item.id].price) }), enabled: canBuyTwin(save, item.id).ok };
 }
 
 const ROMAN: readonly string[] = ['I', 'II', 'III', 'IV', 'V', 'VI'];
@@ -234,8 +245,9 @@ export const markName = (mark: number): string => t('arsenal.mark', { n: ROMAN[m
 export function markAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
   if (item.type !== 'secondary' || !save.ownedSecondaries.includes(item.id)) return null;
   const mark = markOf(save, item.id);
+  if (save.kit === 'mech') return { label: mark < 3 ? t('mechbay.markLab') : t('arsenal.markTop', { mark: markName(mark) }), enabled: false };
   const price = markPrice(save, item.id);
-  if (price !== null) return { label: t('arsenal.upgradeMark', { mark: markName(mark + 1), price: formatMoney(price) }), enabled: canBuyMark(save, item.id).ok };
+  if (price !== null) return { label: t('arsenal.upgradeMark', { mark: markName(mark + 1), price: priceText(save, price) }), enabled: canBuyMark(save, item.id).ok };
   return { label: mark < MAX_MARK ? t('arsenal.markLater') : t('arsenal.markTop', { mark: markName(mark) }), enabled: false };
 }
 

@@ -1,4 +1,4 @@
-import { BASE_AREA_IDS, BASE_AREAS, type BaseAreaDef, type BaseAreaId } from '../../data/base-areas';
+import { areaDef, areaIds, BASE_AREAS, type AreaTable, type BaseAreaId } from '../../data/base-areas';
 import { NAME_PLATE, pixelFrame, RPG_BOX, type FrameStyle } from '../pixel/frame';
 import { measure, text } from '../text';
 
@@ -45,15 +45,15 @@ function title(ctx: CanvasRenderingContext2D, s: string): void {
 /** Plates, strip and title for the highlighted area, at the look's places; the docks show no plates (doc 73: "the user
  *  will find out by himself"). */
 export function drawLabels(
-  ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText, areas: Readonly<Record<BaseAreaId, BaseAreaDef>> = BASE_AREAS, plates = true,
+  ctx: CanvasRenderingContext2D, focus: BaseAreaId, tx: HangarText, areas: AreaTable = BASE_AREAS, plates = true,
 ): void {
-  for (const id of BASE_AREA_IDS) {
+  for (const id of areaIds(areas)) {
     if (!plates) break;
     if (id === focus) continue;
-    const a = areas[id];
+    const a = areaDef(areas, id);
     plate(ctx, a.plate.x, a.plate.y, tx.names[id], false);
   }
-  const f = areas[focus];
+  const f = areaDef(areas, focus);
   if (plates) plate(ctx, f.plate.x, f.plate.y, tx.names[focus], true);
   strip(ctx, tx.names[focus], tx.hint, tx.keys);
   title(ctx, tx.title);

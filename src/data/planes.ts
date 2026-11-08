@@ -17,8 +17,9 @@ export interface PlaneDef {
   description: string;
   /** 1 = sold from the start; 2 = sold once map 2 is open (doc 36); 3 = a map-3 helicopter (doc 49); 5 = a sub (doc 66). */
   campaign: CampaignId;
-  /** Jets fly maps 1–2, helicopters map 3 (doc 49), the spacecraft map 4 (doc 54), the subs map 5 (doc 66). */
-  kind: 'jet' | 'heli' | 'ship' | 'sub';
+  /** Jets fly maps 1–2, helicopters map 3 (doc 49), the subs map 4 (doc 66), the spacecraft map 5 (doc 54), the mechs
+   *  walk map 6 (doc 79); a mech's price is in alloy. */
+  kind: 'jet' | 'heli' | 'ship' | 'sub' | 'mech';
 }
 
 export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
@@ -129,9 +130,38 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     description: 'Big, broad and built twice over. Six tubes and a few seconds where nothing gets through. Slow to turn.',
     campaign: 4, kind: 'sub',
   },
+  // Map 6 (doc 79): the mechs, built in the MECH BAY from alloy; the Strider is free.
+  strider: {
+    id: 'strider', name: 'Strider', short: 'STRIDER', nickname: 'Strider',
+    price: 0, hull: 160, speed: 205, hardpoints: 2, gunDamageMul: 1.0,
+    special: 'jumpjet', specialName: 'Jump Jets', specialCooldown: 9, specialDuration: 0.9,
+    description: 'Light scout mech. Quick on its feet, an autocannon on each arm, and jump jets that leap over the fire and stomp whatever is below.',
+    campaign: 6, kind: 'mech',
+  },
+  ranger: {
+    id: 'ranger', name: 'Ranger', short: 'RANGER', nickname: 'Ranger',
+    price: 900, hull: 210, speed: 190, hardpoints: 3, gunDamageMul: 1.15,
+    special: 'longbow', specialName: 'Missile Barrage', specialCooldown: 14, specialDuration: 0.4,
+    description: 'Medium line mech. Three hardpoints and a barrage of seeker missiles at every ground target in sight.',
+    campaign: 6, kind: 'mech',
+  },
+  hornet: {
+    id: 'hornet', name: 'Hornet', short: 'HORNET', nickname: 'Hornet',
+    price: 1400, hull: 145, speed: 245, hardpoints: 2, gunDamageMul: 1.25,
+    special: 'stealth', specialName: 'Camo Field', specialCooldown: 18, specialDuration: 6,
+    description: 'Fast hunter mech. Hard-hitting guns, and a camo field that hides it in the green: the enemy holds fire.',
+    campaign: 6, kind: 'mech',
+  },
+  titan: {
+    id: 'titan', name: 'Titan', short: 'TITAN', nickname: 'Titan',
+    price: 2400, hull: 320, speed: 160, hardpoints: 4, gunDamageMul: 1.2,
+    special: 'armour', specialName: 'Bulwark', specialCooldown: 16, specialDuration: 3,
+    description: 'Heavy assault mech. Four hardpoints, thick armour and a few seconds where nothing gets through. Slow on its feet.',
+    campaign: 6, kind: 'mech',
+  },
 });
 
-/** A record with one entry per plane (jets, helicopters, the ship and the subs), built from PLANE_IDS. */
+/** A record with one entry per plane (jets, helicopters, the ship, the subs and the mechs), built from PLANE_IDS. */
 export function perPlane<T>(make: (id: PlaneId) => T): Record<PlaneId, T> {
   return Object.fromEntries(PLANE_IDS.map((id) => [id, make(id)])) as Record<PlaneId, T>;
 }

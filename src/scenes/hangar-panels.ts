@@ -1,6 +1,6 @@
 import type { LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
-import type { PlaneId, SecondaryId } from '../data/types';
+import type { MechId, PlaneId, SecondaryId } from '../data/types';
 import { AMMO_LEVELS, INCENDIARY_LEVELS } from '../data/arsenal';
 import { heLevelDef, MAX_HE_LEVEL } from '../data/he-gun';
 import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
@@ -24,6 +24,7 @@ import {
   FLEET_UI, gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, unlockText, weaponNowNext,
 } from './hangar-items';
 import { equipmentEffectRow, planeStats, statRow } from './hangar-stats-view';
+import { guidanceKey, roundsLine } from './hangar-mech';
 
 export const LIST = { x: 24, y: 132, w: 536, row: 68 };
 export const DETAIL: Rect = { x: 584, y: 76, w: 672, h: 628 };
@@ -202,9 +203,9 @@ function weaponStatsRows(ctx: CanvasRenderingContext2D, save: SaveData, id: Seco
   const marks = `${[1, 2, 3, 4, 5, 6].map((m) => (m <= mark ? '■' : '□')).join(' ')}   ${markName(mark)}`;
   text(ctx, tr('arsenal.statMark'), DETAIL.x + 24, y + 58, { size: 13, color: COLORS.dim, letterSpacing: 1, maxWidth: 150 });
   text(ctx, marks, DETAIL.x + 184, y + 58, { size: 14, color: COLORS.green });
-  const guidance = tr(d.behavior === 'homing' ? 'hangar.guided' : d.behavior === 'fan' ? 'hangar.salvo' : 'hangar.freefall');
+  const guidance = tr(guidanceKey(d.behavior));
   text(ctx, tr('hangar.targets', { targets: secondaryTargets(id), guidance }), DETAIL.x + 24, y + 78, { size: 14, color: COLORS.ink, maxWidth: DETAIL.w - 300 });
-  const info = isFleet(save.kit) ? tr(FLEET_UI[save.kit].markInfo) : mapTwoOpen(save) ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
+  const info = isFleet(save.kit) ? [roundsLine(save, id), tr(FLEET_UI[save.kit].markInfo)].filter(Boolean).join(' · ') : mapTwoOpen(save) ? tr('hangar.twinInfo') : tr('arsenal.markInfo');
   text(ctx, info, DETAIL.x + 24, y + 96, { size: 12, color: COLORS.dim, maxWidth: DETAIL.w - 300 });
 }
 
@@ -239,7 +240,8 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
   }
 }
 
-function showcase(ctx: CanvasRenderingContext2D, plane: PlaneId, livery: LiveryId, cx: number, cy: number, t: number): void {
+function showcase(ctx: CanvasRenderingContext2D, plane: PlaneId, livery: LiveryId, cx: number, cy: number, t: number, paint: string | null = null): void {
+  if (PLANES[plane].kind === 'mech') return drawPlaneSide(ctx, plane, cx, cy + 82, 2.6, { t, paint, stride: t * 0.8 }); // a mech walks (doc 80)
   const bob = Math.sin(t * 1.4) * 4;
   drawPlaneTop(ctx, plane, cx + 20, cy + 22 + bob, 3, { shadow: true });
   drawPlaneTop(ctx, plane, cx, cy + bob, 3, {
@@ -257,7 +259,7 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
   ctx.fill();
   ctx.restore();
   switch (item.type) {
-    case 'plane': return showcase(ctx, item.id, save.livery[item.id], cx, cy, t);
+    case 'plane': return showcase(ctx, item.id, save.livery[item.id], cx, cy, t, save.mechPaint[item.id as MechId] ?? null);
     case 'livery': return showcase(ctx, save.selectedPlane, item.id, cx, cy, t);
     case 'gun': if (!drawItemPicture(ctx, item.fleet ? FLEET[item.fleet].gunPicture : 'gun', cx, cy, false)) drawWeaponIcon(ctx, 'gun', cx, cy, 3); return;
     case 'gun2': drawWeaponIcon(ctx, 'gun2', cx, cy, 3); return;

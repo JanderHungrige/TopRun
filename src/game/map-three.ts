@@ -14,13 +14,16 @@ export const MAP_THREE = Object.freeze({
  *  world kept its pay when the worlds swapped places (doc 74): its shop is priced on it. */
 export const MAP_FOUR = Object.freeze({ from: 90, pay: 10, ramp: 0.03 });
 export const MAP_FIVE = Object.freeze({ from: 120, pay: 8, ramp: 0.03 });
+/** Map 6, the jungle planet (doc 78), from m151: its money buys the ground base's buildings (doc 82). */
+export const MAP_SIX = Object.freeze({ from: 150, pay: 10, ramp: 0.03 });
 
 export const onMapThree = (missionNumber: number): boolean => missionNumber > MAP_THREE.from;
 export const onMapFour = (missionNumber: number): boolean => missionNumber > MAP_FOUR.from;
 export const onMapFive = (missionNumber: number): boolean => missionNumber > MAP_FIVE.from;
+export const onMapSix = (missionNumber: number): boolean => missionNumber > MAP_SIX.from;
 
-/** Map 3's pay factor, map 4's from m91, map 5's from m121. */
+/** Map 3's pay factor, map 4's from m91, map 5's from m121, map 6's from m151. */
 export function mapThreePay(missionNumber: number): number {
-  const m = onMapFive(missionNumber) ? MAP_FIVE : onMapFour(missionNumber) ? MAP_FOUR : MAP_THREE;
+  const m = onMapSix(missionNumber) ? MAP_SIX : onMapFive(missionNumber) ? MAP_FIVE : onMapFour(missionNumber) ? MAP_FOUR : MAP_THREE;
   return m.pay * (1 + m.ramp * Math.max(0, missionNumber - m.from - 1));
 }

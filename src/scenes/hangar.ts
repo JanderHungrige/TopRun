@@ -1,4 +1,3 @@
-import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { PLANES } from '../data/planes';
 import { liveryName } from '../i18n/content';
@@ -19,6 +18,8 @@ import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from '.
 import { HangarChief } from './hangar-chief';
 import { ammoTypeOf, FLEET_UI, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 import { isFleet } from '../data/fleet';
+import { wallet } from '../game/outpost';
+import { priceText } from './hangar-mech';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
@@ -259,7 +260,7 @@ export class HangarScene implements Scene {
       ctx.fillRect(0, 0, 1280, 720);
     }
     const title = t(isFleet(save.kit) ? FLEET_UI[save.kit].title : 'hangar.title');
-    const money = formatMoney(save.money);
+    const money = priceText(save, wallet(save));
     text(ctx, title, 24, 50, { size: 30, display: true, italic: true });
     text(ctx, money, 1010, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
     drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BASE_BTN, hint: 'B' }, false, this.t);

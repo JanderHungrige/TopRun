@@ -5,6 +5,7 @@ import { MAX_GUN2_LEVEL, type GunLevelDef } from '../../data/weapons';
 import { gunDef, powerCap } from '../../game/firepower';
 import { isFleet } from '../../data/fleet';
 import { DRIFT, fleetVelocity } from '../../game/sub-flight';
+import { gaitSpeed } from '../../game/mech-walk';
 import { shipGun, touchesShip } from '../../game/ship-loadout';
 import { CELL_PX, SHIELD } from '../../data/ship-modules';
 import { circleHit } from '../../game/combat';
@@ -61,6 +62,13 @@ export class Player {
   dashVX = 0;
   /** The helicopter's velocity, eased toward the stick (doc 50); a jet's follows the stick at once. */
   drift = { x: 0, y: 0 };
+  /** A mech's walk (doc 80): floor walked, the gait's phase, the leap's height and whether a leap is under way. */
+  walked = 0;
+  stride = 0;
+  leap = 0;
+  jumping = false;
+  /** Rounds fired per weapon, taken from the base's magazine in the debrief (doc 79). */
+  readonly spent: Partial<Record<SecondaryId, number>> = {};
   /** The spacecraft's shield points and the time since the last hit (doc 54). */
   shield = 0;
   readonly shieldMax: number;
@@ -123,7 +131,8 @@ export class Player {
   move(dir: { x: number; y: number }, drag: { x: number; y: number }, dt: number): void {
     const dash = this.dashVX * dt;
     const kind = this.stats.plane.kind;
-    const v = isFleet(kind) ? fleetVelocity(this.drift, dir, this.speed, DRIFT[kind], dt) : { x: dir.x * this.speed, y: dir.y * this.speed };
+    const speed = kind === 'mech' ? this.speed * gaitSpeed(this.stride) : this.speed; // a mech surges with every step (doc 80)
+    const v = isFleet(kind) ? fleetVelocity(this.drift, dir, speed, DRIFT[kind], dt) : { x: dir.x * speed, y: dir.y * speed };
     this.drift = v;
     this.x = clamp(this.x + v.x * dt + drag.x + dash, 24, PF_W - 24);
     this.y = clamp(this.y + v.y * dt + drag.y, 70, PF_H - 40);

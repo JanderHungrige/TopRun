@@ -29,7 +29,11 @@ export const CEREMONY_SETS = {
  },
  'clearing': {
   'plate': 'clearing',
-  'crew': null,
+  'crew': {
+   'file': 'clearing-crew-salute',
+   'x': 42,
+   'y': 101
+  },
   'stars': []
  }
 } as const satisfies Record<string, CeremonySetBox>;

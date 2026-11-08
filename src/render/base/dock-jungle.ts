@@ -1,8 +1,8 @@
 import { hash } from './paint';
 
-// The jungle base's crew hut (doc 86), slow and calm like the other docks: the fairy lights twinkling along the strings,
-// the lab door's green window and the ceiling lamp breathing, fireflies drifting outside the window and the gate, dust
-// motes in the warm light. Drawn every frame in whole art pixels over picture A.
+// The jungle camp (doc 95), slow and calm like the other docks: the lanterns and the string lights twinkling under the
+// camouflage nets, the lab cabinet's green window and the map table's lamp breathing, fireflies drifting over the track
+// into the jungle, dust motes in the warm light. Drawn every frame in whole art pixels over picture L121.
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -11,13 +11,12 @@ function px(g: Ctx, c: number, r: number, w: number, h: number, color: string): 
   g.fillRect(c, r, w, h);
 }
 
-/** The fairy lights' bulbs on the strings over the back wall and the window (logical px). */
+/** The lanterns and the string lights under the nets (logical px). */
 const BULBS: ReadonlyArray<readonly [number, number]> = [
-  [380, 198], [418, 194], [452, 196], [488, 200], [528, 196], [566, 200], [600, 205], [636, 202], [674, 198], [712, 194],
-  [752, 198], [790, 202], [846, 168], [880, 150], [914, 140], [946, 128], [980, 118], [1010, 104], [312, 160], [280, 130],
+  [238, 172], [548, 282], [582, 210], [660, 188], [720, 182], [770, 186], [808, 178], [884, 150],
 ];
-/** Where fireflies drift outside: the window onto the compound and the open gate (x, y, w, h). */
-const OUTSIDE: ReadonlyArray<readonly [number, number, number, number]> = [[846, 236, 130, 170], [1056, 170, 210, 420]];
+/** Where fireflies drift: over the track into the jungle and the ferns by the mech's foot (x, y, w, h). */
+const OUTSIDE: ReadonlyArray<readonly [number, number, number, number]> = [[540, 230, 330, 210], [860, 300, 160, 160]];
 
 function bulbs(g: Ctx, G: number, t: number): void {
   for (const [i, [x, y]] of BULBS.entries()) {
@@ -61,8 +60,8 @@ function motes(g: Ctx, G: number, t: number): void {
 
 export function jungleAmbient(g: Ctx, G: number, t: number): void {
   bulbs(g, G, t);
-  glow(g, Math.round(618 / G), Math.round(334 / G), 5, '120,255,140', 0.5 + 0.2 * Math.sin(t * 0.8)); // the lab's window
-  glow(g, Math.round(618 / G), Math.round(132 / G), 6, '160,255,170', 0.35 + 0.1 * Math.sin(t * 0.5)); // the ceiling lamp
+  glow(g, Math.round(515 / G), Math.round(383 / G), 4, '120,255,140', 0.5 + 0.2 * Math.sin(t * 0.8)); // the lab's window
+  glow(g, Math.round(1102 / G), Math.round(376 / G), 6, '255,220,150', 0.4 + 0.08 * Math.sin(t * 0.5)); // the map lamp
   fireflies(g, G, t);
   motes(g, G, t);
 }

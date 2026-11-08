@@ -43,6 +43,8 @@ sister_projects: []
 
 # 86 — Jungle Looks
 
+> **Jungle camp (doc 95, 2026-11-08):** the jungle base's crew hut and its code-drawn globe are replaced by the run-down field camp L121 — the map table leads to the map, the track to the ground base's buildings is the build layer, the mech's leg is the craft.
+
 Owner, 2026-11-08: *"We need the usual images for the cosy base, the loadout items, loadout background, new person
 images, mech warriors, ribbons, ceremony scenes, etc."* All rendered on the M1 (the PC was offline), seed 7 unless said.
 

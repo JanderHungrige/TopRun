@@ -13,6 +13,7 @@ import { drawDockGlobe } from './dock-globe';
 import { spaceAmbient, type Mask } from './dock-ambient';
 import { litAmbient } from './dock-carrier';
 import { drawFront, frontLayer } from './dock-front';
+import { onWall } from './dock-wall';
 import { jungleAmbient } from './dock-jungle';
 import { seaAmbient } from './dock-sea';
 import type { HangarView } from './index';
@@ -148,8 +149,9 @@ export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: Hanga
   ctx.drawImage(sc.canvas, m.a ? (Math.round(m.e) - m.e) / m.a : 0, m.d ? (Math.round(m.f) - m.f) / m.d : 0, gr.W * gr.G, gr.H * gr.G);
   ctx.restore();
   const L = LAYOUT[look];
-  drawDockChalkboard(ctx, L.slate, v.chalk.cells, v.chalk.version);
-  drawDockFlipBoard(ctx, L.board, L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board, v.t);
+  const rows = L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board;
+  onWall(ctx, L.slate, L.slant ?? 0, (g, at) => drawDockChalkboard(g, at, v.chalk.cells, v.chalk.version));
+  onWall(ctx, L.board, L.slant ?? 0, (g, at) => drawDockFlipBoard(g, at, rows, v.t));
   drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false, scale: scaleAt(L, v.walker.y) });
   const front = img && L.front ? frontLayer(look, file, img, gr) : null; // the pilot walks behind it (doc 92)
   if (front) drawFront(ctx, front, gr);

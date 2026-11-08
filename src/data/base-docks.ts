@@ -1,11 +1,11 @@
 import { PILOT_FLOOR_Y, type AreaRect, type AreaTable, type BaseAreaDef, type BaseAreaId } from './base-areas';
 
-// The home base's picture looks (docs 73, 76, 86, 91, 92): the carrier lounge (maps 1–2), the helicopter base (map 3), the
-// underwater dock (map 4), the
-// space-station dock (map 5) and the jungle hut (map 6), each a generated picture with every area's hotspot, name plate and
-// stand point placed on the picture's own objects, and the places the game draws over it — the flip board, the chalkboard's
-// slate, the TV cart, the neon sign, a globe. The way to the map is the carrier's opening onto the flight deck, the space
-// dock's porthole and the globes (doc 76).
+// The home base's picture looks (docs 73, 76, 91–95): the carrier lounge (maps 1–2), the helicopter base (map 3), the sea
+// lounge (map 4), the space lounge (map 5) and the jungle camp (map 6), each a generated picture with every area's hotspot,
+// name plate and stand point placed on the picture's own objects, and the places the game draws over it — the flip board,
+// the chalkboard's slate, the TV cart or the TV's picture, the neon sign. The way to the map is the carrier's opening onto
+// the flight deck, the helicopter base's and the jungle camp's map tables, the sea lounge's globe and the space lounge's
+// holo table.
 
 const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number, deep?: { y: number; via?: number }): BaseAreaDef =>
   ({ id, row, hot, plate, standX, ...(deep ? { standY: deep.y, via: deep.via ?? standX } : {}) });
@@ -17,6 +17,9 @@ export interface DockLayout {
   boardRows: number;
   /** The picture's chalkboard: world 1's framed chalkboard covers it. */
   slate: AreaRect;
+  /** Boards on a wall seen at an angle (doc 95): the flip board's and the chalkboard's right edges are this fraction of
+   *  their height shorter at the top and at the bottom; they are laid onto the wall column by column. */
+  slant?: number;
   /** The TV cart's footprint (left, floor line); null where the picture has its own TV (`picturedTv`). */
   tv: { x: number; base: number } | null;
   /** The picture's own TV (doc 93): its screen, where the game plays the TV's picture, and the video recorder's clock. */
@@ -147,28 +150,34 @@ export const SEA_LAYOUT: DockLayout = {
   horizon: 240,
 };
 
-/** The jungle base's crew hut (map 6, doc 86): the lockers and the rec room on the left, the scoreboard over the chalkboard,
- *  the lab's door with its green window, the cork board, the big window onto the ground base's compound and the open
- *  gate with a mech parked outside (the craft); a planet globe drawn in code is the way to the map. */
+/** The jungle camp L121 (map 6, doc 95): a run-down field camp under torn camouflage nets in the rainforest — the hut with
+ *  the scoreboard over the chalkboard (on a wall seen at an angle) and its photos, the lockers, the lab cabinet with its
+ *  green window, the board-game table, the muddy track to the ground base's buildings (the build layer), the giant mech's
+ *  leg on the right (the craft), the map table (the way to the map) and the TV on crates. The pilot walks behind the
+ *  tables (doc 92); the hut's spots share one row a step back. */
 export const JUNGLE_AREAS: AreaTable = Object.freeze({
-  fun: area('fun', 'floor', { x: 138, y: 226, w: 128, h: 330 }, { x: 202, y: 214 }, 206),
-  tv: area('tv', 'floor', { x: 282, y: 430, w: 130, h: 230 }, { x: 347, y: 418 }, 352),
-  locker: area('locker', 'floor', { x: 0, y: 270, w: 136, h: 410 }, { x: 68, y: 258 }, 90),
-  photos: area('photos', 'mid', { x: 698, y: 290, w: 84, h: 72 }, { x: 740, y: 278 }, 736),
-  jet: area('jet', 'floor', { x: 1040, y: 150, w: 240, h: 490 }, { x: 1160, y: 138 }, 1110),
-  base: area('base', 'wall', { x: 828, y: 222, w: 164, h: 200 }, { x: 910, y: 210 }, 910),
-  lab: area('lab', 'floor', { x: 552, y: 262, w: 140, h: 252 }, { x: 622, y: 250 }, 622),
-  ladder: area('ladder', 'wall', { x: 376, y: 210, w: 120, h: 78 }, { x: 436, y: 198 }, 440),
-  chalk: area('chalk', 'mid', { x: 352, y: 296, w: 180, h: 104 }, { x: 442, y: 284 }, 450),
-  exit: area('exit', 'floor', { x: 922, y: 446, w: 112, h: 210 }, { x: 978, y: 434 }, 960),
+  fun: area('fun', 'floor', { x: 78, y: 496, w: 330, h: 110 }, { x: 243, y: 484 }, 470),
+  tv: area('tv', 'floor', { x: 1108, y: 428, w: 172, h: 240 }, { x: 1194, y: 416 }, 1050),
+  locker: area('locker', 'floor', { x: 358, y: 322, w: 86, h: 186 }, { x: 401, y: 310 }, 400, { y: 520, via: 520 }),
+  photos: area('photos', 'mid', { x: 316, y: 280, w: 42, h: 118 }, { x: 337, y: 268 }, 340, { y: 520, via: 520 }),
+  jet: area('jet', 'wall', { x: 870, y: 0, w: 410, h: 426 }, { x: 1075, y: 12 }, 820, { y: 505 }),
+  base: area('base', 'mid', { x: 580, y: 262, w: 310, h: 168 }, { x: 735, y: 250 }, 665, { y: 465 }),
+  lab: area('lab', 'floor', { x: 444, y: 316, w: 106, h: 196 }, { x: 497, y: 304 }, 495, { y: 520, via: 520 }),
+  ladder: area('ladder', 'wall', { x: 142, y: 210, w: 172, h: 84 }, { x: 228, y: 198 }, 180, { y: 520, via: 520 }),
+  chalk: area('chalk', 'mid', { x: 116, y: 296, w: 224, h: 162 }, { x: 228, y: 284 }, 240, { y: 520, via: 520 }),
+  exit: area('exit', 'floor', { x: 758, y: 500, w: 350, h: 220 }, { x: 933, y: 488 }, 900),
 });
 
 export const JUNGLE_LAYOUT: DockLayout = {
-  board: { x: 380, y: 214, w: 112, h: 68 },
+  board: { x: 144, y: 216, w: 168, h: 74 },
   boardRows: 3,
-  slate: { x: 360, y: 303, w: 162, h: 90 },
-  tv: { x: 288, base: 656 },
-  neon: { x: 146, y: 196, w: 114, h: 34 },
-  globe: { x: 930, y: 452, w: 100, h: 200 },
-  pilot: 0.9,
+  slate: { x: 128, y: 314, w: 192, h: 126 },
+  slant: 0.05,
+  tv: null,
+  picturedTv: { screen: { x: 1134, y: 450, w: 60, h: 80 }, clock: { x: 1150, y: 576 } },
+  neon: { x: 8, y: 228, w: 104, h: 34 },
+  globe: null,
+  pilot: 0.95,
+  front: true,
+  horizon: 370,
 };

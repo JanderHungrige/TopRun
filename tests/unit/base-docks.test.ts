@@ -27,12 +27,14 @@ describe('Home docks (doc 73)', () => {
     for (const L of [CARRIER_LAYOUT, SPACE_LAYOUT, SEA_LAYOUT, JUNGLE_LAYOUT]) for (const r of [L.board, L.slate, L.neon]) expect(inside(r)).toBe(true);
   });
 
-  it('gives only the jungle base the ground base and the lab (doc 86)', () => {
+  it('gives only the jungle base the ground base and the lab (docs 86, 95)', () => {
     expect(areaIds(baseAreas('jungle'))).toEqual(['fun', 'tv', 'locker', 'photos', 'jet', 'base', 'lab', 'ladder', 'chalk', 'exit']);
     for (const look of ['carrier', 'heli', 'space', 'sea'] as const) expect(areaIds(baseAreas(look))).toHaveLength(8);
-    const globe = JUNGLE_LAYOUT.globe;
-    if (!globe) throw new Error('no globe');
-    expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, baseAreas('jungle'))).toBe('exit');
+    const jungle = baseAreas('jungle');
+    expect(areaAt({ x: 950, y: 560 }, jungle)).toBe('exit'); // the map table
+    expect(areaAt({ x: 720, y: 380 }, jungle)).toBe('base'); // the track to the ground base's buildings
+    expect(areaAt({ x: 1000, y: 200 }, jungle)).toBe('jet'); // the giant mech's leg
+    expect(areaAt({ x: 497, y: 400 }, jungle)).toBe('lab'); // the cabinet with the green window
   });
 
   it('leads to the map through the space lounge\'s holo table and the sea lounge\'s globe, the pilot to scale (docs 76, 93, 94)', () => {
@@ -88,20 +90,18 @@ describe('Home docks (doc 73)', () => {
     expect([w.x, w.y, w.lane]).toEqual([900, gate.standY, 750]);
   });
 
-  it('gives the carrier, sea and space docks depth too: the lockers a step back, the pilot smaller there; not the jungle (doc 92)', () => {
-    for (const [look, L] of [['carrier', CARRIER_LAYOUT], ['sea', SEA_LAYOUT], ['space', SPACE_LAYOUT]] as const) {
+  it('gives the carrier, sea, space and jungle docks depth too: the lockers a step back, the pilot smaller there (docs 92, 95)', () => {
+    for (const [look, L] of [['carrier', CARRIER_LAYOUT], ['sea', SEA_LAYOUT], ['space', SPACE_LAYOUT], ['jungle', JUNGLE_LAYOUT]] as const) {
       const areas = baseAreas(look);
       expect(areaDef(areas, 'locker').standY, look).toBeLessThan(640);
       expect(scaleAt(L, 640)).toBeCloseTo(L.pilot, 6);
       const deep = scaleAt(L, Math.min(...areaIds(areas).map((id) => areaDef(areas, id).standY ?? 640)));
       expect(deep, look).toBeLessThan(L.pilot * 0.85);
-      expect(deep, look).toBeGreaterThan(0.55); // the deepest spot (the carrier's hangar door): small, not tiny
+      expect(deep, look).toBeGreaterThan(look === 'jungle' ? 0.3 : 0.55); // small, not tiny; the jungle camp's track runs far
     }
     const door = areaDef(baseAreas('carrier'), 'jet');
     expect(areaAt({ x: door.standX, y: (door.standY ?? 640) - 60 }, baseAreas('carrier'))).toBe('jet'); // in the doorway
-    expect(JUNGLE_LAYOUT.horizon).toBeUndefined();
-    for (const id of areaIds(baseAreas('jungle'))) expect(areaDef(baseAreas('jungle'), id).standY).toBeUndefined();
-    expect(scaleAt(JUNGLE_LAYOUT, 512)).toBe(JUNGLE_LAYOUT.pilot);
+    expect(JUNGLE_LAYOUT.front).toBe(true); // the pilot walks behind the camp's tables (doc 95)
   });
 });
 
@@ -113,7 +113,7 @@ describe('Sea lounge (doc 93)', () => {
     const tv = areaDef(baseAreas('sea'), 'tv').hot;
     const s = pictured.screen;
     expect(s.x >= tv.x && s.y >= tv.y && s.x + s.w <= tv.x + tv.w && s.y + s.h <= tv.y + tv.h).toBe(true);
-    for (const L of [CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT]) expect(L.tv).not.toBeNull();
+    for (const L of [CARRIER_LAYOUT, HELI_LAYOUT]) expect(L.tv).not.toBeNull();
     expect(SPACE_LAYOUT.picturedTv).toBeDefined(); // the space lounge's flat screen too (doc 94)
   });
 
@@ -122,5 +122,16 @@ describe('Sea lounge (doc 93)', () => {
     const globe = areaDef(sea, 'exit').hot;
     for (const id of areaIds(sea)) expect(areaDef(sea, id).standX, id).toBeGreaterThan(globe.x + globe.w + 40);
     expect(areaDef(sea, 'fun').standY).toBe(areaDef(sea, 'photos').standY); // the rec room's doorway and the cork board
+  });
+});
+
+describe('Jungle camp (doc 95)', () => {
+  it('lays the boards onto the hut wall seen at an angle, the hut spots on one row', () => {
+    expect(JUNGLE_LAYOUT.slant).toBeGreaterThan(0);
+    expect(JUNGLE_LAYOUT.slant).toBeLessThan(0.2);
+    const jungle = baseAreas('jungle');
+    const row = ['locker', 'photos', 'lab', 'ladder', 'chalk'] as const;
+    for (const id of row) expect(areaDef(jungle, id).standY, id).toBe(520);
+    for (const id of row) expect(areaDef(jungle, id).via, id).toBe(520); // up the track's edge, then along the hut
   });
 });

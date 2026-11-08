@@ -106,4 +106,4 @@ table in the foreground go together.
   behind).
 - No look needs a walk-behind mask besides the helicopter base's map table: the lanes and spots keep clear of the couches,
   the tables and the TV cart (the cast is drawn over the picture and the cart).
-- The **jungle base** keeps the front line (no `standY`, no `horizon`) until it is reworked.
+- The **jungle base** has been reworked as the jungle camp with its own depth (doc 95: horizon 370, pilot 0.95).

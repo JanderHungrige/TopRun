@@ -54,9 +54,11 @@ describe('Home docks (doc 73)', () => {
     const tv = areaDef(sea, 'tv').hot;
     expect(areaAt({ x: tv.x + 4, y: tv.y + 4 }, sea)).toBe('tv'); // the TV stands in front of the rec room (doc 63)
     expect(neighbour('fun', 'right', sea)).toBe('tv');
-    const chalk = areaDef(sea, 'chalk').standX;
-    expect(arrivedAt(walkerAt(chalk), 'chalk', sea)).toBe(true);
-    expect(arrivedAt(walkerAt(chalk), 'chalk')).toBe(chalk === areaDef(BASE_AREAS, 'chalk').standX);
+    expect(arrivedAt(walkerAtArea('chalk', sea), 'chalk', sea)).toBe(true);
+    expect(arrivedAt(walkerAt(areaDef(sea, 'chalk').standX), 'chalk', sea)).toBe(false); // the chalkboard is a step back (doc 92)
+    const cart = areaDef(sea, 'tv').standX;
+    expect(arrivedAt(walkerAt(cart), 'tv', sea)).toBe(true);
+    expect(arrivedAt(walkerAt(cart), 'tv')).toBe(cart === areaDef(BASE_AREAS, 'tv').standX);
   });
 
   it('leads to the map through the carrier lounge\'s opening onto the flight deck, the hangar through its door (doc 91)', () => {
@@ -82,9 +84,24 @@ describe('Home docks (doc 73)', () => {
     expect(gate.via).toBe(750);
     expect(scaleAt(HELI_LAYOUT, 640)).toBeCloseTo(HELI_LAYOUT.pilot, 6);
     expect(scaleAt(HELI_LAYOUT, gate.standY ?? 640)).toBeLessThan(HELI_LAYOUT.pilot / 2);
-    expect(scaleAt(CARRIER_LAYOUT, 512)).toBe(CARRIER_LAYOUT.pilot); // no depth on the carrier
     expect(HELI_LAYOUT.front).toBe(true);
     const w = walkerAtArea('jet', heli);
     expect([w.x, w.y, w.lane]).toEqual([900, gate.standY, 750]);
+  });
+
+  it('gives the carrier, sea and space docks depth too: the lockers a step back, the pilot smaller there; not the jungle (doc 92)', () => {
+    for (const [look, L] of [['carrier', CARRIER_LAYOUT], ['sea', SEA_LAYOUT], ['space', SPACE_LAYOUT]] as const) {
+      const locker = areaDef(baseAreas(look), 'locker');
+      expect(locker.standY, look).toBeLessThan(640);
+      expect(scaleAt(L, 640)).toBeCloseTo(L.pilot, 6);
+      const deep = scaleAt(L, locker.standY ?? 640);
+      expect(deep, look).toBeLessThan(L.pilot * 0.85);
+      expect(deep, look).toBeGreaterThan(0.65); // still a grown-up beside the lockers
+    }
+    const door = areaDef(baseAreas('carrier'), 'jet');
+    expect(areaAt({ x: door.standX, y: (door.standY ?? 640) - 60 }, baseAreas('carrier'))).toBe('jet'); // in the doorway
+    expect(JUNGLE_LAYOUT.horizon).toBeUndefined();
+    for (const id of areaIds(baseAreas('jungle'))) expect(areaDef(baseAreas('jungle'), id).standY).toBeUndefined();
+    expect(scaleAt(JUNGLE_LAYOUT, 512)).toBe(JUNGLE_LAYOUT.pilot);
   });
 });

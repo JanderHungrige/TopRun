@@ -87,7 +87,10 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
   globe on a stand, drawn in code, stands in the room and is the way to the map (the hatch is gone too). The windows'
   and the globe's brackets pulse like every other area's.
 - **To scale:** each dock has its own pilot scale and floor line (`DockLayout.pilot`), set so the pilot is as tall as the
-  picture's lockers and doors say a grown-up is; the carrier hangar keeps its own.
+  picture's lockers and doors say a grown-up is; the carrier hangar keeps its own. Since doc 92 the docks (not the
+  jungle base) have depth: the scale is the front line's, and the pilot shrinks towards the picture's horizon — the sea
+  dock's front scale is now 0.92, the space dock's 0.94, so beside the lockers at the back he is a little shorter than
+  they are.
 - **Space, new picture (G):** the first round (C–F: a room with a window and a big starfighter in a door) was turned down —
   *"they all look like a room with a window. Generally please more cozy. The fighter jet does not need to be that
   prominent … just hinted."* The second round's G is the space dock now: cozy crew quarters inside the hull — ribs and
@@ -95,7 +98,8 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
   over the chalkboard, a shelf of framed photos — with two portholes: the left one leads to the map, the right one shows
   a sliver of the docked starfighter and is the craft (the hangar). The joystick neon hangs over the rec room's door, the
   TV cart stands on the rug by the couch, the photo wall is the shelf. Its life: stars twinkling in the portholes, the
-  fairy lights and three lamps glowing, warm dust motes. Pilot scale 0.86 (as tall as the lockers and the arcade).
+  fairy lights and three lamps glowing, warm dust motes. Pilot scale 0.86 (as tall as the lockers and the arcade; 0.94 on
+  the front line since the dock has depth, doc 92).
 
 ## Loadout backgrounds
 

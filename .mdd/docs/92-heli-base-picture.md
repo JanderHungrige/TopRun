@@ -3,7 +3,7 @@ id: 92-heli-base-picture
 title: Heli Base Picture - Map 3's Home Base as a Cozy Hangar Corner, the Helicopter Outside the Gate, the Map Table, Day, Evening and Night, Walk-Behind
 edition: TopRun
 depends_on: [91-carrier-picture, 73-home-docks, 76-world-looks, 48-third-map]
-relates: [91-carrier-picture, 73-home-docks, 49-helicopter-kit]
+relates: [91-carrier-picture, 73-home-docks, 76-world-looks, 49-helicopter-kit]
 source_files:
   - src/game/base-light.ts
   - src/data/base-areas.ts
@@ -30,7 +30,7 @@ last_synced: 2026-11-08
 status: complete
 phase: all
 mdd_version: 11
-tags: [hangar-base, docks, helicopters, day-night, walk-behind, backdrops, ambient, comfyui, map-3]
+tags: [hangar-base, docks, helicopters, day-night, depth, walk-behind, backdrops, ambient, comfyui, map-3]
 path: Game/Base/Heli Base Picture
 integration_contracts: []
 satisfies_contracts: []
@@ -93,4 +93,19 @@ table in the foreground go together.
 - On the helicopter base the lane runs between the coffee table and the map table (x 750): up it lie the TV and the
   picture wall (by the back wall) and the gate (in the gate's opening, small beside the helicopter); the arcade and the
   lockers are a step back from the front line; the map is the front line behind the table.
-- The other looks keep the front line (no `standY`, no `horizon`).
+- Spots on one row deeper in the room share free floor: from one to the other the pilot walks straight across (on the
+  row already, standing or walking), without going back to the front line.
+
+### The other bases (owner, 2026-11-08: *"OK, except for the jungle world. We need to work on that again."*)
+
+- **Carrier lounge** (maps 1–2): horizon 270, pilot 1 on the front line. The arcade and the lockers a step back (y 560,
+  straight across between them); the hangar door up the lane right of the coffee table (x 790, in the door's left side at
+  y 495 — about 0.6, the jet's nose stays in view); the opening onto the flight deck on its threshold (y 580).
+- **Sea dock** (map 4): horizon 300, pilot 0.92 (was 0.84 — on the front line he stood as tall as the lockers behind
+  him; now he is bigger in front and a little shorter than the lockers beside them). The lockers, the photos and the
+  chalkboard stand on one row at the back wall (y 565).
+- **Space dock** (map 5): horizon 220, pilot 0.94 (was 0.86, for the same reason). The arcade alcove and the lockers a step
+  back (y 545). The shelf with the photos stays on the front line: the TV cart stands in front of it.
+- No look needs a walk-behind mask besides the helicopter base's map table: the lanes and spots keep clear of the couches,
+  the tables and the TV cart (the cast is drawn over the picture and the cart).
+- The **jungle base** keeps the front line (no `standY`, no `horizon`) until it is reworked.

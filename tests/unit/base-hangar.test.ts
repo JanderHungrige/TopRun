@@ -168,4 +168,14 @@ describe('Hangar base walker', () => {
     const along = walkTo(w, 728, 556, 750);
     expect(along.path).toEqual([[750, 512], [750, 556], [728, 556]]); // same lane: no detour to the front line
   });
+
+  it('walks straight across between spots on one row deeper in the room, also mid-walk (doc 92)', () => {
+    const atLockers = walkTo(walkerAt(205, 1, 545, 205), 400, 545, 400);
+    expect(atLockers.path).toEqual([[400, 545]]);
+    expect(atLockers.lane).toBe(400); // the way back out runs down the lockers' lane
+    const midway = walkTo(stepWalker(atLockers, 0.2, 300), 205, 545, 205);
+    expect(midway.path).toEqual([[205, 545]]);
+    const climbing = walkTo(stepWalker(walkTo(walkerAt(400), 400, 545), 0.1, 300), 205, 545, 205);
+    expect(climbing.path).toEqual([[400, 640], [205, 640], [205, 545]]); // on the way up, not yet on the row: back out
+  });
 });

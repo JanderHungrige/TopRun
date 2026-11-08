@@ -126,19 +126,24 @@ function steam(g: CanvasRenderingContext2D, G: number, t: number): void {
 export function tvSet(g: CanvasRenderingContext2D, G: number, t: number, f = 1, at: { x: number; base: number } = TV_CART): void {
   const X = (x: number): number => Math.round((at.x + (x - TV_CART.x) * f) / G);
   const Y = (y: number): number => Math.round((at.base + (y - TV_CART.base) * f) / G);
-  const c0 = X(TV_SCREEN.x);
-  const r0 = Y(TV_SCREEN.y);
-  const w = Math.round((TV_SCREEN.w * f) / G);
-  const h = Math.round((TV_SCREEN.h * f) / G);
+  tvScreen(g, t, X(TV_SCREEN.x), Y(TV_SCREEN.y), Math.round((TV_SCREEN.w * f) / G), Math.round((TV_SCREEN.h * f) / G));
+  vcrClock(g, t, X(VCR.x + 46), Y(VCR.y + 5), f);
+}
+
+/** The TV's picture on a screen of w × h art px at (c0, r0): dim blue, a rolling bright band, now and then snow. Also on a
+ *  dock picture's own TV (doc 93). */
+export function tvScreen(g: CanvasRenderingContext2D, t: number, c0: number, r0: number, w: number, h: number): void {
   px(g, c0, r0, w, h, hx(PAL.blue, 1));
   px(g, c0, r0 + Math.floor(((t * 0.35) % 1) * h), w, 1, hx(PAL.blue, 2));
   if (hash(Math.floor(t * 3)) > 0.82) {
     for (let i = 0; i < w * h * 0.3; i++) px(g, c0 + Math.floor(hash(t * 50 + i) * w), r0 + Math.floor(hash(t * 70 + i * 3) * h), 1, 1, hx(PAL.white, i % 3 === 0 ? 4 : 2));
   }
   px(g, c0 + 1, r0 + 1, 2, 1, hx(PAL.white, 2));
+}
+
+/** The video recorder's unset clock blinking its four digits at (lc, lr) art px, `f` its scale. */
+export function vcrClock(g: CanvasRenderingContext2D, t: number, lc: number, lr: number, f = 1): void {
   if (t % 1 > 0.5) return;
-  const lc = X(VCR.x + 46);
-  const lr = Y(VCR.y + 5);
   const d = (n: number): number => Math.round(n * f);
   for (const dc of [0, 2, 5, 7]) px(g, lc + d(dc), lr, Math.max(1, d(1)), Math.max(2, d(2)), hx(PAL.green, 4));
   px(g, lc + d(4), lr, Math.max(1, d(1)), Math.max(1, d(1)), hx(PAL.green, 4));

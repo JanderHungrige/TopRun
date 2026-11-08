@@ -17,8 +17,10 @@ export interface DockLayout {
   boardRows: number;
   /** The picture's chalkboard: world 1's framed chalkboard covers it. */
   slate: AreaRect;
-  /** The TV cart's footprint (left, floor line). */
-  tv: { x: number; base: number };
+  /** The TV cart's footprint (left, floor line); null where the picture has its own TV (`picturedTv`). */
+  tv: { x: number; base: number } | null;
+  /** The picture's own TV (doc 93): its screen, where the game plays the TV's picture, and the video recorder's clock. */
+  picturedTv?: { screen: AreaRect; clock: { x: number; y: number } };
   /** The neon sign over the rec room: the joystick sign covers the picture's own. */
   neon: AreaRect;
   /** The globe drawn in code, the way to the map (doc 76); null where the picture's own windows are. */
@@ -114,28 +116,32 @@ export const SPACE_LAYOUT: DockLayout = {
   horizon: 220,
 };
 
-/** Underwater dock C (map 4): lockers, the rec room, the scoreboard and the photos over the chalkboard, the big
- *  round window with the sub docked outside. */
+/** The underwater lounge D41 (map 4, doc 93): the whole left wall one big window with the docked submarine's bow right
+ *  outside (the craft), the antique floor globe in front of it (the way to the map), the scoreboard over the big chalkboard
+ *  on the back wall, the couch, the old TV with its video recorder on a cabinet, the cork board, the pink rec room through
+ *  the doorway on the right and the lockers along the right wall. The room has depth: the window, the TV, the photos, the
+ *  rec room and the lockers are a step or two back from the front line, which runs right of the globe. */
 export const SEA_AREAS: AreaTable = Object.freeze({
-  fun: area('fun', 'floor', { x: 104, y: 188, w: 216, h: 376 }, { x: 200, y: 176 }, 210),
-  tv: area('tv', 'floor', { x: 178, y: 384, w: 136, h: 240 }, { x: 246, y: 372 }, 246),
-  locker: area('locker', 'floor', { x: 322, y: 278, w: 148, h: 280 }, { x: 396, y: 266 }, 396, { y: 565 }),
-  photos: area('photos', 'wall', { x: 408, y: 234, w: 190, h: 54 }, { x: 652, y: 262 }, 503, { y: 565 }),
-  jet: area('jet', 'floor', { x: 780, y: 170, w: 490, h: 320 }, { x: 1020, y: 520 }, 900),
-  ladder: area('ladder', 'wall', { x: 388, y: 82, w: 212, h: 150 }, { x: 494, y: 70 }, 494),
-  chalk: area('chalk', 'mid', { x: 464, y: 288, w: 144, h: 138 }, { x: 536, y: 440 }, 536, { y: 565 }),
-  exit: area('exit', 'floor', { x: 1096, y: 426, w: 132, h: 248 }, { x: 1162, y: 414 }, 1030),
+  fun: area('fun', 'floor', { x: 944, y: 220, w: 128, h: 326 }, { x: 1008, y: 208 }, 1005, { y: 555 }),
+  tv: area('tv', 'floor', { x: 776, y: 390, w: 132, h: 150 }, { x: 842, y: 378 }, 735, { y: 572 }),
+  locker: area('locker', 'floor', { x: 1086, y: 150, w: 194, h: 500 }, { x: 1183, y: 138 }, 1150, { y: 605 }),
+  photos: area('photos', 'mid', { x: 846, y: 254, w: 72, h: 108 }, { x: 882, y: 242 }, 928, { y: 555 }),
+  jet: area('jet', 'wall', { x: 44, y: 24, w: 360, h: 344 }, { x: 224, y: 12 }, 400, { y: 585 }),
+  ladder: area('ladder', 'wall', { x: 520, y: 150, w: 318, h: 94 }, { x: 679, y: 138 }, 700),
+  chalk: area('chalk', 'mid', { x: 520, y: 248, w: 318, h: 144 }, { x: 679, y: 236 }, 600),
+  exit: area('exit', 'floor', { x: 80, y: 376, w: 216, h: 324 }, { x: 188, y: 364 }, 360),
 });
 
 export const SEA_LAYOUT: DockLayout = {
-  board: { x: 388, y: 82, w: 210, h: 148 },
-  boardRows: 4,
-  slate: { x: 466, y: 286, w: 140, h: 138 },
-  tv: { x: 182, base: 622 },
-  neon: { x: 134, y: 242, w: 132, h: 38 },
-  globe: { x: 1100, y: 430, w: 124, h: 240 },
-  pilot: 0.92,
-  horizon: 300,
+  board: { x: 522, y: 152, w: 314, h: 90 },
+  boardRows: 3,
+  slate: { x: 526, y: 254, w: 304, h: 132 },
+  tv: null,
+  picturedTv: { screen: { x: 796, y: 404, w: 56, h: 40 }, clock: { x: 800, y: 472 } },
+  neon: { x: 946, y: 166, w: 122, h: 40 },
+  globe: null,
+  pilot: 1.05,
+  horizon: 240,
 };
 
 /** The jungle base's crew hut (map 6, doc 86): the lockers and the rec room on the left, the scoreboard over the chalkboard,

@@ -35,13 +35,12 @@ describe('Home docks (doc 73)', () => {
     expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, baseAreas('jungle'))).toBe('exit');
   });
 
-  it('leads to the map through the space dock\'s porthole and the sea dock\'s globe, the pilot to scale (doc 76)', () => {
+  it('leads to the map through the space dock\'s porthole and the sea lounge\'s globe, the pilot to scale (docs 76, 93)', () => {
     expect(SPACE_LAYOUT.globe).toBeNull();
-    const globe = SEA_LAYOUT.globe;
-    if (!globe) throw new Error('no globe');
-    expect(inside(globe)).toBe(true);
+    expect(SEA_LAYOUT.globe).toBeNull(); // the sea lounge's globe is in the picture (doc 93)
     const sea = baseAreas('sea');
-    expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, sea)).toBe('exit');
+    expect(areaAt({ x: 190, y: 480 }, sea)).toBe('exit'); // the antique globe
+    expect(areaAt({ x: 220, y: 250 }, sea)).toBe('jet'); // the window with the submarine's bow
     const space = baseAreas('space');
     expect(areaDef(space, 'exit').row).toBe('wall');
     expect(areaAt({ x: 910, y: 292 }, space)).toBe('exit'); // the left porthole
@@ -54,11 +53,11 @@ describe('Home docks (doc 73)', () => {
     const tv = areaDef(sea, 'tv').hot;
     expect(areaAt({ x: tv.x + 4, y: tv.y + 4 }, sea)).toBe('tv'); // the TV stands in front of the rec room (doc 63)
     expect(neighbour('fun', 'right', sea)).toBe('tv');
-    expect(arrivedAt(walkerAtArea('chalk', sea), 'chalk', sea)).toBe(true);
-    expect(arrivedAt(walkerAt(areaDef(sea, 'chalk').standX), 'chalk', sea)).toBe(false); // the chalkboard is a step back (doc 92)
-    const cart = areaDef(sea, 'tv').standX;
-    expect(arrivedAt(walkerAt(cart), 'tv', sea)).toBe(true);
-    expect(arrivedAt(walkerAt(cart), 'tv')).toBe(cart === areaDef(BASE_AREAS, 'tv').standX);
+    expect(arrivedAt(walkerAtArea('photos', sea), 'photos', sea)).toBe(true);
+    expect(arrivedAt(walkerAt(areaDef(sea, 'photos').standX), 'photos', sea)).toBe(false); // the cork board is a step back (doc 92)
+    const chalk = areaDef(sea, 'chalk').standX;
+    expect(arrivedAt(walkerAt(chalk), 'chalk', sea)).toBe(true);
+    expect(arrivedAt(walkerAt(chalk), 'chalk')).toBe(chalk === areaDef(BASE_AREAS, 'chalk').standX);
   });
 
   it('leads to the map through the carrier lounge\'s opening onto the flight deck, the hangar through its door (doc 91)', () => {
@@ -70,7 +69,7 @@ describe('Home docks (doc 73)', () => {
     expect(areaAt({ x: 500, y: 210 }, carrier)).toBe('ladder');
     const tv = areaDef(carrier, 'tv').hot;
     const slate = CARRIER_LAYOUT.slate;
-    expect(tv.x).toBeGreaterThanOrEqual(CARRIER_LAYOUT.tv.x - 4);
+    expect(tv.x).toBeGreaterThanOrEqual((CARRIER_LAYOUT.tv?.x ?? Infinity) - 4);
     expect(slate.w / slate.h).toBeGreaterThan(2.5); // the long horizontal chalkboard
   });
 
@@ -91,17 +90,36 @@ describe('Home docks (doc 73)', () => {
 
   it('gives the carrier, sea and space docks depth too: the lockers a step back, the pilot smaller there; not the jungle (doc 92)', () => {
     for (const [look, L] of [['carrier', CARRIER_LAYOUT], ['sea', SEA_LAYOUT], ['space', SPACE_LAYOUT]] as const) {
-      const locker = areaDef(baseAreas(look), 'locker');
-      expect(locker.standY, look).toBeLessThan(640);
+      const areas = baseAreas(look);
+      expect(areaDef(areas, 'locker').standY, look).toBeLessThan(640);
       expect(scaleAt(L, 640)).toBeCloseTo(L.pilot, 6);
-      const deep = scaleAt(L, locker.standY ?? 640);
+      const deep = scaleAt(L, Math.min(...areaIds(areas).map((id) => areaDef(areas, id).standY ?? 640)));
       expect(deep, look).toBeLessThan(L.pilot * 0.85);
-      expect(deep, look).toBeGreaterThan(0.65); // still a grown-up beside the lockers
+      expect(deep, look).toBeGreaterThan(0.55); // the deepest spot (the carrier's hangar door): small, not tiny
     }
     const door = areaDef(baseAreas('carrier'), 'jet');
     expect(areaAt({ x: door.standX, y: (door.standY ?? 640) - 60 }, baseAreas('carrier'))).toBe('jet'); // in the doorway
     expect(JUNGLE_LAYOUT.horizon).toBeUndefined();
     for (const id of areaIds(baseAreas('jungle'))) expect(areaDef(baseAreas('jungle'), id).standY).toBeUndefined();
     expect(scaleAt(JUNGLE_LAYOUT, 512)).toBe(JUNGLE_LAYOUT.pilot);
+  });
+});
+
+describe('Sea lounge (doc 93)', () => {
+  it('has its own TV in the picture, no cart, and the game plays the TV\'s picture on its screen', () => {
+    expect(SEA_LAYOUT.tv).toBeNull();
+    const pictured = SEA_LAYOUT.picturedTv;
+    if (!pictured) throw new Error('no TV in the picture');
+    const tv = areaDef(baseAreas('sea'), 'tv').hot;
+    const s = pictured.screen;
+    expect(s.x >= tv.x && s.y >= tv.y && s.x + s.w <= tv.x + tv.w && s.y + s.h <= tv.y + tv.h).toBe(true);
+    for (const L of [CARRIER_LAYOUT, HELI_LAYOUT, SPACE_LAYOUT, JUNGLE_LAYOUT]) expect(L.tv).not.toBeNull();
+  });
+
+  it('keeps the front line right of the globe, and the spots on the back row share it', () => {
+    const sea = baseAreas('sea');
+    const globe = areaDef(sea, 'exit').hot;
+    for (const id of areaIds(sea)) expect(areaDef(sea, id).standX, id).toBeGreaterThan(globe.x + globe.w + 40);
+    expect(areaDef(sea, 'fun').standY).toBe(areaDef(sea, 'photos').standY); // the rec room's doorway and the cork board
   });
 });

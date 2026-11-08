@@ -6,23 +6,25 @@ import { artGrid, type Grid } from '../ceremony-set';
 import { scratch, SpriteCache } from '../pixel/blit';
 import { outline, toCanvas } from '../pixel/post';
 import { Pix } from '../pixel/raster';
-import { drawBrackets, tvSet } from './ambient';
+import { drawBrackets, tvScreen, tvSet, vcrClock } from './ambient';
 import { drawCast, drawCastShadows } from './cast';
 import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
 import { drawDockGlobe } from './dock-globe';
-import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
+import { spaceAmbient, type Mask } from './dock-ambient';
 import { litAmbient } from './dock-carrier';
 import { drawFront, frontLayer } from './dock-front';
 import { jungleAmbient } from './dock-jungle';
+import { seaAmbient } from './dock-sea';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
 import { NEON, PILOT_SCALE, TV_CART } from './layout';
 import { paintTvSet } from './props';
 import { neonSprite } from './sprites';
 
-// The home base's picture looks (docs 73, 91): the generated picture on the art grid (the carrier lounge's in the base's
-// light), the TV cart and the joystick neon moved onto it, the sea dock's globe (the way to the map; in space it is the
-// windows, on the carrier the opening onto the flight deck, doc 76), the calm ambient life, the pulsing brackets; then
+// The home base's picture looks (docs 73, 91, 93): the generated picture on the art grid (the carrier lounge's in the base's
+// light), the TV cart (or the TV's picture on the picture's own TV) and the joystick neon moved onto it, the jungle base's
+// globe (the way to the map; elsewhere the picture's own: a window, an opening, a globe, doc 76), the calm ambient life, the
+// pulsing brackets; then
 // world 1's flip board and chalkboard over the picture's own, the pilot to the look's scale and the strip on top (no name
 // plates).
 
@@ -67,12 +69,13 @@ function backdrop(look: DockLook, file: string, img: HTMLImageElement, gr: Grid)
   });
 }
 
+type Cart = NonNullable<DockLayout['tv']>;
+
 /** The TV cart, video recorder and CRT on the dock's floor, to the scale of its pilot (doc 76). */
-function tvLayer(gr: Grid, look: DockLook): HTMLCanvasElement | null {
-  const L = LAYOUT[look];
-  const f = tvScale(look);
+function tvLayer(gr: Grid, look: DockLook, cart: Cart): HTMLCanvasElement | null {
+  const f = tvScale(LAYOUT[look], cart);
   return layers.get(`tv|${look}|${gr.W}x${gr.H}|${gr.G.toFixed(4)}`, () => {
-    const p = new Pix(gr.W, gr.H, f / gr.G, (L.tv.x - TV_CART.x * f) / gr.G, (L.tv.base - TV_CART.base * f) / gr.G);
+    const p = new Pix(gr.W, gr.H, f / gr.G, (cart.x - TV_CART.x * f) / gr.G, (cart.base - TV_CART.base * f) / gr.G);
     paintTvSet(p);
     outline(p, false);
     return toCanvas(p);
@@ -80,7 +83,23 @@ function tvLayer(gr: Grid, look: DockLook): HTMLCanvasElement | null {
 }
 
 /** The TV grows with the pilot: the carrier hangar's cart at its pilot's scale, times the dock's pilot where it stands. */
-const tvScale = (look: DockLook): number => scaleAt(LAYOUT[look], LAYOUT[look].tv.base) / PILOT_SCALE;
+const tvScale = (L: DockLayout, cart: Cart): number => scaleAt(L, cart.base) / PILOT_SCALE;
+
+/** The TV: the cart drawn in code, or the picture's own TV with the game's picture on its screen (doc 93). */
+function tv(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, t: number): void {
+  const L = LAYOUT[look];
+  const G = gr.G;
+  if (L.tv) {
+    const layer = tvLayer(gr, look, L.tv);
+    if (layer) g.drawImage(layer, 0, 0);
+    tvSet(g, G, t, tvScale(L, L.tv), L.tv);
+    return;
+  }
+  if (!L.picturedTv) return;
+  const { screen: s, clock } = L.picturedTv;
+  tvScreen(g, t, Math.round(s.x / G), Math.round(s.y / G), Math.round(s.w / G), Math.round(s.h / G));
+  vcrClock(g, t, Math.round(clock.x / G), Math.round(clock.y / G));
+}
 
 /** The joystick neon over the picture's own sign (whose letters are made up). */
 function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: number): void {
@@ -110,9 +129,7 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
   neon(g, G, L.neon, v.t);
   if (L.globe) drawDockGlobe(g, G, L.globe, v.t, look === 'jungle' ? 'jungle' : 'earth');
   drawCastShadows(g, G, v.walker, false, scaleAt(L, v.walker.y));
-  const tv = tvLayer(gr, look);
-  if (tv) g.drawImage(tv, 0, 0);
-  tvSet(g, G, v.t, tvScale(look), L.tv);
+  tv(g, gr, look, v.t);
   drawBrackets(g, G, areaDef(areas, v.focus).hot, v.t);
 }
 

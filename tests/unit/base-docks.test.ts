@@ -35,16 +35,16 @@ describe('Home docks (doc 73)', () => {
     expect(areaAt({ x: globe.x + globe.w / 2, y: globe.y + globe.h / 2 }, baseAreas('jungle'))).toBe('exit');
   });
 
-  it('leads to the map through the space dock\'s porthole and the sea lounge\'s globe, the pilot to scale (docs 76, 93)', () => {
+  it('leads to the map through the space lounge\'s holo table and the sea lounge\'s globe, the pilot to scale (docs 76, 93, 94)', () => {
     expect(SPACE_LAYOUT.globe).toBeNull();
     expect(SEA_LAYOUT.globe).toBeNull(); // the sea lounge's globe is in the picture (doc 93)
     const sea = baseAreas('sea');
     expect(areaAt({ x: 190, y: 480 }, sea)).toBe('exit'); // the antique globe
     expect(areaAt({ x: 220, y: 250 }, sea)).toBe('jet'); // the window with the submarine's bow
     const space = baseAreas('space');
-    expect(areaDef(space, 'exit').row).toBe('wall');
-    expect(areaAt({ x: 910, y: 292 }, space)).toBe('exit'); // the left porthole
-    expect(areaAt({ x: 1162, y: 262 }, space)).toBe('jet'); // the right one, with the starfighter in it
+    expect(areaAt({ x: 1050, y: 510 }, space)).toBe('exit'); // the holographic map table
+    expect(areaAt({ x: 1080, y: 250 }, space)).toBe('jet'); // the window with the starfighter and the planet
+    expect(SPACE_LAYOUT.front).toBe(true); // the pilot walks behind the map table (doc 92)
     for (const L of [CARRIER_LAYOUT, SPACE_LAYOUT, SEA_LAYOUT, JUNGLE_LAYOUT]) expect(L.pilot).toBeGreaterThan(0.7);
   });
 
@@ -113,7 +113,8 @@ describe('Sea lounge (doc 93)', () => {
     const tv = areaDef(baseAreas('sea'), 'tv').hot;
     const s = pictured.screen;
     expect(s.x >= tv.x && s.y >= tv.y && s.x + s.w <= tv.x + tv.w && s.y + s.h <= tv.y + tv.h).toBe(true);
-    for (const L of [CARRIER_LAYOUT, HELI_LAYOUT, SPACE_LAYOUT, JUNGLE_LAYOUT]) expect(L.tv).not.toBeNull();
+    for (const L of [CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT]) expect(L.tv).not.toBeNull();
+    expect(SPACE_LAYOUT.picturedTv).toBeDefined(); // the space lounge's flat screen too (doc 94)
   });
 
   it('keeps the front line right of the globe, and the spots on the back row share it', () => {

@@ -91,29 +91,32 @@ export const HELI_LAYOUT: DockLayout = {
   horizon: 417,
 };
 
-/** Space dock G (map 5, doc 76): cozy crew quarters — the rec room alcove with the arcade, the lockers, the scoreboard over
- *  the chalkboard, the shelf of framed photos, the couch on its rug; the left porthole leads to the map, the right one
- *  shows a sliver of the docked starfighter (the craft). */
+/** The space lounge H81 (map 5, doc 94): cozy crew quarters inside the hull — the pink rec room through a doorway on the
+ *  left, the lockers, the scoreboard over the big chalkboard, the cork board, the couch on its rug, the flat-screen TV on a
+ *  battered cabinet, the big square window with the docked starfighter against a huge planet (the craft) and the glowing
+ *  holographic map table in front of it (the way to the map; the pilot walks behind it, doc 92). */
 export const SPACE_AREAS: AreaTable = Object.freeze({
-  fun: area('fun', 'floor', { x: 116, y: 196, w: 170, h: 344 }, { x: 200, y: 184 }, 205, { y: 545 }),
-  tv: area('tv', 'floor', { x: 618, y: 400, w: 136, h: 246 }, { x: 686, y: 388 }, 686),
-  locker: area('locker', 'floor', { x: 318, y: 232, w: 164, h: 300 }, { x: 400, y: 220 }, 400, { y: 545 }),
-  photos: area('photos', 'mid', { x: 560, y: 380, w: 124, h: 140 }, { x: 622, y: 368 }, 560),
-  jet: area('jet', 'wall', { x: 1068, y: 112, w: 192, h: 300 }, { x: 1164, y: 100 }, 1150),
-  ladder: area('ladder', 'wall', { x: 486, y: 120, w: 284, h: 116 }, { x: 628, y: 108 }, 628),
-  chalk: area('chalk', 'mid', { x: 510, y: 250, w: 242, h: 146 }, { x: 631, y: 238 }, 640),
-  exit: area('exit', 'wall', { x: 834, y: 184, w: 154, h: 216 }, { x: 911, y: 172 }, 900),
+  fun: area('fun', 'floor', { x: 60, y: 140, w: 170, h: 410 }, { x: 145, y: 128 }, 150, { y: 548 }),
+  tv: area('tv', 'floor', { x: 700, y: 332, w: 154, h: 110 }, { x: 777, y: 320 }, 612),
+  locker: area('locker', 'floor', { x: 200, y: 214, w: 146, h: 318 }, { x: 273, y: 202 }, 275, { y: 548 }),
+  photos: area('photos', 'mid', { x: 724, y: 204, w: 90, h: 118 }, { x: 769, y: 192 }, 700),
+  jet: area('jet', 'wall', { x: 900, y: 64, w: 336, h: 352 }, { x: 1068, y: 52 }, 1000, { y: 495 }),
+  ladder: area('ladder', 'wall', { x: 388, y: 102, w: 296, h: 106 }, { x: 536, y: 90 }, 500),
+  chalk: area('chalk', 'mid', { x: 380, y: 214, w: 334, h: 194 }, { x: 547, y: 202 }, 560),
+  exit: area('exit', 'floor', { x: 834, y: 456, w: 440, h: 244 }, { x: 1054, y: 444 }, 1050),
 });
 
 export const SPACE_LAYOUT: DockLayout = {
-  board: { x: 488, y: 124, w: 280, h: 108 },
+  board: { x: 392, y: 104, w: 290, h: 102 },
   boardRows: 3,
-  slate: { x: 512, y: 252, w: 238, h: 142 },
-  tv: { x: 620, base: 646 },
-  neon: { x: 140, y: 136, w: 130, h: 44 },
+  slate: { x: 388, y: 224, w: 318, h: 178 },
+  tv: null,
+  picturedTv: { screen: { x: 710, y: 342, w: 134, h: 88 }, clock: { x: 712, y: 454 } },
+  neon: { x: 96, y: 186, w: 100, h: 34 },
   globe: null,
-  pilot: 0.94,
-  horizon: 220,
+  pilot: 1.05,
+  front: true,
+  horizon: 190,
 };
 
 /** The underwater lounge D41 (map 4, doc 93): the whole left wall one big window with the docked submarine's bow right

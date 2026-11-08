@@ -43,6 +43,8 @@ sister_projects: []
 
 # 73 — Home Docks
 
+> **Space lounge (doc 94, 2026-11-08):** map 5's dock is the roomier space lounge H81 with the holo map table and its own TV.
+
 > **Sea lounge (doc 93, 2026-11-08):** map 4's dock is the bigger underwater lounge D41, its globe and its TV part of the
 > picture (no cart, no code globe there).
 

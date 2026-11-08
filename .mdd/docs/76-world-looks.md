@@ -83,6 +83,9 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
 
 ## The docks
 
+- **Space lounge (doc 94, 2026-11-08):** the space dock is now the roomier lounge H81 in picture G's cozy style — the big
+  square window with a planet and the starfighter (the craft), the holographic map table (the way to the map), a flat-screen
+  TV, a big chalkboard; what follows of picture G and its portholes is history.
 - **Sea lounge (doc 93, 2026-11-08):** the sea dock is now the bigger lounge D41 — the submarine's bow in a window filling
   the left wall, the globe and the TV with its video recorder painted into the picture, a big chalkboard; what follows of
   picture C, its round window and the globe drawn in code is history.

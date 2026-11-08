@@ -5,6 +5,7 @@ import { asSea, Water } from './water';
 import { jungle } from '../data/theaters';
 import { Footprints } from './footprints';
 import { JungleCanopy, jungleRow } from './jungle-canopy';
+import { seabedRow } from './sea-floor';
 import { drawFeature, makeBaseTile, makeBlob, type Feature, type FeatureType } from './terrain-art';
 
 const W = 640;
@@ -195,11 +196,14 @@ export class Terrain {
     return { type, x, y, r, rot: this.rng.range(0, TAU), blob: makeBlob(Math.floor(this.rng.next() * 1e9)) };
   }
 
+  /** A feature of `type` and size `rad` at a random spot in the row starting at `y`. */
+  private place(type: FeatureType, rad: number, y: number): void {
+    this.features.push(this.feature(type, this.rng.range(-20, W + 20), y - this.rng.range(0, ROW), rad));
+  }
+
   private spawnRow(y: number): void {
     const r = this.rng;
-    const add = (type: FeatureType, rad: number): void => {
-      this.features.push(this.feature(type, r.range(-20, W + 20), y - r.range(0, ROW), rad));
-    };
+    const add = (type: FeatureType, rad: number): void => this.place(type, rad, y);
     switch (this.theater.terrain) {
       case 'ocean':
         if (r.chance(0.12)) add('island', r.range(30, 70));
@@ -224,43 +228,16 @@ export class Terrain {
         if (r.chance(0.06)) add('island', r.range(30, 60));
         return;
       case 'space':
-        if (r.chance(0.07)) add('rock', r.range(10, 30));
-        return;
-      case 'belt': // asteroids drift through (doc 58)
-        if (r.chance(0.35)) add('rock', r.range(10, 34));
-        if (r.chance(0.08)) add('rock', r.range(40, 70));
-        return;
+      case 'belt':
       case 'lunar':
-        if (r.chance(0.3)) add('crater', r.range(14, 40));
-        if (r.chance(0.05)) add('crater', r.range(60, 110));
-        if (r.chance(0.15)) add('rock', r.range(6, 14));
+        spaceRow(this.theater.terrain, add, r);
         return;
-      case 'kelp': // the Kelp Forest (doc 70): tall stands of kelp, mossy rocks
-        if (r.chance(0.85)) add('kelp', r.range(24, 40));
-        if (r.chance(0.5)) add('kelp', r.range(16, 28));
-        if (r.chance(0.3)) add('stone', r.range(10, 24));
-        if (r.chance(0.12)) add('coral', r.range(12, 22));
-        return;
-      case 'wreck': // the Wreck Field: sunken hulls among rocks and the odd coral
-        if (r.chance(0.2)) add('wreck', r.range(44, 84));
-        if (r.chance(0.3)) add('stone', r.range(10, 24));
-        if (r.chance(0.15)) add('coral', r.range(10, 20));
-        if (r.chance(0.08)) add('drop', r.range(60, 110));
-        return;
-      case 'trench': // the Trench: dark rock in the middle, the walls drawn on their own
-        if (r.chance(0.35)) add('stone', r.range(12, 30));
-        if (r.chance(0.12)) add('drop', r.range(60, 120));
-        return;
-      case 'abyss': // the Abyss: black smokers and dark rock
-        if (r.chance(0.14)) add('vent', r.range(14, 26));
-        if (r.chance(0.22)) add('stone', r.range(10, 24));
-        return;
-      case 'reef': // the seabed under the sea (doc 68)
-        if (r.chance(0.06)) add('drop', r.range(70, 130));
-        if (r.chance(0.7)) add('coral', r.range(16, 40));
-        if (r.chance(0.4)) add('coral', r.range(12, 26));
-        if (r.chance(0.22)) add('stone', r.range(10, 24));
-        if (r.chance(0.32)) add('kelp', r.range(16, 30));
+      case 'kelp':
+      case 'wreck':
+      case 'trench':
+      case 'abyss':
+      case 'reef':
+        seabedRow(this.theater.terrain, add, r);
         return;
       case 'clearing':
       case 'rainforest':
@@ -279,5 +256,25 @@ export class Terrain {
       dx: this.rng.range(-60, 60), dy: this.rng.range(-26, 26), r: this.rng.range(22, 46),
     }));
     this.clouds.push({ x: this.rng.range(-40, W + 40), y, puffs });
+  }
+}
+
+/** A new row of space's features (doc 58): the odd rock, the belt's drifting asteroids, the moon's craters. */
+function spaceRow(style: 'space' | 'belt' | 'lunar', add: (type: FeatureType, r: number) => void, r: Rng): void {
+  switch (style) {
+    case 'space':
+      if (r.chance(0.07)) add('rock', r.range(10, 30));
+      return;
+    case 'belt': // asteroids drift through
+      if (r.chance(0.35)) add('rock', r.range(10, 34));
+      if (r.chance(0.08)) add('rock', r.range(40, 70));
+      return;
+    case 'lunar':
+      if (r.chance(0.3)) add('crater', r.range(14, 40));
+      if (r.chance(0.05)) add('crater', r.range(60, 110));
+      if (r.chance(0.15)) add('rock', r.range(6, 14));
+      return;
+    default:
+      throw new Error(`unhandled: ${style satisfies never}`);
   }
 }

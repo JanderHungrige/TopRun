@@ -52,15 +52,12 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
       audio.play('special');
       break;
     case 'armour':
+    case 'jumpjet': // the leap runs in tickMech (doc 80)
       audio.play('special');
       break;
     case 'sonar':
       world.sonar = { x: p.x, y: p.y, t: 0 };
       audio.play('sonar');
-      break;
-    case 'jumpjet': // the leap runs in tickMech (doc 80)
-      world.addShake(3);
-      audio.play('special');
       break;
     default:
       throw new Error(`unhandled: ${plane.special satisfies never}`);

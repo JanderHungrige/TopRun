@@ -94,12 +94,11 @@ function drawMesa(ctx: CanvasRenderingContext2D, f: Feature, p: TheaterPalette):
   fillBlob(ctx, f, 0.7, p.land);
 }
 
-/** One terrain feature; `t` (seconds) sways what moves with the current under the sea. */
-export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: TerrainStyle, p: TheaterPalette, t = 0): void {
-  switch (f.type) {
-    case 'island': drawIsland(ctx, f, style, p); return;
-    case 'pad': fillBlob(ctx, f, 1, 'rgba(120,120,110,0.55)'); return;
-    case 'reef': fillBlob(ctx, f, 1, 'rgba(120,220,220,0.18)'); return;
+type BlobFeature = 'floe' | 'dune' | 'rock' | 'oasis' | 'crater';
+
+/** The features drawn as layered blobs: ice floes, dunes, rocks, oases, the moon's craters. */
+function drawBlobFeature(ctx: CanvasRenderingContext2D, type: BlobFeature, f: Feature, p: TheaterPalette): void {
+  switch (type) {
     case 'floe':
       fillBlob(ctx, { ...f, x: f.x + 4, y: f.y + 5 }, 1, 'rgba(0,20,40,0.3)');
       fillBlob(ctx, f, 1, p.landDark);
@@ -114,15 +113,6 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
       fillBlob(ctx, f, 1, p.landDark);
       fillBlob(ctx, { ...f, x: f.x - f.r * 0.15, y: f.y - f.r * 0.15 }, 0.55, p.detail);
       return;
-    case 'road': drawRoad(ctx, f); return;
-    case 'mesa': drawMesa(ctx, f, p); return;
-    case 'whitecap':
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, f.r, Math.PI * 1.1, Math.PI * 1.9);
-      ctx.stroke();
-      return;
     case 'oasis':
       fillBlob(ctx, f, 1.25, 'rgba(90,140,60,0.55)');
       fillBlob(ctx, f, 1, p.sea);
@@ -131,6 +121,33 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
       fillBlob(ctx, f, 1.12, p.detail);
       fillBlob(ctx, f, 1, p.landDark);
       fillBlob(ctx, { ...f, x: f.x + f.r * 0.12, y: f.y + f.r * 0.12 }, 0.78, 'rgba(0,0,0,0.18)');
+      return;
+    default:
+      throw new Error(`unhandled: ${type satisfies never}`);
+  }
+}
+
+/** One terrain feature; `t` (seconds) sways what moves with the current under the sea. */
+export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: TerrainStyle, p: TheaterPalette, t = 0): void {
+  switch (f.type) {
+    case 'island': drawIsland(ctx, f, style, p); return;
+    case 'pad': fillBlob(ctx, f, 1, 'rgba(120,120,110,0.55)'); return;
+    case 'reef': fillBlob(ctx, f, 1, 'rgba(120,220,220,0.18)'); return;
+    case 'floe':
+    case 'dune':
+    case 'rock':
+    case 'oasis':
+    case 'crater':
+      drawBlobFeature(ctx, f.type, f, p);
+      return;
+    case 'road': drawRoad(ctx, f); return;
+    case 'mesa': drawMesa(ctx, f, p); return;
+    case 'whitecap':
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.stroke();
       return;
     case 'coral':
     case 'kelp':

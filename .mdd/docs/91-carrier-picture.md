@@ -42,6 +42,7 @@ sister_projects: []
 # 91 — Carrier Picture
 
 > **Heli base (doc 92, 2026-11-08):** map 3 now has its own base, the helicopter base's hangar corner, and the light is drawn anew after missions of maps 1–3; the carrier lounge shows on maps 1–2.
+> **Depth (doc 92):** the lounge has depth too — the arcade and the lockers a step back, the hangar door and the opening up lanes, the pilot smaller there (horizon 270).
 
 ## Purpose
 

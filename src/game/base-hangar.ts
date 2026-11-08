@@ -108,11 +108,13 @@ const DEPTH_PACE = 0.5;
 export const walkerAt = (x: number, facing: 1 | -1 = 1, y: number = PILOT_FLOOR_Y, lane = x): Walker =>
   ({ x, y, target: x, targetY: y, path: [], lane, facing, moving: false, dist: 0 });
 
-/** The points from the walker to (x, y) entered from the front line up the lane `via`: back down its own lane first when
- *  it stands deeper in the room, unless both spots share the lane. */
+/** The points from the walker to (x, y) entered from the front line up the lane `via`: straight across when the walker
+ *  is on that row deeper in the room already (spots on one row share free floor, the docks' back wall), else back down
+ *  its own lane first when it stands deeper, unless both spots share the lane. */
 function route(w: Walker, x: number, y: number, via: number): FloorPoint[] {
   const pts: FloorPoint[] = [];
-  if (w.y !== PILOT_FLOOR_Y && w.lane === via) pts.push([via, w.y], [via, y]);
+  if (w.y !== PILOT_FLOOR_Y && w.y === y && w.y === w.targetY) pts.push([x, y]);
+  else if (w.y !== PILOT_FLOOR_Y && w.lane === via) pts.push([via, w.y], [via, y]);
   else {
     if (w.y !== PILOT_FLOOR_Y) pts.push([w.lane, w.y], [w.lane, PILOT_FLOOR_Y]);
     pts.push([via, PILOT_FLOOR_Y], [via, y]);

@@ -32,8 +32,8 @@ const DIRS: readonly NavDir[] = ['left', 'right', 'up', 'down'];
 /**
  * BASE (doc 30): the home-base hangar in animated pixel art. The highlight moves between the areas (arrows,
  * hover), the pilot walks to the highlighted one, ENTER / click opens it once the pilot gets there; ESC → map.
- * Coming from map 4 it is the sea dock, from map 5 the space dock (docs 73, 74), from map 6 the jungle base's hut with
- * the ground base and the lab (doc 86).
+ * Maps 1–3 show the carrier lounge in the base's light (doc 91), map 4 the sea dock, map 5 the space dock (docs 73, 74),
+ * map 6 the jungle base's hut with the ground base and the lab (doc 86).
  */
 export class HangarBaseScene implements Scene {
   private time = 0;
@@ -144,9 +144,9 @@ export class HangarBaseScene implements Scene {
     const view = {
       t: this.time, focus: this.focus, plane: save.selectedPlane, livery: save.livery[save.selectedPlane],
       face: faceOf(this.game.profile), walker: this.walker, board: this.board, text: this.text(),
-      chalk: { cells: sync.known ? sync.view : null, version: sync.version },
+      chalk: { cells: sync.known ? sync.view : null, version: sync.version }, light: this.game.baseLight,
     };
-    if (this.look === 'carrier' || !drawDock(ctx, this.look, view, this.areas)) drawHangar(ctx, view);
+    if (!drawDock(ctx, this.look, view, this.areas)) drawHangar(ctx, view); // the code-drawn hangar while a picture loads
     this.wingman.render(ctx);
   }
 }

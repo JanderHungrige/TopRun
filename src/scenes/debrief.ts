@@ -1,4 +1,5 @@
 import { formatMoney } from '../core/math';
+import { lightAfterMission } from '../game/base-light';
 import type { Scene } from '../core/scene';
 import { THEATERS } from '../data/theaters';
 import { LIVERIES, type LiveryId } from '../data/liveries';
@@ -76,6 +77,7 @@ export class DebriefScene implements Scene {
       playable: playableIds(), enabled: game.settings.minigameOffers,
     }) : null;
     game.setSave(applied.save);
+    game.setBaseLight(lightAfterMission(mission.campaign, game.baseLight, Math.random())); // the carrier base's light (doc 91)
     this.payout = applied.payout;
     this.base = applied.base;
     this.stars = applied.stars;

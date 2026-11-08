@@ -2,6 +2,7 @@ import { areaDef, BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
 import type { LiveryId } from '../../data/liveries';
 import type { PlaneId } from '../../data/types';
 import type { Walker } from '../../game/base-hangar';
+import type { BaseLight } from '../../game/base-light';
 import type { Cells } from '../../game/chalkboard';
 import type { PilotFace } from '../avatars';
 import { artGrid, type Grid } from '../ceremony-set';
@@ -43,6 +44,8 @@ export interface HangarView {
   /** The shared chalkboard (doc 40): its cells (null until fetched) and their change count. */
   chalk: { cells: Cells | null; version: number };
   text: HangarText;
+  /** The carrier lounge's light (doc 91). */
+  light: BaseLight;
 }
 
 const layers = new SpriteCache(6);

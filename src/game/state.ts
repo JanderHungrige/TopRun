@@ -12,6 +12,7 @@ import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
 import type { SaveData } from './save';
 import type { Settings } from './settings';
 import type { Kit } from './kit';
+import type { BaseLight } from './base-light';
 
 /** NEW PILOT's unfinished form, kept while the avatar builder is open (doc 29): `pick` = chosen card (3 = own look). */
 export interface NewPilotDraft { callsign: string; look: AvatarLook | null; pick: number }
@@ -78,6 +79,9 @@ export interface GameContext {
   /** The map the pilot last looked at: the home base wears its look (doc 73). Runtime only. */
   readonly home: CampaignId;
   setHome(c: CampaignId): void;
+  /** The carrier base's light (doc 91): day, evening or night, drawn anew after each mission of maps 1–2. Runtime only. */
+  readonly baseLight: BaseLight;
+  setBaseLight(light: BaseLight): void;
   /** Replaces the device settings, applies them (sound / music switches, volumes, language) and persists. */
   setSettings(next: Settings): void;
   createProfile(callsign: string, avatar: AvatarId): CreateResult;

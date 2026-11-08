@@ -1,15 +1,18 @@
 // Off-duty minigames (doc 10): which games exist and after which mission each unlocks. The second ten
-// (initiative off-duty-minigames-2) follow the first ten in unlock order, on map-1 missions without an unlock yet.
+// (initiative off-duty-minigames-2) follow the first ten in unlock order, on map-1 missions without an unlock yet; the
+// late worlds bring one each, unlocked on their own map (docs 88–90).
 
 export type MinigameId =
   | 'pushups' | 'flyby' | 'formation' | 'volleyball' | 'refuel'
   | 'motorbike' | 'evasion' | 'piano' | 'landing' | 'tactics'
   | 'darts' | 'highfive' | 'targetpod' | 'pool' | 'ranks'
-  | 'parachute' | 'airshow' | 'deck' | 'canyon' | 'dogfight';
+  | 'parachute' | 'airshow' | 'deck' | 'canyon' | 'dogfight'
+  | 'sonar' | 'docking' | 'range';
 
 export const MINIGAME_IDS: readonly MinigameId[] = Object.freeze([
   'pushups', 'flyby', 'formation', 'volleyball', 'refuel', 'motorbike', 'evasion', 'piano', 'landing', 'tactics',
   'darts', 'highfive', 'targetpod', 'pool', 'ranks', 'parachute', 'airshow', 'deck', 'canyon', 'dogfight',
+  'sonar', 'docking', 'range',
 ] as const);
 
 export interface MinigameDef {
@@ -42,4 +45,8 @@ export const MINIGAMES: Readonly<Record<MinigameId, MinigameDef>> = Object.freez
   deck: def('deck', 16, 'offduty'),
   canyon: def('canyon', 20, 'flying'),
   dogfight: def('dogfight', 27, 'flying'),
+  // One per late world, unlocked on its own map (docs 88–90): under the sea, in space, on the jungle planet.
+  sonar: def('sonar', 93, 'offduty'),
+  docking: def('docking', 123, 'flying'),
+  range: def('range', 153, 'offduty'),
 });

@@ -9,6 +9,8 @@ import { SPACE_UNITS } from './enemies/space';
 import { SEA_UNITS } from './enemies/sea';
 import { CREATURES } from './enemies/creatures';
 import { SEA_UNITS_2 } from './enemies/sea-2';
+import { JUNGLE_UNITS } from './enemies/jungle';
+import { JUNGLE_CREATURES, junglePals } from './enemies/jungle-creatures';
 
 export { exhaust, fire, hash, roundel, scorch, smoke } from './enemies/fx';
 
@@ -63,12 +65,16 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   sealab: pal('#8a96a0', '#4a545c', '#c0ccd4', '#3d454b', '#ffd27a'),
   angler: pal('#3a3448', '#1e1a28', '#8a80a0', '#2a2438', '#5ff0e0'),
   boomer: pal('#3a4248', '#20262c', '#5a646c', '#c8312a', '#7fd0ff'),
+  // The jungle planet (doc 81).
+  ...junglePals(pal),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
 const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312'), red: '#3b2a22', line: 'rgba(0,0,0,0.55)', live: false };
 
-const DRAW: Readonly<Record<EnemyKind, UnitFn>> = { ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...SEA_UNITS_2, ...CREATURES };
+const DRAW: Readonly<Record<EnemyKind, UnitFn>> = {
+  ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...SEA_UNITS_2, ...CREATURES, ...JUNGLE_UNITS, ...JUNGLE_CREATURES,
+};
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();
 

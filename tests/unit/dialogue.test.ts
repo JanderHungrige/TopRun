@@ -134,8 +134,8 @@ describe('Dialogue', () => {
   describe('event lines', () => {
     it('chief, shooter and wingman lines map every event to a known line key', () => {
       const all = [...Object.values(CHIEF_EVENTS), ...Object.values(SHOOTER_EVENTS), ...Object.values(WINGMAN_EVENTS)];
-      expect(all.length).toBe(16 + 24 + 17); // wingman: + jammer and stealth calls (doc 44); chief: + helicopters (doc 49), subs (doc 66);
-      // shooter: + the dive and the rocket launch (doc 76)
+      expect(all.length).toBe(17 + 30 + 17); // wingman: + jammer and stealth calls (doc 44); chief: + helicopters (doc 49), subs (doc 66),
+      // mechs (doc 79); shooter: + the dive and the rocket launch (doc 76), the mech's drop (doc 84)
       for (const e of all) expect(LINES_EN[e.key], e.key).toBeDefined();
       expect(wingmanStart({ type: 'strike', target: 'sam', count: 4 })).toMatchObject({ key: 'wing.startStrike', params: { n: 4, targets: 'SAM Sites' } });
       expect(wingmanStart({ type: 'boss', boss: 'leviathan' })).toMatchObject({ key: 'wing.startBoss', params: { boss: 'LEVIATHAN' } });

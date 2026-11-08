@@ -9,6 +9,7 @@ import type { CharacterId, Gesture, Mood } from '../render/portraits';
 import type { DiveGrade } from './dive-launch';
 import { HULL_BONUS_RATIO } from './economy';
 import type { SeparationGrade } from './rocket-launch';
+import type { DropGrade } from './drop-launch';
 
 // Which character says what, when (doc 06). Pure: returns line references, never text.
 
@@ -21,7 +22,7 @@ export interface LineRef {
 }
 
 /** The admiral's line when a map's finale is won (docs 35, 48, 65). */
-const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4', 5: 'adm.finale5' };
+const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4', 5: 'adm.finale5', 6: 'adm.finale6' };
 
 const ref = (speaker: CharacterId, key: LineKey, mood: Mood, gesture: Gesture, params?: Params): LineRef =>
   ({ speaker, key, mood, gesture, ...(params ? { params } : {}) });
@@ -71,7 +72,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   }
   if (d.challengeUp) lines.push(ref('admiral', 'adm.challengeUp', 'stern', 'point'));
   const list = campaignMissions(m.campaign);
-  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, …, m150
+  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, …, m180
     lines.push(ref('admiral', FINALE[m.campaign], 'happy', 'salute'));
     if (m.campaign === 1) {
       lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
@@ -80,6 +81,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
     if (m.campaign === 2) lines.push(ref('admiral', 'adm.lowLevel', 'neutral', 'point')); // map 3 is open now (doc 48)
     if (m.campaign === 3) lines.push(ref('admiral', 'adm.deepWater', 'neutral', 'point')); // map 4, under the sea, is open now (doc 74)
     if (m.campaign === 4) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 5, space, is open now (doc 74)
+    if (m.campaign === 5) lines.push(ref('admiral', 'adm.jungle', 'neutral', 'point')); // map 6, the jungle planet (doc 78)
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
@@ -94,7 +96,7 @@ export function medalLine(index: number, medal: MedalId): LineRef {
 }
 
 export type ChiefEvent =
-  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'helloSubs' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
+  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'helloSubs' | 'helloMechs' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
   | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
@@ -104,6 +106,7 @@ export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Moo
   helloNewJets: { key: 'chief.helloNewJets', mood: 'happy', gesture: 'point' },
   helloHelis: { key: 'chief.helloHelis', mood: 'happy', gesture: 'point' },
   helloSubs: { key: 'chief.helloSubs', mood: 'happy', gesture: 'point' },
+  helloMechs: { key: 'chief.helloMechs', mood: 'happy', gesture: 'point' },
   buyPlane: { key: 'chief.buyPlane', mood: 'happy', gesture: 'thumbsUp' },
   buyGun: { key: 'chief.buyGun', mood: 'happy', gesture: 'point' },
   buySecondary: { key: 'chief.buySecondary', mood: 'happy', gesture: 'none' },
@@ -122,11 +125,17 @@ export function chiefLine(ev: ChiefEvent, params?: Params): LineRef {
   return ref('chief', e.key, e.mood, e.gesture, params);
 }
 
+/** Major Brennan at the ground base and Dr. Moreau in the lab (docs 82, 83). */
+export const majorLine = (key: LineKey, params?: Params): LineRef => ref('major', key, 'happy', 'point', params);
+export const docLine = (key: LineKey, params?: Params): LineRef => ref('doc', key, 'happy', 'none', params);
+
 export type ShooterEvent =
   | 'spool' | 'green' | 'notYet' | 'overspeed' | 'locked' | 'waitForIt' | 'go' | 'launch' | 'perfect' | 'good' | 'late'
   // the sub's dive (map 4) and the rocket launch (map 5), doc 76
   | 'flood' | 'dive' | 'divePerfect' | 'diveGood' | 'diveShallow' | 'diveDeep'
-  | 'countdown' | 'liftoff' | 'sepPerfect' | 'sepGood' | 'sepEarly' | 'sepLate' | 'orbit';
+  | 'countdown' | 'liftoff' | 'sepPerfect' | 'sepGood' | 'sepEarly' | 'sepLate' | 'orbit'
+  // the mech's drop (map 6), doc 84
+  | 'bayOpen' | 'drop' | 'dropPerfect' | 'dropGood' | 'dropEarly' | 'dropLate';
 
 export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   spool: { key: 'sh.spool', mood: 'neutral', gesture: 'point' },
@@ -153,6 +162,12 @@ export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood:
   sepEarly: { key: 'sh.sepEarly', mood: 'worried', gesture: 'none' },
   sepLate: { key: 'sh.sepLate', mood: 'neutral', gesture: 'none' },
   orbit: { key: 'sh.orbit', mood: 'happy', gesture: 'salute' },
+  bayOpen: { key: 'sh.bayOpen', mood: 'neutral', gesture: 'point' },
+  drop: { key: 'sh.drop', mood: 'neutral', gesture: 'point' },
+  dropPerfect: { key: 'sh.dropPerfect', mood: 'happy', gesture: 'thumbsUp' },
+  dropGood: { key: 'sh.dropGood', mood: 'happy', gesture: 'salute' },
+  dropEarly: { key: 'sh.dropEarly', mood: 'worried', gesture: 'none' },
+  dropLate: { key: 'sh.dropLate', mood: 'worried', gesture: 'none' },
 };
 
 export function shooterLine(ev: ShooterEvent): LineRef {
@@ -163,6 +178,7 @@ export function shooterLine(ev: ShooterEvent): LineRef {
 /** Shooter's word on a dive through the gap and on a stage separation (doc 76). */
 export const DIVE_CALL: Readonly<Record<DiveGrade, ShooterEvent>> = { perfect: 'divePerfect', good: 'diveGood', early: 'diveShallow', late: 'diveDeep' };
 export const SEPARATION_CALL: Readonly<Record<SeparationGrade, ShooterEvent>> = { perfect: 'sepPerfect', good: 'sepGood', early: 'sepEarly', late: 'sepLate' };
+export const DROP_CALL: Readonly<Record<DropGrade, ShooterEvent>> = { perfect: 'dropPerfect', good: 'dropGood', early: 'dropEarly', late: 'dropLate' };
 
 export type WingmanEvent =
   | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'halfway' | 'objectiveDone'
@@ -210,6 +226,8 @@ export function wingmanStart(o: Objective): LineRef {
 }
 
 /** The admiral at a world's celebration (doc 64). */
-const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4', 5: 'adm.celebrate5' };
+const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = {
+  1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4', 5: 'adm.celebrate5', 6: 'adm.celebrate6',
+};
 export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CELEBRATE[world], 'happy', 'salute');
 

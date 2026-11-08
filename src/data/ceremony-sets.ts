@@ -26,5 +26,14 @@ export const CEREMONY_SETS = {
    'y': 103
   },
   'stars': [54, 35, 177, 51, 163, 64, 130, 42, 159, 55, 218, 71, 169, 45, 183, 58, 56, 77, 63, 49, 216, 61, 118, 40, 132, 53, 193, 67, 172, 43, 184, 56, 216, 73, 52, 47, 227, 59, 210, 79, 188, 50, 165, 63, 188, 41, 184, 54]
+ },
+ 'clearing': {
+  'plate': 'clearing',
+  'crew': {
+   'file': 'clearing-crew-salute',
+   'x': 42,
+   'y': 101
+  },
+  'stars': []
  }
 } as const satisfies Record<string, CeremonySetBox>;

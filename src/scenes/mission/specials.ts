@@ -52,6 +52,7 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
       audio.play('special');
       break;
     case 'armour':
+    case 'jumpjet': // the leap runs in tickMech (doc 80)
       audio.play('special');
       break;
     case 'sonar':

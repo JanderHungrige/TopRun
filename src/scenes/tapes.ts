@@ -13,8 +13,8 @@ import { hit, type Rect } from '../ui/widgets';
 // world's tape plays its celebration (doc 64), a blank one is "not recorded yet". ↑/↓ or ←/→ pick, ENTER / tap plays,
 // ESC or the BACK button back to the hangar base.
 
-const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5' };
-const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0b5a66', 5: '#0a1630' };
+const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6' };
+const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0b5a66', 5: '#0a1630', 6: '#2f6a1e' };
 const SCREEN: Rect = { x: 160, y: 168, w: 400, h: 225 };
 
 const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700, y: 122 + i * 96, w: 470, h: 80 });

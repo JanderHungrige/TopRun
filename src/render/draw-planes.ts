@@ -14,6 +14,7 @@ import { drawHeliTop, heliTopSilhouette } from './helis/heli-art';
 import { DISPLAY_SHIP, drawShip, shipSilhouette } from './ship';
 import { drawU212Top, u212Silhouette } from './subs/u212';
 import { AKULA_SUB, drawSubTop, SEAWOLF_SUB, subSilhouette, VIRGINIA_SUB } from './subs/fleet';
+import { drawMechTop, mechTopSilhouette } from './mechs/mech-top';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 
@@ -25,6 +26,10 @@ export interface PlaneDrawOpts {
   flash?: boolean; // solid white silhouette (ignores the livery)
   shadow?: boolean; // solid translucent black silhouette (ignores the livery)
   livery?: LiveryId; // paint job, default 'standard'
+  /** A mech's gait phase, its leap and its camo (docs 80, 87). */
+  stride?: number;
+  leap?: number;
+  paint?: string | null;
 }
 
 const SHADOW = 'rgba(0,0,0,0.28)';
@@ -46,6 +51,10 @@ function silhouette(id: PlaneId, sweep: number): Path2D {
     case 'seawolf': return subSilhouette(SEAWOLF_SUB);
     case 'virginia': return subSilhouette(VIRGINIA_SUB);
     case 'akula': return subSilhouette(AKULA_SUB);
+    case 'strider':
+    case 'ranger':
+    case 'hornet':
+    case 'titan': return mechTopSilhouette(id);
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }
@@ -97,6 +106,10 @@ export function drawPlaneTop(
     case 'seawolf': drawSubTop(ctx, SEAWOLF_SUB, look, opts); break;
     case 'virginia': drawSubTop(ctx, VIRGINIA_SUB, look, opts); break;
     case 'akula': drawSubTop(ctx, AKULA_SUB, look, opts); break;
+    case 'strider':
+    case 'ranger':
+    case 'hornet':
+    case 'titan': drawMechTop(ctx, id, { t: opts.t, stride: o.stride ?? 0, leap: o.leap ?? 0, paint: o.paint ?? null }); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

@@ -41,12 +41,19 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   wrecks: { x: 790, y: 384 },
   trench: { x: 420, y: 214 },
   abyss: { x: 300, y: 104 },
+  // The jungle planet, map 6 (doc 78).
+  landing: { x: 262, y: 686 },
+  canopy: { x: 640, y: 680 },
+  swamp: { x: 790, y: 384 },
+  ruins: { x: 430, y: 214 },
+  hive: { x: 310, y: 104 },
 };
 
 /** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48); map 4 a deep teal chart
- *  (docs 65, 74), map 5 the night of space. */
+ *  (docs 65, 74), map 5 the night of space, map 6 the jungle's dark canopy (doc 78). */
 const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = {
   1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'], 4: ['#0b4452', '#03161e'], 5: ['#090c1c', '#03040b'],
+  6: ['#1c3a1a', '#0c1a0c'],
 };
 
 const cached = new Map<CampaignId, HTMLCanvasElement>();

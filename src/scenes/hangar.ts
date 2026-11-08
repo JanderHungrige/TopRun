@@ -1,4 +1,3 @@
-import { formatMoney } from '../core/math';
 import type { Scene } from '../core/scene';
 import { PLANES } from '../data/planes';
 import { liveryName } from '../i18n/content';
@@ -19,6 +18,9 @@ import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from '.
 import { HangarChief } from './hangar-chief';
 import { ammoTypeOf, FLEET_UI, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 import { isFleet } from '../data/fleet';
+import { wallet } from '../game/outpost';
+import { isMech } from '../game/jets';
+import { priceText } from './hangar-mech';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
 const BASE_BTN = { x: 1030, y: 14, w: 110, h: 44 };
@@ -62,6 +64,7 @@ export class HangarScene implements Scene {
     const item = this.item;
     const a = item ? twinAction(this.game.save, item) : null;
     if (!a) return null;
+    if (item?.type === 'plane') return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + 24, y: DETAIL.y + DETAIL.h - 66, w: 236, h: 48, hint: 'E' }; // PAINT CAMO (doc 87)
     return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 254, y: DETAIL.y + 452, w: 236, h: 32, hint: 'E' };
   }
 
@@ -86,6 +89,7 @@ export class HangarScene implements Scene {
   /** Key E: LOAD an owned ammo type (doc 45), or TWIN PODS for a weapon (doc 37). */
   private buyTwinFocused(): void {
     const item = this.item;
+    if (item?.type === 'plane' && this.game.save.kit === 'mech' && isMech(item.id)) return this.game.go({ to: 'paintShop', mech: item.id }); // doc 87
     const ammo = item ? ammoTypeOf(item) : null;
     if (item && ammo) {
       if (canLoad(this.game.save, ammo)) this.commit(loadAmmo(this.game.save, ammo), t('arsenal.loadedToast', { item: itemName(item) }));
@@ -259,7 +263,7 @@ export class HangarScene implements Scene {
       ctx.fillRect(0, 0, 1280, 720);
     }
     const title = t(isFleet(save.kit) ? FLEET_UI[save.kit].title : 'hangar.title');
-    const money = formatMoney(save.money);
+    const money = priceText(save, wallet(save));
     text(ctx, title, 24, 50, { size: 30, display: true, italic: true });
     text(ctx, money, 1010, 46, { size: 28, display: true, align: 'right', color: COLORS.green });
     drawButton(ctx, { id: 'base', label: t('hangar.base'), ...BASE_BTN, hint: 'B' }, false, this.t);

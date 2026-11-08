@@ -1,4 +1,5 @@
 import { HELI_FLIGHT, type Vec } from './heli-flight';
+import { MECH_WALK } from './mech-walk';
 import type { FleetKitId } from '../data/fleet';
 import type { CampaignId } from '../data/types';
 
@@ -19,10 +20,10 @@ export function fleetVelocity(v: Vec, stick: Vec, speed: number, accel: number, 
 }
 
 /** How quickly each fleet kit's craft close on the stick (docs 50, 67). */
-export const DRIFT: Readonly<Record<FleetKitId, number>> = { heli: HELI_FLIGHT.accel, sub: SUB_FLIGHT.accel };
+export const DRIFT: Readonly<Record<FleetKitId, number>> = { heli: HELI_FLIGHT.accel, sub: SUB_FLIGHT.accel, mech: MECH_WALK.accel };
 
-/** The world's scroll factor on a map: slower for the helicopters (doc 50) and the subs. */
-const SCROLL: Readonly<Record<CampaignId, number>> = { 1: 1, 2: 1, 3: HELI_FLIGHT.scroll, 4: SUB_FLIGHT.scroll, 5: 1 };
+/** The world's scroll factor on a map: slower for the helicopters (doc 50), the subs and the walking mechs (doc 80). */
+const SCROLL: Readonly<Record<CampaignId, number>> = { 1: 1, 2: 1, 3: HELI_FLIGHT.scroll, 4: SUB_FLIGHT.scroll, 5: 1, 6: MECH_WALK.scroll };
 export const flightScroll = (c: CampaignId): number => SCROLL[c];
 
 /** Sonar Burst (doc 67): the ring's reach (px), how long it takes to get there (s), the damage to what it reaches. */

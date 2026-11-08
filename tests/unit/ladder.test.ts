@@ -35,7 +35,7 @@ describe('Online ladder rules', () => {
 
   it('computes the rating on the server side from the stats', () => {
     const r = post(emptyTable(), sub({ stats: { stars: 999, medals: 99, kills: 1e9, golds: 99, silvers: 0, bronzes: 0, score: 0 } }));
-    expect(r.ok && r.entry.rating).toBe(62000); // 450 stars, 46 medals, 2000 kills, 10 golds (docs 62, 72)
+    expect(r.ok && r.entry.rating).toBe(72750); // 540 stars, 53 medals, 2000 kills, 10 golds (docs 62, 72, 85)
   });
 
   it('creates an entry, then lets only the owner update it', () => {

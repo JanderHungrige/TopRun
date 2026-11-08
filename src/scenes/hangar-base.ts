@@ -1,6 +1,6 @@
 import { boardIdentity, boardLink } from '../core/chalkboard-link';
 import type { Scene } from '../core/scene';
-import { BASE_AREA_IDS, baseAreas, baseLookOf, RUN_SPEED, WALK_SPEED, type BaseAreaDef, type BaseAreaId, type BaseLook } from '../data/base-areas';
+import { areaDef, BASE_AREA_IDS, baseAreas, baseLookOf, RUN_SPEED, WALK_SPEED, type AreaTable, type BaseAreaId, type BaseLook } from '../data/base-areas';
 import {
   areaAt, areaRoute, arrivedAt, neighbour, stepWalker, walkerAt, walkTo, type NavDir, type Walker,
 } from '../game/base-hangar';
@@ -18,12 +18,12 @@ import { pilotStanding } from './pilot-rating';
 let lastOpened: BaseAreaId | null = null;
 
 const NAME_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.fun', tv: 'hbase.tv', locker: 'hbase.locker', photos: 'hbase.photos', jet: 'hbase.jet', ladder: 'hbase.ladder', chalk: 'hbase.chalk',
-  exit: 'hbase.exit',
+  fun: 'hbase.fun', tv: 'hbase.tv', locker: 'hbase.locker', photos: 'hbase.photos', jet: 'hbase.jet', base: 'hbase.base', lab: 'hbase.lab',
+  ladder: 'hbase.ladder', chalk: 'hbase.chalk', exit: 'hbase.exit',
 };
 const HINT_KEY: Readonly<Record<BaseAreaId, UiKey>> = {
-  fun: 'hbase.hint.fun', tv: 'hbase.hint.tv', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', jet: 'hbase.hint.jet', ladder: 'hbase.hint.ladder',
-  chalk: 'hbase.hint.chalk', exit: 'hbase.hint.exit',
+  fun: 'hbase.hint.fun', tv: 'hbase.hint.tv', locker: 'hbase.hint.locker', photos: 'hbase.hint.photos', jet: 'hbase.hint.jet',
+  base: 'hbase.hint.base', lab: 'hbase.hint.lab', ladder: 'hbase.hint.ladder', chalk: 'hbase.hint.chalk', exit: 'hbase.hint.exit',
 };
 /** How often the hangar asks for the chalkboard (doc 40). */
 const BOARD_POLL_MS = 20_000;
@@ -32,7 +32,8 @@ const DIRS: readonly NavDir[] = ['left', 'right', 'up', 'down'];
 /**
  * BASE (doc 30): the home-base hangar in animated pixel art. The highlight moves between the areas (arrows,
  * hover), the pilot walks to the highlighted one, ENTER / click opens it once the pilot gets there; ESC → map.
- * Coming from map 4 it is the sea dock, from map 5 the space dock (docs 73, 74).
+ * Coming from map 4 it is the sea dock, from map 5 the space dock (docs 73, 74), from map 6 the jungle base's hut with
+ * the ground base and the lab (doc 86).
  */
 export class HangarBaseScene implements Scene {
   private time = 0;
@@ -46,17 +47,17 @@ export class HangarBaseScene implements Scene {
   private readonly names: Readonly<Record<BaseAreaId, string>>;
   private readonly board: readonly string[];
   private readonly look: BaseLook;
-  private readonly areas: Readonly<Record<BaseAreaId, BaseAreaDef>>;
+  private readonly areas: AreaTable;
 
   constructor(private readonly game: GameContext) {
     this.look = baseLookOf(game.home);
     this.areas = baseAreas(this.look);
-    const back = lastOpened;
+    const back = lastOpened && this.areas[lastOpened] ? lastOpened : null;
     this.greet = back === null;
     this.focus = back ?? 'fun';
     this.walker = back
-      ? walkerAt(this.areas[back].standX)
-      : walkTo(walkerAt(this.areas.exit.standX, -1), this.areas.fun.standX);
+      ? walkerAt(areaDef(this.areas, back).standX)
+      : walkTo(walkerAt(areaDef(this.areas, 'exit').standX, -1), areaDef(this.areas, 'fun').standX);
     this.pointer = { x: game.input.pointer.x, y: game.input.pointer.y };
     this.wingman = new SpeechBox(game.audio, {
       portrait: { x: 20, y: 14, w: 84, h: 100 },
@@ -107,14 +108,14 @@ export class HangarBaseScene implements Scene {
     if (id === this.focus) return;
     this.focus = id;
     this.game.audio.play('uiMove');
-    this.walker = walkTo(this.walker, this.areas[id].standX);
+    this.walker = walkTo(this.walker, areaDef(this.areas, id).standX);
   }
 
   /** The pilot hurries to the area; the route is taken on arrival (update). */
   private open(id: BaseAreaId): void {
     this.opening = id;
     this.game.audio.play('uiSelect');
-    this.walker = walkTo(this.walker, this.areas[id].standX);
+    this.walker = walkTo(this.walker, areaDef(this.areas, id).standX);
   }
 
   private leave(id: BaseAreaId): void {
@@ -133,7 +134,8 @@ export class HangarBaseScene implements Scene {
   }
 
   private text(): HangarText {
-    return { names: this.names, hint: t(HINT_KEY[this.focus]), keys: t('hbase.keys'), title: t('hbase.title') };
+    const hint = this.look === 'jungle' && this.focus === 'jet' ? 'hbase.hint.mech' : HINT_KEY[this.focus]; // the mech bay (doc 79)
+    return { names: this.names, hint: t(hint), keys: t('hbase.keys'), title: t('hbase.title') };
   }
 
   render(ctx: CanvasRenderingContext2D): void {

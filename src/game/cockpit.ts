@@ -138,8 +138,8 @@ export function warningLights(w: WarningInput): WarningLights {
 }
 
 /** The console skins (doc 61): gunmetal for the jets, olive drab for the helicopters, holo glass for the spacecraft,
- *  brass and teal for the subs (doc 67). */
-export type CockpitSkinId = 'jet' | 'heli' | 'ship' | 'sub';
+ *  brass and teal for the subs (doc 67), khaki armour plate for the mechs (doc 80). */
+export type CockpitSkinId = 'jet' | 'heli' | 'ship' | 'sub' | 'mech';
 
 /** The skin a craft's cockpit wears, by the plane's kind. */
 export function cockpitSkin(kind: PlaneDef['kind']): CockpitSkinId {
@@ -148,6 +148,7 @@ export function cockpitSkin(kind: PlaneDef['kind']): CockpitSkinId {
     case 'heli': return 'heli';
     case 'ship': return 'ship';
     case 'sub': return 'sub';
+    case 'mech': return 'mech';
     default: throw new Error(`unhandled: ${kind satisfies never}`);
   }
 }

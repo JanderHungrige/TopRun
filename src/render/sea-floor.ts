@@ -1,6 +1,6 @@
 import { TAU } from '../core/math';
-import { createRng } from '../core/rng';
-import type { TheaterPalette } from '../data/theaters';
+import { createRng, type Rng } from '../core/rng';
+import type { TerrainStyle, TheaterPalette } from '../data/theaters';
 
 // Under the sea (docs 68, 70): the seabed — the sand tile, coral heads, kelp, rocks, deep drop-offs, sunken wrecks and
 // black smokers. The water over it lives in water.ts. Playfield-local coordinates.
@@ -233,5 +233,42 @@ export function drawReefFeature(
       return;
     }
     default: throw new Error(`unhandled: ${type satisfies never}`);
+  }
+}
+
+type SeabedStyle = Extract<TerrainStyle, 'kelp' | 'wreck' | 'trench' | 'abyss' | 'reef'>;
+
+/** A new row of the seabed's features (docs 68, 70), `add` placing one of a type and size at a random spot in it. */
+export function seabedRow(style: SeabedStyle, add: (type: ReefFeature, r: number) => void, r: Rng): void {
+  switch (style) {
+    case 'kelp': // the Kelp Forest (doc 70): tall stands of kelp, mossy rocks
+      if (r.chance(0.85)) add('kelp', r.range(24, 40));
+      if (r.chance(0.5)) add('kelp', r.range(16, 28));
+      if (r.chance(0.3)) add('stone', r.range(10, 24));
+      if (r.chance(0.12)) add('coral', r.range(12, 22));
+      return;
+    case 'wreck': // the Wreck Field: sunken hulls among rocks and the odd coral
+      if (r.chance(0.2)) add('wreck', r.range(44, 84));
+      if (r.chance(0.3)) add('stone', r.range(10, 24));
+      if (r.chance(0.15)) add('coral', r.range(10, 20));
+      if (r.chance(0.08)) add('drop', r.range(60, 110));
+      return;
+    case 'trench': // the Trench: dark rock in the middle, the walls drawn on their own
+      if (r.chance(0.35)) add('stone', r.range(12, 30));
+      if (r.chance(0.12)) add('drop', r.range(60, 120));
+      return;
+    case 'abyss': // the Abyss: black smokers and dark rock
+      if (r.chance(0.14)) add('vent', r.range(14, 26));
+      if (r.chance(0.22)) add('stone', r.range(10, 24));
+      return;
+    case 'reef': // the seabed under the sea (doc 68)
+      if (r.chance(0.06)) add('drop', r.range(70, 130));
+      if (r.chance(0.7)) add('coral', r.range(16, 40));
+      if (r.chance(0.4)) add('coral', r.range(12, 26));
+      if (r.chance(0.22)) add('stone', r.range(10, 24));
+      if (r.chance(0.32)) add('kelp', r.range(16, 30));
+      return;
+    default:
+      throw new Error(`unhandled: ${style satisfies never}`);
   }
 }

@@ -24,6 +24,7 @@ import { updatePickups } from './pickups';
 import { Player } from './player';
 import { WingmanRadio } from './radio';
 import { activateSpecial, tickSpecials } from './specials';
+import { tickMech } from './mech-mission';
 import { updateCombat } from './projectiles';
 import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
@@ -142,6 +143,7 @@ export class MissionScene implements Scene {
     w.t += dt;
     p.tick(dt);
     tickSpecials(w, p, dt, this.game.audio);
+    tickMech(w, p, dt, this.game.audio);
     fireWingman(w, p, dt);
     const dashing = p.specialActive > 0 && p.stats.plane.special === 'dash';
     const holdForBoss = w.boss?.def.id === 'sandstorm' && w.boss.phase !== 'enter';
@@ -254,7 +256,7 @@ export class MissionScene implements Scene {
       missionId: this.mission.id, success, aborted, takeoff: this.takeoff, kills: w.tally.kills,
       spawned: w.spawned + (w.boss ? 1 : 0), objectiveDone: objectiveMet(this.mission.objective, w.tally, this.player.alive),
       hullRatio: this.player.hullRatio, collected: w.collected, bossKilled: w.tally.bossKilled,
-      usedSecondaries: this.player.firedSecondary,
+      usedSecondaries: this.player.firedSecondary, spent: this.player.spent,
       perf: { ...w.perf, damage: w.perf.damage / this.player.maxHull },
     };
     this.game.go({ to: 'debrief', mission: this.mission, result });

@@ -93,7 +93,7 @@ export function drawMapPicker(ctx: CanvasRenderingContext2D, on: CampaignId, foc
 
 /** The note for a closed map: "Opens after mission 30 / 60 / …". */
 const LOCKED: Readonly<Record<CampaignId, UiKey>> = {
-  1: 'map.globeLocked', 2: 'map.globeLocked', 3: 'map.globeLocked3', 4: 'map.globeLocked4', 5: 'map.globeLocked5',
+  1: 'map.globeLocked', 2: 'map.globeLocked', 3: 'map.globeLocked3', 4: 'map.globeLocked4', 5: 'map.globeLocked5', 6: 'map.globeLocked6',
 };
 export const lockedNote = (c: CampaignId): UiKey => LOCKED[c];
 

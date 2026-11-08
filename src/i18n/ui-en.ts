@@ -10,6 +10,7 @@ import { UI_EN_JOYSTICK } from './ui-en-joystick';
 import { UI_EN_ARSENAL } from './ui-en-arsenal';
 import { UI_EN_FRONTIERS } from './ui-en-frontiers';
 import { UI_EN_DEEP } from './ui-en-deep';
+import { UI_EN_JUNGLE } from './ui-en-jungle';
 // English UI strings — the source of truth for the key set (UiKey). Placeholders: {name}.
 export const UI_EN = {
   // Title
@@ -293,6 +294,7 @@ export const UI_EN = {
   ...UI_EN_ARSENAL,
   ...UI_EN_FRONTIERS,
   ...UI_EN_DEEP,
+  ...UI_EN_JUNGLE,
 } as const;
 
 export type UiKey = keyof typeof UI_EN;

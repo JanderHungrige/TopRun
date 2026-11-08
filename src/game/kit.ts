@@ -2,13 +2,14 @@ import { maxEquipmentLevel } from '../data/equipment';
 import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, type CampaignId, type EquipmentId, type GunLevel, type PlaneId } from '../data/types';
+import { knownWeapons, researchedMark } from './lab';
 import type { SaveData } from './save';
 import type { Route } from './state';
 
-// One wallet, several kits (docs 49, 66, 74): the jets fly maps 1–2, the helicopters map 3, the subs map 4, the ship map 5;
-// the helicopters and the subs are fleet kits of their own that start from zero. The scenes see a kit view of the save —
-// for a fleet kit the jet-kit fields are swapped for the fleet's — so the hangar, the shop and the loadout code work
-// unchanged on every kit. Pure.
+// One wallet, several kits (docs 49, 66, 74, 79): the jets fly maps 1–2, the helicopters map 3, the subs map 4, the ship
+// map 5, the mechs map 6; the helicopters, the subs and the mechs are fleet kits of their own that start from zero. The
+// scenes see a kit view of the save — for a fleet kit the jet-kit fields are swapped for the fleet's — so the hangar, the
+// shop and the loadout code work unchanged on every kit. The mechs' weapons and marks come from the lab (doc 83). Pure.
 
 export type Kit = 'jet' | FleetKitId | 'ship';
 
@@ -19,7 +20,7 @@ export interface FleetKit {
   equipment: Record<EquipmentId, number>;
 }
 
-const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'sub', 5: 'ship' };
+const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'sub', 5: 'ship', 6: 'mech' };
 
 export const kitOf = (c: CampaignId): Kit => KIT_OF[c];
 
@@ -58,7 +59,16 @@ export function kitView(save: SaveData, kit: Kit): SaveData {
     };
   }
   const k = save[kit];
-  return { ...save, ...jetOnly, kit, ownedPlanes: owning(save, FLEET[kit].starter), selectedPlane: k.selectedPlane, gunLevel: k.gunLevel, equipment: k.equipment };
+  const view = { ...save, ...jetOnly, kit, ownedPlanes: owning(save, FLEET[kit].starter), selectedPlane: k.selectedPlane, gunLevel: k.gunLevel, equipment: k.equipment };
+  return kit === 'mech' ? withLab(view) : view;
+}
+
+/** The mech kit's weapons are the lab's: every known one owned, each at its invented mark (doc 83). */
+function withLab(view: SaveData): SaveData {
+  const known = knownWeapons(view.outpost);
+  const weaponLevels = { ...view.weaponLevels };
+  for (const id of known) weaponLevels[id] = researchedMark(view.outpost, id);
+  return { ...view, ownedSecondaries: [...view.ownedSecondaries.filter((id) => !known.includes(id)), ...known], weaponLevels };
 }
 
 /** A view written back: a fleet kit's fields go into its own entry, the jet fields keep their stored values. */
@@ -67,7 +77,7 @@ export function fromKitView(stored: SaveData, view: SaveData): SaveData {
   const own = (kit: FleetKitId): FleetKit =>
     (view.kit === kit ? { selectedPlane: view.selectedPlane, gunLevel: view.gunLevel, equipment: view.equipment } : view[kit]);
   return {
-    ...view, kit: 'jet', heli: own('heli'), sub: own('sub'), selectedPlane: stored.selectedPlane, gunLevel: stored.gunLevel,
+    ...view, kit: 'jet', heli: own('heli'), sub: own('sub'), mech: own('mech'), selectedPlane: stored.selectedPlane, gunLevel: stored.gunLevel,
     equipment: stored.equipment, gun2Level: stored.gun2Level, ammoLevel: stored.ammoLevel, incendiaryLevel: stored.incendiaryLevel,
     ammoType: stored.ammoType, heLevel: stored.heLevel, twinSecondaries: stored.twinSecondaries,
   };

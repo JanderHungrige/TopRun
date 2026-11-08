@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { BASE_AREA_IDS, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaId } from '../../src/data/base-areas';
+import { areaDef, areaIds, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type BaseAreaId } from '../../src/data/base-areas';
 import {
   areaAt, areaRoute, arrivedAt, neighbour, stepWalker, walkerAt, walkFrame, walkTo, type Walker,
 } from '../../src/game/base-hangar';
 
 const DT = 1 / 60;
+const A = (id: BaseAreaId) => areaDef(BASE_AREAS, id);
+const BASE_AREA_IDS = areaIds(BASE_AREAS);
 
 function walkUntilStopped(w: Walker, speed: number, cap = 2000): { w: Walker; frames: number } {
   let frames = 0;
@@ -20,7 +22,7 @@ describe('Hangar base areas', () => {
     expect(BASE_AREA_IDS).toEqual(['fun', 'tv', 'locker', 'photos', 'jet', 'ladder', 'chalk', 'exit']);
     let lastX = -Infinity;
     for (const id of BASE_AREA_IDS) {
-      const a = BASE_AREAS[id];
+      const a = A(id);
       expect(a.id).toBe(id);
       expect(a.hot.x).toBeGreaterThanOrEqual(0);
       expect(a.hot.x + a.hot.w).toBeLessThanOrEqual(1280);
@@ -36,8 +38,8 @@ describe('Hangar base areas', () => {
     for (const a of BASE_AREA_IDS) {
       for (const b of BASE_AREA_IDS) {
         if (a >= b || (a === 'fun' && b === 'tv')) continue;
-        const r = BASE_AREAS[a].hot;
-        const s = BASE_AREAS[b].hot;
+        const r = A(a).hot;
+        const s = A(b).hot;
         const overlap = r.x < s.x + s.w && s.x < r.x + r.w && r.y < s.y + s.h && s.y < r.y + r.h;
         expect(overlap, `${a} / ${b}`).toBe(false);
       }
@@ -57,7 +59,7 @@ describe('Hangar base areas', () => {
 
   it('hit-tests the hotspots (centres hit their own area, the bare floor hits nothing)', () => {
     for (const id of BASE_AREA_IDS) {
-      const h = BASE_AREAS[id].hot;
+      const h = A(id).hot;
       expect(areaAt({ x: h.x + h.w / 2, y: h.y + h.h / 2 })).toBe(id);
     }
     expect(areaAt({ x: 640, y: 700 })).toBeNull();
@@ -83,10 +85,10 @@ describe('Hangar base navigation', () => {
   });
 
   it('↑ / ↓ go to the nearest area in any row above / below (wall, chalkboard, floor; a tie: the nearer row)', () => {
-    const up: Record<BaseAreaId, BaseAreaId> = {
+    const up: Partial<Record<BaseAreaId, BaseAreaId>> = {
       fun: 'photos', tv: 'photos', locker: 'photos', photos: 'photos', jet: 'chalk', ladder: 'ladder', chalk: 'ladder', exit: 'chalk',
     };
-    const down: Record<BaseAreaId, BaseAreaId> = {
+    const down: Partial<Record<BaseAreaId, BaseAreaId>> = {
       fun: 'fun', tv: 'tv', locker: 'locker', photos: 'locker', jet: 'jet', ladder: 'chalk', chalk: 'jet', exit: 'exit',
     };
     for (const id of BASE_AREA_IDS) {
@@ -122,25 +124,25 @@ describe('Hangar base walker', () => {
   });
 
   it('walks to the target at the given speed, faces the way it goes and stops exactly on it', () => {
-    let w = walkTo(walkerAt(BASE_AREAS.fun.standX), BASE_AREAS.locker.standX);
+    let w = walkTo(walkerAt(A('fun').standX), A('locker').standX);
     expect(w.moving).toBe(true);
     w = stepWalker(w, 0.5, 300);
-    expect(w.x).toBeCloseTo(BASE_AREAS.fun.standX + 150, 6);
+    expect(w.x).toBeCloseTo(A('fun').standX + 150, 6);
     expect(w.facing).toBe(1);
     const done = walkUntilStopped(w, 300);
-    expect(done.w.x).toBe(BASE_AREAS.locker.standX);
+    expect(done.w.x).toBe(A('locker').standX);
     expect(done.w.moving).toBe(false);
     expect(arrivedAt(done.w, 'locker')).toBe(true);
-    expect(done.w.dist).toBeCloseTo(BASE_AREAS.locker.standX - BASE_AREAS.fun.standX, 6);
+    expect(done.w.dist).toBeCloseTo(A('locker').standX - A('fun').standX, 6);
   });
 
   it('turns round when sent back the other way, and hurrying is faster', () => {
-    const start = walkTo(walkerAt(BASE_AREAS.exit.standX), BASE_AREAS.fun.standX);
+    const start = walkTo(walkerAt(A('exit').standX), A('fun').standX);
     const slow = walkUntilStopped(start, 300);
     const fast = walkUntilStopped(start, 900);
     expect(slow.w.facing).toBe(-1);
     expect(fast.frames).toBeLessThan(slow.frames / 2);
-    expect(fast.w.x).toBe(BASE_AREAS.fun.standX);
+    expect(fast.w.x).toBe(A('fun').standX);
   });
 
   it('cycles through the walk key frames with the distance', () => {

@@ -10,7 +10,7 @@ import { drawSunset } from '../render/backdrop';
 import { COLORS, text } from '../render/text';
 import { pilotContext, SpeechBox } from '../ui/speech';
 import { drawButton, hit, type Button } from '../ui/widgets';
-import { cardRect, drawCard, type CardView } from './base-hub-render';
+import { CARD_COLS, cardRect, drawCard, type CardView } from './base-hub-render';
 import { moduleFor, playableIds } from './minigames/registry';
 
 const TOGGLE = { x: 690, y: 590, w: 370, h: 48 };
@@ -56,8 +56,8 @@ export class BaseHubScene implements Scene {
     if (input.pressed('back') || input.pressed('base')) return this.leave();
     if (input.pressed('left')) this.move(-1);
     if (input.pressed('right')) this.move(1);
-    if (input.pressed('up')) this.move(-5);
-    if (input.pressed('down')) this.move(5);
+    if (input.pressed('up')) this.move(-CARD_COLS);
+    if (input.pressed('down')) this.move(CARD_COLS);
     if (input.pressed('confirm')) this.play(this.focus);
     for (const tap of input.taps) {
       if (hit(tap, MAP_BTN)) return this.leave();

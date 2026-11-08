@@ -5,7 +5,7 @@ import type { LadderSync } from '../core/ladder-sync';
 import type { Music } from '../core/music';
 import type { MedalId } from '../data/medals';
 import type { MinigameId } from '../data/minigames';
-import type { CampaignId, MissionDef, MissionResult, TakeoffRating } from '../data/types';
+import type { CampaignId, MechId, MissionDef, MissionResult, TakeoffRating } from '../data/types';
 import type { AvatarLook } from './avatar-look';
 import type { PilotMatch } from './ladder-cloud';
 import type { AvatarId, CreateResult, ImportResult, Profile } from './profiles';
@@ -31,6 +31,11 @@ export type Route =
   | { to: 'ladder' }
   | { to: 'map'; select?: string }
   | { to: 'hangar' }
+  /** The ground base on the jungle planet (doc 82) and its lab (doc 83), from the jungle base's crew hut. */
+  | { to: 'outpost' }
+  | { to: 'lab' }
+  /** A mech's camo painted by hand (doc 87); back to the mech bay. */
+  | { to: 'paintShop'; mech: MechId }
   /** The home-base hangar (doc 30). */
   | { to: 'base' }
   /** The rec room: the off-duty minigame list behind the hangar's FUN MISSIONS area (doc 11). */

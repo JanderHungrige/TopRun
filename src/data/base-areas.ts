@@ -1,11 +1,12 @@
-import { SEA_AREAS, SPACE_AREAS } from './base-docks';
+import { JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
 import type { CampaignId } from './types';
 
 // Hangar base (doc 30): the areas of the home-base hangar — where each one is on the 1280 × 720 screen, which row
 // it sits in for ↑ / ↓, where its name plate goes and where the pilot stands in front of it. Left → right order.
-// The base has three looks (docs 73, 74): the carrier hangar, the sea dock (map 4) and the space dock (map 5).
+// The base has four looks (docs 73, 74, 86): the carrier hangar, the sea dock (map 4), the space dock (map 5) and the
+// jungle base's crew hut (map 6), which alone has the ground base and the lab (doc 82).
 
-export type BaseAreaId = 'fun' | 'tv' | 'locker' | 'photos' | 'jet' | 'ladder' | 'chalk' | 'exit';
+export type BaseAreaId = 'fun' | 'tv' | 'locker' | 'photos' | 'jet' | 'base' | 'lab' | 'ladder' | 'chalk' | 'exit';
 
 /** `wall`: mounted high on the back wall; `mid`: lower on the wall (the chalkboard, doc 40); `floor`: at floor level. */
 export type AreaRow = 'wall' | 'mid' | 'floor';
@@ -26,13 +27,26 @@ export interface BaseAreaDef {
   standX: number;
 }
 
-/** Left → right; ← / → step through this order. */
-export const BASE_AREA_IDS: readonly BaseAreaId[] = Object.freeze(['fun', 'tv', 'locker', 'photos', 'jet', 'ladder', 'chalk', 'exit'] as const);
+/** Left → right; ← / → step through this order (the areas a look has). */
+export const BASE_AREA_IDS: readonly BaseAreaId[] = Object.freeze(['fun', 'tv', 'locker', 'photos', 'jet', 'base', 'lab', 'ladder', 'chalk', 'exit'] as const);
+
+/** A look's areas: every look has the eight of the carrier hangar; the jungle base adds the ground base and the lab. */
+export type AreaTable = Readonly<Partial<Record<BaseAreaId, BaseAreaDef>>>;
+
+/** One area of a look; throws for an area the look doesn't have (only ids from `areaIds` are asked for). */
+export function areaDef(areas: AreaTable, id: BaseAreaId): BaseAreaDef {
+  const a = areas[id];
+  if (!a) throw new Error(`no area ${id} here`);
+  return a;
+}
+
+/** The areas a look has, left → right. */
+export const areaIds = (areas: AreaTable): BaseAreaId[] => BASE_AREA_IDS.filter((id) => areas[id] !== undefined);
 
 const area = (id: BaseAreaId, row: AreaRow, hot: AreaRect, plate: { x: number; y: number }, standX: number): BaseAreaDef =>
   ({ id, row, hot, plate, standX });
 
-export const BASE_AREAS: Readonly<Record<BaseAreaId, BaseAreaDef>> = Object.freeze({
+export const BASE_AREAS: AreaTable = Object.freeze({
   fun: area('fun', 'floor', { x: 18, y: 214, w: 202, h: 286 }, { x: 119, y: 200 }, 120),
   // The old TV on its cart in front of the rec room (doc 63): opens the tape shelf.
   tv: area('tv', 'floor', { x: 124, y: 404, w: 92, h: 162 }, { x: 170, y: 390 }, 170),
@@ -55,11 +69,11 @@ export const STRIDE_PX = 120;
 export const WALK_FRAMES = 8;
 
 /** The base's look: the carrier hangar on maps 1–3, the underwater dock on map 4, the space-station dock on map 5
- *  (doc 74). */
-export type BaseLook = 'carrier' | 'space' | 'sea';
+ *  (doc 74), the jungle base on map 6 (doc 86). */
+export type BaseLook = 'carrier' | 'space' | 'sea' | 'jungle';
 
-const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space' };
+const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space', 6: 'jungle' };
 export const baseLookOf = (c: CampaignId): BaseLook => LOOK_OF[c];
 
-const AREAS_OF: Readonly<Record<BaseLook, Readonly<Record<BaseAreaId, BaseAreaDef>>>> = { carrier: BASE_AREAS, space: SPACE_AREAS, sea: SEA_AREAS };
-export const baseAreas = (look: BaseLook): Readonly<Record<BaseAreaId, BaseAreaDef>> => AREAS_OF[look];
+const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: BASE_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
+export const baseAreas = (look: BaseLook): AreaTable => AREAS_OF[look];

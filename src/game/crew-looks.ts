@@ -3,12 +3,13 @@ import type { CharacterId } from '../render/portraits/types';
 import type { Kit } from './kit';
 
 // The crew in each world's outfit (doc 76): Chief "Wrench" Kowalski and Lt. "Shooter" Reyes keep their faces, but under
-// the sea they wear submariners' clothes and in space station clothes. Maps 1–3 are the carrier's. Pure.
+// the sea they wear submariners' clothes, in space station clothes and on the jungle planet jungle kit (doc 86). Maps 1–3
+// are the carrier's. Pure.
 
-export type CrewLook = 'carrier' | 'sea' | 'space';
+export type CrewLook = 'carrier' | 'sea' | 'space' | 'jungle';
 
-const LOOK_OF: Readonly<Record<CampaignId, CrewLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space' };
-const KIT_LOOK: Readonly<Record<Kit, CrewLook>> = { jet: 'carrier', heli: 'carrier', sub: 'sea', ship: 'space' };
+const LOOK_OF: Readonly<Record<CampaignId, CrewLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space', 6: 'jungle' };
+const KIT_LOOK: Readonly<Record<Kit, CrewLook>> = { jet: 'carrier', heli: 'carrier', sub: 'sea', ship: 'space', mech: 'jungle' };
 
 /** The outfit of a world's crew. */
 export const crewLook = (world: CampaignId): CrewLook => LOOK_OF[world];

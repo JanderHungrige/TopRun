@@ -1,6 +1,7 @@
 import { FLEET, isFleet } from '../data/fleet';
+import { MECH_BAY } from '../data/mech-kit';
 import { PLANES } from '../data/planes';
-import type { PlaneId, SpecialId } from '../data/types';
+import { MECH_IDS, type MechId, type PlaneId, type SpecialId } from '../data/types';
 import { kitOfPlane } from './kit';
 import { mapOpen, mapTwoOpen } from './progress';
 import type { SaveData } from './save';
@@ -8,13 +9,18 @@ import type { SaveData } from './save';
 // Rules of the jets sold once map 2 is open, of the fleet kits (docs 49, 66), and of every plane's E ability (doc 36).
 
 /** In the jets' hangar: map-1 jets always, the A-10, F-35 and Tornado once map 2 is open. In a fleet kit's hangar:
- *  its craft once its map is open (docs 49, 66). */
+ *  its craft once its map is open (docs 49, 66); a mech once the mech bay can build it (doc 79). */
 export function jetOnSale(save: SaveData, id: PlaneId): boolean {
   const p = PLANES[id];
   if (kitOfPlane(id) !== save.kit) return false;
-  if (isFleet(p.kind)) return mapOpen(save, FLEET[p.kind].campaign);
+  if (isFleet(p.kind)) return mapOpen(save, FLEET[p.kind].campaign) && save.outpost.buildings.mechbay >= mechBayFor(id);
   return p.campaign === 1 || mapTwoOpen(save);
 }
+
+export const isMech = (id: PlaneId): id is MechId => (MECH_IDS as readonly PlaneId[]).includes(id);
+
+/** The mech bay level a craft needs: its own for a mech (doc 79), none for everything else. */
+export const mechBayFor = (id: PlaneId): number => (isMech(id) ? MECH_BAY[id] : 0);
 
 /** Map 2 is open but the pilot owns none of its jets yet: the crew chief points them out (doc 36). */
 export function newJetsWaiting(save: SaveData): boolean {
@@ -32,6 +38,7 @@ export function specialRules(special: SpecialId): SpecialRules {
   switch (special) {
     case 'roll':
     case 'dash':
+    case 'jumpjet':
     case 'armour': return { invulnerable: true, stealth: false };
     case 'stealth': return { invulnerable: false, stealth: true };
     case 'wingman':

@@ -5,14 +5,14 @@ import type { SaveData } from './save';
 // Campaign progress on every map (docs 03, 35). Pure.
 
 /** The map whose finale opens a map; map 1 is always open. */
-const PREVIOUS: Readonly<Record<CampaignId, CampaignId>> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 };
+const PREVIOUS: Readonly<Record<CampaignId, CampaignId>> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 };
 
 export function isCleared(save: SaveData, mission: MissionDef): boolean {
   return mission.id in save.progress;
 }
 
 /** A map opens once the previous map's finale is cleared: map 2 after m30 (doc 35), map 3 after m60 (doc 48),
- *  map 4 after m90, map 5 after m120 (doc 74). A map stays open once any of its missions is cleared — a pilot who flew
+ *  map 4 after m90, map 5 after m120 (doc 74), map 6 after m150 (doc 78). A map stays open once any of its missions is cleared — a pilot who flew
  *  space when it was map 4 keeps it (doc 74). Map 1 is always open, and the admin has every map (doc 47). */
 export function mapOpen(save: SaveData, c: CampaignId): boolean {
   if (c === 1 || save.admin) return true;

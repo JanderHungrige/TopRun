@@ -24,7 +24,7 @@ const LINES: Readonly<Record<BanterId, Line>> = {
   tough: { speaker: 'chief', key: 'bTough', mood: 'worried' },
 };
 
-const PITCH: Readonly<Record<CharacterId, number>> = { admiral: 0.85, chief: 0.75, shooter: 1.3, wingman: 1.05 };
+const PITCH: Readonly<Record<CharacterId, number>> = { admiral: 0.85, chief: 0.75, shooter: 1.3, wingman: 1.05, major: 0.7, doc: 1.2 };
 /** A queued line older than this is dropped. */
 const STALE = 2.5;
 /** Lines stay up longer than in dialogue scenes: the player glances at them between notes. */

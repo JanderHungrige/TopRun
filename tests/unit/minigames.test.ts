@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { MINIGAME_IDS, MINIGAMES, type MinigameId } from '../../src/data/minigames';
-import { MISSIONS } from '../../src/data/missions';
+import { ALL_MISSIONS, MISSIONS } from '../../src/data/missions';
 import {
   medalFor, newlyUnlockedMinigames, offerAfterMission, parseMinigames, recordScore, unlockedMinigames,
 } from '../../src/game/minigames/core';
@@ -12,7 +12,7 @@ import { MINIGAME_NAMES } from '../../src/i18n/minigames/names';
 type Progress = SaveData['progress'];
 
 /** Progress with missions 1..n cleared. */
-const upTo = (n: number): Progress => Object.fromEntries(MISSIONS.slice(0, n).map((m) => [m.id, { stars: 2 }]));
+const upTo = (n: number): Progress => Object.fromEntries(ALL_MISSIONS.slice(0, n).map((m) => [m.id, { stars: 2 }]));
 const ALL: readonly MinigameId[] = MINIGAME_IDS;
 
 describe('Minigames core', () => {
@@ -22,7 +22,15 @@ describe('Minigames core', () => {
       expect(unlockedMinigames(upTo(1), ALL)).toEqual(['pushups']);
       expect(unlockedMinigames(upTo(6), ALL)).toEqual(['pushups', 'flyby', 'formation', 'volleyball', 'darts', 'highfive']);
       expect(unlockedMinigames(upTo(6), ['flyby'])).toEqual(['flyby']);
-      expect(unlockedMinigames(upTo(30), ALL)).toEqual([...MINIGAME_IDS]);
+      expect(unlockedMinigames(upTo(30), ALL)).toEqual(MINIGAME_IDS.slice(0, 20));
+      expect(unlockedMinigames(upTo(180), ALL)).toEqual([...MINIGAME_IDS]);
+    });
+
+    it('unlocks one game on each late world: under the sea, in space, on the jungle planet (docs 88–90)', () => {
+      expect(newlyUnlockedMinigames(upTo(92), upTo(93), ALL)).toEqual(['sonar']);
+      expect(newlyUnlockedMinigames(upTo(122), upTo(123), ALL)).toEqual(['docking']);
+      expect(newlyUnlockedMinigames(upTo(152), upTo(153), ALL)).toEqual(['range']);
+      expect(MISSIONS).toHaveLength(30);
     });
 
     it('lists what a mission newly unlocked', () => {
@@ -32,16 +40,16 @@ describe('Minigames core', () => {
     });
 
     it('spreads the twenty unlocks over map 1, one game per mission at most', () => {
-      const after = MINIGAME_IDS.map((id) => MINIGAMES[id].unlockAfter);
+      const after = MINIGAME_IDS.slice(0, 20).map((id) => MINIGAMES[id].unlockAfter);
       expect(after.slice(0, 10)).toEqual([1, 3, 5, 6, 9, 12, 15, 18, 21, 24]);
-      expect(MINIGAME_IDS.slice(10)).toEqual(['darts', 'highfive', 'targetpod', 'pool', 'ranks', 'parachute', 'airshow', 'deck', 'canyon', 'dogfight']);
+      expect(MINIGAME_IDS.slice(10, 20)).toEqual(['darts', 'highfive', 'targetpod', 'pool', 'ranks', 'parachute', 'airshow', 'deck', 'canyon', 'dogfight']);
       expect(after.slice(10)).toEqual([2, 4, 7, 8, 10, 11, 14, 16, 20, 27]);
       expect(new Set(after).size).toBe(20);
       expect(after.every((n) => n >= 1 && n <= 30)).toBe(true);
     });
 
     it('sorts the new games into flying and off duty', () => {
-      const flying = MINIGAME_IDS.slice(10).filter((id) => MINIGAMES[id].kind === 'flying');
+      const flying = MINIGAME_IDS.slice(10, 20).filter((id) => MINIGAMES[id].kind === 'flying');
       expect(flying).toEqual(['targetpod', 'parachute', 'airshow', 'canyon', 'dogfight']);
     });
   });

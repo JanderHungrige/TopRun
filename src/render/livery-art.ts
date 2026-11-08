@@ -92,6 +92,11 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   seawolf: look('#33404e', STANDARD_SWATCH, { under: '#435263', ink: 'rgba(6,10,16,0.7)', panel: 'rgba(6,10,16,0.3)', gloss: 0.4 }),
   virginia: look('#23272c', STANDARD_SWATCH, { under: '#30363c', ink: 'rgba(0,0,0,0.75)', panel: 'rgba(140,150,160,0.16)', gloss: 0.35 }),
   akula: look('#3c4640', STANDARD_SWATCH, { under: '#4c5850', ink: 'rgba(8,12,10,0.7)', panel: 'rgba(8,12,10,0.3)', gloss: 0.35 }),
+  // Map-6 mechs (doc 80): their armour wears the hand-painted camo (doc 87); the look is only the fallback olive.
+  strider: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
+  ranger: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
+  hornet: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
+  titan: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

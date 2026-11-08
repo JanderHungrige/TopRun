@@ -82,6 +82,7 @@ portraits and avatars (docs 20 / 29, art v1 and v2) are retired.
 | `shooter.png` (+ `-talk`, `-half`, `-blink`) | the catapult / deck officer |
 | `chief.png` (+ `-talk`, `-half`, `-blink`) | the crew chief |
 | `wingman.png` (+ `-talk`, `-half`, `-blink`) | the wingman, Lt. "Duke" Carter in the cockpit |
+| `major.png`, `doc.png` (+ `-talk`, `-half`, `-blink`) | Major "Dozer" Brennan of the ground base and Dr. "Flask" Moreau of the lab (doc 86): original faces, 'Top Gun pixel crew portrait' on the M1 (720 × 864, box-downscaled, 64 colours); the frames are edits of that render ('Change only the mouth / eyes …') laid over the base by `dev/face-frames.py`, which keeps only the blobs that changed around the mouth or the eyes and maps them onto the base's palette; a blink keeps only what changed above an eye line given per face (the edits close the mouth too, and the mouth is the bigger change; Brennan's line is at 95, Moreau's at 125 art px) |
 | `custom/<age>-<gender>-<skin>-<hair>-<length>-<face>.png` | the builder set: age `kid|adult`, gender `female|male`, skin `fair|olive|brown|dark`, hair `black|brown|blond|red`, length `short|long`, face `f1|f2` (256, builder v4) |
 
 Talk, half and blink frames are identical to the base outside the mouth / eyes (`-talk` = mouth open,
@@ -91,7 +92,7 @@ bundled as a hashed asset and anything missing is simply absent — the code wor
 
 ## Rendering (`src/render/portraits/image.ts`)
 
-- `HTMLImageElement`s are created and cached per URL; `preloadPortraits()` (called at boot) loads the six fixed
+- `HTMLImageElement`s are created and cached per URL; `preloadPortraits()` (called at boot) loads the fixed
   characters (and their talk / blink frames). Custom picks load on first use; the builder and NEW PILOT preload
   face 1 of every pick (128 images, ≈ 3 MB — all 256 would double what a new visitor downloads from the small
   server; owner, 2026-10-27), face 2 loads when first shown. NEW PILOT's card-4 teaser cycles face-1 portraits only.

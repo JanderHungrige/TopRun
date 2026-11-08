@@ -9,7 +9,7 @@ import { CUSTOM_KEYS, customFrames, customUrls, fixedFrames } from '../../src/re
 
 const FILES = import.meta.glob<string>('../../src/assets/portraits/**/*.png', { eager: true, query: '?inline', import: 'default' });
 // The chief and Shooter also come in the sea's and space's outfits (doc 76).
-const FIXED_NAMES = ['admiral', 'shooter', 'chief', 'wingman', 'chief-sea', 'chief-space', 'shooter-sea', 'shooter-space', ...AVATAR_IDS];
+const FIXED_NAMES = ['admiral', 'shooter', 'chief', 'wingman', 'chief-sea', 'chief-space', 'shooter-sea', 'shooter-space', 'chief-jungle', 'shooter-jungle', 'major', 'doc', ...AVATAR_IDS];
 
 /** The bytes of a bundled PNG (Vite inlines it as a base64 data URL here). */
 function bytes(dataUrl: string): Uint8Array {

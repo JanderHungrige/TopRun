@@ -10,8 +10,8 @@ import { LINES_EN } from '../../src/i18n/lines-en';
 
 describe('Crew looks (doc 76)', () => {
   it('dresses the crew for the world: the carrier on maps 1–3, the sea on map 4, space on map 5', () => {
-    expect(CAMPAIGN_IDS.map(crewLook)).toEqual(['carrier', 'carrier', 'carrier', 'sea', 'space']);
-    expect([kitCrewLook('jet'), kitCrewLook('heli'), kitCrewLook('sub'), kitCrewLook('ship')]).toEqual(['carrier', 'carrier', 'sea', 'space']);
+    expect(CAMPAIGN_IDS.map(crewLook)).toEqual(['carrier', 'carrier', 'carrier', 'sea', 'space', 'jungle']);
+    expect([kitCrewLook('jet'), kitCrewLook('heli'), kitCrewLook('sub'), kitCrewLook('ship'), kitCrewLook('mech')]).toEqual(['carrier', 'carrier', 'sea', 'space', 'jungle']);
   });
 
   it('gives only the chief and Shooter other outfits', () => {

@@ -3,6 +3,7 @@ import { isFleet } from '../data/fleet';
 import type { SecondaryId } from '../data/types';
 import { SECONDARIES, type SecondaryDef } from '../data/weapons';
 import { weaponOnSale } from './firepower';
+import { spend, wallet } from './outpost';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
 
@@ -26,8 +27,10 @@ export function gunAmmo(level: number): { damageMul: number; groundFactor: numbe
 
 export const markOf = (save: SaveData, id: SecondaryId): Mark => toMark(save.weaponLevels[id]);
 
-/** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open; Mk III for the fleet kits (docs 49, 66). */
+/** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open; Mk III for the fleet kits (docs 49, 66); none
+ *  for the mechs, whose marks are invented in the lab (doc 83). */
 export function markCap(save: SaveData): Mark {
+  if (save.kit === 'mech') return 1;
   if (isFleet(save.kit)) return FLEET_MARK;
   return mapTwoOpen(save) ? MAX_MARK : MAP1_MARK;
 }
@@ -49,7 +52,7 @@ export function canBuyMark(save: SaveData, id: SecondaryId): { ok: true } | { ok
   if (!save.ownedSecondaries.includes(id)) return { ok: false, reason: 'not-owned' };
   const price = markPrice(save, id);
   if (price === null) return { ok: false, reason: mapTwoOpen(save) || markOf(save, id) >= MAX_MARK ? 'max-level' : 'locked' };
-  if (save.money < price) return { ok: false, reason: 'insufficient-funds' };
+  if (wallet(save) < price) return { ok: false, reason: 'insufficient-funds' };
   return { ok: true };
 }
 
@@ -57,8 +60,7 @@ export function canBuyMark(save: SaveData, id: SecondaryId): { ok: true } | { ok
 export function buyMark(save: SaveData, id: SecondaryId): SaveData {
   const check = canBuyMark(save, id);
   if (!check.ok) throw new Error(`cannot buy mark: ${check.reason}`);
-  const next = structuredClone(save);
-  next.money -= markPrice(save, id) ?? 0;
+  const next = structuredClone(spend(save, markPrice(save, id) ?? 0));
   next.weaponLevels[id] = toMark(markOf(save, id) + 1);
   return next;
 }

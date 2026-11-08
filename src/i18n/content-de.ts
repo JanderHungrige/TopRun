@@ -28,6 +28,11 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   wrecks: { name: 'Wrackfeld', tagline: 'Geisterschiffe' },
   trench: { name: 'Der Graben', tagline: 'Hinab ins Dunkel' },
   abyss: { name: 'Der Abgrund', tagline: 'Wo das Licht endet' },
+  landing: { name: 'Landezone', tagline: 'Stiefel auf dem Boden' },
+  canopy: { name: 'Regenwald-Blätterdach', tagline: 'Unter dem grünen Dach' },
+  swamp: { name: 'Mangrovensumpf', tagline: 'Schlamm bis zu den Knien' },
+  ruins: { name: 'Tempelruinen', tagline: 'Steine, die zurückschießen' },
+  hive: { name: 'Der Bau', tagline: 'Hinein ins Nest' },
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -91,6 +96,10 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
     specialName: 'Doppelhülle',
     description: 'Groß, breit und doppelt gebaut. Sechs Rohre und ein paar Sekunden, in denen nichts durchkommt. Träge in der Kurve.',
   },
+  strider: { specialName: 'Sprungdüsen', description: 'Leichter Späher-Mech. Flink auf den Beinen, eine Maschinenkanone an jedem Arm und Sprungdüsen, die über das Feuer springen und zertrampeln, was darunter ist.' },
+  ranger: { specialName: 'Raketenhagel', description: 'Mittlerer Linien-Mech. Drei Waffenstationen und ein Hagel aus Lenkraketen auf jedes Bodenziel in Sicht.' },
+  hornet: { specialName: 'Tarnfeld', description: 'Schneller Jagd-Mech. Harte Kanonen und ein Tarnfeld, das ihn im Grün versteckt: Der Feind stellt das Feuer ein.' },
+  titan: { specialName: 'Bollwerk', description: 'Schwerer Sturm-Mech. Vier Waffenstationen, dicke Panzerung und ein paar Sekunden, in denen nichts durchkommt. Langsam auf den Beinen.' },
 };
 
 export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; description: string }>> = {
@@ -108,6 +117,11 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   torpedo: { name: 'Plasmatorpedo', description: 'Langsame zielsuchende Plasmageschosse aus den Torpedoschächten, für Kriegsschiffe, Stationen und Bosse.' },
   mk48: { name: 'MK48-Torpedo', description: 'Drahtgelenkter schwerer Torpedo. Langsam, aber er findet alles im Wasser: U-Boote, Drohnen, Minen und Monster.' },
   shkval: { name: 'VA-111 Schkwal', description: 'Superkavitierende Raketentorpedos, im Fächer abgefeuert. Schnell, ungelenkt, sie treffen alles im Wasser.' },
+  pod: { name: 'Raketenkapsel', description: 'Eine Schulterkapsel voller ungelenkter Raketen, im Fächer abgefeuert. Trifft alles; die Raketen kommen aus dem Magazin der Basis.' },
+  seeker: { name: 'Lenkraketen', description: 'Zielsuchende Raketen, die alles finden, was sich bewegt. Gebaut in der Fabrik der Basis.' },
+  mortar: { name: 'Mörser', description: 'Wirft eine schwere Granate nach vorn, die am Boden zerplatzt. Großer Radius gegen Läufer, Geschütze und Nester.' },
+  plasma: { name: 'Plasmalanze', description: 'Ein langsamer grüner Bolzen, der sich durch alles in seinem Weg brennt. Vom Generator geladen, braucht keine Munition.' },
+  rail: { name: 'Schienenkanone', description: 'Ein sofortiger Strahl über die ganze Bildschirmhöhe, der alles in seiner Linie trifft. Vom Generator geladen.' },
   depthmine: { name: 'Grundmine', description: 'Sinkt unter das Boot und platzt am Meeresgrund. Eine weite Explosion gegen Geschütze und alles am Boden.' },
 };
 
@@ -169,6 +183,8 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   battery: 'Lunar Batteries', warden: 'Battlecruisers',
   minisub: 'Midget Subs', seadrone: 'Sea Drones', seamine: 'Sea Mines', seaturret: 'Seabed Turrets', jelly: 'Jellyfish', eel: 'Electric Eels',
   hunter: 'Hunter Subs', torpboat: 'Torpedo Boats', squid: 'Squid', crab: 'Giant Crabs', sealab: 'Sea Labs', angler: 'Anglerfish', boomer: 'Missile Subs',
+  walker: 'Enemy Walkers', hovertank: 'Hover Tanks', artillery: 'Artillery Guns', gundrone: 'Gun Drones', dropship: 'Dropships',
+  raptor: 'Raptors', beetle: 'Armoured Beetles', spitter: 'Spitter Plants', wasp: 'Giant Wasps', brute: 'Brute Walkers',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -214,6 +230,16 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   sealab: ['Unterwasserlabor', 'Unterwasserlabore'],
   angler: ['Anglerfisch', 'Anglerfische'],
   boomer: ['Raketen-U-Boot', 'Raketen-U-Boote'],
+  walker: ['Feindlicher Läufer', 'Feindliche Läufer'],
+  hovertank: ['Schwebepanzer', 'Schwebepanzer'],
+  artillery: ['Artilleriegeschütz', 'Artilleriegeschütze'],
+  gundrone: ['Kanonendrohne', 'Kanonendrohnen'],
+  dropship: ['Landungsschiff', 'Landungsschiffe'],
+  raptor: ['Raptor', 'Raptoren'],
+  beetle: ['Panzerkäfer', 'Panzerkäfer'],
+  spitter: ['Spuckpflanze', 'Spuckpflanzen'],
+  wasp: ['Riesenwespe', 'Riesenwespen'],
+  brute: ['Brecher-Läufer', 'Brecher-Läufer'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -242,4 +268,9 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   bastion: 'Meeresgrundfestung',
   goliath: 'Riesenkalmar',
   jormungand: 'Seeschlange',
+  ravager: 'Sturmläufer',
+  mantis: 'Bio-Maschine',
+  basilisk: 'Sumpfbestie',
+  sentinel: 'Tempelwächter',
+  queen: 'Mutter des Baus',
 };

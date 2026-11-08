@@ -131,8 +131,9 @@ function medalBlock(ids: readonly MedalId[], c: ChestFrame): { slots: UniformSlo
 }
 
 /** Campaign ribbons stand three a row; more than five rows' worth go as many a row as keep the rack at five rows
- *  (four for maps 2–4, doc 62; five with map 5, doc 72). */
-const ribbonsPerRow = (count: number, c: ChestFrame): number => Math.max(c.ribbonsPerRow, Math.ceil(count / 5));
+ *  (four for maps 2–4, doc 62; five with map 5, doc 72) — but never more than five a row: map 6's thirty ribbons stand
+ *  in six rows of five (doc 85), so the bars stay readable. */
+const ribbonsPerRow = (count: number, c: ChestFrame): number => Math.min(5, Math.max(c.ribbonsPerRow, Math.ceil(count / 5)));
 
 /** A row never grows wider than three full-size bars: with more a row the bars get smaller, so the rack stays on the
  *  breast between the sleeve seam and the buttons (owner, 2026-11-07). */

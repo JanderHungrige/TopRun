@@ -24,6 +24,12 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'mk48': mk48(ctx); break;
     case 'depthmine': depthMine(ctx); break;
     case 'shkval': rocketPod(ctx, '#2f3a44', '#9fd8e8'); break;
+    // The mech weapons (doc 79) until their pictures load.
+    case 'pod': rocketPod(ctx, '#4e5a2e', '#e86a3a'); break;
+    case 'seeker': missile(ctx, 40, 4, '#4e5a2e', '#1a1a1a', '#ff5a3a'); break;
+    case 'mortar': depthMine(ctx); break;
+    case 'plasma': missile(ctx, 50, 3, '#d8e0d8', '#6aff8a', '#9affb0'); break;
+    case 'rail': missile(ctx, 56, 3, '#3a4048', '#5ab8ff', '#a8e0ff'); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;

@@ -1,5 +1,5 @@
+import { JUNGLE_LINES_EN } from './lines-jungle-en';
 import { LAUNCH_LINES_EN } from './lines-launch-en';
-
 // Spoken lines (doc 06). Every variant of a key uses the same {placeholders}.
 export const LINES_EN = {
   // Admiral "Ace" Kincaid — debrief
@@ -76,7 +76,7 @@ export const LINES_EN = {
     "And there's a third front: low level, helicopters only. The jets stay home. Check the globe, {callsign}.",
   ],
   'adm.space': [
-    "One last front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
+    "Another front, {callsign}, and it's above the sky. Your shipyard has a spacecraft waiting. Check the globe.",
   ],
   'adm.celebrate1': ["The whole fleet is proud of you, {callsign}. Tonight we celebrate, tomorrow the world gets bigger."],
   'adm.celebrate2': ["Two fronts, one pilot. {callsign}, they will tell stories about you in every ready room."],
@@ -90,7 +90,7 @@ export const LINES_EN = {
     "The abyss is quiet, {callsign}. You hunted them all the way to the bottom of the sea.",
   ],
   'adm.finale5': [
-    "That was the last frontier, {callsign}. There is nowhere left they can run.",
+    "Space is ours, {callsign}. Up there, there is nowhere left they can run.",
   ],
   'adm.finale3': [
     "Ash Island is ours, {callsign}. You fought that war at treetop height. Ace of aces.",
@@ -294,7 +294,7 @@ export const LINES_EN = {
     "New on base: {game}! Want to give it a go?",
     "Check it out, {game} just opened up. Try it?",
   ],
-  ...LAUNCH_LINES_EN,
+  ...LAUNCH_LINES_EN, ...JUNGLE_LINES_EN,
 } as const satisfies Record<string, readonly string[]>;
 
 export type LineKey = keyof typeof LINES_EN;

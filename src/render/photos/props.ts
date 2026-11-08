@@ -104,6 +104,12 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   bastion: { shape: fortress, air: false, s: 0.7 },
   goliath: { shape: fortress, air: false, s: 0.65 },
   jormungand: { shape: battleship, air: false, s: 0.8 },
+  // Map 6 (doc 81): stand-ins too.
+  ravager: { shape: fortress, air: false, s: 0.6 },
+  mantis: { shape: fortress, air: false, s: 0.65 },
+  basilisk: { shape: battleship, air: false, s: 0.75 },
+  sentinel: { shape: fortress, air: false, s: 0.7 },
+  queen: { shape: fortress, air: false, s: 0.7 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

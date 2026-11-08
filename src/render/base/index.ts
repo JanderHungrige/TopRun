@@ -1,4 +1,4 @@
-import { BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
+import { areaDef, BASE_AREAS, type BaseAreaId } from '../../data/base-areas';
 import type { LiveryId } from '../../data/liveries';
 import type { PlaneId } from '../../data/types';
 import type { Walker } from '../../game/base-hangar';
@@ -93,7 +93,7 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, v: HangarView, back: HTM
   const front = frontLayer(gr);
   if (front) g.drawImage(front, 0, 0);
   drawAmbientFront(g, gr.G, v.t);
-  drawBrackets(g, gr.G, BASE_AREAS[v.focus].hot, v.t);
+  drawBrackets(g, gr.G, areaDef(BASE_AREAS, v.focus).hot, v.t);
 }
 
 /** Draws the hangar base covering the 1280 × 720 frame. */

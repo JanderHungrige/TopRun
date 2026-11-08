@@ -9,6 +9,8 @@ export type MedalId =
   | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss' | 'victory5' | 'allstars5'
   // Space (doc 62; map 5 since doc 74).
   | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep' | 'victory4' | 'allstars4'
+  // The jungle planet, map 6 (doc 85).
+  | 'landing' | 'canopy' | 'swamp' | 'ruins' | 'hive' | 'victory6' | 'allstars6'
   | 'ace' | 'topace' | 'giant' | 'untouchable' | 'gunslinger' | 'catapult'
   | 'offduty5' | 'offduty10' | 'sorties25' | 'sorties100' | 'triple';
 
@@ -18,6 +20,7 @@ export const MEDAL_IDS: readonly MedalId[] = Object.freeze([
   'fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3',
   'reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5',
   'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
+  'landing', 'canopy', 'swamp', 'ruins', 'hive', 'victory6', 'allstars6',
   'ace', 'topace', 'giant', 'untouchable', 'gunslinger', 'catapult',
   'offduty5', 'offduty10', 'sorties25', 'sorties100', 'triple',
 ] as const);
@@ -75,6 +78,14 @@ const WORLD_MEDALS = {
   abyss: m('abyss', 'campaign', 'Abyss Campaign Ribbon', 'For laying the sea serpent JORMUNGAND to rest in the abyss.', ['#05101c', '#5ff0e0', '#4a5260'], 'ribbon', 'gold'),
   victory5: m('victory5', 'campaign', 'Deep Water Medal', 'For fighting all thirty missions of the war under the sea to victory.', ['#0b5a66', '#5ff0e0', '#d8d6aa'], 'disc', 'gold'),
   allstars5: m('allstars5', 'campaign', 'Golden Star, Deep Water', 'For three stars on every single mission under the sea.', ['#ffd25a', '#0b5a66', '#ffd25a'], 'star', 'gold'),
+  // The jungle planet (doc 85), map 6.
+  landing: m('landing', 'campaign', 'Landing Zone Campaign Ribbon', 'For stopping the assault walker RAVAGER at the edge of the landing zone.', ['#5a3a24', '#c99a62', '#ffd25a'], 'ribbon', 'bronze'),
+  canopy: m('canopy', 'campaign', 'Rainforest Campaign Ribbon', 'For cutting down the bio-machine MANTIS under the canopy.', ['#1f3a1c', '#6fae4a', '#c8ff6a'], 'ribbon', 'bronze'),
+  swamp: m('swamp', 'campaign', 'Mangrove Swamp Campaign Ribbon', 'For putting down the swamp beast BASILISK in the black water.', ['#1d2a22', '#7d8f5a', '#9effd2'], 'ribbon', 'silver'),
+  ruins: m('ruins', 'campaign', 'Temple Ruins Campaign Ribbon', 'For stopping the stone guardian SENTINEL among the temple ruins.', ['#3a4a2a', '#c4c0a0', '#ffb84a'], 'ribbon', 'silver'),
+  hive: m('hive', 'campaign', 'Hive Campaign Ribbon', 'For ending the HIVE QUEEN in the heart of her nest.', ['#2a1a2a', '#a06a90', '#ff7ad2'], 'ribbon', 'gold'),
+  victory6: m('victory6', 'campaign', 'Jungle Planet Medal', 'For walking all thirty missions of the war on the jungle planet to victory.', ['#2f6a1e', '#c8ff6a', '#c99a62'], 'disc', 'gold'),
+  allstars6: m('allstars6', 'campaign', 'Golden Star, Jungle Planet', 'For three stars on every single mission on the jungle planet.', ['#ffd25a', '#2f6a1e', '#ffd25a'], 'star', 'gold'),
 } as const;
 
 export const MEDALS: Readonly<Record<MedalId, MedalDef>> = Object.freeze({

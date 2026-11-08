@@ -1,9 +1,10 @@
 """Home docks (doc 73): the generated dock renders → the base's backdrops.
 
-Usage: python3 -I dev/dock-plates.py <space-raw.png> <sea-raw.png> src/assets/docks
+Usage: python3 -I dev/dock-plates.py src/assets/docks space=<space-raw.png> sea=<sea-raw.png>
 
 Box-downscales each 1280 x 720 render of the "Top Gun pixel scene 16:9" workflow to the 320 x 180 art grid and
-quantizes it to 48 colours of its own (median cut, no dither), saved as indexed PNGs space.png and sea.png.
+quantizes it to 48 colours of its own (median cut, no dither), saved as indexed PNGs <look>.png (any of the looks given;
+the sea lounge D41 since doc 93).
 """
 import os
 import sys
@@ -21,7 +22,8 @@ def convert(src, out):
 
 
 if __name__ == '__main__':
-    space, sea, out_dir = sys.argv[1:4]
+    out_dir = sys.argv[1]
     os.makedirs(out_dir, exist_ok=True)
-    convert(space, os.path.join(out_dir, 'space.png'))
-    convert(sea, os.path.join(out_dir, 'sea.png'))
+    for pair in sys.argv[2:]:
+        look, raw = pair.split('=', 1)
+        convert(raw, os.path.join(out_dir, f'{look}.png'))

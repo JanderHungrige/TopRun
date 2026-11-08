@@ -83,6 +83,9 @@ craft area opened the jets' LOADOUT even on maps 3–5. The hangar now always sh
 
 ## The docks
 
+- **Sea lounge (doc 93, 2026-11-08):** the sea dock is now the bigger lounge D41 — the submarine's bow in a window filling
+  the left wall, the globe and the TV with its video recorder painted into the picture, a big chalkboard; what follows of
+  picture C, its round window and the globe drawn in code is history.
 - **Map buttons:** in the space dock a porthole is the way to the map (the exit hatch is gone); in the sea dock a
   globe on a stand, drawn in code, stands in the room and is the way to the map (the hatch is gone too). The windows'
   and the globe's brackets pulse like every other area's.

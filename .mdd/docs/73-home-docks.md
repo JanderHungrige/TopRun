@@ -43,6 +43,9 @@ sister_projects: []
 
 # 73 — Home Docks
 
+> **Sea lounge (doc 93, 2026-11-08):** map 4's dock is the bigger underwater lounge D41, its globe and its TV part of the
+> picture (no cart, no code globe there).
+
 > **Depth (doc 92, 2026-11-08):** the carrier, helicopter, sea and space docks have depth — some areas stand a step back
 > or deeper in the room, reached up free lanes, the pilot smaller there; the jungle base keeps the front line.
 

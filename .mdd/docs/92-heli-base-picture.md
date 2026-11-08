@@ -101,9 +101,7 @@ table in the foreground go together.
 - **Carrier lounge** (maps 1–2): horizon 270, pilot 1 on the front line. The arcade and the lockers a step back (y 560,
   straight across between them); the hangar door up the lane right of the coffee table (x 790, in the door's left side at
   y 495 — about 0.6, the jet's nose stays in view); the opening onto the flight deck on its threshold (y 580).
-- **Sea dock** (map 4): horizon 300, pilot 0.92 (was 0.84 — on the front line he stood as tall as the lockers behind
-  him; now he is bigger in front and a little shorter than the lockers beside them). The lockers, the photos and the
-  chalkboard stand on one row at the back wall (y 565).
+- **Sea dock** (map 4): now the lounge D41 with its own depth (doc 93: horizon 240, pilot 1.05).
 - **Space dock** (map 5): horizon 220, pilot 0.94 (was 0.86, for the same reason). The arcade alcove and the lockers a step
   back (y 545). The shelf with the photos stays on the front line: the TV cart stands in front of it.
 - No look needs a walk-behind mask besides the helicopter base's map table: the lanes and spots keep clear of the couches,

@@ -14,6 +14,9 @@ import { RANKS } from './ranks';
 import { REFUEL } from './refuel';
 import { TACTICS } from './tactics';
 import { VOLLEYBALL } from './volleyball';
+import { SONAR } from './sonar';
+import { DOCKING } from './docking';
+import { RANGE_GAME } from './range';
 
 // The minigames that are built (doc 10). Only these appear in the hub (others: COMING SOON) and offers.
 export const PLAYABLE: readonly MinigameModule[] = [
@@ -29,6 +32,9 @@ export const PLAYABLE: readonly MinigameModule[] = [
   TACTICS,
   RANKS,
   HIGHFIVE,
+  SONAR,
+  DOCKING,
+  RANGE_GAME,
 ];
 
 export const playableIds = (): MinigameId[] => PLAYABLE.map((m) => m.id);

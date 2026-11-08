@@ -21,7 +21,7 @@ test_files:
   - tests/unit/mech-walk.test.ts
 data_flow: reads-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [mechs, walking, gait, footprints, jump-jets, stomp, cockpit-skin, art, map-6]

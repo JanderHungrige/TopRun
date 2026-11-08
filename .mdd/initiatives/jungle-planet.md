@@ -1,7 +1,7 @@
 ---
 id: jungle-planet
 title: Jungle Planet
-status: in_progress
+status: complete
 version: 1
 hash: 5e1c7a20
 created: 2026-11-08
@@ -57,9 +57,9 @@ down so the owner can change them.
 ## Waves
 | Wave | File | Demo-state | Status |
 |------|------|------------|--------|
-| Wave 1 | waves/jungle-planet-wave-1.md | After m150 the map picker opens map 6; the free Strider walks into the Landing Zone (m151–m156): a jungle floor with trees, mud and rivers; autocannon, rocket pod with built rounds, E jump jets; walkers, hover tanks, drones, raptors, beetles, spitters; RAVAGER; the MECH BAY builds with alloy. | planned |
-| Wave 2 | waves/jungle-planet-wave-2.md | The GROUND BASE and the LAB open from the jungle base: buildings bought with money, power, alloy and research per sortie, the factory fills the magazine, the lab invents weapons and marks; Major Brennan and Dr. Moreau talk. | planned |
-| Wave 3 | waves/jungle-planet-wave-3.md | All of map 6 (m157–m180): canopy, swamp, ruins and the hive with their bosses, the BRUTE, the Ranger, Hornet and Titan, the researched weapons in the mission; balanced by bot playtest. | planned |
-| Wave 4 | waves/jungle-planet-wave-4.md | The drop launch; map 6's medals, ceremony, celebration, tape and rank; the jungle base's looks: crew hut, loadout background, crew outfits, item pictures, map picture. | planned |
-| Wave 5 | waves/jungle-planet-wave-5.md | The PAINT SHOP: each mech's camo painted by hand and worn in the mission. | planned |
-| Wave 6 | waves/jungle-planet-wave-6.md | SONAR HUNT, STATION DOCKING and FIRING RANGE in the rec room. | planned |
+| Wave 1 | waves/jungle-planet-wave-1.md | After m150 the map picker opens map 6; the free Strider walks into the Landing Zone (m151–m156): a jungle floor with trees, mud and rivers; autocannon, rocket pod with built rounds, E jump jets; walkers, hover tanks, drones, raptors, beetles, spitters; RAVAGER; the MECH BAY builds with alloy. | complete |
+| Wave 2 | waves/jungle-planet-wave-2.md | The GROUND BASE and the LAB open from the jungle base: buildings bought with money, power, alloy and research per sortie, the factory fills the magazine, the lab invents weapons and marks; Major Brennan and Dr. Moreau talk. | complete |
+| Wave 3 | waves/jungle-planet-wave-3.md | All of map 6 (m157–m180): canopy, swamp, ruins and the hive with their bosses, the BRUTE, the Ranger, Hornet and Titan, the researched weapons in the mission; balanced by bot playtest. | complete |
+| Wave 4 | waves/jungle-planet-wave-4.md | The drop launch; map 6's medals, ceremony, celebration, tape and rank; the jungle base's looks: crew hut, loadout background, crew outfits, item pictures, map picture. | complete |
+| Wave 5 | waves/jungle-planet-wave-5.md | The PAINT SHOP: each mech's camo painted by hand and worn in the mission. | complete |
+| Wave 6 | waves/jungle-planet-wave-6.md | SONAR HUNT, STATION DOCKING and FIRING RANGE in the rec room. | complete |

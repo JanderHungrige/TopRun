@@ -9,12 +9,12 @@ type Map6Theater = 'landing' | 'canopy' | 'swamp' | 'ruins' | 'hive';
 
 const SEEDS: Readonly<Record<Map6Theater, readonly MissionSeed[]>> = {
   landing: [
-    { name: 'Boots on the Ground', objective: patrol, pool: ['walker', 'raptor', 'gundrone'], briefing: 'The dropships are down. Walk the perimeter of the landing zone and learn how your mech moves on this world.' },
+    { name: 'Boots on the Ground', objective: patrol, pool: ['walker', 'raptor', 'gundrone', 'hovertank'], briefing: 'The dropships are down. Walk the perimeter of the landing zone and learn how your mech moves on this world.' },
     { name: 'Gun Nests', objective: strike('artillery', 5), pool: ['artillery', 'walker', 'raptor'], briefing: 'Enemy artillery is shelling the landing zone. Walk in and knock out 5 guns.' },
-    { name: 'Raptor Pack', objective: intercept(24), pool: ['raptor', 'gundrone', 'walker'], briefing: 'Packs of raptors hunt around the clearing. Keep them off the engineers: 24 kills.' },
+    { name: 'Raptor Pack', objective: intercept(24), pool: ['raptor', 'gundrone', 'walker', 'hovertank'], briefing: 'Packs of raptors hunt around the clearing. Keep them off the engineers: 24 kills.' },
     { name: 'Tank Trap', objective: strike('hovertank', 4), pool: ['hovertank', 'walker', 'gundrone'], briefing: 'Hover tanks race along the riverbank toward our base. Stop 4 of them.' },
     { name: 'Night Perimeter', objective: patrol, pool: ['walker', 'raptor', 'spitter', 'gundrone'], briefing: 'The jungle wakes up at night. Hold the perimeter until dawn.' },
-    { name: 'Ravager', objective: { type: 'boss', boss: 'ravager' }, pool: ['walker', 'gundrone'], briefing: 'RAVAGER, a giant assault walker, is marching on the landing zone. Stop it before it reaches the base.' },
+    { name: 'Ravager', objective: { type: 'boss', boss: 'ravager' }, pool: ['walker', 'gundrone', 'hovertank'], briefing: 'RAVAGER, a giant assault walker, is marching on the landing zone. Stop it before it reaches the base.' },
   ],
   canopy: [
     { name: 'Green Roof', objective: patrol, pool: ['raptor', 'wasp', 'walker'], briefing: 'Under the canopy it is dark and loud. Push into the rainforest and stay alive.' },

@@ -19,6 +19,7 @@ import { HangarChief } from './hangar-chief';
 import { ammoTypeOf, FLEET_UI, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 import { isFleet } from '../data/fleet';
 import { wallet } from '../game/outpost';
+import { isMech } from '../game/jets';
 import { priceText } from './hangar-mech';
 
 /** The LOADOUT's two exits (doc 02): BASE (the hangar base, key B) and MAP (ESC). */
@@ -63,6 +64,7 @@ export class HangarScene implements Scene {
     const item = this.item;
     const a = item ? twinAction(this.game.save, item) : null;
     if (!a) return null;
+    if (item?.type === 'plane') return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + 24, y: DETAIL.y + DETAIL.h - 66, w: 236, h: 48, hint: 'E' }; // PAINT CAMO (doc 87)
     return { id: 'twin', label: a.label, enabled: a.enabled, x: DETAIL.x + DETAIL.w - 254, y: DETAIL.y + 452, w: 236, h: 32, hint: 'E' };
   }
 
@@ -87,6 +89,7 @@ export class HangarScene implements Scene {
   /** Key E: LOAD an owned ammo type (doc 45), or TWIN PODS for a weapon (doc 37). */
   private buyTwinFocused(): void {
     const item = this.item;
+    if (item?.type === 'plane' && this.game.save.kit === 'mech' && isMech(item.id)) return this.game.go({ to: 'paintShop', mech: item.id }); // doc 87
     const ammo = item ? ammoTypeOf(item) : null;
     if (item && ammo) {
       if (canLoad(this.game.save, ammo)) this.commit(loadAmmo(this.game.save, ammo), t('arsenal.loadedToast', { item: itemName(item) }));

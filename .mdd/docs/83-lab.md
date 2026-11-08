@@ -18,7 +18,7 @@ test_files:
   - tests/unit/lab.test.ts
 data_flow: writes-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [lab, research, invent, weapons, marks, seeker, mortar, plasma, rail, map-6]

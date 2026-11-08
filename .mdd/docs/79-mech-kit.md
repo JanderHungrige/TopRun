@@ -29,7 +29,7 @@ test_files:
   - tests/unit/outpost.test.ts
 data_flow: writes-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [mechs, strider, ranger, hornet, titan, kit, mech-bay, alloy, autocannon, rocket-pod, magazine, map-6]

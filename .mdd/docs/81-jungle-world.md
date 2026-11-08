@@ -23,7 +23,7 @@ test_files:
   - tests/unit/missions-6.test.ts
 data_flow: reads-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [jungle, terrain, canopy, enemies, creatures, walkers, bosses, art, map-6]
@@ -58,7 +58,7 @@ GROUND key's mortar):
 | walker | Enemy Walker | ground | 90 | two-legged, aimed shots |
 | hovertank | Hover Tank | ground | 110 | fast, three-shot spread |
 | artillery | Artillery Gun | ground | 120 | flak and the odd missile |
-| gundrone | Gun Drone | air | 28 | weaves and swoops |
+| gundrone | Gun Drone | air | 28 | weaves and swoops, fires aimed shots |
 | dropship | Dropship | air | 260 | slow, aimed fire and missiles |
 | raptor | Raptor | air | 40 | runs at you |
 | beetle | Armoured Beetle | ground | 170 | the gun does 60 % |

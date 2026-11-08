@@ -24,7 +24,7 @@ test_files:
   - tests/unit/outpost.test.ts
 data_flow: writes-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [ground-base, base-building, generator, power, refinery, alloy, factory, magazine, rounds, mech-bay, map-6, economy]

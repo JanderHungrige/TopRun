@@ -22,7 +22,7 @@ test_files:
   - tests/unit/missions-6.test.ts
 data_flow: writes-existing
 last_synced: 2026-11-08
-status: in_progress
+status: complete
 phase: all
 mdd_version: 11
 tags: [map-6, jungle, campaign, theaters, bosses, mechs, balance]
@@ -62,3 +62,31 @@ celebration (doc 85).
   in each theater.
 - The admiral opens the map (`adm.jungle`) and closes it (`adm.finale6`); the debrief's finale line, the globe's lock
   text and the campaign-complete banner have map-6 versions.
+
+## Balance (bot playtest, 2026-11-08)
+
+`dev/playtest-mech.ts` builds the base and the kit a pilot owns at each mission (money down a building order, the lab
+down a project order, alloy into the magazine and down a mech shopping list) and walks the invulnerable bot of
+`dev/playtest.ts` through the mission (hulls of damage per minute / kill share / boss time, two runs each):
+
+| | kit | first numbers | after the changes below |
+|---|---|---|---|
+| m151 | Strider, gun 1, pods | 0 / 1.00 | 0–0.09 / 1.00 |
+| m156 RAVAGER | Strider, gun 4, pods, armour 2 | 0 / 1.00 / 10–12 s | 0.1–0.3 / 1.00 / 14–21 s |
+| m160 | Ranger, gun 4, seekers, pods | 2.0 / 0.72–0.86 | — |
+| m162 MANTIS | Ranger, gun 6, seekers, pods | 1.9–3.1 / 0.85–0.88 / 11 s | 2.4–2.5 / 0.80 / 18–20 s |
+| m166 | Ranger, gun 7, mortar, seekers, pods | 2.9–3.0 / 0.66–0.70 | — |
+| m168 BASILISK | Titan, gun 7, plasma, mortar, seekers, pods | 0.4–0.8 / 0.42–0.81 / 16–20 s | (core 3,800 → 4,600) |
+| m174 SENTINEL | Titan, gun 10, plasma, mortar, seekers, pods | 1.5 / 0.18–0.23 / 21 s | (core 4,400 → 5,000) |
+| m175 | Titan, gun 10, plasma, mortar, seekers, pods | 0.9–1.2 / 0.78–0.83 | — |
+| m180 HIVE QUEEN | Titan, gun 10, rail, plasma, mortar, seekers | 2.5–2.7 / 0.33–0.43 / 27–29 s | 2.1–2.6 / 0.30–0.32 / 30–32 s |
+
+- The changes: the gun drones aim (they fired straight down); the landing zone's patrols and the RAVAGER's escort
+  bring hover tanks; the RAVAGER has 3,000 core (from 1,800) with a spread for its core gun and tougher, faster parts;
+  the MANTIS 4,200 (from 3,200) with tougher parts, the BASILISK 4,600, the SENTINEL 5,000, the HIVE QUEEN 5,600, so
+  each boss is tougher than the last and every fight lasts 15–30 s, the finale the longest.
+- The Landing Zone stays the gentle start on purpose (the owner's *learn how your mech moves*): the bot shreds it with
+  the rocket pods; from the canopy on, map 6 sits in the band of the other maps (1–3 hulls/min, bosses 20–30 s).
+- The buying pilot's base: generator, refinery, factory and lab 1 by m155, the mech bay 2 and the Ranger by m160, every
+  building at level 3 and the Titan by m168–m169; the lab invents the seekers by m160, the mortar by m163, the plasma lance
+  by m169, the rail cannon by m178. Alloy runs short until the base is built and piles up only after m175.

@@ -1,7 +1,7 @@
 import type { MinigameId } from '../../data/minigames';
 import { gameText } from '../minigame-text';
 
-/** The twenty minigame names (doc 10); the hub shows locked and unbuilt games too. */
+/** The minigame names (doc 10; the late worlds' three, docs 88–90); the hub shows locked and unbuilt games too. */
 export const MINIGAME_NAMES = gameText<MinigameId>({
   pushups: 'Push-up Challenge',
   flyby: 'Tower Flyby',
@@ -23,6 +23,9 @@ export const MINIGAME_NAMES = gameText<MinigameId>({
   deck: 'Deck Handler',
   canyon: 'Canyon Run',
   dogfight: 'Cockpit Dogfight',
+  sonar: 'Sonar Hunt',
+  docking: 'Station Docking',
+  range: 'Firing Range',
 }, {
   pushups: 'Liegestütz-Duell',
   flyby: 'Tower-Überflug',
@@ -44,4 +47,7 @@ export const MINIGAME_NAMES = gameText<MinigameId>({
   deck: 'Deck-Rangieren',
   canyon: 'Canyonflug',
   dogfight: 'Cockpit-Luftkampf',
+  sonar: 'Sonarjagd',
+  docking: 'Andocken',
+  range: 'Schießstand',
 });

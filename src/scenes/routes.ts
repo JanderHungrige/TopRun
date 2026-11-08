@@ -32,6 +32,7 @@ import { DiveLaunchScene } from './dive-launch';
 import { DropLaunchScene } from './drop-launch';
 import { LabScene } from './lab';
 import { OutpostScene } from './outpost';
+import { PaintShopScene } from './paint-shop';
 
 // Which scene each route opens (docs 01, 53, 55, 56, 59, 63, 64, 71).
 
@@ -59,6 +60,7 @@ export function createScene(game: GameContext, route: Route): Scene {
     case 'base': return new HangarBaseScene(game);
     case 'outpost': return new OutpostScene(game);
     case 'lab': return new LabScene(game);
+    case 'paintShop': return new PaintShopScene(game, route.mech);
     case 'recRoom': return new BaseHubScene(game);
     case 'locker': return new LockerScene(game);
     case 'photoWall': return new PhotoWallScene(game);

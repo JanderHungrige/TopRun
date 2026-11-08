@@ -79,7 +79,7 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   walker: def('walker', 'Enemy Walker', 'ground', 90, 35, 20, 60, 'aimed', 2.0, ['ground']),
   hovertank: def('hovertank', 'Hover Tank', 'ground', 110, 55, 20, 70, 'spread3', 2.6, ['ground']),
   artillery: def('artillery', 'Artillery Gun', 'ground', 120, 0, 20, 80, 'flak', 2.4, ['ground'], 'missile', 7),
-  gundrone: def('gundrone', 'Gun Drone', 'air', 28, 170, 13, 25, 'single', 2.0, ['sine', 'swoop']),
+  gundrone: def('gundrone', 'Gun Drone', 'air', 28, 170, 13, 25, 'aimed', 1.8, ['sine', 'swoop']),
   dropship: def('dropship', 'Dropship', 'air', 260, 60, 32, 160, 'aimed', 1.6, ['straight'], 'missile', 6),
   raptor: def('raptor', 'Raptor', 'air', 40, 220, 15, 35, 'none', 0, ['kamikaze', 'dive']),
   beetle: { ...def('beetle', 'Armoured Beetle', 'ground', 170, 25, 22, 90, 'aimed', 2.6, ['ground']), armor: 0.6 },

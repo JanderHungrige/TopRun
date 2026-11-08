@@ -17,7 +17,7 @@ export function jetOnSale(save: SaveData, id: PlaneId): boolean {
   return p.campaign === 1 || mapTwoOpen(save);
 }
 
-const isMech = (id: PlaneId): id is MechId => (MECH_IDS as readonly PlaneId[]).includes(id);
+export const isMech = (id: PlaneId): id is MechId => (MECH_IDS as readonly PlaneId[]).includes(id);
 
 /** The mech bay level a craft needs: its own for a mech (doc 79), none for everything else. */
 export const mechBayFor = (id: PlaneId): number => (isMech(id) ? MECH_BAY[id] : 0);

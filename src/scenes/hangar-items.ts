@@ -226,6 +226,7 @@ export const ammoTypeOf = (item: ShopItem): AmmoType | null =>
  * (doc 45); null = no button.
  */
 export function twinAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
+  if (item.type === 'plane' && save.kit === 'mech') return save.ownedPlanes.includes(item.id) ? { label: t('paint.button'), enabled: true } : null; // doc 87
   const ammo = ammoTypeOf(item);
   if (ammo) {
     if (ammoTypeLevel(save, ammo) === 0) return null;

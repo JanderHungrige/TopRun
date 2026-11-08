@@ -9,27 +9,27 @@ const part = (id: string, dx: number, dy: number, r: number, hp: number, weapon:
 export const BOSSES_6 = {
   ravager: {
     id: 'ravager', name: 'RAVAGER', title: 'Assault Walker', layer: 'ground',
-    coreHp: 1800, coreWeapon: 'aimed', corePeriod: 1.6,
+    coreHp: 3000, coreWeapon: 'spread3', corePeriod: 1.4,
     hitboxes: [{ dx: 0, dy: 0, r: 56 }, { dx: -78, dy: 10, r: 30 }, { dx: 78, dy: 10, r: 30 }, { dx: 0, dy: -70, r: 34 }],
     parts: [
-      part('armL', -80, 30, 16, 200, 'aimed', 1.6), part('armR', 80, 30, 16, 200, 'aimed', 1.6),
-      part('rack', 0, -60, 18, 220, 'missile', 4.0), part('chin', 0, 46, 14, 180, 'spread3', 2.4),
+      part('armL', -80, 30, 16, 300, 'aimed', 1.3), part('armR', 80, 30, 16, 300, 'aimed', 1.3),
+      part('rack', 0, -60, 18, 320, 'missile', 3.2), part('chin', 0, 46, 14, 260, 'spread3', 2.0),
     ],
     settleY: 200, sway: 70, swaySpeed: 0.25, bounty: 3000, escort: { kind: 'walker', every: 6 },
   },
   mantis: {
     id: 'mantis', name: 'MANTIS', title: 'Bio-Machine', layer: 'ground',
-    coreHp: 3200, coreWeapon: 'spread3', corePeriod: 2.2,
+    coreHp: 4200, coreWeapon: 'spread3', corePeriod: 2.0,
     hitboxes: [{ dx: 0, dy: 40, r: 40 }, { dx: 0, dy: -30, r: 46 }, { dx: 0, dy: -110, r: 40 }, { dx: -70, dy: 80, r: 26 }, { dx: 70, dy: 80, r: 26 }],
     parts: [
-      part('scytheL', -72, 92, 16, 220, 'aimed', 1.6), part('scytheR', 72, 92, 16, 220, 'aimed', 1.6),
-      part('eyes', 0, 62, 15, 240, 'spread3', 2.0), part('sting', 0, -130, 16, 240, 'missile', 3.6),
+      part('scytheL', -72, 92, 16, 300, 'aimed', 1.5), part('scytheR', 72, 92, 16, 300, 'aimed', 1.5),
+      part('eyes', 0, 62, 15, 320, 'spread3', 2.0), part('sting', 0, -130, 16, 320, 'missile', 3.4),
     ],
     settleY: 200, sway: 100, swaySpeed: 0.3, bounty: 4000, escort: { kind: 'wasp', every: 4 },
   },
   basilisk: {
     id: 'basilisk', name: 'BASILISK', title: 'Swamp Beast', layer: 'ground',
-    coreHp: 3800, coreWeapon: 'spread3', corePeriod: 2.0,
+    coreHp: 4600, coreWeapon: 'spread3', corePeriod: 2.0,
     hitboxes: [{ dx: 0, dy: 110, r: 38 }, { dx: 0, dy: 30, r: 54 }, { dx: 0, dy: -60, r: 46 }, { dx: 0, dy: -140, r: 28 }],
     parts: [
       part('jaws', 0, 130, 18, 280, 'spread3', 1.8), part('spineL', -40, 10, 15, 240, 'flak', 2.4),
@@ -39,7 +39,7 @@ export const BOSSES_6 = {
   },
   sentinel: {
     id: 'sentinel', name: 'SENTINEL', title: 'Temple Guardian', layer: 'ground',
-    coreHp: 4400, coreWeapon: 'aimed', corePeriod: 1.4,
+    coreHp: 5000, coreWeapon: 'aimed', corePeriod: 1.4,
     hitboxes: [{ dx: 0, dy: 0, r: 70 }, { dx: -96, dy: 30, r: 32 }, { dx: 96, dy: 30, r: 32 }, { dx: 0, dy: -86, r: 34 }],
     parts: [
       part('eye', 0, 24, 18, 320, 'aimed', 1.4), part('handL', -96, 40, 16, 260, 'spread3', 2.2),
@@ -49,7 +49,7 @@ export const BOSSES_6 = {
   },
   queen: {
     id: 'queen', name: 'HIVE QUEEN', title: 'Hive Mother', layer: 'ground',
-    coreHp: 5000, coreWeapon: 'spread3', corePeriod: 1.6,
+    coreHp: 5600, coreWeapon: 'spread3', corePeriod: 1.6,
     hitboxes: [
       { dx: 0, dy: 100, r: 36 }, { dx: 0, dy: 20, r: 52 }, { dx: -90, dy: 0, r: 34 }, { dx: 90, dy: 0, r: 34 },
       { dx: 0, dy: -80, r: 46 }, { dx: 0, dy: -150, r: 30 },

@@ -1,5 +1,6 @@
 import type { LiveryId } from '../data/liveries';
 import type { CampaignId, PlaneId } from '../data/types';
+import { PLANES } from '../data/planes';
 import { drawPlaneSide } from './draw-planes-side';
 
 // A world's celebration (doc 64): the generated key frames (320 × 180 art, 4 logical px per art px) and the overlays
@@ -113,19 +114,22 @@ export function drawConfetti(ctx: Ctx, t: number): void {
 
 let craftCanvas: HTMLCanvasElement | null = null;
 
-/** The player's craft crossing the sky left to right (u 0…1), drawn at a quarter size and blown up: pixel art. */
-export function drawFlyby(ctx: Ctx, plane: PlaneId, livery: LiveryId, u: number, t: number): void {
+/** The player's craft crossing the sky left to right (u 0…1), drawn at a quarter size and blown up: pixel art. A mech
+ *  walks across the ground instead (doc 85). */
+export function drawFlyby(ctx: Ctx, plane: PlaneId, livery: LiveryId, u: number, t: number, paint: string | null = null): void {
   const W = 80;
   const H = 40;
+  const mech = PLANES[plane].kind === 'mech';
   craftCanvas ??= document.createElement('canvas');
   craftCanvas.width = W;
   craftCanvas.height = H;
   const g = craftCanvas.getContext('2d');
   if (!g) return;
   g.clearRect(0, 0, W, H);
-  drawPlaneSide(g, plane, W / 2, H / 2 + 4, 0.42, { gear: 0, t, livery, throttle: 1, pitch: 0.06 });
-  const x = -260 + u * 1800;
-  const y = 210 - Math.sin(u * Math.PI) * 60;
+  if (mech) drawPlaneSide(g, plane, W / 2, H - 2, 0.42, { t, paint, stride: u * 14 });
+  else drawPlaneSide(g, plane, W / 2, H / 2 + 4, 0.42, { gear: 0, t, livery, throttle: 1, pitch: 0.06 });
+  const x = mech ? -200 + u * 1700 : -260 + u * 1800;
+  const y = mech ? 600 : 210 - Math.sin(u * Math.PI) * 60;
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(craftCanvas, snap(x - (W * ART) / 2), snap(y - (H * ART) / 2), W * ART, H * ART);

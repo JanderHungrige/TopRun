@@ -3,7 +3,7 @@ id: jungle-planet-wave-1
 title: "Wave 1: Map 6 opens on the jungle planet with the Strider"
 initiative: jungle-planet
 initiative_version: 1
-status: in_progress
+status: complete
 depends_on: none
 demo_state: "After m150 the map picker opens map 6; the free Strider walks into the Landing Zone (m151–m156): a jungle floor with trees, mud and rivers; autocannon, rocket pod with built rounds, E jump jets; walkers, hover tanks, drones, raptors, beetles, spitters; RAVAGER; the MECH BAY builds with alloy."
 created: 2026-11-08

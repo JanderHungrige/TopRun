@@ -1,6 +1,6 @@
 import type { Scene } from '../core/scene';
 import type { LiveryId } from '../data/liveries';
-import type { CampaignId, PlaneId } from '../data/types';
+import type { CampaignId, MechId, PlaneId } from '../data/types';
 import { celebrationBeat, CELEBRATION, skipTo, worldSummary, type Beat, type WorldSummary } from '../game/celebration';
 import { celebrationLine } from '../game/dialogue-scripts';
 import type { GameContext, Route } from '../game/state';
@@ -23,14 +23,15 @@ export class CelebrationScene implements Scene {
   private leaving = false;
   private readonly summary: WorldSummary;
   private readonly speech: SpeechBox;
-  private readonly craft: { plane: PlaneId; livery: LiveryId };
+  private readonly craft: { plane: PlaneId; livery: LiveryId; paint: string | null };
 
   constructor(private readonly game: GameContext, private readonly world: CampaignId, private readonly then: Route) {
     preloadWorld(world);
     this.summary = worldSummary(game.save, world);
     const save = game.save;
-    const plane: PlaneId = world === 4 ? save.sub.selectedPlane : world === 5 ? 'starship' : world === 3 ? save.heli.selectedPlane : save.selectedPlane;
-    this.craft = { plane, livery: save.livery[plane] };
+    const fleet = world === 4 ? save.sub.selectedPlane : world === 3 ? save.heli.selectedPlane : world === 6 ? save.mech.selectedPlane : null;
+    const plane: PlaneId = fleet ?? (world === 5 ? 'starship' : save.selectedPlane);
+    this.craft = { plane, livery: save.livery[plane], paint: save.mechPaint[plane as MechId] ?? null };
     this.speech = new SpeechBox(game.audio, {
       portrait: { x: 52, y: 556, w: 92, h: 110 },
       bubble: { x: 172, y: 562, w: 1058, h: 104 },
@@ -66,7 +67,7 @@ export class CelebrationScene implements Scene {
     ctx.fillRect(0, 0, 1280, 720);
     if (b.from !== null) drawPlate(ctx, this.world, b.from, 1);
     drawPlate(ctx, this.world, b.shot, b.fade);
-    if (b.flyby !== null) drawFlyby(ctx, this.craft.plane, this.craft.livery, b.flyby, this.time);
+    if (b.flyby !== null) drawFlyby(ctx, this.craft.plane, this.craft.livery, b.flyby, this.time, this.craft.paint);
     if (b.fireworks) drawFireworks(ctx, this.world, this.time, b.shot);
     if (b.confetti) drawConfetti(ctx, this.time);
   }

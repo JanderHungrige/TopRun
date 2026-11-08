@@ -1,5 +1,5 @@
 import { MINIGAME_IDS, MINIGAMES, type MinigameId } from '../../data/minigames';
-import { MISSIONS } from '../../data/missions';
+import { ALL_MISSIONS } from '../../data/missions';
 import type { SaveData } from '../save';
 
 // Minigame rules (doc 10): unlocks, offers after missions, medals, personal bests. Pure.
@@ -18,8 +18,9 @@ export interface MinigameRecord {
 }
 export type MinigameRecords = Partial<Record<MinigameId, MinigameRecord>>;
 
+/** Mission numbers run through every map in order (m01–m180), so a late world's game unlocks on its own map. */
 function cleared(progress: Progress, missionNumber: number): boolean {
-  const m = MISSIONS[missionNumber - 1];
+  const m = ALL_MISSIONS[missionNumber - 1];
   return m !== undefined && progress[m.id] !== undefined;
 }
 

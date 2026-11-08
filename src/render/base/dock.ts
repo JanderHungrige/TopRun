@@ -1,5 +1,5 @@
 import { areaDef, type AreaTable } from '../../data/base-areas';
-import { CARRIER_LAYOUT, JUNGLE_LAYOUT, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
+import { CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT, scaleAt, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
 import type { BaseLook } from '../../data/base-areas';
 import type { BaseLight } from '../../game/base-light';
 import { artGrid, type Grid } from '../ceremony-set';
@@ -11,7 +11,8 @@ import { drawCast, drawCastShadows } from './cast';
 import { drawDockChalkboard, drawDockFlipBoard } from './dock-boards';
 import { drawDockGlobe } from './dock-globe';
 import { seaAmbient, spaceAmbient, type Mask } from './dock-ambient';
-import { carrierAmbient } from './dock-carrier';
+import { litAmbient } from './dock-carrier';
+import { drawFront, frontLayer } from './dock-front';
 import { jungleAmbient } from './dock-jungle';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
@@ -28,13 +29,13 @@ import { neonSprite } from './sprites';
 export type DockLook = BaseLook;
 
 const FILES = import.meta.glob<string>('../../assets/docks/*.png', { eager: true, query: '?url', import: 'default' });
-const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { carrier: CARRIER_LAYOUT, space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
+const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { carrier: CARRIER_LAYOUT, heli: HELI_LAYOUT, space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
 const images = new Map<string, HTMLImageElement>();
 const masks = new Map<DockLook, Mask>();
 const layers = new SpriteCache(4);
 
-/** The picture's file: the carrier lounge comes in the base's light (doc 91). */
-const fileOf = (look: DockLook, light: BaseLight): string => (look === 'carrier' ? `carrier-${light}` : look);
+/** The picture's file: the carrier lounge and the helicopter base come in the base's light (docs 91, 92). */
+const fileOf = (look: DockLook, light: BaseLight): string => (look === 'carrier' || look === 'heli' ? `${look}-${light}` : look);
 
 function picture(file: string): HTMLImageElement | null {
   let img = images.get(file);
@@ -78,8 +79,8 @@ function tvLayer(gr: Grid, look: DockLook): HTMLCanvasElement | null {
   });
 }
 
-/** The TV grows with the pilot: the carrier hangar's cart at its pilot's scale, times the dock's pilot over that one. */
-const tvScale = (look: DockLook): number => LAYOUT[look].pilot / PILOT_SCALE;
+/** The TV grows with the pilot: the carrier hangar's cart at its pilot's scale, times the dock's pilot where it stands. */
+const tvScale = (look: DockLook): number => scaleAt(LAYOUT[look], LAYOUT[look].tv.base) / PILOT_SCALE;
 
 /** The joystick neon over the picture's own sign (whose letters are made up). */
 function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: number): void {
@@ -93,7 +94,7 @@ function neon(g: CanvasRenderingContext2D, G: number, r: DockLayout['neon'], t: 
 function ambient(g: CanvasRenderingContext2D, G: number, look: DockLook, v: HangarView, back: HTMLCanvasElement): void {
   const t = v.t;
   switch (look) {
-    case 'carrier': carrierAmbient(g, G, t, v.light); return;
+    case 'carrier': case 'heli': litAmbient(g, G, t, look, v.light); return;
     case 'space': spaceAmbient(g, G, t, masks.get(look) ?? null); return;
     case 'sea': seaAmbient(g, G, t, back); return;
     case 'jungle': jungleAmbient(g, G, t); return;
@@ -108,7 +109,7 @@ function compose(g: CanvasRenderingContext2D, gr: Grid, look: DockLook, back: HT
   ambient(g, G, look, v, back);
   neon(g, G, L.neon, v.t);
   if (L.globe) drawDockGlobe(g, G, L.globe, v.t, look === 'jungle' ? 'jungle' : 'earth');
-  drawCastShadows(g, G, v.walker, false, L.pilot);
+  drawCastShadows(g, G, v.walker, false, scaleAt(L, v.walker.y));
   const tv = tvLayer(gr, look);
   if (tv) g.drawImage(tv, 0, 0);
   tvSet(g, G, v.t, tvScale(look), L.tv);
@@ -132,7 +133,9 @@ export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: Hanga
   const L = LAYOUT[look];
   drawDockChalkboard(ctx, L.slate, v.chalk.cells, v.chalk.version);
   drawDockFlipBoard(ctx, L.board, L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board, v.t);
-  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false, scale: L.pilot });
+  drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false, scale: scaleAt(L, v.walker.y) });
+  const front = img && L.front ? frontLayer(look, file, img, gr) : null; // the pilot walks behind it (doc 92)
+  if (front) drawFront(ctx, front, gr);
   drawLabels(ctx, v.focus, v.text, areas, false);
   return true;
 }

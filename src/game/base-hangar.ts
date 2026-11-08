@@ -1,5 +1,5 @@
 import {
-  AREA_ROWS, areaDef, areaIds, BASE_AREAS, STRIDE_PX, WALK_FRAMES, type AreaTable, type BaseAreaId,
+  AREA_ROWS, areaDef, areaIds, BASE_AREAS, PILOT_FLOOR_Y, STRIDE_PX, WALK_FRAMES, type AreaTable, type BaseAreaId,
 } from '../data/base-areas';
 import type { Route } from './state';
 
@@ -79,33 +79,90 @@ export function areaAt(p: { x: number; y: number }, areas: Areas = BASE_AREAS): 
   return null;
 }
 
-/** The pilot on the hangar floor. `dist` = floor distance walked so far (drives the walk cycle). */
+/** A floor point (logical px): x, and y the line the feet stand on. */
+export type FloorPoint = readonly [number, number];
+
+/**
+ * The pilot on the base's floor (docs 30, 92). On most looks the pilot walks the front line (PILOT_FLOOR_Y); a look with
+ * depth gives areas spots deeper in the room, reached up a free lane (`via`). `path`: the points still ahead; `lane`: the
+ * x of the lane the pilot is standing up (or walking) in, the way back to the front line; `dist`: the floor distance
+ * walked so far (drives the walk cycle).
+ */
 export interface Walker {
   x: number;
+  y: number;
+  /** The walk's last point. */
   target: number;
+  targetY: number;
+  path: readonly FloorPoint[];
+  lane: number;
   facing: 1 | -1;
   moving: boolean;
   dist: number;
 }
 
-/** A pilot standing at x, facing `facing`. */
-export const walkerAt = (x: number, facing: 1 | -1 = 1): Walker => ({ x, target: x, facing, moving: false, dist: 0 });
+/** Steps into and out of the room look slower than sideways ones. */
+const DEPTH_PACE = 0.5;
 
-/** Sends the pilot towards a new floor x (keeps walking from where they are). */
-export const walkTo = (w: Walker, target: number): Walker => ({ ...w, target, moving: w.x !== target });
+/** A pilot standing at x (on the front line unless `y` is given), facing `facing`. */
+export const walkerAt = (x: number, facing: 1 | -1 = 1, y: number = PILOT_FLOOR_Y, lane = x): Walker =>
+  ({ x, y, target: x, targetY: y, path: [], lane, facing, moving: false, dist: 0 });
 
-/** Advances the walk by dt at `speed` px/s; stops exactly on the target and faces the way it walked. */
+/** The points from the walker to (x, y) entered from the front line up the lane `via`: back down its own lane first when
+ *  it stands deeper in the room, unless both spots share the lane. */
+function route(w: Walker, x: number, y: number, via: number): FloorPoint[] {
+  const pts: FloorPoint[] = [];
+  if (w.y !== PILOT_FLOOR_Y && w.lane === via) pts.push([via, w.y], [via, y]);
+  else {
+    if (w.y !== PILOT_FLOOR_Y) pts.push([w.lane, w.y], [w.lane, PILOT_FLOOR_Y]);
+    pts.push([via, PILOT_FLOOR_Y], [via, y]);
+  }
+  pts.push([x, y]);
+  return pts.filter(([px, py], i) => {
+    const [qx, qy] = i === 0 ? [w.x, w.y] : (pts[i - 1] ?? [w.x, w.y]);
+    return px !== qx || py !== qy;
+  });
+}
+
+/** Sends the pilot towards a spot (keeps walking from where they are); on the front line unless `y` is deeper. */
+export function walkTo(w: Walker, x: number, y: number = PILOT_FLOOR_Y, via: number = x): Walker {
+  const path = route(w, x, y, via);
+  return { ...w, target: x, targetY: y, path, lane: y === PILOT_FLOOR_Y ? w.lane : via, moving: path.length > 0 };
+}
+
+/** Advances the walk by dt at `speed` px/s (into the room at half pace); faces the way it walks sideways; stops exactly. */
 export function stepWalker(w: Walker, dt: number, speed: number): Walker {
-  const d = w.target - w.x;
-  if (d === 0) return w.moving ? { ...w, moving: false } : w;
-  const step = Math.min(Math.abs(d), speed * dt);
-  const facing: 1 | -1 = d > 0 ? 1 : -1;
-  const x = Math.abs(d) <= step ? w.target : w.x + facing * step;
-  return { x, target: w.target, facing, moving: x !== w.target, dist: w.dist + step };
+  const next = w.path[0];
+  if (!next) return w.moving ? { ...w, moving: false } : w;
+  const [tx, ty] = next;
+  const sideways = tx !== w.x;
+  const d = sideways ? tx - w.x : ty - w.y;
+  const step = Math.min(Math.abs(d), speed * (sideways ? 1 : DEPTH_PACE) * dt);
+  const done = Math.abs(d) <= step;
+  const x = sideways ? (done ? tx : w.x + Math.sign(d) * step) : w.x;
+  const y = sideways ? w.y : done ? ty : w.y + Math.sign(d) * step;
+  const path = done ? w.path.slice(1) : w.path;
+  const facing: 1 | -1 = sideways ? (d > 0 ? 1 : -1) : w.facing;
+  return { ...w, x, y, path, facing, moving: path.length > 0, dist: w.dist + step };
 }
 
 /** Whether the pilot stands at the area's spot. */
-export const arrivedAt = (w: Walker, id: BaseAreaId, areas: Areas = BASE_AREAS): boolean => !w.moving && w.x === areaDef(areas, id).standX;
+export function arrivedAt(w: Walker, id: BaseAreaId, areas: Areas = BASE_AREAS): boolean {
+  const a = areaDef(areas, id);
+  return !w.moving && w.x === a.standX && w.y === (a.standY ?? PILOT_FLOOR_Y);
+}
+
+/** A pilot standing at an area's spot. */
+export function walkerAtArea(id: BaseAreaId, areas: Areas, facing: 1 | -1 = 1): Walker {
+  const a = areaDef(areas, id);
+  return walkerAt(a.standX, facing, a.standY ?? PILOT_FLOOR_Y, a.via ?? a.standX);
+}
+
+/** Sends the pilot to an area's spot, up its lane when it lies deeper in the room (doc 92). */
+export function walkToArea(w: Walker, id: BaseAreaId, areas: Areas): Walker {
+  const a = areaDef(areas, id);
+  return walkTo(w, a.standX, a.standY ?? PILOT_FLOOR_Y, a.via ?? a.standX);
+}
 
 /** The walk-cycle key frame (0 … WALK_FRAMES − 1) for the distance walked. */
 export function walkFrame(w: Walker): number {

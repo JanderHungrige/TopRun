@@ -1,5 +1,5 @@
 import type { Vec } from '../../core/math';
-import { PILOT_FLOOR_Y, WALK_FRAMES } from '../../data/base-areas';
+import { WALK_FRAMES } from '../../data/base-areas';
 import { walkFrame, type Walker } from '../../game/base-hangar';
 import type { PilotFace } from '../avatars';
 import { playerPerson, restyle } from '../avatars/person';
@@ -80,7 +80,7 @@ function drawPilot(ctx: CanvasRenderingContext2D, G: number, view: CastView): vo
   const s = view.scale ?? PILOT_SCALE;
   const opts = { units: 3 / s };
   ctx.save();
-  ctx.translate(snap(w.x, G), PILOT_FLOOR_Y);
+  ctx.translate(snap(w.x, G), snap(w.y, G));
   if (w.moving) {
     ctx.scale(s * w.facing, s);
     drawSideFigure(ctx, look, WALK[walkFrame(w)] ?? WALK[0] ?? walkPose(0), face(view.t, 0), opts);
@@ -119,7 +119,7 @@ export function drawCast(ctx: CanvasRenderingContext2D, G: number, view: CastVie
 export function drawCastShadows(g: CanvasRenderingContext2D, G: number, walker: Walker, crew = true, scale = PILOT_SCALE): void {
   g.fillStyle = hexOf(col(PAL.ink, 0));
   g.globalAlpha = 0.45;
-  const pilot = [walker.x, PILOT_FLOOR_Y, Math.round((50 * scale) / PILOT_SCALE)] as const;
+  const pilot = [walker.x, walker.y, Math.round((50 * scale) / PILOT_SCALE)] as const;
   const feet: ReadonlyArray<readonly [number, number, number]> = crew ? [pilot, [MECH.x, MECH.foot, 40]] : [pilot];
   for (const [x, y, w] of feet) {
     const c = Math.round(x / G);

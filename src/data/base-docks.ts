@@ -1,4 +1,4 @@
-import type { AreaRect, AreaTable, BaseAreaDef, BaseAreaId } from './base-areas';
+import { PILOT_FLOOR_Y, type AreaRect, type AreaTable, type BaseAreaDef, type BaseAreaId } from './base-areas';
 
 // The home base's picture looks (docs 73, 76, 86, 91): the carrier lounge (maps 1–3), the underwater dock (map 4), the
 // space-station dock (map 5) and the jungle hut (map 6), each a generated picture with every area's hotspot, name plate and
@@ -6,8 +6,8 @@ import type { AreaRect, AreaTable, BaseAreaDef, BaseAreaId } from './base-areas'
 // slate, the TV cart, the neon sign, a globe. The way to the map is the carrier's opening onto the flight deck, the space
 // dock's porthole and the globes (doc 76).
 
-const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number): BaseAreaDef =>
-  ({ id, row, hot, plate, standX });
+const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number, deep?: { y: number; via?: number }): BaseAreaDef =>
+  ({ id, row, hot, plate, standX, ...(deep ? { standY: deep.y, via: deep.via ?? standX } : {}) });
 
 export interface DockLayout {
   /** The picture's scoreboard: world 1's flip board covers it, `boardRows` rows of tiles (the ladder's three, blank
@@ -24,7 +24,14 @@ export interface DockLayout {
   globe: AreaRect | null;
   /** The pilot's scale on this dock's floor, so a grown-up is as tall as its lockers and doors say (doc 76). */
   pilot: number;
+  /** Whether the picture has a walk-behind mask (`<look>-front.png`): what stands in front of the pilot (doc 92). */
+  front?: boolean;
+  /** A look with depth (doc 92): the horizon's y; the pilot's scale is `pilot` on the front line and shrinks towards it. */
+  horizon?: number;
 }
+
+/** The pilot's scale with the feet on floor line y: shrinking towards the horizon on a look with depth (doc 92). */
+export const scaleAt = (L: DockLayout, y: number): number => (L.horizon === undefined ? L.pilot : (L.pilot * (y - L.horizon)) / (PILOT_FLOOR_Y - L.horizon));
 
 /** The carrier lounge D (maps 1–3, doc 91): the rec room alcove with the arcade and the lockers on the left, the scoreboard
  *  over the long chalkboard, the couch on its rug, the open steel door into the hangar hall (the craft), the cork board on the
@@ -49,6 +56,34 @@ export const CARRIER_LAYOUT: DockLayout = {
   neon: { x: 106, y: 108, w: 140, h: 42 },
   globe: null,
   pilot: 1,
+};
+
+/** The helicopter base's hangar corner K2 (map 3, doc 92): the pink arcade between the lockers, the scoreboard over the
+ *  chalkboard, the cork board, the couch and coffee table on the rug, the huge open gate with the helicopter outside (the
+ *  craft), the map table in the right foreground (the way to the map, drawn over the pilot). The room has depth: the pilot
+ *  walks the front line and goes up the free lane between the coffee table and the map table to the gate, the TV and the
+ *  photos, smaller the deeper he goes. */
+export const HELI_AREAS: AreaTable = Object.freeze({
+  fun: area('fun', 'floor', { x: 104, y: 340, w: 104, h: 262 }, { x: 156, y: 328 }, 160, { y: 612 }),
+  tv: area('tv', 'floor', { x: 656, y: 400, w: 76, h: 126 }, { x: 694, y: 388 }, 728, { y: 556, via: 750 }),
+  locker: area('locker', 'floor', { x: 224, y: 342, w: 80, h: 236 }, { x: 264, y: 330 }, 264, { y: 600 }),
+  photos: area('photos', 'mid', { x: 652, y: 322, w: 92, h: 72 }, { x: 698, y: 310 }, 734, { y: 532, via: 750 }),
+  jet: area('jet', 'floor', { x: 822, y: 176, w: 356, h: 316 }, { x: 1000, y: 164 }, 900, { y: 512, via: 750 }),
+  ladder: area('ladder', 'wall', { x: 296, y: 184, w: 236, h: 124 }, { x: 414, y: 172 }, 414),
+  chalk: area('chalk', 'mid', { x: 298, y: 308, w: 304, h: 134 }, { x: 450, y: 296 }, 450),
+  exit: area('exit', 'floor', { x: 790, y: 496, w: 470, h: 224 }, { x: 1025, y: 484 }, 1030),
+});
+
+export const HELI_LAYOUT: DockLayout = {
+  board: { x: 300, y: 190, w: 226, h: 112 },
+  boardRows: 3,
+  slate: { x: 300, y: 312, w: 300, h: 126 }, // world 1's chalkboard over the picture's and the first cork board, as wide as it wants
+  tv: { x: 660, base: 522 },
+  neon: { x: 104, y: 296, w: 104, h: 40 },
+  globe: null,
+  pilot: 0.91,
+  front: true,
+  horizon: 417,
 };
 
 /** Space dock G (map 5, doc 76): cozy crew quarters — the rec room alcove with the arcade, the lockers, the scoreboard over

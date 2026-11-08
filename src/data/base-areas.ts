@@ -1,4 +1,4 @@
-import { CARRIER_AREAS, JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
+import { CARRIER_AREAS, HELI_AREAS, JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
 import type { CampaignId } from './types';
 
 // Hangar base (doc 30): the areas of the home-base hangar — where each one is on the 1280 × 720 screen, which row
@@ -26,6 +26,10 @@ export interface BaseAreaDef {
   plate: { x: number; y: number };
   /** Floor x the pilot walks to (logical px). */
   standX: number;
+  /** On a look with depth (doc 92): the floor line the pilot stands on there (logical y; the front line PILOT_FLOOR_Y when
+   *  absent), and the x of the free lane the pilot walks up from the front line to reach it (standX when absent). */
+  standY?: number;
+  via?: number;
 }
 
 /** Left → right; ← / → step through this order (the areas a look has). */
@@ -69,12 +73,12 @@ export const RUN_SPEED = 900;
 export const STRIDE_PX = 120;
 export const WALK_FRAMES = 8;
 
-/** The base's look: the carrier hangar on maps 1–3, the underwater dock on map 4, the space-station dock on map 5
- *  (doc 74), the jungle base on map 6 (doc 86). */
-export type BaseLook = 'carrier' | 'space' | 'sea' | 'jungle';
+/** The base's look: the carrier lounge on maps 1–2 (doc 91), the helicopter base's hangar corner on map 3 (doc 92), the
+ *  underwater dock on map 4, the space-station dock on map 5 (doc 74), the jungle base on map 6 (doc 86). */
+export type BaseLook = 'carrier' | 'heli' | 'space' | 'sea' | 'jungle';
 
-const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'carrier', 4: 'sea', 5: 'space', 6: 'jungle' };
+const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'heli', 4: 'sea', 5: 'space', 6: 'jungle' };
 export const baseLookOf = (c: CampaignId): BaseLook => LOOK_OF[c];
 
-const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: CARRIER_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
+const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: CARRIER_AREAS, heli: HELI_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
 export const baseAreas = (look: BaseLook): AreaTable => AREAS_OF[look];

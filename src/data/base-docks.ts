@@ -10,6 +10,12 @@ import { PILOT_FLOOR_Y, type AreaRect, type AreaTable, type BaseAreaDef, type Ba
 const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number, deep?: { y: number; via?: number }): BaseAreaDef =>
   ({ id, row, hot, plate, standX, ...(deep ? { standY: deep.y, via: deep.via ?? standX } : {}) });
 
+/**
+ * How a wall with boards on it is seen: its far (right) edge `slant` × the board's height shorter at the top and at the
+ * bottom, evenly about the middle (doc 95), or running away to a vanishing point in logical px (doc 92 B1).
+ */
+export type WallTilt = { slant: number } | { vanish: { x: number; y: number } };
+
 export interface DockLayout {
   /** The picture's scoreboard: world 1's flip board covers it, `boardRows` rows of tiles (the ladder's three, blank
    *  rows below on a tall board). */
@@ -17,9 +23,9 @@ export interface DockLayout {
   boardRows: number;
   /** The picture's chalkboard: world 1's framed chalkboard covers it. */
   slate: AreaRect;
-  /** Boards on a wall seen at an angle (doc 95): the flip board's and the chalkboard's right edges are this fraction of
-   *  their height shorter at the top and at the bottom; they are laid onto the wall column by column. */
-  slant?: number;
+  /** Boards on a wall seen at an angle (doc 95, doc 92 B1): the flip board and the chalkboard are laid onto the wall
+   *  column by column; flat when missing. */
+  wall?: WallTilt;
   /** The TV cart's footprint (left, floor line); null where the picture has its own TV (`picturedTv`). */
   tv: { x: number; base: number } | null;
   /** The picture's own TV (doc 93): its screen, where the game plays the TV's picture, and the video recorder's clock. */
@@ -86,6 +92,8 @@ export const HELI_LAYOUT: DockLayout = {
   board: { x: 300, y: 190, w: 226, h: 112 },
   boardRows: 3,
   slate: { x: 300, y: 312, w: 300, h: 126 }, // world 1's chalkboard over the picture's and the first cork board, as wide as it wants
+  // The wall runs away to the right: the picture's scoreboard and chalkboard edges meet about here (doc 92 B1).
+  wall: { vanish: { x: 1400, y: 355 } },
   tv: { x: 660, base: 522 },
   neon: { x: 104, y: 296, w: 104, h: 40 },
   globe: null,
@@ -172,7 +180,7 @@ export const JUNGLE_LAYOUT: DockLayout = {
   board: { x: 144, y: 216, w: 168, h: 74 },
   boardRows: 3,
   slate: { x: 128, y: 314, w: 192, h: 126 },
-  slant: 0.05,
+  wall: { slant: 0.05 },
   tv: null,
   picturedTv: { screen: { x: 1134, y: 450, w: 60, h: 80 }, clock: { x: 1150, y: 576 } },
   neon: { x: 8, y: 228, w: 104, h: 34 },

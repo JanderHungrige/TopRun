@@ -51,6 +51,8 @@ export type Route =
   | { to: 'ceremony'; medals: MedalId[]; then: Route }
   /** A world's celebration after its finale or from the hangar TV (doc 64). */
   | { to: 'celebration'; world: CampaignId; then: Route }
+  /** Duke's welcome to a new world (doc 97). */
+  | { to: 'intro'; world: CampaignId; then: Route }
   /** The hangar TV's tape shelf (doc 63). */
   | { to: 'tapes' }
   | { to: 'takeoff'; mission: MissionDef }

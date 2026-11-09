@@ -1,5 +1,6 @@
 import type { AudioEngine } from '../../core/audio';
 import type { Input } from '../../core/input';
+import type { CrewLook } from '../../game/crew-looks';
 import { wingmanLine, wingmanStart, type WingmanEvent } from '../../game/dialogue-scripts';
 import { objectiveMet } from '../../game/objectives';
 import type { Params } from '../../i18n/i18n';
@@ -10,17 +11,18 @@ import { PF_X, type World } from './world';
 const START_DELAY = 1.2;
 const HULL_LOW = 0.3;
 
-/** Lt. "Duke" Carter on the radio: calls out mission events once each (doc 06). */
+/** Lt. "Duke" Carter on the radio: calls out mission events once each (doc 06), in the world's outfit (doc 97). */
 export class WingmanRadio {
   private readonly box: SpeechBox;
   private readonly said = new Set<WingmanEvent | 'start'>();
 
-  constructor(audio: AudioEngine, context: () => Params) {
+  constructor(audio: AudioEngine, context: () => Params, look: CrewLook = 'carrier') {
     this.box = new SpeechBox(audio, {
       portrait: { x: PF_X + 10, y: 10, w: 66, h: 80 },
       bubble: { x: PF_X + 84, y: 14, w: 546, h: 72 },
       fontSize: 15, style: 'radio', persistent: false,
     }, 'wingman', context);
+    this.box.look = look;
   }
 
   private once(ev: WingmanEvent, interrupt = false): void {

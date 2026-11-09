@@ -64,6 +64,11 @@ The TV replays the celebration of every finished world (doc 64).
 
 ## The tape shelf (`src/scenes/tapes.ts`)
 
+> **2026-11-09 (doc 97):** six tapes, one per world, each with two recordings: side A the world's **welcome** film (once
+> seen), side B its **victory** (the celebration, once finished). ↑/↓ pick a tape, ←/→ or a tap on a side label pick the
+> side, ENTER / tap plays; the TV shows the side's first key frame. `tapeShelf` → `{ world, finished, welcome }`,
+> `tapeSides(tape)`. The jungle's tape (doc 85) is on the shelf now.
+
 - An old TV on the left, four VHS tapes stacked on the right, one per world, labelled with the world's name (WORLD 1 ·
   THEATER OF OPERATIONS … WORLD 4 · DEEP SPACE) on a sleeve in the world's colour; an unfinished world's tape is a
   blank grey one ("not recorded yet"). The TV shows the picked world's first key frame, snow for a blank tape; the

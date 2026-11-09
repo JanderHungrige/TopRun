@@ -231,3 +231,16 @@ const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = {
 };
 export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CELEBRATE[world], 'happy', 'salute');
 
+
+/** Duke's lines in a world's welcome film (doc 97), one per shot. */
+const INTRO_LINES: Readonly<Partial<Record<CampaignId, readonly LineKey[]>>> = {
+  3: ['duke.intro3a', 'duke.intro3b', 'duke.intro3c', 'duke.intro3d'],
+  4: ['duke.intro4a', 'duke.intro4b', 'duke.intro4c', 'duke.intro4d'],
+  5: ['duke.intro5a', 'duke.intro5b', 'duke.intro5c', 'duke.intro5d'],
+  6: ['duke.intro6a', 'duke.intro6b', 'duke.intro6c', 'duke.intro6d'],
+};
+/** Duke's line for shot `shot` (0–3) of a world's welcome film; null where there is none. */
+export function introLine(world: CampaignId, shot: number): LineRef | null {
+  const key = INTRO_LINES[world]?.[shot];
+  return key ? ref('wingman', key, 'happy', 'none') : null;
+}

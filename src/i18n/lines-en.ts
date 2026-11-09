@@ -1,3 +1,4 @@
+import { INTRO_LINES_EN } from './lines-intro-en';
 import { JUNGLE_LINES_EN } from './lines-jungle-en';
 import { LAUNCH_LINES_EN } from './lines-launch-en';
 // Spoken lines (doc 06). Every variant of a key uses the same {placeholders}.
@@ -294,7 +295,6 @@ export const LINES_EN = {
     "New on base: {game}! Want to give it a go?",
     "Check it out, {game} just opened up. Try it?",
   ],
-  ...LAUNCH_LINES_EN, ...JUNGLE_LINES_EN,
+  ...LAUNCH_LINES_EN, ...JUNGLE_LINES_EN, ...INTRO_LINES_EN,
 } as const satisfies Record<string, readonly string[]>;
-
 export type LineKey = keyof typeof LINES_EN;

@@ -1,7 +1,7 @@
 import type { LineKey } from './lines-en';
+import { INTRO_LINES_DE } from './lines-intro-de';
 import { JUNGLE_LINES_DE } from './lines-jungle-de';
 import { LAUNCH_LINES_DE } from './lines-launch-de';
-
 // German spoken lines (doc 06). Same {placeholders} as English; the compiler rejects a missing key.
 export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
   // Admiral "Ace" Kincaid
@@ -296,5 +296,5 @@ export const LINES_DE: Readonly<Record<LineKey, readonly string[]>> = {
     'Neu auf der Basis: {game}! Willst du es ausprobieren?',
     'Schau mal, {game} ist jetzt offen. Probierst du es?',
   ],
-  ...LAUNCH_LINES_DE, ...JUNGLE_LINES_DE,
+  ...LAUNCH_LINES_DE, ...JUNGLE_LINES_DE, ...INTRO_LINES_DE,
 };

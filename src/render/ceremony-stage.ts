@@ -2,7 +2,9 @@ import { CEREMONY_LAYERS, type LayerBox } from '../data/ceremony-layers';
 import { CEREMONY_SETS } from '../data/ceremony-sets';
 import type { MedalId } from '../data/medals';
 import type { HairColor } from '../game/avatar-look';
-import { pilotCutout, type AdmiralPose, type CeremonySet, type PilotBase, type PilotPose, type SkinTone, type StagePlan } from '../game/ceremony-stage';
+import {
+  pilotCutout, stageOutfit, type AdmiralPose, type CeremonySet, type PilotBase, type PilotPose, type SkinTone, type StageOutfit, type StagePlan,
+} from '../game/ceremony-stage';
 import { drawMedal, drawRibbonBar } from './medals';
 import { deviceScale, scratch } from './pixel/blit';
 import { makeCanvas } from './pixel/post';
@@ -11,7 +13,8 @@ import { makeCanvas } from './pixel/post';
 // when they salute) and the pilot and admiral cut-outs on top, composed on the 320 × 180 art grid (4 logical px per
 // art px) and blitted once. The pilot's skin and hair are recoloured to the player's look; a few gulls glide by. Map 4's
 // and map 5's ceremonies stand on a submarine pier and in a space hangar (doc 75): their own picture and crew salute,
-// the same officers; the hangar's window stars twinkle instead of gulls.
+// the same officers; the hangar's window stars twinkle instead of gulls. In the hangar and the jungle camp the officers
+// wear that world's uniform: each cut-out's -space / -jungle variant (doc 98).
 
 /** A cut-out's name in the layer table (camelCase of its file). */
 type Key = string;
@@ -50,7 +53,7 @@ const SETS: Readonly<Record<CeremonySet, SetLook>> = {
   deck: { plate: 'plate', crew: CEREMONY_LAYERS.crewSalute, stars: [], gulls: true },
   pier: { ...CEREMONY_SETS.pier, gulls: true },
   hangar: { ...CEREMONY_SETS.hangar, gulls: false },
-  clearing: { ...CEREMONY_SETS.clearing, gulls: true },
+  camp: { ...CEREMONY_SETS.camp, gulls: false },
 };
 
 const images = new Map<string, HTMLImageElement>();
@@ -67,12 +70,18 @@ function image(file: string): HTMLImageElement | null {
   return img.complete && img.naturalWidth > 0 ? img : null;
 }
 
+/** A cut-out in the stage's uniform (doc 98), or the dress one where that variant is missing. */
+function dressed(file: string, outfit: StageOutfit): string {
+  const variant = `${file}-${outfit}`;
+  return outfit !== 'dress' && urlOf(variant) ? variant : file;
+}
+
 /** Starts loading the stage and every layer (the scene's constructor), so the first frame has them. */
 export function preloadStage(set: CeremonySet): void {
   image(SETS[set].plate);
   const crew = SETS[set].crew;
   if (crew) image(crew.file);
-  for (const box of Object.values(LAYERS)) image(box.file);
+  for (const box of Object.values(LAYERS)) image(dressed(box.file, stageOutfit(set)));
 }
 
 const rgbOf = (hex: string): number => parseInt(hex.slice(1), 16);
@@ -95,13 +104,13 @@ function remap(px: Uint8ClampedArray, w: number, at: readonly number[] | undefin
 
 const recoloured = new Map<string, HTMLCanvasElement>();
 
-/** The pilot cut-out with the player's skin and hair (cached per cut-out × look). */
-function pilotCanvas(key: Key, skin: SkinTone, hair: HairColor): HTMLCanvasElement | HTMLImageElement | null {
+/** The pilot cut-out in the stage's uniform with the player's skin and hair (cached per cut-out × uniform × look). */
+function pilotCanvas(key: Key, outfit: StageOutfit, skin: SkinTone, hair: HairColor): HTMLCanvasElement | HTMLImageElement | null {
   const box = boxOf(key);
-  const img = box ? image(box.file) : null;
+  const img = box ? image(dressed(box.file, outfit)) : null;
   if (!box) return null;
   if (!img) return null;
-  const id = `${key}|${skin}|${hair}`;
+  const id = `${key}|${outfit}|${skin}|${hair}`;
   const hit = recoloured.get(id);
   if (hit) return hit;
   const c = makeCanvas(img.naturalWidth, img.naturalHeight, null);
@@ -186,12 +195,13 @@ export function drawStage(ctx: CanvasRenderingContext2D, v: StageView): StageGri
   const sc = scratch(ART_W, ART_H);
   if (!sc || !backdrop(sc.g, v)) return gr;
   const g = sc.g;
+  const outfit = stageOutfit(v.set);
   const pk = pilotKey(v.base, v.plan.pilot);
-  const pilot = pilotCanvas(pk, v.skin, v.hair);
+  const pilot = pilotCanvas(pk, outfit, v.skin, v.hair);
   const pbox = boxOf(pk);
   if (pilot && pbox) g.drawImage(pilot, ...placed(pbox, PILOT_FOOT.footX, PILOT_FOOT.footY));
   const abox = boxOf(ADMIRAL[v.plan.admiral]) ?? boxOf(ADMIRAL.stand);
-  const admiral = abox ? image(abox.file) : null;
+  const admiral = abox ? image(dressed(abox.file, outfit)) : null;
   if (admiral && abox) g.drawImage(admiral, ...placed(abox, v.plan.admiralX, ADMIRAL_FOOT_Y));
   const m = ctx.getTransform();
   ctx.save();

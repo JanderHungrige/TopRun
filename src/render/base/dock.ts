@@ -150,8 +150,8 @@ export function drawDock(ctx: CanvasRenderingContext2D, look: DockLook, v: Hanga
   ctx.restore();
   const L = LAYOUT[look];
   const rows = L.boardRows > v.board.length ? [...v.board, ...Array<string>(L.boardRows - v.board.length).fill('')] : v.board;
-  onWall(ctx, L.slate, L.slant ?? 0, (g, at) => drawDockChalkboard(g, at, v.chalk.cells, v.chalk.version));
-  onWall(ctx, L.board, L.slant ?? 0, (g, at) => drawDockFlipBoard(g, at, rows, v.t));
+  onWall(ctx, L.slate, L.wall, (g, at) => drawDockChalkboard(g, at, v.chalk.cells, v.chalk.version));
+  onWall(ctx, L.board, L.wall, (g, at) => drawDockFlipBoard(g, at, rows, v.t));
   drawCast(ctx, gr.G, { t: v.t, walker: v.walker, face: v.face, crew: false, scale: scaleAt(L, v.walker.y) });
   const front = img && L.front ? frontLayer(look, file, img, gr) : null; // the pilot walks behind it (doc 92)
   if (front) drawFront(ctx, front, gr);

@@ -60,8 +60,9 @@ second round (L, M) the owner took **L121** — *"can you use the chalkboard at 
   window, LADDER the scoreboard, CHALKBOARD the chalkboard, **EXIT · MAP the map table**. The code-drawn globe is gone.
 - **Boards on a slanted wall:** the hut's wall is seen at an angle, so the far edges of its boards are shorter. World 1's
   flip board and chalkboard are drawn flat into a scratch canvas and laid onto the wall column by column, each column a
-  little shorter towards the right (`DockLayout.slant`, the fraction of the height at the far edge; `onWall`,
-  `dock-wall.ts`). A wall at eye level keeps its vertical edges, so no 3-D is needed. The other looks have no slant.
+  little shorter towards the right (`DockLayout.wall = { slant }`, the fraction of the height at the far edge; `onWall`,
+  `dock-wall.ts`). A wall keeps its vertical edges, so no 3-D is needed. The helicopter base's wall runs away to a
+  vanishing point instead (doc 92 B1); the other looks are flat.
 - **The TV** is the picture's own (`picturedTv`, doc 93).
 - **Depth** (doc 92): horizon 370, the pilot 0.95 on the front line, which runs behind the board-game table's corner, the
   map table and the TV (all walk-behind). The hut's spots — the scoreboard, the chalkboard, the photos, the lockers, the

@@ -11,6 +11,7 @@ source_files:
   - src/render/base/dock.ts
   - src/render/base/dock-carrier.ts
   - src/render/base/dock-front.ts
+  - src/render/base/dock-wall.ts
   - src/game/base-hangar.ts
   - src/render/base/cast.ts
   - src/scenes/hangar-base.ts
@@ -26,7 +27,7 @@ test_files:
   - tests/unit/base-docks.test.ts
   - tests/unit/base-hangar.test.ts
 data_flow: reads-existing
-last_synced: 2026-11-08
+last_synced: 2026-11-09
 status: complete
 phase: all
 mdd_version: 11
@@ -61,7 +62,12 @@ table in the foreground go together.
   board; the second cork board is the picture wall.
 - **Outside the gate** is K1's view — the helicopter on the lit helipad, mountains, moon and stars — cut out of K1 and
   pasted into K2's gate (K2's own helicopter had two tails). Evening and day are that view relit with the frozen edit, so
-  the helicopter and the mountains stay.
+  the helicopter and the mountains stay. **Only in the opening** (B1, 2026-11-09): the beam over the gate slants — its
+  lower edge runs from (206, 57) at the left post to (292, 45) at the right, art px, measured on the night room — so the
+  view shows only under it and between the posts, with a pixel of shadow along the beam and the left post; in front of it
+  only the desk lamp's head and arm stay the room's (the night room's dark pixels in the lamp's outline), no longer the
+  room's floodlit apron around it, which had cut a bright wedge into the view. The pictures keep their palette (the first
+  version's), so the room outside the opening keeps its colours.
 - **Evening and day** of the room: the frozen edit of the night room (denoise 0.75), the outside pasted in per light. On
   the M1 the frozen edit runs at 640 × 360 (half size; the art grid is 320 × 180 anyway): at 1280 × 720 it swapped for
   over 45 minutes, at half size it takes about 7.
@@ -72,6 +78,12 @@ table in the foreground go together.
 
 - Map 3's base is now the look `heli` (`baseLookOf(3)`), drawn like the other picture looks (doc 73): world 1's flip board
   and chalkboard over the picture's, the TV cart and the joystick neon in code, the brackets, no name plates.
+- **Boards on the slanted wall** (B1): the back wall runs away to the right and the eye is below the scoreboard, so both
+  of its edges fall to the right — the scoreboard's and the chalkboard's edges in the picture meet at about (1400, 355).
+  The flip board and the chalkboard are laid onto the wall towards that vanishing point (`DockLayout.wall`,
+  `{ vanish }`; `wallColumn`, `onWall`, `dock-wall.ts`): each column shrinks towards it, the left edges at full size.
+  Columns are laid one device pixel wide on whole device pixels; a column of one logical pixel on a canvas scaled below
+  1 only half-covered its pixels and let the picture show through the boards (the jungle camp's too).
 - **Areas:** FUN MISSIONS the arcade, TV the cart, LOCKER the lockers, PICTURE WALL the cork board, LOADOUT the open gate
   with the helicopter, LADDER the scoreboard, CHALKBOARD the chalkboard, **EXIT · MAP the map table**.
 - **Walk-behind:** the map table stands in front of the pilot's walk line. Its pixels (the mask `heli-front.png`, white =
@@ -107,3 +119,13 @@ table in the foreground go together.
 - No look needs a walk-behind mask besides the helicopter base's map table: the lanes and spots keep clear of the couches,
   the tables and the TV cart (the cast is drawn over the picture and the cart).
 - The **jungle base** has been reworked as the jungle camp with its own depth (doc 95: horizon 370, pilot 0.95).
+
+## Known Issues
+
+(none)
+
+## Bugs
+
+| ID | Description | Status | Fixed In | Reported | Fixed |
+|----|-------------|--------|----------|----------|-------|
+| B1 | The view out of the gate is a rectangle pasted into a gate whose top beam slants: its upper-left corner sticks out over the beam, it looks pasted in, and the desk lamp's kept light cone (the room's old floodlit floor) cuts into it — in all three lights. The scoreboard and the chalkboard are drawn in full front view on a wall seen at an angle. | Fixed | feat/world-intros | 2026-11-09 | 2026-11-09 |

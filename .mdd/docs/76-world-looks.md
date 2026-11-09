@@ -3,7 +3,7 @@ id: 76-world-looks
 title: World Looks - The Docks to Scale, Their Map Buttons, Loadout Backgrounds per World, the Crew in Each World's Outfit
 edition: TopRun
 depends_on: [73-home-docks, 74-world-order, 33-image-portraits, 06-talking-characters]
-relates: [73-home-docks, 74-world-order, 33-image-portraits, 06-talking-characters, 66-sub-kit, 55-shipyard, 30-hangar-base]
+relates: [73-home-docks, 74-world-order, 33-image-portraits, 06-talking-characters, 66-sub-kit, 55-shipyard, 30-hangar-base, 97-world-intros]
 source_files:
   - src/game/kit.ts
   - src/main.ts
@@ -143,3 +143,6 @@ time the screen opens (`PictureView`, `src/ui/picture-view.ts`).
   lines in `src/i18n/lines-launch-en.ts` / `-de.ts`.
 - The shipyard (map 5) has no room for the chief yet (grid, list and detail fill the screen); his space outfit is ready
   for when he gets a place there.
+- **Duke** (doc 97) has an outfit per world too — mountain gear on map 3 (`crewLook(3)` is now `mountain`, Duke's alone;
+  everyone else falls back to the carrier's there), the submariner, the space pilot, the jungle warrior — in his welcome
+  films and on the mission radio.

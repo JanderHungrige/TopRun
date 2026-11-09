@@ -4,13 +4,14 @@ import { ALL_MISSIONS } from '../data/missions';
 import { perPlane, PLANES } from '../data/planes';
 import {
   EQUIPMENT_IDS, isJet, PLANE_IDS, SECONDARY_IDS,
-  type EquipmentId, type GunLevel, type MechId, type PlaneId, type SecondaryId,
+  type CampaignId, type EquipmentId, type GunLevel, type MechId, type PlaneId, type SecondaryId,
 } from '../data/types';
 import { AMMO_TYPES, MAX_AMMO_LEVEL, MAX_INCENDIARY_LEVEL, MAX_MARK, type AmmoType } from '../data/arsenal';
 import { MAX_HE_LEVEL } from '../data/he-gun';
 import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapons';
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
+import { INTRO_WORLDS } from './intro';
 import { freshFleetKit, parseFleetKit, type FleetKit, type Kit } from './kit';
 import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
@@ -85,6 +86,8 @@ export interface SaveData {
   outpost: Outpost;
   /** Each mech's hand-painted camo (doc 87); a mech missing here wears its default. */
   mechPaint: Partial<Record<MechId, Paint>>;
+  /** The worlds whose welcome film the pilot has seen (doc 97). */
+  intros: CampaignId[];
 }
 
 /** A cleared mission; `at` / `plane` / `livery` describe the best run for its photo (docs 24, 27). */
@@ -136,6 +139,7 @@ export function defaultSave(): SaveData {
     mech: freshFleetKit('mech'),
     outpost: freshOutpost(),
     mechPaint: {},
+    intros: [],
   };
 }
 
@@ -148,7 +152,7 @@ function num(v: unknown, lo: number, hi: number, fallback: number): number {
 
 const int = (v: unknown, lo: number, hi: number, fallback: number): number => Math.floor(num(v, lo, hi, fallback));
 
-function ids<T extends string>(v: unknown, valid: readonly T[]): T[] {
+function ids<T extends string | number>(v: unknown, valid: readonly T[]): T[] {
   if (!Array.isArray(v)) return [];
   const out: T[] = [];
   for (const item of v) {
@@ -249,6 +253,7 @@ export function parseSave(input: unknown): SaveData | null {
     mech: parseFleetKit('mech', raw.mech),
     outpost: parseOutpost(raw.outpost),
     mechPaint: parsePaints(raw.mechPaint),
+    intros: ids(raw.intros, INTRO_WORLDS),
   };
 }
 

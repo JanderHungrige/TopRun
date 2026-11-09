@@ -1,0 +1,20 @@
+// Duke's welcome to each new world (doc 97): one line per shot of the film, a to d — the welcome, the world, the enemies,
+// the send-off. {callsign} in the first; German in lines-intro-de.ts.
+export const INTRO_LINES_EN = {
+  'duke.intro3a': ["Welcome to low level, {callsign}! Duke here. Up north we fly under their radar, and that means helicopters."],
+  'duke.intro3b': ["Fjords, mountain passes, a river delta, red mesas and an island buried in ash. Every one hides a forward base."],
+  'duke.intro3c': ["They've tucked Hind gunships, Shilkas and SAM sites into every valley. Hug the ground and they won't see you coming."],
+  'duke.intro3d': ["And behind it all wait their big ones. We clear the valleys first, then we go hunting. Rotors up!"],
+  'duke.intro4a': ["Welcome to the deep, {callsign}! Duke here, wet for once. Our base sits on the sea floor now."],
+  'duke.intro4b': ["Coral reefs, kelp forests, a field of wrecks, and below them the trench and the abyss, where the light ends."],
+  'duke.intro4c': ["Hunter subs, minisubs and sea turrets, and the sea bites back too: squids, eels, giant crabs, anglers in the dark."],
+  'duke.intro4d': ["Watch your hull. Down here nobody hears you call for help. Dive, dive, dive!"],
+  'duke.intro5a': ["Welcome aboard Station Aurora, {callsign}! Duke here. Mind your step, the gravity has moods."],
+  'duke.intro5b': ["From here we hold low orbit, the asteroid belt, the lunar front, the ring giant, and then deep space."],
+  'duke.intro5c': ["Raiders and interceptors come in fast, satellite guns cover the lanes and their corvettes hit hard."],
+  'duke.intro5d': ["Nobody has fought out there before. Your starfighter is fuelled in the hangar. Let's fly where the stars are."],
+  'duke.intro6a': ["Welcome to X354b, {callsign}! Duke here. They dropped me in ahead of you. Mind the mud, it bites."],
+  'duke.intro6b': ["No runways, no ocean, just jungle: the canopy, a mangrove swamp, temple ruins, and the hive at the heart of it."],
+  'duke.intro6c': ["Walkers and hover tanks hold the clearings, and the planet itself wants us gone: spore pods, lasher vines, acid toads."],
+  'duke.intro6d': ["We walk in mechs here, one theater at a time, right up to the queen in her hive. Stay on my wing."],
+} as const satisfies Record<string, readonly string[]>;

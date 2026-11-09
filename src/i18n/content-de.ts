@@ -185,6 +185,9 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   hunter: 'Hunter Subs', torpboat: 'Torpedo Boats', squid: 'Squid', crab: 'Giant Crabs', sealab: 'Sea Labs', angler: 'Anglerfish', boomer: 'Missile Subs',
   walker: 'Enemy Walkers', hovertank: 'Hover Tanks', artillery: 'Artillery Guns', gundrone: 'Gun Drones', dropship: 'Dropships',
   raptor: 'Raptors', beetle: 'Armoured Beetles', spitter: 'Spitter Plants', wasp: 'Giant Wasps', brute: 'Brute Walkers',
+  sporepod: 'Spore Pods', lasher: 'Lasher Vines', rhino: 'Rhino Crawlers', toad: 'Acid Toads', spire: 'Brood Spires',
+  totem: 'Crystal Totems', lurker: 'Swamp Lurkers', glider: 'Glider Rays', leatherwing: 'Leatherwings',
+  dragonfly: 'Giant Dragonflies', balloon: 'Spore Balloons', skyjelly: 'Sky Jellies',
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -240,6 +243,11 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   spitter: ['Spuckpflanze', 'Spuckpflanzen'],
   wasp: ['Riesenwespe', 'Riesenwespen'],
   brute: ['Brecher-Läufer', 'Brecher-Läufer'],
+  sporepod: ['Sporenkapsel', 'Sporenkapseln'], lasher: ['Peitschenranke', 'Peitschenranken'],
+  rhino: ['Panzernashorn', 'Panzernashörner'], toad: ['Säurekröte', 'Säurekröten'], spire: ['Brutturm', 'Bruttürme'],
+  totem: ['Kristalltotem', 'Kristalltotems'], lurker: ['Sumpflauerer', 'Sumpflauerer'], glider: ['Gleitrochen', 'Gleitrochen'],
+  leatherwing: ['Lederschwinge', 'Lederschwingen'], dragonfly: ['Riesenlibelle', 'Riesenlibellen'],
+  balloon: ['Sporenballon', 'Sporenballons'], skyjelly: ['Himmelsqualle', 'Himmelsquallen'],
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {

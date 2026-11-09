@@ -39,7 +39,8 @@ describe('Sixth map: the jungle planet (doc 78)', () => {
     const bosses = MISSIONS_6.flatMap((m) => (m.objective.type === 'boss' ? [m.objective.boss] : []));
     expect(bosses).toEqual(['ravager', 'mantis', 'basilisk', 'sentinel', 'queen']);
     expect(bosses.map((b) => BOSSES[b].coreHp)).toEqual([3000, 4200, 4600, 5000, 5600]);
-    const jungle = ['walker', 'hovertank', 'artillery', 'gundrone', 'dropship', 'raptor', 'beetle', 'spitter', 'wasp'];
+    const aliens = ['sporepod', 'lasher', 'rhino', 'toad', 'spire', 'totem', 'lurker', 'glider', 'leatherwing', 'dragonfly', 'balloon', 'skyjelly'];
+    const jungle = ['walker', 'hovertank', 'artillery', 'gundrone', 'dropship', 'raptor', 'beetle', 'spitter', 'wasp', ...aliens]; // doc 96
     for (const m of MISSIONS_6) for (const k of m.pool) expect(jungle).toContain(k);
     for (const m of MISSIONS_6) if (m.objective.type === 'strike') expect(m.pool).toContain(m.objective.target);
     expect(ENEMIES.brute.hp).toBeGreaterThan(2000);

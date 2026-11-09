@@ -80,7 +80,10 @@ export type EnemyKind =
   // Map 5's deep (doc 70); the boomer is map 5's mini-boss.
   | 'hunter' | 'torpboat' | 'squid' | 'crab' | 'sealab' | 'angler' | 'boomer'
   // Map 6, the jungle planet (docs 78, 81): machines and creatures; the brute is map 6's mini-boss.
-  | 'walker' | 'hovertank' | 'artillery' | 'gundrone' | 'dropship' | 'raptor' | 'beetle' | 'spitter' | 'wasp' | 'brute';
+  | 'walker' | 'hovertank' | 'artillery' | 'gundrone' | 'dropship' | 'raptor' | 'beetle' | 'spitter' | 'wasp' | 'brute'
+  // The jungle planet's alien creatures and plants (doc 96).
+  | 'sporepod' | 'lasher' | 'rhino' | 'toad' | 'spire' | 'totem' | 'lurker'
+  | 'glider' | 'leatherwing' | 'dragonfly' | 'balloon' | 'skyjelly';
 
 export type Layer = 'air' | 'ground';
 
@@ -89,7 +92,8 @@ export type Behavior =
   /** The Backfire mini-boss: holds the top of the screen, then leaves (doc 44). */
   | 'loiter';
 
-export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak';
+/** 'ring': a ring of spores round the source, turned with its age (doc 96). */
+export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak' | 'ring';
 
 export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'

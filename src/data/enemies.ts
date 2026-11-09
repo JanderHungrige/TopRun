@@ -12,6 +12,8 @@ export interface EnemyDef {
   armor?: number;
   /** Stealth: hidden from radar and missile locks until it fires (doc 44). */
   stealth?: boolean;
+  /** Spores thrown round it when it is killed (the spore balloon, doc 96). */
+  burst?: number;
   weapon: EnemyWeapon;
   period: number;
   weapon2: EnemyWeapon;
@@ -87,6 +89,19 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   wasp: def('wasp', 'Giant Wasp', 'air', 22, 200, 12, 20, 'none', 0, ['kamikaze', 'sine']),
   // Map 6's mini-boss (doc 81).
   brute: def('brute', 'Brute Walker', 'ground', 2300, 18, 56, 1100, 'spread3', 1.8, ['ground'], 'missile', 3.8),
+  // The jungle planet's alien creatures and plants (doc 96): the rooted and the heavy on the ground, the rest in the air.
+  sporepod: def('sporepod', 'Spore Pod', 'ground', 60, 0, 16, 45, 'ring', 3.2, ['ground']),
+  lasher: def('lasher', 'Lasher Vine', 'ground', 90, 0, 20, 60, 'aimed', 1.6, ['ground'], 'spread3', 4.0),
+  rhino: { ...def('rhino', 'Rhino Crawler', 'ground', 200, 90, 24, 100, 'aimed', 2.4, ['ground']), armor: 0.5 },
+  toad: def('toad', 'Acid Toad', 'ground', 80, 20, 18, 55, 'flak', 2.2, ['ground']),
+  spire: def('spire', 'Brood Spire', 'ground', 150, 0, 22, 90, 'missile', 5.5, ['ground'], 'aimed', 2.6),
+  totem: { ...def('totem', 'Crystal Totem', 'ground', 130, 0, 20, 80, 'ring', 1.4, ['ground']), armor: 0.7 },
+  lurker: def('lurker', 'Swamp Lurker', 'ground', 100, 10, 20, 70, 'spread3', 2.8, ['ground']),
+  glider: def('glider', 'Glider Ray', 'air', 50, 120, 22, 40, 'aimed', 2.2, ['sine', 'swoop']),
+  leatherwing: def('leatherwing', 'Leatherwing', 'air', 35, 230, 16, 35, 'none', 0, ['dive', 'kamikaze']),
+  dragonfly: def('dragonfly', 'Giant Dragonfly', 'air', 26, 260, 13, 30, 'aimed', 1.4, ['swoop', 'sine']),
+  balloon: { ...def('balloon', 'Spore Balloon', 'air', 45, 50, 20, 40, 'single', 1.8, ['straight']), burst: 10 },
+  skyjelly: def('skyjelly', 'Sky Jelly', 'air', 70, 60, 22, 50, 'none', 0, ['sine']),
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(

@@ -9,17 +9,18 @@ import { LINES_EN } from '../../src/i18n/lines-en';
 // the rocket launch.
 
 describe('Crew looks (doc 76)', () => {
-  it('dresses the crew for the world: the carrier on maps 1–3, the sea on map 4, space on map 5', () => {
-    expect(CAMPAIGN_IDS.map(crewLook)).toEqual(['carrier', 'carrier', 'carrier', 'sea', 'space', 'jungle']);
+  it('dresses the crew for the world: the carrier on maps 1–2, the mountains on map 3 (doc 97), the sea on map 4, space on map 5', () => {
+    expect(CAMPAIGN_IDS.map(crewLook)).toEqual(['carrier', 'carrier', 'mountain', 'sea', 'space', 'jungle']);
     expect([kitCrewLook('jet'), kitCrewLook('heli'), kitCrewLook('sub'), kitCrewLook('ship'), kitCrewLook('mech')]).toEqual(['carrier', 'carrier', 'sea', 'space', 'jungle']);
   });
 
-  it('gives only the chief and Shooter other outfits', () => {
+  it('gives only the chief, Shooter and Duke (doc 97) other outfits', () => {
     expect(portraitKey('chief', 'sea')).toBe('chief-sea');
     expect(portraitKey('shooter', 'space')).toBe('shooter-space');
     expect(portraitKey('chief', 'carrier')).toBe('chief');
     expect(portraitKey('admiral', 'sea')).toBe('admiral');
-    expect(portraitKey('wingman', 'space')).toBe('wingman');
+    expect(portraitKey('wingman', 'space')).toBe('wingman-space');
+    expect(portraitKey('doc', 'jungle')).toBe('doc');
   });
 
   it('has Shooter call every dive grade and every separation in both languages', () => {

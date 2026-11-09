@@ -8,6 +8,7 @@ import { t } from '../i18n/i18n';
 import { CAMPAIGN_IDS, type CampaignId, type MissionDef } from '../data/types';
 import { SECONDARIES } from '../data/weapons';
 import { doubleFirepower, jetGunLevel } from '../game/firepower';
+import { introDue } from '../game/intro';
 import { kitOf } from '../game/kit';
 import { shipStats } from '../game/ship';
 import { payScale } from '../game/map-two';
@@ -111,7 +112,15 @@ export class MapScene implements Scene {
     ];
   }
 
+  /** The first time the map shows a world after the first two, Duke welcomes the pilot there (doc 97). */
+  private welcome(): boolean {
+    if (!introDue(this.game.save, this.campaign)) return false;
+    this.game.go({ to: 'intro', world: this.campaign, then: { to: 'map', select: this.selected.id } });
+    return true;
+  }
+
   update(dt: number): void {
+    if (this.welcome()) return;
     this.t += dt;
     this.locked = Math.max(0, this.locked - dt);
     const input = this.game.input;

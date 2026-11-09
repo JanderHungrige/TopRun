@@ -5,6 +5,7 @@ import { isMiniBoss } from '../../data/reinforcements';
 import { holdsScroll, jamming, MINI_HOLD_SCROLL } from '../../game/adversaries';
 import { missionTuning } from '../../game/challenge';
 import { hitScale } from '../../game/combat';
+import { crewLook } from '../../game/crew-looks';
 import { mapTwoHit, mapTwoHp, payScale } from '../../game/map-two';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
@@ -56,7 +57,7 @@ export class MissionScene implements Scene {
     this.world = new World({ ...mission, difficulty: mission.difficulty + tuning.difficulty }, tuning.ease);
     this.player = new Player(derivePlayerStats(game.save));
     this.banner = { title: missionName(mission).toUpperCase(), sub: objectiveText(mission.objective), color: COLORS.ink, time: 3 };
-    this.radio = new WingmanRadio(game.audio, pilotContext(game));
+    this.radio = new WingmanRadio(game.audio, pilotContext(game), crewLook(mission.campaign));
   }
 
   enter(): void {

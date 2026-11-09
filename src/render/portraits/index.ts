@@ -17,14 +17,17 @@ export interface PortraitState {
   mood: Mood; // kept for the dialogue scripts; image portraits don't show moods
   gesture: Gesture; // kept for the dialogue scripts; image portraits don't show gestures
   radio?: boolean; // draw as a live radio video feed: green phosphor palette, scanlines, flicker, thin frame
-  look?: CrewLook; // the world's outfit of the chief and Shooter (doc 76); the carrier's by default
+  look?: CrewLook; // the world's outfit of the chief, Shooter and Duke (docs 76, 97); the carrier's by default
 }
 
 /** Per-character phase so the cast never blinks or bobs in sync. */
 const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6, major: 2.5, doc: 5.3 };
 const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman', 'major', 'doc'];
-/** The crew's other outfits (docs 76, 86); a missing one falls back to the carrier's. */
-const OUTFITS: readonly string[] = ['chief-sea', 'chief-space', 'chief-jungle', 'shooter-sea', 'shooter-space', 'shooter-jungle'];
+/** The crew's other outfits (docs 76, 86, 97); a missing one falls back to the carrier's. */
+const OUTFITS: readonly string[] = [
+  'chief-sea', 'chief-space', 'chief-jungle', 'shooter-sea', 'shooter-space', 'shooter-jungle',
+  'wingman-mountain', 'wingman-sea', 'wingman-space', 'wingman-jungle',
+];
 
 /** Starts loading the portraits of the cast and of the preset pilots (called once at boot). */
 export function preloadPortraits(): void {

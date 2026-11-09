@@ -10,6 +10,7 @@ import { LiftoffScene } from './liftoff';
 import { AvatarBuilderScene } from './avatar-builder';
 import { BaseHubScene } from './base-hub';
 import { CelebrationScene } from './celebration';
+import { IntroScene } from './intro';
 import { CeremonyScene } from './ceremony';
 import { HangarBaseScene } from './hangar-base';
 import { JoystickSetupScene } from './joystick-setup';
@@ -68,6 +69,7 @@ export function createScene(game: GameContext, route: Route): Scene {
     case 'offer': return new MinigameOfferScene(game, route.id, route.isNew);
     case 'ceremony': return new CeremonyScene(game, route.medals, route.then);
     case 'celebration': return new CelebrationScene(game, route.world, route.then);
+    case 'intro': return new IntroScene(game, route.world, route.then);
     case 'tapes': return new TapesScene(game);
     case 'minigame': {
       const mod = moduleFor(route.id);

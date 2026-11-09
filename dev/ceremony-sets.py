@@ -5,7 +5,8 @@ The edits dir (kept outside the repo) holds, for each stage in STAGES:
   <stage>.png                              the 1280 x 720 render ('Top Gun pixel scene 16:9')
   <stage>-crew-src.png, <stage>-crew.png   the enlarged crew-row crop and its salute edit ('Top Gun ceremony crew salute
                                            (crop edit)', node 5 cropping 384 x 144 at CROP on the 768 x 432 frame)
-Writes <stage>.png and <stage>-crew-salute.png (one 48-colour palette per stage, no dither) and the table.
+Writes <stage>.png and <stage>-crew-salute.png (one 48-colour palette per stage, no dither) and the table. A stage whose
+render is not in the edits dir keeps what the table had for it (doc 98 rebuilt only the hangar and the camp).
 """
 import json
 import os
@@ -23,8 +24,8 @@ STAR_COUNT = 24
 # (art px x, y, w, h; None = no window).
 STAGES = {
     'pier': {'crop': (48, 192), 'window': None},
-    'hangar': {'crop': (48, 192), 'window': (46, 34, 192, 50)},
-    'clearing': {'crop': (48, 192), 'window': None},
+    'hangar': {'crop': (48, 228), 'window': (122, 46, 100, 66)},  # the battle-station hangar's opening (doc 98)
+    'camp': {'crop': (60, 204), 'window': None},  # the jungle camp (doc 98)
 }
 
 
@@ -112,13 +113,24 @@ def stars(plate, window):
     return out
 
 
+def previous(ts):
+    """The table as it is (the TS file is generated JSON with single quotes), or empty."""
+    if not os.path.exists(ts):
+        return {}
+    text = open(ts).read()
+    return json.loads(text[text.index('= {') + 2:text.index('} as const') + 1].replace("'", '"'))
+
+
 def main(src, out, ts):
     os.makedirs(out, exist_ok=True)
+    kept = previous(ts)
     table = {}
     for stage, conf in STAGES.items():
         path = os.path.join(src, stage + '.png')
         if not os.path.exists(path):
-            print(f'{stage}: render missing, skipped')
+            if stage in kept:
+                table[stage] = kept[stage]
+            print(f'{stage}: render missing, kept as it was' if stage in kept else f'{stage}: render missing, skipped')
             continue
         plate = grid(path)
         pal = palette_of(plate)

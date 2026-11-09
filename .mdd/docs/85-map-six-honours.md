@@ -3,7 +3,7 @@ id: 85-map-six-honours
 title: Map Six Honours - Seven Medals, the Jungle Clearing Ceremony, the Celebration, the Tape, Jungle Marshal
 edition: TopRun
 depends_on: [62-world-medals, 64-world-celebrations, 63-hangar-tv, 75-world-ceremonies, 26-pilot-rating]
-relates: [72-map-five-honours, 78-sixth-map, 31-locker-uniform]
+relates: [72-map-five-honours, 78-sixth-map, 31-locker-uniform, 98-ceremony-looks]
 source_files:
   - src/data/medals.ts
   - src/game/medals.ts
@@ -66,6 +66,10 @@ Map 6 is the sixth row of docs 62 (world medals), 64 (celebrations), 63 (the TV)
 A jungle clearing at golden hour (the M1, seed 7): two big mechs parked on the right, a row of nine soldiers in bush
 hats, a volcano, colourful birds; the soldiers' salute is an overlay from the crop edit (seed 11), as on the pier and in
 the space hangar (doc 75). Admiral and pilot are the same cut-outs; birds glide by.
+
+> **2026-11-09 (doc 98):** replaced by the run-down jungle **camp** in the base camp's style (stage `camp`), soldiers in
+> differently styled worn camouflage, admiral and pilot in worn jungle camouflage. The tape below was missing from the
+> shelf until doc 97 (`WORLDS` stopped at 5); it is there now, with the welcome film on its A side.
 
 ## The celebration and the tape
 

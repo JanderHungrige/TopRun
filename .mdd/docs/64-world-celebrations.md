@@ -3,7 +3,7 @@ id: 64-world-celebrations
 title: World Celebrations - A Pixel-Art Sequence From Generated Key Frames After Each World's Finale
 edition: TopRun
 depends_on: [25-medal-ceremony, 35-second-map, 48-third-map, 58-map-four-campaign]
-relates: [25-medal-ceremony, 63-hangar-tv, 62-world-medals, 74-world-order]
+relates: [25-medal-ceremony, 63-hangar-tv, 62-world-medals, 74-world-order, 97-world-intros]
 source_files:
   - src/game/celebration.ts
   - src/game/state.ts
@@ -83,6 +83,9 @@ palette per world (median cut, no dither), saved as indexed PNGs `w<world><shot>
   after a finale debrief: celebration → ceremony (if medals) → next.
 
 ## When it plays
+
+> Each new world after the first two also opens with a film: Duke's welcome (doc 97), made the same way with four
+> panned key frames (`dev/finale-plates.py --intro`).
 
 - After a world's **finale** debrief (doc 35's rule: the map's last mission won with the whole map cleared): the
   debrief's buttons lead to `{ to: 'celebration', world, then: <ceremony or next> }`.

@@ -3,7 +3,7 @@ id: 75-world-ceremonies
 title: World Ceremonies - The Medal Ceremony on a Submarine Pier (Map 4) and in a Space Hangar (Map 5)
 edition: TopRun
 depends_on: [25-medal-ceremony, 74-world-order]
-relates: [25-medal-ceremony, 74-world-order, 73-home-docks, 64-world-celebrations]
+relates: [25-medal-ceremony, 74-world-order, 73-home-docks, 64-world-celebrations, 98-ceremony-looks]
 source_files:
   - src/game/ceremony-stage.ts
   - src/render/ceremony-stage.ts
@@ -43,7 +43,7 @@ the carrier deck at sunset; the two late worlds get their own stage.
 |---|---|---|
 | maps 1–3 | `deck` | the carrier deck at sunset (doc 25's key frame, `plate.png`) |
 | map 4, under the sea | `pier` | a submarine pier at sunset: ten sailors in navy blue on the left, the attack sub moored on the right, a warship in the bay, gulls |
-| map 5, space | `hangar` | a large space-station hangar: ten troopers in grey space suits and white helmets on the left, the starfighter on the right, the Earth through the big window |
+| map 5, space | `hangar` | a large space-station hangar: ten troopers in grey space suits and white helmets on the left, the starfighter on the right, the Earth through the big window — **replaced 2026-11-09 by the battle-station hangar, troopers in orange (doc 98)** |
 
 - The stage follows the world the pilot is on (`GameContext.home`, the map the map scene shows) — `ceremonySet(world)`,
   pure, `src/game/ceremony-stage.ts`.

@@ -23,11 +23,11 @@ describe('Hangar TV (doc 63)', () => {
     expect(areaAt({ x: fun.x + 10, y: fun.y + 10 })).toBe('fun');
   });
 
-  it('shows a tape per world, recorded once the whole world is cleared', () => {
+  it('shows a tape per world, recorded once the whole world is cleared (the jungle\'s too, doc 85)', () => {
     const progress = Object.fromEntries(campaignMissions(1).map((m) => [m.id, { stars: 1 }]));
-    expect(tapeShelf({ ...defaultSave(), progress })).toEqual([
+    expect(tapeShelf({ ...defaultSave(), progress }).map(({ world, finished }) => ({ world, finished }))).toEqual([
       { world: 1, finished: true }, { world: 2, finished: false }, { world: 3, finished: false }, { world: 4, finished: false },
-      { world: 5, finished: false },
+      { world: 5, finished: false }, { world: 6, finished: false },
     ]);
   });
 });

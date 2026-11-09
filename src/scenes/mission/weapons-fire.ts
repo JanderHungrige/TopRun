@@ -3,6 +3,7 @@ import type { EnemyWeapon, SecondaryId } from '../../data/types';
 import { jetGunDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
 import { headingTo } from '../../game/combat';
+import { RING_SPIN, RING_SPORES, ringHeadings } from '../../game/spores';
 import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import { fireHe } from './shells';
@@ -135,6 +136,8 @@ export interface FireSource {
   x: number;
   y: number;
   bulletSpeedMul: number;
+  /** The source's age (s): turns the spore ring (doc 96). */
+  t?: number;
 }
 
 function enemyBullet(world: World, s: FireSource, heading: number, speed: number, damage: number): void {
@@ -142,6 +145,11 @@ function enemyBullet(world: World, s: FireSource, heading: number, speed: number
     kind: 'enemy', x: s.x, y: s.y, vx: Math.sin(heading) * speed * s.bulletSpeedMul, vy: -Math.cos(heading) * speed * s.bulletSpeedMul,
     damage, ttl: 5, dead: false,
   });
+}
+
+/** A ring of n spores round the source, slower and weaker than a bullet (doc 96). */
+export function fireRing(world: World, s: FireSource, n: number, turn: number): void {
+  for (const h of ringHeadings(n, turn)) enemyBullet(world, s, h, 150, 6);
 }
 
 /** Fires an enemy weapon from a source at the player. */
@@ -161,6 +169,9 @@ export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon
       });
       audio.play('enemyMissile', { volume: 0.6 });
       return;
+    case 'ring':
+      fireRing(world, s, RING_SPORES, (s.t ?? 0) * RING_SPIN);
+      break;
     case 'flak': {
       const dist = Math.hypot(p.x - s.x, p.y - s.y);
       const speed = 300 * s.bulletSpeedMul;

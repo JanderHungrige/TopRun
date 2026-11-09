@@ -3,7 +3,7 @@ id: 81-jungle-world
 title: Jungle World - The Jungle Floor, the Canopy, Ten Jungle Enemies and Five Bosses
 edition: TopRun
 depends_on: [78-sixth-map, 68-underwater-world]
-relates: [80-mech-walk, 70-map-five-campaign]
+relates: [80-mech-walk, 70-map-five-campaign, 96-alien-jungle-enemies]
 source_files:
   - src/data/theaters.ts
   - src/data/theaters-6.ts
@@ -65,6 +65,10 @@ GROUND key's mortar):
 | spitter | Spitter Plant | ground | 70 | rooted, spits a spread |
 | wasp | Giant Wasp | air | 22 | swarms at you |
 | brute | Brute Walker | ground | 2,300 | map 6's mini-boss |
+
+Twelve alien creatures and plants joined them on 2026-11-08 — the spore pod, the lasher vine, the rhino crawler, the
+acid toad, the brood spire, the crystal totem, the swamp lurker, the glider ray, the leatherwing, the giant dragonfly,
+the spore balloon and the sky jelly, with the spore ring and the balloon's death burst: doc 96.
 
 ## Bosses
 

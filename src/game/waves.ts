@@ -22,8 +22,9 @@ const WEIGHT: Readonly<Partial<Record<EnemyKind, number>>> = {
   shilka: 0.4, bunker: 0.35, foxbat: 0.35, jammer: 0.15, frigate: 0.3, felon: 0.25,
 };
 
-/** Big or rare aircraft come alone (two from difficulty 20, the jammer always alone); the Foxbat comes as a pair. */
-const SOLO_AIR: readonly EnemyKind[] = ['bear', 'flanker', 'felon', 'jammer'];
+/** Big or rare aircraft come alone (two from difficulty 20, the jammer always alone); the Foxbat comes as a pair; the
+ *  jungle's big slow drifters too (doc 96). */
+const SOLO_AIR: readonly EnemyKind[] = ['bear', 'flanker', 'felon', 'jammer', 'balloon', 'skyjelly'];
 
 function weightedPick(rng: Rng, kinds: readonly EnemyKind[]): EnemyKind {
   const total = kinds.reduce((s, k) => s + (WEIGHT[k] ?? 1), 0);

@@ -7,6 +7,7 @@ import { applyDamage, circleHit, COLLISION_DAMAGE_TO_ENEMY, PLAYER_DAMAGE, rollD
 import { setAlight, updateBurns } from './burn';
 import { updatePointDefence } from './point-defence';
 import { updateShells } from './shells';
+import { fireRing } from './weapons-fire';
 import { PLAYER_RADIUS, type Player } from './player';
 import { PF_H, PF_W, type Enemy, type Missile, type World } from './world';
 
@@ -33,6 +34,7 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
   if (isAir(e.kind)) world.tally.airKills += 1;
   world.tally.killsByKind[e.kind] = (world.tally.killsByKind[e.kind] ?? 0) + 1;
   if (e.layer === 'ground') world.wrecks.push({ kind: e.kind, x: e.x, y: e.y });
+  if (e.def.burst && !quiet) fireRing(world, e, e.def.burst, e.t); // the spore balloon bursts (doc 96)
   const drop = rollDrop(Math.random());
   if (drop) world.perf.drops += 1;
   if (drop) world.pickups.push({ kind: drop, x: e.x, y: e.y, value: Math.max(25, Math.round(e.bounty * 0.5)), t: 0, dead: false });

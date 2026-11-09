@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { areaDef, areaIds, BASE_AREAS, baseAreas, baseLookOf } from '../../src/data/base-areas';
 import { CARRIER_AREAS, CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT, scaleAt, SEA_LAYOUT, SPACE_LAYOUT } from '../../src/data/base-docks';
 import { areaAt, arrivedAt, neighbour, walkerAt, walkerAtArea } from '../../src/game/base-hangar';
+import { wallColumn } from '../../src/render/base/dock-wall';
 
 // The home docks (doc 73): the base wears the look of the map the pilot came from; each look has its own geometry.
 
@@ -127,11 +128,43 @@ describe('Sea lounge (doc 93)', () => {
 
 describe('Jungle camp (doc 95)', () => {
   it('lays the boards onto the hut wall seen at an angle, the hut spots on one row', () => {
-    expect(JUNGLE_LAYOUT.slant).toBeGreaterThan(0);
-    expect(JUNGLE_LAYOUT.slant).toBeLessThan(0.2);
+    const tilt = JUNGLE_LAYOUT.wall;
+    if (!tilt || !('slant' in tilt)) throw new Error('the hut wall has a slant');
+    expect(tilt.slant).toBeGreaterThan(0);
+    expect(tilt.slant).toBeLessThan(0.2);
+    const r = JUNGLE_LAYOUT.slate;
+    const far = wallColumn(r, tilt, r.w - 1);
+    expect(far.y - r.y).toBeCloseTo(r.y + r.h - (far.y + far.h), 6); // shrunk evenly about the middle
     const jungle = baseAreas('jungle');
     const row = ['locker', 'photos', 'lab', 'ladder', 'chalk'] as const;
     for (const id of row) expect(areaDef(jungle, id).standY, id).toBe(520);
     for (const id of row) expect(areaDef(jungle, id).via, id).toBe(520); // up the track's edge, then along the hut
+  });
+});
+
+describe('Helicopter base boards on the slanted wall (doc 92 B1)', () => {
+  it('shrinks the scoreboard and the chalkboard towards the wall\'s vanishing point on the right', () => {
+    const tilt = HELI_LAYOUT.wall;
+    if (!tilt || !('vanish' in tilt)) throw new Error('the heli wall has a vanishing point');
+    const { board, slate } = HELI_LAYOUT;
+    expect(tilt.vanish.x).toBeGreaterThan(slate.x + slate.w); // off to the right, beyond both boards
+    expect(tilt.vanish.y).toBeGreaterThan(board.y + board.h); // eye level below the scoreboard …
+    expect(tilt.vanish.y).toBeLessThan(slate.y + slate.h); // … and across the chalkboard
+    const near = wallColumn(board, tilt, 0);
+    expect(near.y).toBeCloseTo(board.y, 0);
+    expect(near.h).toBeCloseTo(board.h, 0);
+    const far = wallColumn(board, tilt, board.w - 1);
+    expect(far.h).toBeLessThan(board.h * 0.85);
+    expect(far.y).toBeGreaterThan(215); // the picture's scoreboard top drops to about y 220 at its right end
+    expect(far.y).toBeLessThan(228);
+    const slateFar = wallColumn(slate, tilt, slate.w - 1);
+    expect(slateFar.y).toBeGreaterThan(slate.y); // above eye level the top drops …
+    expect(slateFar.y + slateFar.h).toBeLessThan(slate.y + slate.h); // … below it the bottom rises
+    expect(far.y + far.h).toBeLessThan(slateFar.y + 8); // the boards don't run into each other
+  });
+
+  it('draws a flat wall unchanged', () => {
+    const r = { x: 10, y: 20, w: 30, h: 40 };
+    expect(wallColumn(r, undefined, 29)).toEqual({ y: 20, h: 40 });
   });
 });

@@ -5,6 +5,9 @@ import { isMiniBoss } from '../../data/reinforcements';
 import { cloaked, JAM } from '../../game/adversaries';
 import { applyDamage, circleHit, COLLISION_DAMAGE_TO_ENEMY, PLAYER_DAMAGE, rollDrop, steerHoming } from '../../game/combat';
 import { setAlight, updateBurns } from './burn';
+import { TRACER } from '../../data/heli-arms';
+import { paintedDamage } from '../../game/heli-combat';
+import { roundEffects } from './heli-arms';
 import { updatePointDefence } from './point-defence';
 import { updateShells } from './shells';
 import { fireRing } from './weapons-fire';
@@ -46,7 +49,7 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
 export const hidden = (e: Enemy, p: Player): boolean => cloaked(!!e.def.stealth, e.revealT, Math.hypot(e.x - p.x, e.y - p.y));
 
 export function damageEnemy(world: World, e: Enemy, amount: number, audio: AudioEngine): void {
-  e.hp -= amount;
+  e.hp -= paintedDamage(amount, e.paintT, world.paintBonus); // painted by tracer rounds (doc 99)
   e.flash = 0.06;
   if (e.hp <= 0) killEnemy(world, e, audio);
   else audio.play('hit', { volume: 0.25 });
@@ -65,8 +68,9 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
       if (e.dead || !circleHit(b.x, b.y, 4, e.x, e.y, e.radius)) continue;
       const dealt = applyDamage(b.damage, { source: b.kind === 'cannon' ? 'cannon' : 'gun', targetLayer: e.layer, ground: b.ground, armor: e.def.armor });
       damageEnemy(world, e, dealt, audio);
-      setAlight(e, dealt, b.burn ?? 0);
-      if (b.kind !== 'wingman') world.perf.hits += 1;
+      setAlight(e, dealt, b.burn ?? 0, b.burnGround);
+      roundEffects(world, b, e, dealt, audio);
+      if (b.kind !== 'wingman' && b.kind !== 'door') world.perf.hits += 1;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
       break;
@@ -74,7 +78,8 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     const boss = world.boss;
     const source = b.kind === 'cannon' ? 'cannon' : 'gun';
     if (!b.dead && boss && boss.hitAt(b.x, b.y, 4, applyDamage(b.damage, { source, targetLayer: boss.def.layer, ground: b.ground }), world, audio)) {
-      if (b.kind !== 'wingman') world.perf.hits += 1;
+      if (b.kind !== 'wingman' && b.kind !== 'door') world.perf.hits += 1;
+      if (b.paint) world.bossPaintT = TRACER.seconds;
       world.particles.sparks(b.x, b.y, 2, '#fff2a8', 120);
       b.dead = true;
     }
@@ -110,7 +115,7 @@ function pickTarget(world: World, m: Missile, p: Player): Missile['target'] {
   let bestD = Infinity;
   for (const e of world.enemies) {
     if (e.dead || !canHit(m.hits, e) || e.y > p.y || e.y < -20 || hidden(e, p)) continue;
-    const d = Math.hypot(e.x - m.x, e.y - m.y);
+    const d = Math.hypot(e.x - m.x, e.y - m.y) * (e.paintT > 0 ? 0.4 : 1); // seekers go for painted targets first (doc 99)
     if (d < bestD) {
       bestD = d;
       best = e;
@@ -156,7 +161,7 @@ function updateMissiles(world: World, p: Player, dt: number, hooks: CombatHooks)
     steerMissile(world, m, p, dt);
     m.x += Math.sin(m.heading) * m.speed * dt;
     m.y -= Math.cos(m.heading) * m.speed * dt;
-    if (Math.random() < 0.7) world.particles.trail(m.x - Math.sin(m.heading) * 8, m.y + Math.cos(m.heading) * 8, m.kind === 'enemy' ? 'rgba(255,190,160,1)' : m.kind === 'torpedo' ? 'rgba(255,150,70,1)' : 'rgba(225,225,225,1)');
+    if (Math.random() < 0.7) world.particles.trail(m.x - Math.sin(m.heading) * 8, m.y + Math.cos(m.heading) * 8, m.kind === 'enemy' ? 'rgba(255,190,160,1)' : m.kind === 'torpedo' ? 'rgba(255,150,70,1)' : m.kind === 'drone' ? 'rgba(150,160,170,0.6)' : 'rgba(225,225,225,1)');
     if (m.ttl <= 0 || m.y < -60 || m.y > PF_H + 60 || m.x < -60 || m.x > PF_W + 60) {
       m.dead = true;
       continue;

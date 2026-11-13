@@ -3,6 +3,7 @@ import { BOSSES, type BossDef, type BossPartDef } from '../../data/bosses';
 import type { BossId } from '../../data/types';
 import { circleHit, headingTo, scaleBossHp } from '../../game/combat';
 import { nukeBossDamage, nukePartDamage } from '../../game/jets';
+import { paintedDamage } from '../../game/heli-combat';
 import { drawBoss } from '../../render/draw-bosses';
 import { spawnEnemy } from './enemy-ai';
 import type { Player } from './player';
@@ -117,8 +118,9 @@ export class Boss {
   }
 
   /** Damage at a point with radius r: hits a part if one is there, otherwise the hull. Returns true if anything was hit. */
-  hitAt(x: number, y: number, r: number, amount: number, world: World, audio: AudioEngine): boolean {
+  hitAt(x: number, y: number, r: number, hit: number, world: World, audio: AudioEngine): boolean {
     if (this.phase !== 'fight' && this.phase !== 'enter') return false;
+    const amount = paintedDamage(hit, world.bossPaintT, world.paintBonus); // painted by tracer rounds (doc 99)
     for (const part of this.parts) {
       if (!part.alive) continue;
       if (circleHit(x, y, r, this.x + part.def.dx, this.y + part.def.dy, part.def.r)) {

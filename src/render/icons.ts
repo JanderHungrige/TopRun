@@ -3,7 +3,10 @@ import type { EquipmentId, SecondaryId } from '../data/types';
 import { fillPoly } from './shapes';
 
 /** Horizontal store drawings (nose pointing right) for the hangar; `s` = scale. */
-export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 'gun' | 'gun2' | 'ammo' | 'incendiary' | 'he', x: number, y: number, s: number): void {
+/** The helicopters' gun upgrades and ammo (doc 99) draw a stand-in until their pictures load. */
+type GearIcon = 'gatling' | 'turret' | 'doorguns' | 'tracer' | 'hedp';
+
+export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | GearIcon | 'gun' | 'gun2' | 'ammo' | 'incendiary' | 'he', x: number, y: number, s: number): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
@@ -35,6 +38,13 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;
     case 'incendiary': ammoBelt(ctx, '#b5371f', '#ff8a4a'); break;
     case 'he': bofors(ctx); break;
+    case 'pulselaser': missile(ctx, 46, 4, '#cfd6dc', '#ff5ac8', '#ffd0f0'); break;
+    case 'sonic': depthMine(ctx); break;
+    case 'drones': missile(ctx, 30, 3, '#3a4048', '#ff4040', '#5a6068'); break;
+    case 'gatling': case 'turret': gun(ctx); break;
+    case 'doorguns': twinGun(ctx); break;
+    case 'tracer': ammoBelt(ctx, '#c02020', '#ff6a6a'); break;
+    case 'hedp': ammoBelt(ctx, '#5a6030', '#e8d040'); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

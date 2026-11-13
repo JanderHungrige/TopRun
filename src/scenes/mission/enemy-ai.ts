@@ -1,5 +1,6 @@
 import type { AudioEngine } from '../../core/audio';
 import { ENEMIES, SEA_KINDS } from '../../data/enemies';
+import { SONIC } from '../../data/heli-arms';
 import type { Behavior, EnemyKind } from '../../data/types';
 import { LOITER, loiter, STEALTH } from '../../game/adversaries';
 import { clampToChannel } from '../../game/canyon';
@@ -21,7 +22,7 @@ export function spawnEnemy(world: World, kind: EnemyKind, spawnX: number, behavi
     fireT: 0.8 + Math.random() * sc.period, fire2T: 1.5 + Math.random() * Math.max(1, sc.period2),
     period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: Math.round(sc.bounty * payScale(world.mission.number)),
     flash: 0, heading: 0, aim: Math.PI, targetX: x, targetY: 160 + Math.random() * 120, dead: false, counted: false,
-    revealT: 0, escortT: 3, burn: { left: 0, t: 0 },
+    revealT: 0, escortT: 3, burn: { left: 0, t: 0 }, paintT: 0, stun: 0,
   };
   if (def.layer === 'ground') {
     e.y = y - def.radius;
@@ -99,7 +100,7 @@ function moveAir(e: Enemy, dt: number, p: Player): void {
 }
 
 function fire(e: Enemy, dt: number, world: World, p: Player, audio: AudioEngine): void {
-  const onScreen = e.y > 10 && e.y < PF_H - 120 && p.alive && !p.stealthed;
+  const onScreen = e.y > 10 && e.y < PF_H - 120 && p.alive && !p.stealthed && e.stun <= 0; // stunned: holds fire (doc 99)
   e.fireT -= dt;
   if (e.def.weapon !== 'none' && e.fireT <= 0) {
     e.fireT = e.period * (0.8 + Math.random() * 0.4);
@@ -142,12 +143,15 @@ export function updateEnemies(world: World, p: Player, dt: number, audio: AudioE
       e.aim = Math.atan2(p.x - e.x, -(p.y - e.y));
     } else {
       moveAir(e, dt, p);
-      e.x += e.vx * dt;
-      e.y += e.vy * dt;
+      const slow = e.stun > 0 ? SONIC.slow : 1; // a stunned plane drifts (doc 99)
+      e.x += e.vx * dt * slow;
+      e.y += e.vy * dt * slow;
       // A loitering bomber keeps its nose down while it drifts sideways (doc 44).
       e.heading = Math.atan2(-e.vx, e.behavior === 'loiter' ? Math.max(e.vy, 160) : e.vy);
     }
     e.revealT = Math.max(0, e.revealT - dt);
+    e.paintT = Math.max(0, e.paintT - dt);
+    e.stun = Math.max(0, e.stun - dt);
     fire(e, dt, world, p, audio);
     launchEscort(e, dt, world);
     if (e.y > PF_H + 80 || e.x < -120 || e.x > PF_W + 120 || e.y < -400) e.dead = true;

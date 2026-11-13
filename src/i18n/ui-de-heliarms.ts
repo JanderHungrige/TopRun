@@ -1,0 +1,33 @@
+import type { UI_EN_HELIARMS } from './ui-en-heliarms';
+
+// Das Arsenal der Hubschrauber (Doc 99) — Deutsch; Schlüssel wie in ui-en-heliarms.ts.
+export const UI_DE_HELIARMS: Readonly<Record<keyof typeof UI_EN_HELIARMS, string>> = {
+  'heliarms.gatlingName': 'Gatling-Antrieb',
+  'heliarms.gatlingDesc': 'Ein Elektromotor macht aus der Kettenkanone eine Gatling. Halt den Abzug gedrückt, dann laufen die Rohre an: Je länger du feuerst, desto schneller schießt sie, und kurze Pausen halten die Rohre auf Touren.',
+  'heliarms.gatlingSub': 'Schnelleres Feuer · die Rohre laufen an',
+  'heliarms.gatlingRow': '×{mul} Kadenz auf voller Drehzahl · läuft in {spin} s an',
+  'heliarms.turretName': 'Turm-Kopplung',
+  'heliarms.turretDesc': 'Der Kanonenturm folgt deinem Helmvisier: Jede Salve schwenkt zum nächsten Ziel voraus, damit weniger danebengeht.',
+  'heliarms.turretSub': 'Die Kanone schwenkt zum Ziel',
+  'heliarms.turretRow': 'Schwenkt bis {deg}° nach links oder rechts',
+  'heliarms.doorName': 'M134-Bordschützen',
+  'heliarms.doorDesc': 'Zwei Miniguns in den Seitentüren schießen von selbst auf alles neben dem Hubschrauber, in der Luft und am Boden. Sie verschießen die geladene Munition.',
+  'heliarms.doorSub': 'Automatisches Feuer zur Seite',
+  'heliarms.doorRow': '{range} px Reichweite · {damage} Schaden pro Schuss',
+  'heliarms.tracerName': 'Leuchtspur',
+  'heliarms.tracerDesc': 'Jeder Treffer markiert das Ziel 3 s lang: Ein markiertes Ziel nimmt von allem mehr Schaden, und Hellfire, Stinger und Drohnen nehmen es zuerst ins Visier. Markierte Tarnkappenjäger werden sichtbar. Pro Einsatz wird eine Munitionsart geladen.',
+  'heliarms.tracerSub': 'Markiert Ziele · mehr Schaden von allem',
+  'heliarms.tracerRow': 'Markiert: +{bonus} % Schaden von allem',
+  'heliarms.hedpName': 'Spreng-Munition (HEDP)',
+  'heliarms.hedpDesc': 'Hochexplosive Mehrzweckmunition: Jedes Geschoss zerplatzt, und ein Teil des Treffers trifft jeden anderen Gegner in der Nähe, in der Luft und am Boden. Räumt Schwärme und Kolonnen ab. Pro Einsatz wird eine Munitionsart geladen.',
+  'heliarms.hedpSub': 'Jedes Geschoss zerplatzt · Splitterschaden',
+  'heliarms.hedpRow': '{share} % des Treffers im Umkreis von {radius} px',
+  'heliarms.incName': 'Brandmunition',
+  'heliarms.incDesc': 'Brandmunition für die Kettenkanone: Treffer setzen Flugzeuge, Hubschrauber und Bodenziele in Brand, die dann 1,5 s lang brennen. Bosse brennen nicht. Pro Einsatz wird eine Munitionsart geladen.',
+  'heliarms.incSub': 'Setzt Luft- und Bodenziele in Brand',
+  'heliarms.incRow': '+{burn} % jedes Treffers brennen nach',
+  'heliarms.energy': 'ENERGIE · alle {s} s eine Ladung zurück',
+  'heliarms.aimed': 'sofort, zielt selbst',
+  'heliarms.wave': 'Welle: betäubt, löscht feindlichen Beschuss',
+  'heliarms.swarm': 'Drohnen, die selbst jagen',
+};

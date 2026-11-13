@@ -18,7 +18,7 @@ function shipStations(save: SaveData, st: ShipStats): SecondaryAmmo[] {
     if (copies <= 0) continue;
     const mark = toMark(save.ship.marks[id === 'spacerocket' ? 'rockets' : 'torpedo']);
     const weapon = weaponStats(SECONDARIES[id], mark);
-    stations.push({ id, ammo: weapon.ammoPerSlot * copies, twin: false, mark, weapon });
+    stations.push({ id, ammo: weapon.ammoPerSlot * copies, twin: false, mark, weapon, recharge: 0 });
   }
   return stations;
 }
@@ -28,7 +28,7 @@ export function shipPlayerStats(save: SaveData): PlayerStats {
   return {
     plane: PLANES.starship, ship: st,
     maxHull: Math.round(st.hull * (save.rookie ? CHALLENGE.rookie.hullMul : 1)), speed: st.speed,
-    gunLevel: save.ship.laserLevel as GunLevel, gun2Level: 0, gunDamageMul: 1, gunGround: 1, gunBurn: 0, rounds: null, heLevel: 0,
+    gunLevel: save.ship.laserLevel as GunLevel, gun2Level: 0, gunDamageMul: 1, gunGround: 1, gunBurn: 0, burnGround: false, rounds: null, arms: null, heLevel: 0,
     secondaries: shipStations(save, st),
     flares: 0, ecm: false, ecmBullet: 1, ecmTurn: 1, damageControl: false, damageControlRestore: 0, damageControlUses: 0,
     magnet: false, magnetLevel: 0, earlyWarning: st.radar, radarLevel: st.radar ? 1 : 0, livery: 'standard',

@@ -8,26 +8,32 @@ import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import { fireHe } from './shells';
 import { fireBeam, fireLance, lobShell } from './mech-mission';
+import { firePulse, gunRounds, gunSwivel, launchSwarm } from './heli-arms';
+import { fireWave } from './heli-waves';
+import { spinRate } from '../../game/heli-combat';
 import type { Missile, World } from './world';
 
 export const GUN_SPEED = 900;
 
 export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void {
+  p.triggered = true;
   fireSecondGun(world, p);
   fireHe(world, p, audio);
   if (p.gunCooldown > 0) return;
   const gun = p.gun;
-  p.gunCooldown = 1 / gun.shotsPerSec;
+  const gatling = p.stats.arms?.gatling; // the Gatling Drive fires faster as its barrels spin up (doc 99)
+  p.gunCooldown = 1 / (gun.shotsPerSec * (gatling ? spinRate(p.spin, gatling.mul) : 1));
   const damage = gun.damage * p.stats.gunDamageMul;
+  const swivel = gunSwivel(world, p);
   for (const b of gun.pattern) {
+    const a = b.angle + swivel;
     world.bullets.push({
-      kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(b.angle) * GUN_SPEED, vy: -Math.cos(b.angle) * GUN_SPEED,
-      damage, ttl: 1, dead: false, ground: p.stats.gunGround, burn: p.stats.gunBurn, rounds: p.stats.rounds ?? undefined, laser: !!p.stats.ship,
-      harpoon: p.stats.plane.kind === 'sub',
+      kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(a) * GUN_SPEED, vy: -Math.cos(a) * GUN_SPEED,
+      damage, ttl: 1, dead: false, ...gunRounds(p), laser: !!p.stats.ship, harpoon: p.stats.plane.kind === 'sub',
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
-  audio.play('gun', { volume: 0.5, pan: (p.x / 320 - 1) * 0.5 });
+  audio.play('gun', { volume: 0.5, pan: (p.x / 320 - 1) * 0.5, pitch: 1 + p.spin * 0.12 });
 }
 
 /** Second gun of the new jets (doc 37): its own level, from the wing roots, alternating left and right. */
@@ -41,8 +47,7 @@ function fireSecondGun(world: World, p: Player): void {
   for (const b of gun.pattern) {
     world.bullets.push({
       kind: 'gun', x: p.x + p.gun2Side * 13 + b.dx * 0.6, y: p.y - 12, vx: Math.sin(b.angle) * GUN_SPEED,
-      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false, ground: p.stats.gunGround, burn: p.stats.gunBurn,
-      rounds: p.stats.rounds ?? undefined,
+      vy: -Math.cos(b.angle) * GUN_SPEED, damage, ttl: 1, dead: false, ...gunRounds(p),
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -64,7 +69,7 @@ export function fireWingman(world: World, p: Player, dt: number): void {
 /** A player missile or rocket with the numbers of its weapon's mark (doc 43). */
 export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: number, heading: number): Missile {
   if (kind === 'enemy') throw new Error('not a player missile');
-  const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind].hits;
+  const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind === 'drone' ? 'drones' : kind].hits;
   return {
     kind, x: p.x + dx, y: p.y - 6, heading, speed: kind === 'rocket' ? w.speed : 180, maxSpeed: w.speed,
     turnRate: w.turnRate, damage: w.damage, hits, target: null, decoy: null, ttl: 3.2, dead: false,
@@ -115,6 +120,17 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
     case 'beam':
       for (const s of pods) fireBeam(world, p, slot.weapon, s * 14 + 12 * p.sideToggle, audio);
       audio.play('nukeLaunch', { volume: 0.5 });
+      break;
+    case 'pulse':
+      firePulse(world, slot.weapon, 8 * p.sideToggle);
+      break;
+    case 'wave':
+      fireWave(world, p, slot.weapon);
+      audio.play('sonic', { volume: 0.7 });
+      break;
+    case 'swarm':
+      launchSwarm(world, p, slot.weapon, 10 * p.sideToggle);
+      audio.play('drones');
       break;
     default:
       throw new Error(`unhandled: ${def.behavior satisfies never}`);

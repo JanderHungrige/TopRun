@@ -1,3 +1,5 @@
+import { UI_DE_HELIARMS } from './ui-de-heliarms';
+
 // New Frontiers UI strings (docs 48–50) — German; keys must match ui-en-frontiers.ts.
 export const UI_DE_FRONTIERS = {
   'map.title3': 'TIEFFLUG',
@@ -97,4 +99,5 @@ export const UI_DE_FRONTIERS = {
   'rocket.good': 'GUTE STUFENTRENNUNG',
   'rocket.early': 'ZU FRÜH ABGETRENNT',
   'rocket.late': 'TOTES GEWICHT — ZU SPÄT',
+  ...UI_DE_HELIARMS,
 };

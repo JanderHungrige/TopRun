@@ -81,6 +81,7 @@ export function leftView(w: World, p: Player, callsign: string, labels: CockpitL
     cannon: { level: p.gunLevel, level2: p.gun2Level, powered: p.powerTimer > 0, powerRatio: Math.min(1, p.powerTimer / 12), he: p.stats.heLevel },
     stores: p.secondaries.map((s, i) => ({
       id: s.id, short: SECONDARIES[s.id].short, ammo: s.ammo, role: SECONDARIES[s.id].role, next: i === nextAir || i === nextGround,
+      charge: s.recharge > 0 ? Math.min(1, (s.ammo + s.charge) / Math.max(1, s.start)) : undefined,
     })),
     buttons: { air: b.air, ground: b.ground },
     weapons: { air: armed(p, nextAir), ground: armed(p, nextGround) },

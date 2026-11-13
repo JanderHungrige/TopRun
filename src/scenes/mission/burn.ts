@@ -4,9 +4,10 @@ import type { Enemy, World } from './world';
 // Incendiary ammo (doc 45): a gun hit on a plane adds to its burn, which deals its damage over 1.5 s. Burning planes
 // trail fire and smoke, and a burning stealth fighter can be seen.
 
-/** A gun round with a burn share hit `e` for `dealt`: planes catch fire, ground targets and bosses don't. */
-export function setAlight(e: Enemy, dealt: number, share: number): void {
-  if (share <= 0 || e.dead || e.layer !== 'air' || dealt <= 0) return;
+/** A gun round with a burn share hit `e` for `dealt`: planes catch fire, ground targets only from the helicopters'
+ *  rounds (`ground`, doc 99), bosses never. */
+export function setAlight(e: Enemy, dealt: number, share: number, ground = false): void {
+  if (share <= 0 || e.dead || (e.layer !== 'air' && !ground) || dealt <= 0) return;
   e.burn = ignite(e.burn, dealt * share);
 }
 

@@ -34,6 +34,8 @@ export const roundsName = (r: RoundsId): string => t(KIND_KEY[r]);
 
 /** "ROUNDS 24 / 48" for a weapon firing the magazine's rounds, "ENERGY" for the plasma and the rail; null elsewhere. */
 export function roundsLine(save: SaveData, id: SecondaryId): string | null {
+  const recharge = SECONDARIES[id].recharge; // the helicopters' energy weapons (doc 99)
+  if (recharge) return t('heliarms.energy', { s: recharge });
   if (SECONDARIES[id].campaign !== 6) return null;
   const r = roundsOf(id);
   if (!r) return t('mechbay.energy');
@@ -49,6 +51,9 @@ export function guidanceKey(b: SecondaryBehavior): UiKey {
     case 'lob': return 'mechbay.lobbed';
     case 'lance':
     case 'beam': return 'mechbay.straight';
+    case 'pulse': return 'heliarms.aimed';
+    case 'wave': return 'heliarms.wave';
+    case 'swarm': return 'heliarms.swarm';
     default: throw new Error(`unhandled: ${b satisfies never}`);
   }
 }

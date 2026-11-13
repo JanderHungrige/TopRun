@@ -123,6 +123,9 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   plasma: { name: 'Plasmalanze', description: 'Ein langsamer grüner Bolzen, der sich durch alles in seinem Weg brennt. Vom Generator geladen, braucht keine Munition.' },
   rail: { name: 'Schienenkanone', description: 'Ein sofortiger Strahl über die ganze Bildschirmhöhe, der alles in seiner Linie trifft. Vom Generator geladen.' },
   depthmine: { name: 'Grundmine', description: 'Sinkt unter das Boot und platzt am Meeresgrund. Eine weite Explosion gegen Geschütze und alles am Boden.' },
+  pulselaser: { name: 'HEL-Pulslaser', description: 'Feuert eine Salve aus vier Laserpulsen auf das nächste Ziel voraus. Trifft immer; läuft mit Energie, die sich wieder auflädt.' },
+  sonic: { name: 'Ultraschall-Kanone', description: 'Eine Ultraschallwelle, die alles vor dir betäubt und feindliche Geschosse auf ihrem Weg auslöscht. Lädt sich wieder auf.' },
+  drones: { name: 'Drohnenschwarm', description: 'Startet drei kleine Drohnen, die selbstständig Ziele jagen, in der Luft und am Boden.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {

@@ -26,6 +26,7 @@ import { Player } from './player';
 import { WingmanRadio } from './radio';
 import { activateSpecial, tickSpecials } from './specials';
 import { tickMech } from './mech-mission';
+import { tickHeliArms } from './heli-arms';
 import { updateCombat } from './projectiles';
 import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
 import { dropFlare, fireSecondary, firePlayerGun, fireWingman } from './weapons-fire';
@@ -145,6 +146,7 @@ export class MissionScene implements Scene {
     p.tick(dt);
     tickSpecials(w, p, dt, this.game.audio);
     tickMech(w, p, dt, this.game.audio);
+    tickHeliArms(w, p, dt, this.game.audio);
     fireWingman(w, p, dt);
     const dashing = p.specialActive > 0 && p.stats.plane.special === 'dash';
     const holdForBoss = w.boss?.def.id === 'sandstorm' && w.boss.phase !== 'enter';

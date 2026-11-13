@@ -4,7 +4,6 @@ import { liveryName } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { SecondaryId } from '../data/types';
 import { buy, canBuy, canMount, mount, selectPlane, unmount, type ShopItem } from '../game/economy';
-import { canLoad, loadAmmo } from '../game/ammo';
 import { buyMark, canBuyMark, markOf } from '../game/arsenal';
 import { buyTwin, canBuyTwin } from '../game/firepower';
 import { applyLivery } from '../game/liveries';
@@ -17,7 +16,7 @@ import { PictureView } from '../ui/picture-view';
 import { drawButton, hit, type Button } from '../ui/widgets';
 import { DETAIL, drawDetail, drawList, drawLoadout, rowRect, slotRects } from './hangar-panels';
 import { HangarChief } from './hangar-chief';
-import { ammoTypeOf, FLEET_UI, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
+import { FLEET_UI, loadFocused, itemAction, itemName, markAction, markName, tabs, twinAction } from './hangar-items';
 import { isFleet } from '../data/fleet';
 import { wallet } from '../game/outpost';
 import { isMech } from '../game/jets';
@@ -90,13 +89,13 @@ export class HangarScene implements Scene {
     this.chief.bought(item);
   }
 
-  /** Key E: LOAD an owned ammo type (doc 45), or TWIN PODS for a weapon (doc 37). */
+  /** Key E: LOAD an owned ammo type (docs 45, 99), or TWIN PODS for a weapon (doc 37). */
   private buyTwinFocused(): void {
     const item = this.item;
     if (item?.type === 'plane' && this.game.save.kit === 'mech' && isMech(item.id)) return this.game.go({ to: 'paintShop', mech: item.id }); // doc 87
-    const ammo = item ? ammoTypeOf(item) : null;
-    if (item && ammo) {
-      if (canLoad(this.game.save, ammo)) this.commit(loadAmmo(this.game.save, ammo), t('arsenal.loadedToast', { item: itemName(item) }));
+    const loaded = item ? loadFocused(this.game.save, item) : undefined;
+    if (item && loaded !== undefined) {
+      if (loaded) this.commit(loaded, t('arsenal.loadedToast', { item: itemName(item) }));
       return;
     }
     if (item?.type !== 'secondary' || !twinAction(this.game.save, item)) return;

@@ -12,6 +12,7 @@ import { MAX_GUN2_LEVEL, MAX_GUN_LEVEL, secondaryAllowedOn } from '../data/weapo
 import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
 import { INTRO_WORLDS } from './intro';
+import { freshHeliArms, parseHeliArms, type HeliArms } from './heli-arms';
 import { freshFleetKit, parseFleetKit, type FleetKit, type Kit } from './kit';
 import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
@@ -76,6 +77,8 @@ export interface SaveData {
   kit: Kit;
   /** The helicopters' own kit (doc 49). */
   heli: FleetKit;
+  /** The helicopters' gun upgrades and ammo types (doc 99). */
+  heliArms: HeliArms;
   /** The subs' own kit (doc 66). */
   sub: FleetKit;
   /** The spacecraft (doc 54). */
@@ -134,6 +137,7 @@ export function defaultSave(): SaveData {
     admin: false,
     kit: 'jet',
     heli: freshFleetKit('heli'),
+    heliArms: freshHeliArms(),
     sub: freshFleetKit('sub'),
     ship: freshShip(),
     mech: freshFleetKit('mech'),
@@ -248,6 +252,7 @@ export function parseSave(input: unknown): SaveData | null {
     admin: false,
     kit: 'jet',
     heli: parseFleetKit('heli', raw.heli),
+    heliArms: parseHeliArms(raw.heliArms),
     sub: parseFleetKit('sub', raw.sub),
     ship: parseShip(raw.ship),
     mech: parseFleetKit('mech', raw.mech),

@@ -79,8 +79,18 @@ export function storesLive(
     const color = st.next ? SK.screenBg : ink;
     const tag = st.role === 'air' ? 'A' : 'G';
     screenText(ctx, st.next ? `${tag}[${st.short}]` : `${tag} ${st.short} `, s.x + 9, y, { size: 11.5, maxW: w - 46, color, weight: 800 });
-    screenText(ctx, `×${st.ammo}`, s.x + 6 + w - 4, y, { size: 11.5, align: 'right', maxW: 40, color: st.ammo > 0 ? color : '#ff5a48', weight: 800 });
+    if (st.charge !== undefined) energyBar(ctx, s.x + 6 + w - 42, y - 4, st.charge, st.ammo > 0 ? color : '#ff5a48');
+    else screenText(ctx, `×${st.ammo}`, s.x + 6 + w - 4, y, { size: 11.5, align: 'right', maxW: 40, color: st.ammo > 0 ? color : '#ff5a48', weight: 800 });
   });
+}
+
+/** An energy weapon's charge (doc 99): a framed bar that fills as it recharges. */
+function energyBar(ctx: CanvasRenderingContext2D, x: number, y: number, charge: number, color: string): void {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, 37, 7);
+  ctx.fillStyle = color;
+  ctx.fillRect(x + 2, y + 2, Math.round(34 * Math.max(0, Math.min(1, charge))), 4);
 }
 
 /** Greedy wrap in the MFD font; at most `max` lines, the last one squeezed by maxWidth if needed. */

@@ -200,6 +200,14 @@ export async function fly(id: string, runs = 3, heli?: PlaneId): Promise<{ kit: 
   return { kit, results };
 }
 
+/** Doc 99: `runs` runs of `id` with the buying pilot's helicopter kit changed by `tweak` (gear, weapons, mounts). */
+export async function flyHeliWith(id: string, runs: number, tweak: (s: SaveData) => SaveData): Promise<RunResult[]> {
+  const s = tweak(heliKitAt(Number(id.slice(1))).save);
+  const results: RunResult[] = [];
+  for (let i = 0; i < runs; i++) results.push(await run(id, s));
+  return results;
+}
+
 /** `runs` runs of `id` (91–120) with the sub kit a buying pilot owns at that mission (doc 65), steered in `sub` (default:
  *  the sub the kit has; doc 69). */
 export async function flySub(id: string, runs = 3, sub?: PlaneId): Promise<{ kit: string; results: RunResult[] }> {

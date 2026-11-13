@@ -1,4 +1,4 @@
-import type { AmmoType } from '../../data/arsenal';
+import type { RoundsLook } from '../../data/heli-arms';
 import type { Burn } from '../../game/ammo';
 import type { EnemyDef } from '../../data/enemies';
 import type { MissionDef, Behavior, EnemyKind, Layer } from '../../data/types';
@@ -13,6 +13,7 @@ import type { Boss } from './boss';
 import { flightScroll } from '../../game/sub-flight';
 import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/canyon';
 import type { Beam, Lance } from './mech-mission';
+import type { Pulse, SonicWave, Zap } from './heli-arms';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -53,10 +54,13 @@ export interface Enemy {
   burn: Burn;
   /** Backfire: seconds to its next drone launch (doc 44). */
   escortT: number;
+  /** Tracer rounds (doc 99): seconds it stays painted; stunned by the sonic wave: seconds it holds fire. */
+  paintT: number;
+  stun: number;
 }
 
-/** `cannon`: A-10 GAU-8 rounds (doc 36). */
-export type BulletKind = 'gun' | 'cannon' | 'enemy' | 'flak' | 'wingman';
+/** `cannon`: A-10 GAU-8 rounds (doc 36); `door`: the helicopters' door guns (doc 99). */
+export type BulletKind = 'gun' | 'cannon' | 'enemy' | 'flak' | 'wingman' | 'door';
 
 export interface Bullet {
   kind: BulletKind;
@@ -71,8 +75,12 @@ export interface Bullet {
   ground?: number;
   /** Player gun rounds: share of a hit on a plane that burns on (incendiary ammo, doc 45). */
   burn?: number;
-  /** Player gun rounds: the ammo loaded, for the tracer colour (docs 43, 45). */
-  rounds?: AmmoType;
+  /** Player gun rounds: the ammo loaded, for the tracer colour (docs 43, 45, 99). */
+  rounds?: RoundsLook;
+  /** The helicopters' rounds (doc 99): a hit burns ground targets too, paints the target, bursts onto others. */
+  burnGround?: boolean;
+  paint?: boolean;
+  splash?: { share: number; radius: number } | null;
   /** The spacecraft's laser bolts (doc 54). */
   laser?: boolean;
   /** The subs' harpoon bolts (doc 67). */
@@ -80,7 +88,8 @@ export interface Bullet {
 }
 
 export type MissileKind =
-  | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'seeker' | 'rocket' | 'enemy';
+  | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'seeker' | 'rocket' | 'drone'
+  | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -176,6 +185,13 @@ export class World {
   stomp: { x: number; y: number; t: number } | null = null;
   lances: Lance[] = [];
   beams: Beam[] = [];
+  /** The helicopters' arsenal (doc 99): laser bursts still firing, their beams' glow, sonic waves; the tracer's bonus and
+   *  how long the boss stays painted. */
+  pulses: Pulse[] = [];
+  zaps: Zap[] = [];
+  waves: SonicWave[] = [];
+  paintBonus = 0;
+  bossPaintT = 0;
   private ids = 0;
 
   /**

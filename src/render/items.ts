@@ -5,11 +5,14 @@ import { EQUIPMENT_IDS, SECONDARY_IDS } from '../data/types';
 // icon for the list rows, both transparent. Drawn at their own size, centred and never smoothed; callers fall back
 // to the vector icons (icons.ts) while a picture loads or where none exists.
 
-/** `ammo`: the uranium ammo (doc 43); `incendiary` (doc 45); `he`: the Bofors 40 mm (doc 46); `chaingun`: the
- *  helicopters' M230 (doc 49); `harpoon`: the subs' harpoon gun (doc 66); `autocannon`: the mechs' gun (doc 79). */
-export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'incendiary' | 'he' | 'chaingun' | 'harpoon' | 'autocannon';
+/** `ammo`: the uranium ammo (doc 43); `incendiary` (doc 45, the helicopters' too); `he`: the Bofors 40 mm (doc 46);
+ *  `chaingun`: the helicopters' M230 (doc 49); `harpoon`: the subs' harpoon gun (doc 66); `autocannon`: the mechs' gun
+ *  (doc 79); `gatling` … `hedp`: the helicopters' gun upgrades and ammo (doc 99). */
+export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'incendiary' | 'he' | 'chaingun' | 'harpoon' | 'autocannon'
+  | 'gatling' | 'turret' | 'doorguns' | 'tracer' | 'hedp';
 export const ITEM_IDS: readonly ItemId[] = Object.freeze([
   ...SECONDARY_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', 'harpoon', 'autocannon', ...EQUIPMENT_IDS,
+  'gatling', 'turret', 'doorguns', 'tracer', 'hedp',
 ]);
 
 const FILES = import.meta.glob<string>('../assets/items/*.png', { eager: true, query: '?url', import: 'default' });

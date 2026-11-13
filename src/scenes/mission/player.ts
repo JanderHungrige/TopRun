@@ -9,6 +9,7 @@ import { gaitSpeed } from '../../game/mech-walk';
 import { shipGun, touchesShip } from '../../game/ship-loadout';
 import { CELL_PX, SHIELD } from '../../data/ship-modules';
 import { circleHit } from '../../game/combat';
+import { rechargeStep, spinStep } from '../../game/heli-combat';
 import { specialRules } from '../../game/jets';
 import type { PlayerStats } from '../../game/loadout';
 import { PF_H, PF_W } from './world';
@@ -24,6 +25,9 @@ export interface SecondarySlot {
   twin: boolean;
   /** The numbers of the weapon's mark (doc 43). */
   weapon: WeaponStats;
+  /** An energy weapon (doc 99): seconds per charge (0 = rounds) and the next charge's progress, 0 … 1. */
+  recharge: number;
+  charge: number;
 }
 
 /** Player jet state; behaviour that touches the world lives in weapons-fire.ts / mission-scene.ts. */
@@ -41,6 +45,11 @@ export class Player {
   gun2Cooldown = 0;
   /** Bofors 40 mm HE gun reload (doc 46). */
   heCooldown = 0;
+  /** The Gatling Drive's barrels (doc 99): spin 0 … 1, and whether the trigger was held this frame. */
+  spin = 0;
+  triggered = false;
+  /** The door guns' reloads, left and right (doc 99). */
+  doorCooldown = [0, 0];
   gun2Side = 1;
   secCooldown = 0;
   /** Point defence's reload (doc 60). */
@@ -89,7 +98,9 @@ export class Player {
     this.shieldMax = stats.ship?.shield ?? 0;
     this.shield = this.shieldMax;
     this.damageControlLeft = stats.damageControlUses;
-    this.secondaries = stats.secondaries.map((s) => ({ id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin, weapon: s.weapon }));
+    this.secondaries = stats.secondaries.map((s) => ({
+      id: s.id, ammo: s.ammo, start: s.ammo, twin: s.twin, weapon: s.weapon, recharge: s.recharge, charge: 0,
+    }));
   }
 
   get gunLevel(): number {
@@ -154,9 +165,18 @@ export class Player {
     this.rollSpin = Math.max(0, this.rollSpin - dt);
     this.switchFlash = Math.max(0, this.switchFlash - dt);
     this.quiet += dt;
+    this.tickArms(dt);
     if (this.quiet >= SHIELD.delay) this.shield = Math.min(this.shieldMax, this.shield + (this.stats.ship?.shieldRegen ?? SHIELD.regen) * dt);
   }
 
+
+  /** The Gatling's barrels spin with the trigger, the energy weapons recharge (doc 99). */
+  private tickArms(dt: number): void {
+    const gat = this.stats.arms?.gatling;
+    this.spin = gat ? spinStep(this.spin, this.triggered, gat.spinUp, dt) : 0;
+    this.triggered = false;
+    for (const s of this.secondaries) Object.assign(s, rechargeStep(s.ammo, s.charge, s.start, s.recharge, dt));
+  }
 
   /** Applies damage; returns true when this hit destroyed the jet. */
   damage(amount: number): boolean {
@@ -184,7 +204,7 @@ export class Player {
   }
 
   reloadAmmo(): void {
-    for (const s of this.secondaries) s.ammo = Math.min(s.start * 2, s.ammo + Math.ceil(s.start * 0.5));
+    for (const s of this.secondaries) s.ammo = Math.min(s.start * (s.recharge > 0 ? 1 : 2), s.ammo + Math.ceil(s.start * 0.5));
   }
 
 }

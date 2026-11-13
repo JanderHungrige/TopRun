@@ -1,4 +1,5 @@
-import type { AmmoType, Mark } from '../data/arsenal';
+import type { Mark } from '../data/arsenal';
+import type { RoundsLook } from '../data/heli-arms';
 import {
   ARMOR_BONUS, atLevel, DAMAGE_CONTROL_RESTORE, DAMAGE_CONTROL_USES, ECM_BULLET, ECM_TURN, ENGINE_BONUS, FLARE_COUNT,
 } from '../data/equipment';
@@ -12,6 +13,7 @@ import { loadedRounds } from './ammo';
 import { markOf, weaponStats, type WeaponStats } from './arsenal';
 import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
+import { heliArmsStats, type HeliArmsStats } from './heli-arms';
 import type { SaveData } from './save';
 import type { ShipStats } from './ship';
 import { shipPlayerStats } from './ship-loadout';
@@ -24,6 +26,8 @@ export interface SecondaryAmmo {
   /** Mk I–III and the numbers it gives (doc 43). */
   mark: Mark;
   weapon: WeaponStats;
+  /** An energy weapon (doc 99): seconds a charge takes to come back, shared by its stations; 0 = rounds. */
+  recharge: number;
 }
 
 export interface PlayerStats {
@@ -39,8 +43,12 @@ export interface PlayerStats {
   gunGround: number;
   /** Share of a gun hit on a plane that burns on: incendiary ammo (doc 45), else 0. */
   gunBurn: number;
-  /** The ammo loaded, null = ordinary rounds (tracer colour, docs 43, 45). */
-  rounds: AmmoType | null;
+  /** Ground targets burn too: the helicopters' incendiary rounds (doc 99). */
+  burnGround: boolean;
+  /** The ammo loaded, null = ordinary rounds (tracer colour, docs 43, 45, 99). */
+  rounds: RoundsLook | null;
+  /** The helicopters' gun upgrades and ammo (doc 99); null for everything else. */
+  arms: HeliArmsStats | null;
   /** Bofors 40 mm HE gun level, 0 = none (doc 46). */
   heLevel: number;
   secondaries: SecondaryAmmo[];
@@ -83,10 +91,12 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     const ammo = weapon.ammoPerSlot * (twin ? 2 : 1);
     const existing = secondaries.find((s) => s.id === id);
     if (existing) existing.ammo += ammo;
-    else secondaries.push({ id, ammo, twin, mark, weapon });
+    else secondaries.push({ id, ammo, twin, mark, weapon, recharge: 0 });
   }
+  shareRecharge(secondaries, save.loadout[plane.id]);
   if (plane.kind === 'mech') loadFromMagazine(secondaries, save.outpost.magazine);
   const rounds = loadedRounds(save);
+  const arms = plane.kind === 'heli' ? heliArmsStats(save.heliArms) : null;
   return {
     plane,
     maxHull: Math.round(plane.hull * (1 + atLevel(ARMOR_BONUS, eq.armor)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
@@ -95,8 +105,10 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gun2Level: double ? save.gun2Level : 0,
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
     gunGround: isFleet(plane.kind) ? 1 : rounds.groundFactor, // the chain gun and the harpoon gun hit the ground fully (docs 49, 66)
-    gunBurn: rounds.burn,
-    rounds: rounds.type,
+    gunBurn: arms ? arms.burn : rounds.burn,
+    burnGround: !!arms,
+    rounds: arms ? arms.rounds : rounds.type,
+    arms,
     heLevel: save.heLevel,
     secondaries,
     flares: atLevel(FLARE_COUNT, eq.flares),
@@ -113,6 +125,14 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     livery: save.livery[plane.id],
     paint: plane.kind === 'mech' ? save.mechPaint[plane.id as MechId] ?? null : null,
   };
+}
+
+/** An energy weapon's charges come back faster the more stations carry it (doc 99). */
+function shareRecharge(secondaries: SecondaryAmmo[], loadout: readonly (SecondaryId | null)[]): void {
+  for (const s of secondaries) {
+    const each = SECONDARIES[s.id].recharge;
+    if (each) s.recharge = each / Math.max(1, loadout.filter((x) => x === s.id).length);
+  }
 }
 
 /** A mech's racks take their rounds from the base's magazine (doc 79): no more than it holds, shared in loadout order

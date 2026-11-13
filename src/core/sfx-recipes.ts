@@ -7,7 +7,8 @@ type LayerSfx =
   | 'gun' | 'missile' | 'rocket' | 'bombDrop' | 'explosionSmall' | 'explosionLarge' | 'explosionHuge'
   | 'hit' | 'playerHit' | 'pickup' | 'cash' | 'powerup' | 'flare' | 'catapult' | 'warning'
   | 'uiMove' | 'uiSelect' | 'uiBack' | 'buy' | 'denied' | 'enemyShot' | 'enemyMissile' | 'special' | 'splash'
-  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap' | 'bofors' | 'sonar';
+  | 'radioClick' | 'cannon' | 'stealth' | 'nukeLaunch' | 'nuke' | 'chalk' | 'wipe' | 'clap' | 'bofors' | 'sonar'
+  | 'zap' | 'sonic' | 'drones';
 /** Procedural babble syllables (see sfx-voice.ts). */
 type VoiceSfx = 'voice' | 'radioVoice';
 export type SfxName = LayerSfx | VoiceSfx;
@@ -105,6 +106,17 @@ const SFX: Record<LayerSfx, Layer[]> = {
     tone('sine', 1500, 1350, 0.6, 0.18, { a: 0.005, h: 0.08 }), tone('sine', 1500, 1350, 0.5, 0.07, { at: 0.38, a: 0.005, h: 0.05 }),
     thump(90, 40, 0.06, 0.5, 0.2),
   ],
+  // The helicopters' arsenal (doc 99): a laser pulse's sharp zap, the sonic cannon's falling whoop with a throb under it,
+  // the drone swarm's buzzing launch.
+  zap: [tone('sawtooth', 3200, 900, 0.07, 0.09, { a: 0.002 }), tone('sine', 5200, 2600, 0.05, 0.08, { a: 0.002 }), hiss('highpass', 7000, 4000, 0.04, 0.08)],
+  sonic: [
+    tone('sine', 900, 140, 0.5, 0.22, { a: 0.01, h: 0.1 }), tone('triangle', 450, 70, 0.55, 0.12, { a: 0.02, h: 0.1 }),
+    hiss('bandpass', 2400, 500, 0.45, 0.18, { q: 4, a: 0.02 }), thump(110, 45, 0.08, 0.3, 0.3),
+  ],
+  drones: [
+    tone('sawtooth', 210, 260, 0.35, 0.07, { a: 0.02, h: 0.2 }), tone('sawtooth', 214, 270, 0.35, 0.05, { a: 0.02, h: 0.2 }),
+    hiss('bandpass', 700, 1500, 0.3, 0.18, { q: 2, a: 0.01 }), thump(160, 60, 0.04, 0.1, 0.18),
+  ],
   splash: [
     hiss('lowpass', 5000, 200, 0.6, 0.7, { a: 0.005, h: 0.05 }), thump(220, 60, 0.06, 0.25, 0.4),
     hiss('bandpass', 2500, 900, 0.45, 0.2, { q: 1.2, at: 0.08 }),
@@ -146,7 +158,7 @@ const SFX: Record<LayerSfx, Layer[]> = {
 
 /** Rapid-fire sounds: rate-limited, pitch-jittered, and dropped (instead of voice-stealing) at the cap. */
 export const SPAM: Partial<Record<SfxName, number>> = {
-  gun: 0.045, hit: 0.03, enemyShot: 0.06, explosionSmall: 0.04, rocket: 0.05, enemyMissile: 0.09,
+  gun: 0.045, hit: 0.03, enemyShot: 0.06, explosionSmall: 0.04, rocket: 0.05, enemyMissile: 0.09, zap: 0.05,
 };
 /** Minimum seconds between two triggers of the same sound. */
 export const GAP: Partial<Record<SfxName, number>> = {

@@ -6,7 +6,7 @@ import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
 import { jetGunDef, MAX_GUN2_LEVEL, SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { MAX_MARK, toMark, type AmmoType } from '../data/arsenal';
-import { ammoTypeLevel, canLoad } from '../game/ammo';
+import { ammoTypeLevel, canLoad, loadAmmo } from '../game/ammo';
 import { canBuyMark, markCap, markOf, markPrice, weaponStats, type WeaponStats } from '../game/arsenal';
 import { canBuy, priceOf, type ShopItem } from '../game/economy';
 import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepower';
@@ -21,6 +21,8 @@ import {
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { bayShort, buyKey, mechCraft, mechWeapons, priceText } from './hangar-mech';
+import { heliDescription, heliGear, heliLevel, heliLoadAction, heliName, heliStatus } from './hangar-heli';
+import { canLoadHeliRounds, loadHeliRounds } from '../game/heli-arms';
 
 export interface Tab {
   name: UiKey;
@@ -53,7 +55,7 @@ function fleetTabs(save: SaveData, fleet: FleetKitId): readonly Tab[] {
   const weapons = mech ? mechWeapons() : SECONDARY_IDS.filter((id) => weaponOnSale(save, id));
   return [
     { name: FLEET_UI[fleet].tab, items: craft.map((id) => ({ type: 'plane', id })) },
-    { name: 'hangar.tabWeapons', items: [{ type: 'gun', fleet }, ...weapons.map((id) => ({ type: 'secondary' as const, id }))] },
+    { name: 'hangar.tabWeapons', items: [{ type: 'gun', fleet }, ...heliGear(save), ...weapons.map((id) => ({ type: 'secondary' as const, id }))] },
     { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
   ];
 }
@@ -94,6 +96,7 @@ export function itemName(item: ShopItem): string {
     case 'incendiary': return t('arsenal.incName');
     case 'he': return t('arsenal.heName');
     case 'secondary': return secondaryName(item.id);
+    case 'heliMod': case 'heliRounds': return heliName(item);
     case 'equipment': return equipmentName(item.id);
     case 'livery': return liveryName(item.id);
     default: throw new Error(`unhandled: ${item satisfies never}`);
@@ -109,6 +112,7 @@ export function itemDescription(item: ShopItem): string {
     case 'incendiary': return t('arsenal.incDesc');
     case 'he': return t('arsenal.heDesc');
     case 'secondary': return secondaryDescription(item.id);
+    case 'heliMod': case 'heliRounds': return heliDescription(item);
     case 'equipment': return equipmentDescription(item.id);
     case 'livery': return t('hangar.paintDesc');
     default: throw new Error(`unhandled: ${item satisfies never}`);
@@ -139,6 +143,7 @@ export function itemStatus(save: SaveData, item: ShopItem): string {
       if (save.ownedSecondaries.includes(item.id)) return mark + (mounted ? t('hangar.mounted', { n: mounted }) : t('hangar.owned'));
       return save.kit === 'mech' ? t('mechbay.lab') : priceText(save, price ?? 0);
     }
+    case 'heliMod': case 'heliRounds': return heliStatus(save, item, price);
     case 'equipment': {
       const lvl = save.equipment[item.id];
       const max = equipmentCap(save, item.id);
@@ -201,6 +206,9 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
       const level = item.type === 'he' ? save.heLevel : ammoTypeLevel(save, item.type === 'ammo' ? 'uranium' : 'incendiary');
       return buyAction(save, item, t('hangar.gunUpgrade', { level: level + 1, price }));
     }
+    case 'heliMod': case 'heliRounds':
+      if (priceOf(save, item) === null) return none(t('hangar.maxed'));
+      return buyAction(save, item, heliLevel(save, item) === 0 ? t('hangar.buy', { price }) : t('hangar.gunUpgrade', { level: heliLevel(save, item) + 1, price }));
     case 'secondary':
       if (!save.ownedSecondaries.includes(item.id) && save.kit === 'mech') return none(t('mechbay.lab'), t('mechbay.labNote'));
       if (!save.ownedSecondaries.includes(item.id)) return buyAction(save, item, t('hangar.buy', { price }));
@@ -221,12 +229,20 @@ export function itemAction(save: SaveData, item: ShopItem): ItemAction {
 export const ammoTypeOf = (item: ShopItem): AmmoType | null =>
   (item.type === 'ammo' ? 'uranium' : item.type === 'incendiary' ? 'incendiary' : null);
 
+/** Key E on an ammo item: the save with it loaded, null when it can't be; undefined for anything else (docs 45, 99). */
+export function loadFocused(save: SaveData, item: ShopItem): SaveData | null | undefined {
+  if (item.type === 'heliRounds') return canLoadHeliRounds(save, item.id) ? loadHeliRounds(save, item.id) : null;
+  const ammo = ammoTypeOf(item);
+  return ammo ? (canLoad(save, ammo) ? loadAmmo(save, ammo) : null) : undefined;
+}
+
 /**
  * The side button (key E): TWIN PODS of an owned weapon once map 2 is open (doc 37), LOAD of an owned ammo type
  * (doc 45); null = no button.
  */
 export function twinAction(save: SaveData, item: ShopItem): { label: string; enabled: boolean } | null {
   if (item.type === 'plane' && save.kit === 'mech') return save.ownedPlanes.includes(item.id) ? { label: t('paint.button'), enabled: true } : null; // doc 87
+  if (item.type === 'heliRounds') return heliLoadAction(save, item.id);
   const ammo = ammoTypeOf(item);
   if (ammo) {
     if (ammoTypeLevel(save, ammo) === 0) return null;

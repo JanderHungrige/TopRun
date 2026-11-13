@@ -114,7 +114,8 @@ the panels and texts stay readable: the carrier's hangar deck (maps 1–2), a he
 pen (map 4), an orbital shipyard (map 5). `src/assets/loadout/<kit>.png` on the 320 × 180 art grid (the workflow's own
 48-colour pixel branch, sampled at its art-pixel centres), drawn at 4 × under a wash of 36 % so the scene shows around and
 through the panels. The owner took all four as rendered (2026-11-07); map 6's mech bay (`mech.png`) came with the
-jungle planet (doc 86).
+jungle planet (doc 86). The helicopters' picture was made again in the world intros' style (2026-11-13, doc 99): a
+worn mountain-base maintenance hangar at dusk, chosen by the owner out of three beside the old one.
 
 ### Picture mode
 

@@ -50,7 +50,8 @@ export interface LeftConsoleView {
   /** `he`: the Bofors 40 mm level, 0 = none (doc 46). */
   cannon: { level: number; level2: number; powered: boolean; powerRatio: number; he: number };
   /** Mounted weapons; `role` A/G tag, `next` = the one the AIR / GROUND key fires next. */
-  stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; role: WeaponRole; next: boolean }>;
+  /** `charge`: an energy weapon's charge 0 … 1 (doc 99), drawn as a bar instead of the count. */
+  stores: ReadonlyArray<{ id: SecondaryId; short: string; ammo: number; role: WeaponRole; next: boolean; charge?: number }>;
   buttons: { air: ButtonStates['air']; ground: ButtonStates['ground'] };
   /** What AIR / GROUND fire next, named on the buttons (doc 05); null when nothing of that role has ammo. */
   weapons: { air: Armed | null; ground: Armed | null };

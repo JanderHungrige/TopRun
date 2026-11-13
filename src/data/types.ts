@@ -29,10 +29,12 @@ export type SecondaryId =
   | 'aim9' | 'rockets' | 'mk82' | 'agm65' | 'aim54' | 'aim120' | 'jdam' | 'hydra' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo'
   | 'mk48' | 'depthmine' | 'shkval'
   // The mechs' weapons (doc 79): the rocket pod from the start, the rest invented in the lab (doc 82).
-  | 'pod' | 'seeker' | 'mortar' | 'plasma' | 'rail';
+  | 'pod' | 'seeker' | 'mortar' | 'plasma' | 'rail'
+  // The helicopters' station weapons of doc 99.
+  | 'pulselaser' | 'sonic' | 'drones';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
   'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket', 'torpedo',
-  'mk48', 'depthmine', 'shkval', 'pod', 'seeker', 'mortar', 'plasma', 'rail',
+  'mk48', 'depthmine', 'shkval', 'pod', 'seeker', 'mortar', 'plasma', 'rail', 'pulselaser', 'sonic', 'drones',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';

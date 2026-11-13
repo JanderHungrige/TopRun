@@ -114,7 +114,8 @@ Two files per item in `src/assets/items/`: `<id>.png` (192 × 192, transparent, 
 Ids: `aim9 aim54 aim120 agm65 rockets mk82 jdam gun ammo armor engine flares ecm damageControl magnet radar` (`ammo` =
 the uranium ammo, doc 43, added 2026-10-28; `aim120` and `jdam` added 2026-10-29, rendered on the M1 MacBook while
 the M4 slept: same workflow and settings, TE `qwen_3_4b_fp8_mixed`, seed 7). Until a picture exists or while it
-loads, the old vector icon is drawn instead; the second gun has none yet.
+loads, the old vector icon is drawn instead; the second gun has none yet. Doc 99 (2026-11-13, on the GTX 1080 PC) added
+`chaingun hydra hellfire stinger incendiary gatling turret doorguns tracer hedp pulselaser sonic drones`.
 `dev/item-pictures.py <raw.png> <id>` turns a 768 × 768 render on magenta into both files (keying, premultiplied area
 scaling to the 166 px width of the other pictures, 24 colours with up to four kept for small bright accents such as a
 glowing ring, outline pixels tinted by the magenta repainted with the darkest art colour, the list icon mapped onto

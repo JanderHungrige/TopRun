@@ -11,6 +11,7 @@ import { hidden } from './projectiles';
 import { isMiniBoss } from '../../data/reinforcements';
 import { PF_H, PF_W, type Bullet, type Enemy, type World } from './world';
 import { drawCanyon } from './canyon-run';
+import { drawHeliFx } from '../../render/heli-fx';
 import { drawShip } from '../../render/ship';
 import { liveryLook } from '../../render/livery-art';
 import type { ShipStats } from '../../game/ship';
@@ -42,8 +43,12 @@ function miniBossBars(ctx: CanvasRenderingContext2D, world: World): void {
   }
 }
 
-/** Glow and core colours of the loaded rounds: uranium white-green in green (doc 43), incendiary orange in red (doc 45). */
-const ROUNDS_GLOW = { uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary: ['255,110,40', '#ffd27a', '#fff0c8'] } as const;
+/** Glow and core colours of the loaded rounds: uranium white-green in green (doc 43), incendiary orange in red (doc 45);
+ *  the helicopters' tracer a hot red streak, HEDP yellow (doc 99). */
+const ROUNDS_GLOW = {
+  uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary: ['255,110,40', '#ffd27a', '#fff0c8'],
+  tracer: ['255,40,40', '#ff9a8a', '#ffe0d8'], hedp: ['255,210,60', '#fff09a', '#fffbe0'],
+} as const;
 
 /** A gun round; loaded ammo burns inside a glow that flickers round by round. */
 function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
@@ -78,7 +83,7 @@ function shell(ctx: CanvasRenderingContext2D, x: number, y: number): void {
 function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
   for (const s of world.shells) shell(ctx, s.x, s.y);
   for (const b of world.bullets) {
-    if (b.kind === 'gun' || b.kind === 'wingman') tracer(ctx, b, world.t);
+    if (b.kind === 'gun' || b.kind === 'wingman' || b.kind === 'door') tracer(ctx, b, world.t);
     else if (b.kind === 'cannon') {
       ctx.fillStyle = '#ffb347';
       ctx.fillRect(b.x - 2, b.y - 9, 4, 16);
@@ -101,6 +106,7 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
     }
   }
   for (const m of world.missiles) {
+    if (m.kind === 'drone') continue; // the drone swarm is drawn by heli-fx (doc 99)
     if (m.kind === 'torpedo') {
       plasmaBolt(ctx, m.x, m.y, m.ttl);
       continue;
@@ -273,10 +279,10 @@ export function renderWorld(ctx: CanvasRenderingContext2D, world: World, p: Play
   world.particles.render(ctx);
   if (world.sonar) sonarRing(ctx, world.sonar.x, world.sonar.y, world.sonar.t);
   mechShots(ctx, world, t);
+  drawHeliFx(ctx, world, t);
   world.terrain.renderSky(ctx, t);
   drawNuke(ctx, world, t);
 }
-
 
 /** The mechs' stomp ring, lance bolts and rail beams (docs 79, 80). */
 function mechShots(ctx: CanvasRenderingContext2D, world: World, t: number): void {

@@ -1,3 +1,5 @@
+import { UI_EN_HELIARMS } from './ui-en-heliarms';
+
 // New Frontiers UI strings (docs 48–50): map 3, the map picker, the helicopter hangar.
 export const UI_EN_FRONTIERS = {
   'map.title3': 'LOW LEVEL',
@@ -97,4 +99,5 @@ export const UI_EN_FRONTIERS = {
   'rocket.good': 'GOOD STAGING',
   'rocket.early': 'SEPARATED TOO EARLY',
   'rocket.late': 'DEAD WEIGHT — TOO LATE',
+  ...UI_EN_HELIARMS,
 } as const;

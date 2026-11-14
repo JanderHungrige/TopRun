@@ -15,7 +15,7 @@ const name = (path: string): string => path.slice(path.lastIndexOf('/') + 1).rep
 
 describe('hangar item pictures', () => {
   it('cover every weapon, the cannon, both ammo types, the Bofors, every add-on and the helicopters\' gear (doc 99)', () => {
-    const heliGear = ['gatling', 'turret', 'doorguns', 'tracer', 'hedp'];
+    const heliGear = ['gatling', 'turret', 'doorguns', 'tracer', 'hedp', 'loader', 'homing', 'sidetubes', 'explosive', 'electric', 'cavitation'];
     expect([...ITEM_IDS].sort()).toEqual([...SECONDARY_IDS, ...EQUIPMENT_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', 'harpoon', 'autocannon', ...heliGear].sort());
   });
 

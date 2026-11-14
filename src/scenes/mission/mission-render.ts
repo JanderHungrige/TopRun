@@ -48,11 +48,12 @@ function miniBossBars(ctx: CanvasRenderingContext2D, world: World): void {
 const ROUNDS_GLOW = {
   uranium: ['130,255,150', '#b4ffc4', '#eaffd8'], incendiary: ['255,110,40', '#ffd27a', '#fff0c8'],
   tracer: ['255,40,40', '#ff9a8a', '#ffe0d8'], hedp: ['255,210,60', '#fff09a', '#fffbe0'],
+  explosive: ['255,150,50', '#ffc070', '#fff0d0'], electric: ['90,170,255', '#a8dcff', '#eef8ff'], cavitation: ['200,235,255', '#e0f6ff', '#ffffff'],
 } as const;
 
 /** A gun round; loaded ammo burns inside a glow that flickers round by round. */
 function tracer(ctx: CanvasRenderingContext2D, b: Bullet, t: number): void {
-  if (b.harpoon) return harpoonBolt(ctx, b.x, b.y);
+  if (b.harpoon) return harpoonBolt(ctx, b.x, b.y, b.rounds ? ROUNDS_GLOW[b.rounds][1] : undefined);
   if (b.laser) {
     ctx.fillStyle = 'rgba(110,220,255,0.35)';
     ctx.fillRect(b.x - 3, b.y - 12, 6, 22);
@@ -106,7 +107,7 @@ function drawShots(ctx: CanvasRenderingContext2D, world: World): void {
     }
   }
   for (const m of world.missiles) {
-    if (m.kind === 'drone') continue; // the drone swarm is drawn by heli-fx (doc 99)
+    if (m.kind === 'drone' || m.kind === 'minitorp') continue; // the swarms are drawn by heli-fx (docs 99, 101)
     if (m.kind === 'torpedo') {
       plasmaBolt(ctx, m.x, m.y, m.ttl);
       continue;

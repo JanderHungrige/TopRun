@@ -126,6 +126,10 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   pulselaser: { name: 'HEL-Pulslaser', description: 'Feuert eine Salve aus vier Laserpulsen auf das nächste Ziel voraus. Trifft immer; läuft mit Energie, die sich wieder auflädt.' },
   sonic: { name: 'Ultraschall-Kanone', description: 'Eine Ultraschallwelle, die alles vor dir betäubt und feindliche Geschosse auf ihrem Weg auslöscht. Lädt sich wieder auf.' },
   drones: { name: 'Drohnenschwarm', description: 'Startet drei kleine Drohnen, die selbstständig Ziele jagen, in der Luft und am Boden.' },
+  torpswarm: { name: 'Torpedo-Schwarm', description: 'Sechs kleine zielsuchende Torpedos pro Salve, die ausschwärmen und alles im Wasser jagen.' },
+  sonarpulse: { name: 'Sonar-Puls', description: 'Eine Druckwelle rund um das U-Boot, die alles betäubt, was sie trifft, und feindliche Torpedos auslöscht. Lädt sich wieder auf.' },
+  decoy: { name: 'Köder-Drohne', description: 'Eine kleine Drohne, die vorausschwimmt und wie ein U-Boot klingt: Feindliche Geschütze und Torpedos nehmen sie statt dich ins Visier.' },
+  net: { name: 'Treibnetz', description: 'Ein nach vorn geworfenes Netz, das langsam absinkt. Was hineinschwimmt, wird stark gebremst.' },
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {

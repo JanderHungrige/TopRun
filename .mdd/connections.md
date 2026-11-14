@@ -1,8 +1,8 @@
 ---
-generated: 2026-11-13
-doc_count: 100
-connection_count: 320
-overlap_count: 239
+generated: 2026-11-14
+doc_count: 102
+connection_count: 329
+overlap_count: 253
 ---
 
 # MDD Connections
@@ -48,6 +48,7 @@ Game
 │   ├── Shipyard   55-shipyard (complete)
 │   ├── SpaceArsenal   57-space-arsenal (complete)
 │   ├── Spacecraft   54-spacecraft (complete)
+│   ├── Sub Arsenal   101-sub-arsenal (complete)
 │   ├── Sub Fleet   69-sub-fleet (complete)
 │   └── Sub Kit   66-sub-kit (complete)
 ├── Honours
@@ -102,6 +103,7 @@ Game
 │   ├── Sub Flight   67-sub-flight (complete)
 │   └── Underwater World   68-underwater-world (complete)
 ├── PaintJobs   09-paint-jobs (complete)
+│   └── Fleet Liveries   100-fleet-liveries (complete)
 ├── Pilots   08-pilot-profiles (complete)
 │   ├── Admin Pilot   47-admin-pilot (complete)
 │   └── Builder   29-avatar-builder (complete)
@@ -132,6 +134,8 @@ graph TD
   d08["08-pilot-profiles"]:::complete
   d09["09-paint-jobs"]:::complete
   d10["10-minigames-core"]:::complete
+  d100["100-fleet-liveries"]:::complete
+  d101["101-sub-arsenal"]:::complete
   d11["11-base-hub"]:::complete
   d12["12-pushup-challenge"]:::complete
   d13["13-tower-flyby"]:::complete
@@ -245,6 +249,15 @@ graph TD
   d03 --> d10
   d07 --> d10
   d08 --> d10
+  d09 --> d100
+  d49 --> d100
+  d66 --> d100
+  d54 --> d100
+  d55 --> d100
+  d66 --> d101
+  d69 --> d101
+  d99 --> d101
+  d02 --> d101
   d10 --> d11
   d03 --> d11
   d06 --> d11
@@ -554,7 +567,7 @@ graph TD
 - `dev/crew-outfits.py`: 76-world-looks, 97-world-intros
 - `dev/dock-plates.py`: 73-home-docks, 93-sea-lounge-picture, 94-space-lounge-picture
 - `dev/finale-plates.py`: 64-world-celebrations, 97-world-intros
-- `dev/playtest.ts`: 56-fourth-map, 57-space-arsenal, 60-point-defence, 65-fifth-map, 69-sub-fleet, 70-map-five-campaign, 74-world-order, 99-heli-arsenal
+- `dev/playtest.ts`: 101-sub-arsenal, 56-fourth-map, 57-space-arsenal, 60-point-defence, 65-fifth-map, 69-sub-fleet, 70-map-five-campaign, 74-world-order, 99-heli-arsenal
 - `server/Dockerfile`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
 - `server/ladder/http.ts`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
 - `server/ladder/main.ts`: 27-online-ladder, 34-cloud-pilots, 40-chalkboard
@@ -563,7 +576,7 @@ graph TD
 - `src/assets/docks/`: 73-home-docks, 76-world-looks
 - `src/assets/docks/jungle.png`: 86-jungle-looks, 95-jungle-camp-picture
 - `src/assets/finales/`: 64-world-celebrations, 72-map-five-honours, 74-world-order, 85-map-six-honours
-- `src/assets/items/`: 86-jungle-looks, 99-heli-arsenal
+- `src/assets/items/`: 101-sub-arsenal, 86-jungle-looks, 99-heli-arsenal
 - `src/assets/portraits/`: 33-image-portraits, 76-world-looks, 86-jungle-looks, 97-world-intros
 - `src/core/input.ts`: 01-game-core, 43-deep-arsenal
 - `src/core/ladder-api.ts`: 28-ladder-screen, 34-cloud-pilots
@@ -580,6 +593,7 @@ graph TD
 - `src/data/enemies.ts`: 05-mission-combat, 44-new-adversaries, 56-fourth-map, 58-map-four-campaign, 68-underwater-world, 70-map-five-campaign, 81-jungle-world, 96-alien-jungle-enemies
 - `src/data/equipment.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries
 - `src/data/fleet.ts`: 66-sub-kit, 74-world-order, 79-mech-kit
+- `src/data/liveries.ts`: 09-paint-jobs, 100-fleet-liveries
 - `src/data/medals.ts`: 24-medals-core, 62-world-medals, 72-map-five-honours, 74-world-order, 85-map-six-honours
 - `src/data/minigames.ts`: 10-minigames-core, 88-sonar-hunt, 89-station-docking, 90-firing-range
 - `src/data/missions-4.ts`: 56-fourth-map, 58-map-four-campaign, 74-world-order
@@ -595,8 +609,8 @@ graph TD
 - `src/data/theaters-5.ts`: 65-fifth-map, 70-map-five-campaign, 74-world-order
 - `src/data/theaters-6.ts`: 78-sixth-map, 81-jungle-world
 - `src/data/theaters.ts`: 03-campaign-map, 35-second-map, 48-third-map, 56-fourth-map, 58-map-four-campaign, 65-fifth-map, 68-underwater-world, 70-map-five-campaign, 81-jungle-world
-- `src/data/types.ts`: 02-hangar-economy, 35-second-map, 36-new-jets, 37-double-firepower, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 48-third-map, 49-helicopter-kit, 51-heli-fleet, 54-spacecraft, 56-fourth-map, 57-space-arsenal, 58-map-four-campaign, 65-fifth-map, 66-sub-kit, 67-sub-flight, 68-underwater-world, 69-sub-fleet, 70-map-five-campaign, 74-world-order, 78-sixth-map, 79-mech-kit, 96-alien-jungle-enemies, 99-heli-arsenal
-- `src/data/weapons.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 49-helicopter-kit, 51-heli-fleet, 55-shipyard, 57-space-arsenal, 66-sub-kit, 69-sub-fleet, 74-world-order, 79-mech-kit, 99-heli-arsenal
+- `src/data/types.ts`: 02-hangar-economy, 101-sub-arsenal, 35-second-map, 36-new-jets, 37-double-firepower, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 48-third-map, 49-helicopter-kit, 51-heli-fleet, 54-spacecraft, 56-fourth-map, 57-space-arsenal, 58-map-four-campaign, 65-fifth-map, 66-sub-kit, 67-sub-flight, 68-underwater-world, 69-sub-fleet, 70-map-five-campaign, 74-world-order, 78-sixth-map, 79-mech-kit, 96-alien-jungle-enemies, 99-heli-arsenal
+- `src/data/weapons.ts`: 02-hangar-economy, 101-sub-arsenal, 37-double-firepower, 43-deep-arsenal, 49-helicopter-kit, 51-heli-fleet, 55-shipyard, 57-space-arsenal, 66-sub-kit, 69-sub-fleet, 74-world-order, 79-mech-kit, 99-heli-arsenal
 - `src/game/admin.ts`: 47-admin-pilot, 82-ground-base
 - `src/game/adversaries.ts`: 44-new-adversaries, 45-incendiary-ammo
 - `src/game/arsenal.ts`: 43-deep-arsenal, 45-incendiary-ammo, 49-helicopter-kit, 66-sub-kit
@@ -605,29 +619,31 @@ graph TD
 - `src/game/base-light.ts`: 91-carrier-picture, 92-heli-base-picture
 - `src/game/celebration.ts`: 64-world-celebrations, 72-map-five-honours, 85-map-six-honours
 - `src/game/ceremony-stage.ts`: 25-medal-ceremony, 75-world-ceremonies, 85-map-six-honours, 98-ceremony-looks
-- `src/game/challenge.ts`: 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 99-heli-arsenal
+- `src/game/challenge.ts`: 101-sub-arsenal, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 99-heli-arsenal
 - `src/game/cockpit.ts`: 05-mission-combat, 43-deep-arsenal, 44-new-adversaries, 61-cockpit-skins, 67-sub-flight
 - `src/game/combat.ts`: 05-mission-combat, 36-new-jets, 43-deep-arsenal, 44-new-adversaries
 - `src/game/crew-looks.ts`: 76-world-looks, 86-jungle-looks, 97-world-intros
 - `src/game/dialogue-scripts.ts`: 06-talking-characters, 25-medal-ceremony, 35-second-map, 38-challenge-level, 44-new-adversaries, 48-third-map, 56-fourth-map, 65-fifth-map, 66-sub-kit, 74-world-order, 76-world-looks, 84-drop-launch
-- `src/game/economy.ts`: 02-hangar-economy, 36-new-jets, 37-double-firepower, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 66-sub-kit, 79-mech-kit, 82-ground-base, 99-heli-arsenal
+- `src/game/economy.ts`: 02-hangar-economy, 101-sub-arsenal, 36-new-jets, 37-double-firepower, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 66-sub-kit, 79-mech-kit, 82-ground-base, 99-heli-arsenal
 - `src/game/firepower.ts`: 37-double-firepower, 43-deep-arsenal, 49-helicopter-kit, 66-sub-kit, 79-mech-kit
+- `src/game/heli-arms.ts`: 101-sub-arsenal, 99-heli-arsenal
 - `src/game/heli-flight.ts`: 50-helicopter-flight, 67-sub-flight
 - `src/game/jets.ts`: 36-new-jets, 49-helicopter-kit, 50-helicopter-flight, 51-heli-fleet, 66-sub-kit, 67-sub-flight, 80-mech-walk
 - `src/game/kit.ts`: 49-helicopter-kit, 54-spacecraft, 66-sub-kit, 74-world-order, 76-world-looks, 79-mech-kit, 83-lab
 - `src/game/ladder-stats.ts`: 28-ladder-screen, 39-mission-score
 - `src/game/ladder.ts`: 27-online-ladder, 39-mission-score
-- `src/game/loadout.ts`: 02-hangar-economy, 37-double-firepower, 38-challenge-level, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 54-spacecraft, 66-sub-kit, 79-mech-kit, 99-heli-arsenal
+- `src/game/liveries.ts`: 09-paint-jobs, 100-fleet-liveries
+- `src/game/loadout.ts`: 02-hangar-economy, 101-sub-arsenal, 37-double-firepower, 38-challenge-level, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 54-spacecraft, 66-sub-kit, 79-mech-kit, 99-heli-arsenal
 - `src/game/map-three.ts`: 48-third-map, 56-fourth-map, 65-fifth-map, 74-world-order, 78-sixth-map
 - `src/game/map-two.ts`: 43-deep-arsenal, 48-third-map
 - `src/game/medals.ts`: 24-medals-core, 62-world-medals, 72-map-five-honours, 74-world-order, 85-map-six-honours
 - `src/game/minigames/core.ts`: 10-minigames-core, 47-admin-pilot, 88-sonar-hunt, 89-station-docking, 90-firing-range
 - `src/game/outpost.ts`: 79-mech-kit, 82-ground-base
 - `src/game/profiles.ts`: 08-pilot-profiles, 38-challenge-level
-- `src/game/progress.ts`: 03-campaign-map, 35-second-map, 47-admin-pilot, 48-third-map, 56-fourth-map, 65-fifth-map, 74-world-order, 78-sixth-map
+- `src/game/progress.ts`: 03-campaign-map, 100-fleet-liveries, 35-second-map, 47-admin-pilot, 48-third-map, 56-fourth-map, 65-fifth-map, 74-world-order, 78-sixth-map
 - `src/game/rating.ts`: 26-pilot-rating, 35-second-map, 39-mission-score, 48-third-map, 58-map-four-campaign, 62-world-medals, 72-map-five-honours, 85-map-six-honours
-- `src/game/save.ts`: 01-game-core, 28-ladder-screen, 35-second-map, 37-double-firepower, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 47-admin-pilot, 49-helicopter-kit, 54-spacecraft, 66-sub-kit, 74-world-order, 79-mech-kit, 87-mech-camo, 97-world-intros, 99-heli-arsenal
-- `src/game/ship-loadout.ts`: 54-spacecraft, 55-shipyard, 57-space-arsenal
+- `src/game/save.ts`: 01-game-core, 101-sub-arsenal, 28-ladder-screen, 35-second-map, 37-double-firepower, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 47-admin-pilot, 49-helicopter-kit, 54-spacecraft, 66-sub-kit, 74-world-order, 79-mech-kit, 87-mech-camo, 97-world-intros, 99-heli-arsenal
+- `src/game/ship-loadout.ts`: 100-fleet-liveries, 54-spacecraft, 55-shipyard, 57-space-arsenal
 - `src/game/ship-shop.ts`: 55-shipyard, 57-space-arsenal, 74-world-order
 - `src/game/ship.ts`: 54-spacecraft, 57-space-arsenal, 60-point-defence
 - `src/game/state.ts`: 01-game-core, 38-challenge-level, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations, 73-home-docks, 91-carrier-picture
@@ -635,9 +651,10 @@ graph TD
 - `src/game/tapes.ts`: 63-hangar-tv, 72-map-five-honours, 97-world-intros
 - `src/game/uniform-layout.ts`: 31-locker-uniform, 62-world-medals, 72-map-five-honours, 85-map-six-honours
 - `src/game/waves.ts`: 05-mission-combat, 35-second-map, 44-new-adversaries, 58-map-four-campaign, 96-alien-jungle-enemies
-- `src/i18n/content-de.ts`: 07-i18n, 35-second-map, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries, 48-third-map, 49-helicopter-kit, 51-heli-fleet, 57-space-arsenal, 58-map-four-campaign, 65-fifth-map, 66-sub-kit, 68-underwater-world, 69-sub-fleet, 70-map-five-campaign, 96-alien-jungle-enemies, 99-heli-arsenal
+- `src/i18n/content-de.ts`: 07-i18n, 101-sub-arsenal, 35-second-map, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries, 48-third-map, 49-helicopter-kit, 51-heli-fleet, 57-space-arsenal, 58-map-four-campaign, 65-fifth-map, 66-sub-kit, 68-underwater-world, 69-sub-fleet, 70-map-five-campaign, 96-alien-jungle-enemies, 99-heli-arsenal
 - `src/i18n/lines-de.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map, 64-world-celebrations, 65-fifth-map, 66-sub-kit, 74-world-order, 76-world-looks
 - `src/i18n/lines-en.ts`: 06-talking-characters, 25-medal-ceremony, 44-new-adversaries, 48-third-map, 56-fourth-map, 64-world-celebrations, 65-fifth-map, 66-sub-kit, 74-world-order, 76-world-looks
+- `src/i18n/liveries-de.ts`: 09-paint-jobs, 100-fleet-liveries
 - `src/i18n/medals-de.ts`: 24-medals-core, 62-world-medals, 72-map-five-honours, 85-map-six-honours
 - `src/i18n/missions-4-de.ts`: 56-fourth-map, 58-map-four-campaign, 74-world-order
 - `src/i18n/missions-5-de.ts`: 65-fifth-map, 70-map-five-campaign, 74-world-order
@@ -645,17 +662,17 @@ graph TD
 - `src/i18n/ui-de-arsenal.ts`: 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/i18n/ui-de-avatar.ts`: 29-avatar-builder, 33-image-portraits
 - `src/i18n/ui-de-deep.ts`: 65-fifth-map, 66-sub-kit, 71-dive-launch, 72-map-five-honours, 74-world-order
-- `src/i18n/ui-de-frontiers.ts`: 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence, 74-world-order, 99-heli-arsenal
+- `src/i18n/ui-de-frontiers.ts`: 100-fleet-liveries, 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence, 74-world-order, 99-heli-arsenal
 - `src/i18n/ui-de-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations
 - `src/i18n/ui-de-ladder.ts`: 28-ladder-screen, 47-admin-pilot
-- `src/i18n/ui-de.ts`: 07-i18n, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
+- `src/i18n/ui-de.ts`: 07-i18n, 100-fleet-liveries, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
 - `src/i18n/ui-en-arsenal.ts`: 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun
 - `src/i18n/ui-en-avatar.ts`: 29-avatar-builder, 33-image-portraits
 - `src/i18n/ui-en-deep.ts`: 65-fifth-map, 66-sub-kit, 71-dive-launch, 72-map-five-honours, 74-world-order
-- `src/i18n/ui-en-frontiers.ts`: 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence, 74-world-order, 99-heli-arsenal
+- `src/i18n/ui-en-frontiers.ts`: 100-fleet-liveries, 51-heli-fleet, 52-canyon-runs, 53-deck-liftoff, 55-shipyard, 57-space-arsenal, 59-rocket-launch, 60-point-defence, 74-world-order, 99-heli-arsenal
 - `src/i18n/ui-en-hangar.ts`: 30-hangar-base, 40-chalkboard, 49-helicopter-kit, 63-hangar-tv, 64-world-celebrations
 - `src/i18n/ui-en-ladder.ts`: 28-ladder-screen, 47-admin-pilot
-- `src/i18n/ui-en.ts`: 07-i18n, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
+- `src/i18n/ui-en.ts`: 07-i18n, 100-fleet-liveries, 43-deep-arsenal, 47-admin-pilot, 48-third-map, 58-map-four-campaign
 - `src/main.ts`: 01-game-core, 28-ladder-screen, 34-cloud-pilots, 38-challenge-level, 47-admin-pilot, 49-helicopter-kit, 53-deck-liftoff, 73-home-docks, 76-world-looks, 91-carrier-picture
 - `src/render/avatars/index.ts`: 08-pilot-profiles, 20-retro-look, 33-image-portraits
 - `src/render/avatars/kit.ts`: 08-pilot-profiles, 20-retro-look
@@ -705,9 +722,13 @@ graph TD
 - `src/render/enemies/creatures.ts`: 68-underwater-world, 70-map-five-campaign
 - `src/render/enemies/sea.ts`: 68-underwater-world, 70-map-five-campaign
 - `src/render/enemies/space.ts`: 56-fourth-map, 58-map-four-campaign
-- `src/render/icons.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 46-bofors-he-gun, 51-heli-fleet, 57-space-arsenal, 66-sub-kit, 69-sub-fleet, 99-heli-arsenal
-- `src/render/items.ts`: 02-hangar-economy, 43-deep-arsenal, 66-sub-kit, 99-heli-arsenal
-- `src/render/livery-art.ts`: 09-paint-jobs, 36-new-jets, 51-heli-fleet, 67-sub-flight, 69-sub-fleet
+- `src/render/heli-fx.ts`: 101-sub-arsenal, 99-heli-arsenal
+- `src/render/helis/ah64-side.ts`: 100-fleet-liveries, 50-helicopter-flight
+- `src/render/helis/ah64-top.ts`: 100-fleet-liveries, 50-helicopter-flight
+- `src/render/helis/heli-art.ts`: 100-fleet-liveries, 51-heli-fleet
+- `src/render/icons.ts`: 02-hangar-economy, 101-sub-arsenal, 37-double-firepower, 43-deep-arsenal, 46-bofors-he-gun, 51-heli-fleet, 57-space-arsenal, 66-sub-kit, 69-sub-fleet, 99-heli-arsenal
+- `src/render/items.ts`: 02-hangar-economy, 101-sub-arsenal, 43-deep-arsenal, 66-sub-kit, 99-heli-arsenal
+- `src/render/livery-art.ts`: 09-paint-jobs, 100-fleet-liveries, 36-new-jets, 51-heli-fleet, 67-sub-flight, 69-sub-fleet
 - `src/render/medals/designs.ts`: 25-medal-ceremony, 62-world-medals, 72-map-five-honours, 85-map-six-honours
 - `src/render/medals/emblems.ts`: 25-medal-ceremony, 62-world-medals
 - `src/render/minigames/evasion-world.ts`: 16-missile-evasion, 58-map-four-campaign, 68-underwater-world
@@ -742,7 +763,10 @@ graph TD
 - `src/render/portraits/wingman.ts`: 06-talking-characters, 20-retro-look
 - `src/render/ranks.ts`: 28-ladder-screen, 35-second-map, 48-third-map, 58-map-four-campaign, 72-map-five-honours, 74-world-order, 85-map-six-honours
 - `src/render/sea-floor.ts`: 68-underwater-world, 70-map-five-campaign
-- `src/render/ship.ts`: 54-spacecraft, 55-shipyard, 57-space-arsenal, 60-point-defence
+- `src/render/ship.ts`: 100-fleet-liveries, 54-spacecraft, 55-shipyard, 57-space-arsenal, 60-point-defence
+- `src/render/shots.ts`: 101-sub-arsenal, 67-sub-flight
+- `src/render/subs/fleet.ts`: 100-fleet-liveries, 69-sub-fleet
+- `src/render/subs/u212.ts`: 100-fleet-liveries, 67-sub-flight
 - `src/render/terrain-art.ts`: 05-mission-combat, 56-fourth-map, 58-map-four-campaign, 68-underwater-world, 81-jungle-world
 - `src/render/text.ts`: 01-game-core, 20-retro-look
 - `src/render/typed-text.ts`: 06-talking-characters, 20-retro-look
@@ -755,9 +779,10 @@ graph TD
 - `src/scenes/debrief.ts`: 03-campaign-map, 20-retro-look, 35-second-map, 38-challenge-level, 39-mission-score, 48-third-map, 56-fourth-map, 64-world-celebrations, 65-fifth-map, 82-ground-base, 91-carrier-picture
 - `src/scenes/dive-launch.ts`: 71-dive-launch, 76-world-looks
 - `src/scenes/hangar-base.ts`: 30-hangar-base, 73-home-docks, 86-jungle-looks, 91-carrier-picture, 92-heli-base-picture
-- `src/scenes/hangar-chief.ts`: 06-talking-characters, 43-deep-arsenal, 66-sub-kit, 76-world-looks, 99-heli-arsenal
-- `src/scenes/hangar-items.ts`: 02-hangar-economy, 09-paint-jobs, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet, 66-sub-kit, 74-world-order, 79-mech-kit, 87-mech-camo, 99-heli-arsenal
-- `src/scenes/hangar-panels.ts`: 02-hangar-economy, 09-paint-jobs, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet, 66-sub-kit, 79-mech-kit, 99-heli-arsenal
+- `src/scenes/hangar-chief.ts`: 06-talking-characters, 101-sub-arsenal, 43-deep-arsenal, 66-sub-kit, 76-world-looks, 99-heli-arsenal
+- `src/scenes/hangar-items.ts`: 02-hangar-economy, 09-paint-jobs, 100-fleet-liveries, 101-sub-arsenal, 36-new-jets, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet, 66-sub-kit, 74-world-order, 79-mech-kit, 87-mech-camo, 99-heli-arsenal
+- `src/scenes/hangar-mech.ts`: 101-sub-arsenal, 99-heli-arsenal
+- `src/scenes/hangar-panels.ts`: 02-hangar-economy, 09-paint-jobs, 100-fleet-liveries, 101-sub-arsenal, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 51-heli-fleet, 66-sub-kit, 79-mech-kit, 99-heli-arsenal
 - `src/scenes/hangar.ts`: 02-hangar-economy, 37-double-firepower, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 49-helicopter-kit, 66-sub-kit, 76-world-looks, 79-mech-kit, 87-mech-camo, 99-heli-arsenal
 - `src/scenes/lab.ts`: 76-world-looks, 83-lab
 - `src/scenes/ladder.ts`: 28-ladder-screen, 47-admin-pilot
@@ -769,23 +794,25 @@ graph TD
 - `src/scenes/mission/boss.ts`: 05-mission-combat, 36-new-jets, 38-challenge-level, 43-deep-arsenal, 99-heli-arsenal
 - `src/scenes/mission/burn.ts`: 45-incendiary-ammo, 99-heli-arsenal
 - `src/scenes/mission/cockpit-view.ts`: 05-mission-combat, 37-double-firepower, 43-deep-arsenal, 44-new-adversaries, 50-helicopter-flight, 61-cockpit-skins, 99-heli-arsenal
-- `src/scenes/mission/enemy-ai.ts`: 05-mission-combat, 36-new-jets, 38-challenge-level, 43-deep-arsenal, 44-new-adversaries, 52-canyon-runs, 99-heli-arsenal
-- `src/scenes/mission/mission-render.ts`: 05-mission-combat, 36-new-jets, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun, 50-helicopter-flight, 51-heli-fleet, 52-canyon-runs, 54-spacecraft, 57-space-arsenal, 67-sub-flight, 99-heli-arsenal
+- `src/scenes/mission/enemy-ai.ts`: 05-mission-combat, 101-sub-arsenal, 36-new-jets, 38-challenge-level, 43-deep-arsenal, 44-new-adversaries, 52-canyon-runs, 99-heli-arsenal
+- `src/scenes/mission/heli-arms.ts`: 101-sub-arsenal, 99-heli-arsenal
+- `src/scenes/mission/heli-waves.ts`: 101-sub-arsenal, 99-heli-arsenal
+- `src/scenes/mission/mission-render.ts`: 05-mission-combat, 100-fleet-liveries, 101-sub-arsenal, 36-new-jets, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun, 50-helicopter-flight, 51-heli-fleet, 52-canyon-runs, 54-spacecraft, 57-space-arsenal, 67-sub-flight, 99-heli-arsenal
 - `src/scenes/mission/mission-scene.ts`: 05-mission-combat, 36-new-jets, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 50-helicopter-flight, 52-canyon-runs, 99-heli-arsenal
 - `src/scenes/mission/pickups.ts`: 05-mission-combat, 39-mission-score, 43-deep-arsenal
 - `src/scenes/mission/player.ts`: 05-mission-combat, 37-double-firepower, 43-deep-arsenal, 46-bofors-he-gun, 50-helicopter-flight, 54-spacecraft, 57-space-arsenal, 60-point-defence, 67-sub-flight, 80-mech-walk, 99-heli-arsenal
-- `src/scenes/mission/projectiles.ts`: 05-mission-combat, 36-new-jets, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 54-spacecraft, 57-space-arsenal, 60-point-defence, 96-alien-jungle-enemies, 99-heli-arsenal
+- `src/scenes/mission/projectiles.ts`: 05-mission-combat, 101-sub-arsenal, 36-new-jets, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 54-spacecraft, 57-space-arsenal, 60-point-defence, 96-alien-jungle-enemies, 99-heli-arsenal
 - `src/scenes/mission/radio.ts`: 06-talking-characters, 44-new-adversaries
 - `src/scenes/mission/specials.ts`: 36-new-jets, 50-helicopter-flight, 51-heli-fleet, 67-sub-flight, 80-mech-walk
-- `src/scenes/mission/weapons-fire.ts`: 05-mission-combat, 37-double-firepower, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 51-heli-fleet, 54-spacecraft, 57-space-arsenal, 67-sub-flight, 80-mech-walk, 96-alien-jungle-enemies, 99-heli-arsenal
-- `src/scenes/mission/world.ts`: 05-mission-combat, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun, 51-heli-fleet, 52-canyon-runs, 57-space-arsenal, 67-sub-flight, 68-underwater-world, 99-heli-arsenal
+- `src/scenes/mission/weapons-fire.ts`: 05-mission-combat, 101-sub-arsenal, 37-double-firepower, 39-mission-score, 43-deep-arsenal, 45-incendiary-ammo, 46-bofors-he-gun, 51-heli-fleet, 54-spacecraft, 57-space-arsenal, 67-sub-flight, 80-mech-walk, 96-alien-jungle-enemies, 99-heli-arsenal
+- `src/scenes/mission/world.ts`: 05-mission-combat, 101-sub-arsenal, 38-challenge-level, 39-mission-score, 43-deep-arsenal, 44-new-adversaries, 45-incendiary-ammo, 46-bofors-he-gun, 51-heli-fleet, 52-canyon-runs, 57-space-arsenal, 67-sub-flight, 68-underwater-world, 99-heli-arsenal
 - `src/scenes/new-pilot.ts`: 08-pilot-profiles, 33-image-portraits, 34-cloud-pilots, 47-admin-pilot
 - `src/scenes/outpost.ts`: 76-world-looks, 82-ground-base
 - `src/scenes/pilots.ts`: 08-pilot-profiles, 28-ladder-screen, 34-cloud-pilots, 38-challenge-level, 47-admin-pilot
-- `src/scenes/rocket-launch.ts`: 59-rocket-launch, 76-world-looks
+- `src/scenes/rocket-launch.ts`: 100-fleet-liveries, 59-rocket-launch, 76-world-looks
 - `src/scenes/routes.ts`: 55-shipyard, 56-fourth-map, 59-rocket-launch, 63-hangar-tv, 64-world-celebrations, 65-fifth-map, 71-dive-launch, 74-world-order, 84-drop-launch, 97-world-intros
-- `src/scenes/shipyard-view.ts`: 55-shipyard, 57-space-arsenal, 60-point-defence, 76-world-looks
-- `src/scenes/shipyard.ts`: 55-shipyard, 57-space-arsenal, 76-world-looks
+- `src/scenes/shipyard-view.ts`: 100-fleet-liveries, 55-shipyard, 57-space-arsenal, 60-point-defence, 76-world-looks
+- `src/scenes/shipyard.ts`: 100-fleet-liveries, 55-shipyard, 57-space-arsenal, 76-world-looks
 - `src/scenes/tapes.ts`: 63-hangar-tv, 65-fifth-map, 72-map-five-honours, 74-world-order, 85-map-six-honours, 97-world-intros
 - `src/ui/speech.ts`: 06-talking-characters, 20-retro-look, 25-medal-ceremony, 76-world-looks, 86-jungle-looks
 
@@ -825,3 +852,4 @@ graph TD
 - 64-world-celebrations lists missing source file src/data/celebrations.ts
 - 70-map-five-campaign lists missing source file src/render/bosses-5b.ts
 - 71-dive-launch depends on unknown doc 04-takeoff
+- 99-heli-arsenal lists missing source file src/scenes/hangar-heli.ts

@@ -3,7 +3,7 @@ id: 66-sub-kit
 title: Sub Kit - Attack Subs as a Kind of Plane, a Fresh Kit for Map 5, the SUB PEN Hangar
 edition: TopRun
 depends_on: [49-helicopter-kit, 65-fifth-map, 02-hangar-economy, 43-deep-arsenal]
-relates: [49-helicopter-kit, 65-fifth-map, 67-sub-flight, 47-admin-pilot, 74-world-order]
+relates: [49-helicopter-kit, 65-fifth-map, 67-sub-flight, 47-admin-pilot, 74-world-order, 101-sub-arsenal]
 source_files:
   - src/data/types.ts
   - src/data/planes.ts
@@ -113,6 +113,9 @@ Opened from map 5 (LOADOUT): the hangar with three tabs **SUBS · WEAPONS · EQU
     turrets and anything on the bottom. 4 a tube, 160 damage, radius 80.
   - Both Mk I–III, prices the jets' Sidewinder and Mk-82 × `SUB_PRICE`; the hangar names their targets for the sea
     ("vs anything in the water", "vs the seabed").
+  - Doc 101 adds the harpoon gun's upgrades (Rapid Loader, Homing Tips, Side Tubes), three ammo types (explosive,
+    electric, cavitation, one loaded per sortie) and four station weapons (Torpedo Swarm, Sonar Pulse, Decoy Drone,
+    Drift Net); the hangar pictures of the harpoon gun, MK48, depth mine and Shkval came with it.
 - **EQUIPMENT:** the seven items (armour, engine, flares → noise-makers in the text, ECM, damage control, magnet,
   radar → sonar in the text) up to the map-1 caps, at sub prices.
 - Sub goods never show in the other hangars and other goods never show in the SUB PEN; sub weapons mount only on subs.

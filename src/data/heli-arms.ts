@@ -12,8 +12,8 @@ export const HELI_MODS: readonly HeliMod[] = Object.freeze(['gatling', 'turret',
 export type HeliRounds = 'tracer' | 'hedp' | 'incendiary';
 export const HELI_ROUNDS: readonly HeliRounds[] = Object.freeze(['tracer', 'hedp', 'incendiary'] as const);
 
-/** The look of a gun round: the jets' ammo (docs 43, 45) or the helicopters'. */
-export type RoundsLook = AmmoType | HeliRounds;
+/** The look of a gun round: the jets' ammo (docs 43, 45), the helicopters' or the subs' (docs 99, 101). */
+export type RoundsLook = AmmoType | HeliRounds | 'explosive' | 'electric' | 'cavitation';
 
 export interface GatlingLevel { level: number; price: number; mul: number; spinUp: number }
 /** Rate × at full spin, seconds to spin up from rest. */

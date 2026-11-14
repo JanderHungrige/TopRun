@@ -13,7 +13,8 @@ import { loadedRounds } from './ammo';
 import { markOf, weaponStats, type WeaponStats } from './arsenal';
 import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
-import { heliArmsStats, type HeliArmsStats } from './heli-arms';
+import { heliArmsStats, type ArmsStats } from './heli-arms';
+import { subArmsStats } from './sub-arms';
 import type { SaveData } from './save';
 import type { ShipStats } from './ship';
 import { shipPlayerStats } from './ship-loadout';
@@ -47,8 +48,8 @@ export interface PlayerStats {
   burnGround: boolean;
   /** The ammo loaded, null = ordinary rounds (tracer colour, docs 43, 45, 99). */
   rounds: RoundsLook | null;
-  /** The helicopters' gun upgrades and ammo (doc 99); null for everything else. */
-  arms: HeliArmsStats | null;
+  /** The helicopters' or the subs' gun upgrades and ammo (docs 99, 101); null for everything else. */
+  arms: ArmsStats | null;
   /** Bofors 40 mm HE gun level, 0 = none (doc 46). */
   heLevel: number;
   secondaries: SecondaryAmmo[];
@@ -96,7 +97,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   shareRecharge(secondaries, save.loadout[plane.id]);
   if (plane.kind === 'mech') loadFromMagazine(secondaries, save.outpost.magazine);
   const rounds = loadedRounds(save);
-  const arms = plane.kind === 'heli' ? heliArmsStats(save.heliArms) : null;
+  const arms = plane.kind === 'heli' ? heliArmsStats(save.heliArms) : plane.kind === 'sub' ? subArmsStats(save.subArms) : null;
   return {
     plane,
     maxHull: Math.round(plane.hull * (1 + atLevel(ARMOR_BONUS, eq.armor)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
@@ -106,7 +107,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
     gunGround: isFleet(plane.kind) ? 1 : rounds.groundFactor, // the chain gun and the harpoon gun hit the ground fully (docs 49, 66)
     gunBurn: arms ? arms.burn : rounds.burn,
-    burnGround: !!arms,
+    burnGround: plane.kind === 'heli',
     rounds: arms ? arms.rounds : rounds.type,
     arms,
     heLevel: save.heLevel,

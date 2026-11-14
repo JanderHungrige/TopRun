@@ -1,10 +1,12 @@
 import type { AudioEngine } from '../../core/audio';
 import { DOOR_GUN, PULSE, SWARM, TRACER } from '../../data/heli-arms';
+import { CAVITATION, TORP_SWARM } from '../../data/sub-arms';
 import type { WeaponStats } from '../../game/arsenal';
 import { doorTarget, laserTarget, splashTargets, turretAim } from '../../game/heli-combat';
 import type { Player } from './player';
 import { damageEnemy, hidden } from './projectiles';
 import { updateWaves } from './heli-waves';
+import { tickSubArms } from './sub-arms';
 import { PF_H, PF_W, type Bullet, type Enemy, type Missile, type World } from './world';
 
 // The helicopters' arsenal in the mission (doc 99): the rounds every gun fires (tracer paint, HEDP burst, incendiary on
@@ -13,10 +15,10 @@ import { PF_H, PF_W, type Bullet, type Enemy, type Missile, type World } from '.
 
 /** A laser burst still firing: pulses left, seconds to the next, damage per pulse, the station's offset. */
 export interface Pulse { left: number; t: number; damage: number; dx: number }
-/** A laser pulse's glow from the nose to where it struck; `t` counts up. */
-export interface Zap { x1: number; y1: number; x2: number; y2: number; t: number }
+/** A laser pulse's glow from the nose to where it struck, or an electric bolt's arc (doc 101, `electric`); `t` counts up. */
+export interface Zap { x1: number; y1: number; x2: number; y2: number; t: number; electric?: boolean }
 /** A sonic wave running out from where it was fired; `hit` holds the enemies it already struck. */
-export interface SonicWave { x: number; y: number; t: number; damage: number; reach: number; hit: number[]; boss: boolean }
+export interface SonicWave { x: number; y: number; t: number; damage: number; reach: number; hit: number[]; boss: boolean; cone: number }
 
 /** Something the turret, the door guns or the laser can aim at: an enemy, or the boss's aim point (`e` null). */
 interface Aim { x: number; y: number; e: Enemy | null }
@@ -27,13 +29,28 @@ function aims(world: World, p: Player, boss: boolean): Aim[] {
   return out;
 }
 
-/** What every round of the guns carries: the jets' ammo, or the helicopters' rounds and their effects. */
-export function gunRounds(p: Player): Pick<Bullet, 'ground' | 'burn' | 'rounds' | 'burnGround' | 'paint' | 'splash'> {
+type Rounds = Pick<Bullet, 'ground' | 'burn' | 'rounds' | 'burnGround' | 'paint' | 'splash' | 'chain' | 'pierce' | 'harpoon'>;
+
+/** What every round of the guns carries: the jets' ammo, or a fleet's rounds and their effects (docs 99, 101). */
+export function gunRounds(p: Player): Rounds {
   const a = p.stats.arms;
   return {
-    ground: p.stats.gunGround, burn: p.stats.gunBurn, rounds: p.stats.rounds ?? undefined,
-    burnGround: p.stats.burnGround, paint: !!a && a.paint > 0, splash: a?.splash ?? null,
+    ground: p.stats.gunGround, burn: p.stats.gunBurn, rounds: p.stats.rounds ?? undefined, burnGround: p.stats.burnGround,
+    paint: !!a && a.paint > 0, splash: a?.splash ?? null, chain: a?.chain ?? null, pierce: a?.pierce?.count ?? 0,
+    harpoon: p.stats.plane.kind === 'sub',
   };
+}
+
+/** Cavitation tips make the bolts fly faster (doc 101). */
+export const roundSpeed = (p: Player): number => p.stats.arms?.pierce?.speed ?? 1;
+
+/** A cavitation bolt that struck `e` flies on while it has pierce left, with half its hit (doc 101). */
+export function passesThrough(b: Bullet, e: Enemy): boolean {
+  if (!b.pierce || b.pierce <= 0) return false;
+  b.pierce -= 1;
+  b.damage *= CAVITATION.keep;
+  (b.hit ??= []).push(e.id);
+  return true;
 }
 
 /** The turret link's swivel for the next burst (0 without one). */
@@ -46,9 +63,23 @@ export function roundEffects(world: World, b: Bullet, e: Enemy, dealt: number, a
     e.paintT = TRACER.seconds;
     e.revealT = Math.max(e.revealT, 0.1);
   }
+  if (b.chain) arcOn(world, b.chain, e, dealt, audio);
   if (!b.splash) return;
   for (const o of splashTargets(e, world.enemies.filter((x) => !x.dead), b.splash.radius)) damageEnemy(world, o, dealt * b.splash.share, audio);
   world.particles.add({ kind: 'ring', x: b.x, y: b.y, max: 0.16, size: 3, grow: b.splash.radius * 4, color: 'rgba(255,170,70,1)' });
+}
+
+/** An electric bolt's hit arcs to the nearest enemies around `e`, hurting and stunning them (doc 101). */
+function arcOn(world: World, c: NonNullable<Bullet['chain']>, e: Enemy, dealt: number, audio: AudioEngine): void {
+  const near = world.enemies
+    .filter((o) => o !== e && !o.dead && Math.hypot(o.x - e.x, o.y - e.y) <= c.reach)
+    .sort((a, b) => Math.hypot(a.x - e.x, a.y - e.y) - Math.hypot(b.x - e.x, b.y - e.y))
+    .slice(0, c.targets);
+  for (const o of near) {
+    o.stun = Math.max(o.stun, c.stun);
+    damageEnemy(world, o, dealt * c.share, audio);
+    world.zaps.push({ x1: e.x, y1: e.y, x2: o.x, y2: o.y, t: 0, electric: true });
+  }
 }
 
 /** The door guns: each fires at the nearest enemy in its arc, on its own. */
@@ -63,9 +94,9 @@ function fireDoorGuns(world: World, p: Player, dt: number, audio: AudioEngine): 
     p.doorCooldown[i] = 1 / DOOR_GUN.rate;
     const x = p.x + side * 11;
     const a = Math.atan2(t.x - x, -(t.y - p.y));
+    const v = DOOR_GUN.speed * roundSpeed(p);
     world.bullets.push({
-      kind: 'door', x, y: p.y, vx: Math.sin(a) * DOOR_GUN.speed, vy: -Math.cos(a) * DOOR_GUN.speed, damage: guns.damage, ttl: 0.6, dead: false,
-      ...gunRounds(p),
+      kind: 'door', x, y: p.y, vx: Math.sin(a) * v, vy: -Math.cos(a) * v, damage: guns.damage, ttl: 0.6, dead: false, ...gunRounds(p),
     });
     if (Math.random() < 0.4) world.particles.sparks(x + Math.sin(a) * 6, p.y - Math.cos(a) * 6, 1, '#ffe08a', 60);
     if (Math.random() < 0.3) audio.play('gun', { volume: 0.18, pan: (x / PF_W) * 2 - 1, pitch: 1.3 });
@@ -98,11 +129,12 @@ function runPulses(world: World, p: Player, dt: number, audio: AudioEngine): voi
 }
 
 /** The drone swarm: three drones out to the sides and ahead that hunt like missiles. */
-export function launchSwarm(world: World, p: Player, w: WeaponStats, dx: number): void {
-  for (const heading of SWARM.headings) {
+export function launchSwarm(world: World, p: Player, w: WeaponStats, dx: number, torpedoes = false): void {
+  const s = torpedoes ? TORP_SWARM : SWARM; // the subs' torpedo swarm (doc 101)
+  for (const heading of s.headings) {
     const m: Missile = {
-      kind: 'drone', x: p.x + dx, y: p.y, heading, speed: 140, maxSpeed: w.speed, turnRate: w.turnRate, damage: w.damage, hits: 'any',
-      target: null, decoy: null, ttl: SWARM.ttl, dead: false,
+      kind: torpedoes ? 'minitorp' : 'drone', x: p.x + dx, y: p.y, heading, speed: 140, maxSpeed: w.speed, turnRate: w.turnRate,
+      damage: w.damage, hits: 'any', target: null, decoy: null, ttl: s.ttl, dead: false,
     };
     world.missiles.push(m);
   }
@@ -115,4 +147,5 @@ export function tickHeliArms(world: World, p: Player, dt: number, audio: AudioEn
   fireDoorGuns(world, p, dt, audio);
   runPulses(world, p, dt, audio);
   updateWaves(world, dt, audio);
+  tickSubArms(world, dt);
 }

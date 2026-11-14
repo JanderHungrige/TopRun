@@ -1,4 +1,5 @@
 import { UI_DE_HELIARMS } from './ui-de-heliarms';
+import { UI_DE_SUBARMS } from './ui-de-subarms';
 
 // New Frontiers UI strings (docs 48–50) — German; keys must match ui-en-frontiers.ts.
 export const UI_DE_FRONTIERS = {
@@ -101,4 +102,5 @@ export const UI_DE_FRONTIERS = {
   'rocket.early': 'ZU FRÜH ABGETRENNT',
   'rocket.late': 'TOTES GEWICHT — ZU SPÄT',
   ...UI_DE_HELIARMS,
+  ...UI_DE_SUBARMS,
 };

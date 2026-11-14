@@ -13,6 +13,7 @@ import { parseLook, type AvatarLook } from './avatar-look';
 import { freshChallenge, parseChallenge, parseSorties, type ChallengeState, type SortieEntry } from './challenge';
 import { INTRO_WORLDS } from './intro';
 import { freshHeliArms, parseHeliArms, type HeliArms } from './heli-arms';
+import { freshSubArms, parseSubArms, type SubArms } from './sub-arms';
 import { freshFleetKit, parseFleetKit, type FleetKit, type Kit } from './kit';
 import { freshShip, parseShip, type ShipKit } from './ship';
 import { parseLadderLink, type LadderLink } from './ladder-stats';
@@ -81,6 +82,8 @@ export interface SaveData {
   heliArms: HeliArms;
   /** The subs' own kit (doc 66). */
   sub: FleetKit;
+  /** The subs' gun upgrades and ammo types (doc 101). */
+  subArms: SubArms;
   /** The spacecraft (doc 54). */
   ship: ShipKit;
   /** The mechs' own kit (doc 79). */
@@ -139,6 +142,7 @@ export function defaultSave(): SaveData {
     heli: freshFleetKit('heli'),
     heliArms: freshHeliArms(),
     sub: freshFleetKit('sub'),
+    subArms: freshSubArms(),
     ship: freshShip(),
     mech: freshFleetKit('mech'),
     outpost: freshOutpost(),
@@ -254,6 +258,7 @@ export function parseSave(input: unknown): SaveData | null {
     heli: parseFleetKit('heli', raw.heli),
     heliArms: parseHeliArms(raw.heliArms),
     sub: parseFleetKit('sub', raw.sub),
+    subArms: parseSubArms(raw.subArms),
     ship: parseShip(raw.ship),
     mech: parseFleetKit('mech', raw.mech),
     outpost: parseOutpost(raw.outpost),

@@ -42,6 +42,7 @@ export const UI_DE_HANGAR = {
   'celebration.skip': 'ENTER überspringen',
   // Dukes Willkommen in jeder neuen Welt (Doc 97).
   'intro.welcome': 'WILLKOMMEN',
+  'intro.place2': 'AN DER ZWEITEN FRONT',
   'intro.place3': 'IN DEN NORDTÄLERN',
   'intro.place4': 'IN DER MEERESGRUND-BASIS',
   'intro.place5': 'AUF STATION AURORA',

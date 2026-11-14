@@ -2,6 +2,10 @@ import type { INTRO_LINES_EN } from './lines-intro-en';
 
 // Dukes Willkommen in jeder neuen Welt (doc 97). Same {placeholders} as English.
 export const INTRO_LINES_DE: Readonly<Record<keyof typeof INTRO_LINES_EN, readonly string[]>> = {
+  'duke.intro2a': ['Willkommen an der zweiten Front, {callsign}! Hier Duke. Derselbe Träger, kälteres Wasser und ein fieserer Gegner.'],
+  'duke.intro2b': ['Dafür kriegen wir neue Vögel: die A-10, die F-35 und den Tornado. Jeder hat seinen eigenen Trick. Lern sie kennen.'],
+  'duke.intro2c': ['Bohrinseln in der Nordsee, das Dach der Welt, eine grüne Dschungelhölle und die Wüste bei Nacht. Überall wartet ein Monster auf uns.'],
+  'duke.intro2d': ['Und irgendwo im Sturm lauert ihre fliegende Festung, der Colossus. Holen wir ihn runter. Fahrwerk rein!'],
   'duke.intro3a': ['Willkommen im Tiefflug, {callsign}! Hier Duke. Oben im Norden fliegen wir unter ihrem Radar durch, und das heißt: Hubschrauber.'],
   'duke.intro3b': ['Fjorde, Gebirgspässe, ein Flussdelta, rote Tafelberge und eine Insel unter Asche. Überall steckt eine vorgeschobene Basis.'],
   'duke.intro3c': ['In jedem Tal haben sie Hind-Kampfhubschrauber, Schilkas und SAM-Stellungen versteckt. Bleib dicht am Boden, dann sehen sie dich nicht kommen.'],

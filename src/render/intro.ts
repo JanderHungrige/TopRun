@@ -3,7 +3,7 @@ import { WINDOW } from '../game/intro';
 
 // Duke's welcome film (doc 97): the generated key frames (320 × 180 art) drawn at 5 logical px per art px, so the screen
 // shows a 256 × 144 window that pans over the plate in whole logical px, and each world's overlay on the same coarse
-// grid — snow in the mountains, bubbles under the sea, specks of starlight in space, fireflies and spores in the jungle.
+// grid — rain at the second front, snow in the mountains, bubbles under the sea, specks of starlight in space, fireflies and spores in the jungle.
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -63,6 +63,7 @@ const snap = (v: number): number => Math.round(v / PX) * PX;
 interface Field { n: number; colour: (i: number, t: number) => string; size: number; vx: number; vy: number; sway: number }
 
 const FIELDS: Readonly<Record<number, Field>> = {
+  2: { n: 60, colour: () => 'rgba(200,215,230,0.55)', size: 1, vx: -40, vy: 260, sway: 0 },
   3: { n: 70, colour: () => 'rgba(240,246,255,0.85)', size: 1, vx: -14, vy: 46, sway: 10 },
   4: { n: 40, colour: () => 'rgba(190,240,255,0.55)', size: 1, vx: 0, vy: -38, sway: 6 },
   5: { n: 46, colour: (i, t) => `rgba(220,235,255,${(0.25 + 0.6 * Math.max(0, Math.sin(t * 1.7 + i))).toFixed(2)})`, size: 1, vx: -6, vy: 0, sway: 2 },

@@ -42,6 +42,7 @@ export const UI_EN_HANGAR = {
   'celebration.skip': 'ENTER skip',
   // Duke's welcome to each new world (doc 97).
   'intro.welcome': 'WELCOME TO',
+  'intro.place2': 'THE SECOND FRONT',
   'intro.place3': 'THE NORTHERN VALLEYS',
   'intro.place4': 'THE SEA-FLOOR BASE',
   'intro.place5': 'STATION AURORA',

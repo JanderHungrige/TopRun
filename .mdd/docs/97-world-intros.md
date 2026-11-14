@@ -1,6 +1,6 @@
 ---
 id: 97-world-intros
-title: World Intros - Duke Welcomes the Pilot to Each New World in a Short Pixel-Art Film, Worlds 3 to 6
+title: World Intros - Duke Welcomes the Pilot to Each New World in a Short Pixel-Art Film, Worlds 2 to 6
 edition: TopRun
 depends_on: [64-world-celebrations, 76-world-looks, 06-talking-characters, 63-hangar-tv]
 relates: [64-world-celebrations, 76-world-looks, 63-hangar-tv, 98-ceremony-looks]
@@ -27,11 +27,11 @@ models:
 test_files:
   - tests/unit/intro.test.ts
 data_flow: writes-existing
-last_synced: 2026-11-09
+last_synced: 2026-11-13
 status: complete
 phase: all
 mdd_version: 11
-tags: [intro, cut-scene, key-frames, comfyui, duke, wingman, portraits, tapes, map-3, map-4, map-5, map-6]
+tags: [intro, cut-scene, key-frames, comfyui, duke, wingman, portraits, tapes, map-2, map-3, map-4, map-5, map-6]
 path: Game/Campaign/World Intros
 integration_contracts: []
 satisfies_contracts: []
@@ -53,7 +53,7 @@ celebrations** (doc 64).
 
 ## The film
 
-Each of worlds 3–6 has four generated pixel-art key frames and Duke telling the story in the speech box, one line per
+Each of worlds 2–6 has four generated pixel-art key frames and Duke telling the story in the speech box, one line per
 shot, his portrait in that world's outfit; then a title card. About 36 s, the world's own music.
 
 | time | what |
@@ -73,7 +73,7 @@ shot, his portrait in that world's outfit; then a title card. About 36 s, the wo
 - **Controls:** ENTER / tap goes to the next shot (the card after the last), ESC ends it. The hint "ENTER next · ESC
   skip" sits top right, like the celebration's.
 - **Pure timeline** (`src/game/intro.ts`): `introBeat(t)` → the shot, the shot fading out and how far, black, the card,
-  the end; `introNext(t)` → the time ENTER jumps to; `INTRO_WORLDS` = 3, 4, 5, 6.
+  the end; `introNext(t)` → the time ENTER jumps to; `INTRO_WORLDS` = 2, 3, 4, 5, 6 (2 since 2026-11-13).
 
 ## The key frames (`src/assets/intros/`)
 
@@ -128,6 +128,44 @@ face, a worn camouflage shirt and a battered tactical vest, the rainforest behin
 - **Again from the TV** (doc 63): the tape shelf's tape of a world has two recordings, the **welcome** (once seen) and the
   **victory** (once the world is finished, doc 64). `tapeShelf` lists both; ←/→ switches the side of the picked tape,
   ENTER / tap plays it; a tape with neither stays "not recorded yet".
+
+## The second front (2026-11-13)
+
+Owner, 2026-11-13: *"The second world needs an intro too. They're great."* World 2 joins `INTRO_WORLDS` (2–6): Duke
+in his own flight gear (the carrier look, his usual portrait) welcomes the pilot to the second front; the card reads
+WELCOME TO THE SECOND FRONT / WILLKOMMEN AN DER ZWEITEN FRONT; the overlay is rain driving across the storm. Pilots
+already on map 2 see it once the next time map 2 shows; the TV's world-2 tape gets its welcome side.
+
+| a | b | c | d |
+|---|---|---|---|
+| dawn on a grey-green northern sea in a storm: the carrier ploughing through the waves, jets on deck, oil rigs with burning flare stacks on the horizon | sunrise on the flight deck: the three new jets (a straight-winged ground-attack jet with rear engines and a nose gun, a stealth fighter, a swing-wing strike jet) with deck crew | the armoured train with gun turrets crossing an iron bridge over a jungle gorge | the colossal flying fortress in a dark red thunderstorm over a black sea, escort fighters, lightning |
+
+Renders (the PC, "Top Gun pixel scene 16:9"): 2a and 2c seed 7; 2b seed 11 (seed 7 drew the ground-attack jet with a
+gun barrel reaching into its neighbour), 2d seed 11 with "the whole frame is the scene itself: no watermark, no inset
+picture …" (seed 7 signed itself with a fake logo and a portrait in a corner). Pans: 2a from the rigs down to the
+carrier, 2b along the three jets, 2c from the trees to the train, 2d up towards the fortress.
+
+Duke's lines (EN): *"Welcome to the second front, {callsign}! Duke here. Same carrier, colder water, and a meaner
+enemy."* · *"We get new birds for this one: the A-10, the F-35 and the Tornado. Each has a trick of its own. Learn
+them."* · *"North Sea rigs, the roof of the world, a green hell of a jungle and the desert at night. They guard every
+one with a monster."* · *"And somewhere in the storm waits their flying fortress, the Colossus. Let's go bring it down.
+Wheels up!"*
+
+## Fixes to world 3's frames (2026-11-13)
+
+Owner: *"In the heli video pictures 2 and 3 aren't right. Picture 2 is great, but there are too many tail parts.
+Picture 3 has odd-looking roads in the mountains."*
+
+- **3b:** the helicopter had a second tail boom sticking out to the left of its cabin. Four inpaint runs (doc 93's
+  workflow in editor mode: the left boom, the right one instead, the whole helicopter redrawn) all drew the same
+  two-tailed helicopter again — the editor keeps the reference's shapes. So the boom was covered by hand: the patch of
+  mountain slope right beside it (222 px to the left on the 1280 × 720 render) pasted over it with a soft edge; the rest
+  of the picture is untouched, and the helicopter now reads nose left, one tail right.
+- **3c:** rendered again with the tanks on "a narrow gravel track beside a small river at the bottom of the valley
+  floor … no bridges, no paved roads and no roads on the steep slopes" (the old frame had a road running into a
+  launcher tower and another on a bridge across the slope). Of seeds 7, 11 and 23 the owner chose 7: a column of tanks
+  on the gravel track in the valley floor, guns under nets on the slopes, tracers into the sky.
+- World 3's four plates were rebuilt together (`dev/finale-plates.py --intro`, one shared palette).
 
 ## Business Rules
 

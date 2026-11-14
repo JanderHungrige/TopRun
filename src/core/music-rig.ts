@@ -1,7 +1,8 @@
 import { gainNode } from './audio-nodes';
 
-/** Per-deck output and effect buses; `nodes` are disconnected once the deck has faded out. */
-export interface Rig { out: GainNode; echo: GainNode; verb: GainNode; nodes: AudioNode[] }
+/** Per-deck output and effect buses; `nodes` are disconnected once the deck has faded out. `conv` is the reverb's
+ *  convolver while it has one (the lite sound budget drops it, doc 01, bug B1). */
+export interface Rig { out: GainNode; echo: GainNode; verb: GainNode; nodes: AudioNode[]; conv: ConvolverNode | null }
 
 const REVERB_RETURN = 0.3;
 /** Deck output level (matches the perceived loudness of the previous soundtrack). */
@@ -38,23 +39,34 @@ function echo(ctx: AudioContext, out: AudioNode, time: number, nodes: AudioNode[
   return send;
 }
 
-function reverb(ctx: AudioContext, out: AudioNode, ir: AudioBuffer, nodes: AudioNode[]): GainNode {
+/** The reverb send into a convolver; without an impulse the send leads nowhere (no reverb, no cost). */
+function reverb(ctx: AudioContext, out: AudioNode, ir: AudioBuffer | null, nodes: AudioNode[]): { send: GainNode; conv: ConvolverNode | null } {
   const send = gainNode(ctx, 1);
+  nodes.push(send);
+  if (!ir) return { send, conv: null };
   const conv = ctx.createConvolver();
   const ret = gainNode(ctx, REVERB_RETURN);
   conv.buffer = ir;
   send.connect(conv).connect(ret).connect(out);
-  nodes.push(send, conv, ret);
-  return send;
+  nodes.push(conv, ret);
+  return { send, conv };
 }
 
-/** Builds a deck's buses into `bus`, fading in over `fadeIn` s. */
-export function createRig(ctx: AudioContext, bus: AudioNode, ir: AudioBuffer, echoTime: number, fadeIn: number): Rig {
+/** Builds a deck's buses into `bus`, fading in over `fadeIn` s; `ir` null = no reverb. */
+export function createRig(ctx: AudioContext, bus: AudioNode, ir: AudioBuffer | null, echoTime: number, fadeIn: number): Rig {
   const now = ctx.currentTime;
   const out = ctx.createGain();
   out.gain.setValueAtTime(0, now);
   out.gain.linearRampToValueAtTime(DECK_LEVEL, now + fadeIn);
   out.connect(bus);
   const nodes: AudioNode[] = [out];
-  return { out, echo: echo(ctx, out, echoTime, nodes), verb: reverb(ctx, out, ir, nodes), nodes };
+  const verb = reverb(ctx, out, ir, nodes);
+  return { out, echo: echo(ctx, out, echoTime, nodes), verb: verb.send, nodes, conv: verb.conv };
+}
+
+/** Takes the reverb out of a playing deck: its convolver stops working, the notes' sends lead nowhere. */
+export function dropReverb(rig: Rig): void {
+  rig.verb.disconnect();
+  rig.conv?.disconnect();
+  rig.conv = null;
 }

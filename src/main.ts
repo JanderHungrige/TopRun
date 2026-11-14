@@ -43,7 +43,7 @@ class Game implements GameContext {
 
   constructor(readonly input: Input, private readonly scenes: SceneManager, readonly dom: { host: HTMLElement; viewport: () => Viewport }) {
     const st = this.store.settings;
-    this.audio = new AudioEngine(st);
+    this.audio = new AudioEngine(st, navigator.maxTouchPoints); // tablets start on a lighter sound budget (doc 01, B1)
     setLang(st.lang);
     input.joystick = st.joystick;
     this.music = new Music(this.audio);
@@ -204,7 +204,7 @@ function boot(): void {
   const input = new Input(canvas, () => screen.vp);
   const scenes = new SceneManager(() => input.clearPressed());
   const game = new Game(input, scenes, { host: document.body, viewport: () => screen.vp });
-  input.onFirstGesture(() => game.audio.unlock());
+  input.onGesture(() => game.audio.wake()); // every press: start, resume or rebuild the sound (doc 01, B1)
   window.addEventListener('resize', () => screen.resize());
   window.addEventListener('blur', () => scenes.blur());
   document.addEventListener('visibilitychange', () => {
@@ -223,6 +223,7 @@ function boot(): void {
     const ctx = screen.begin();
     scenes.render(ctx);
     screen.end();
+    game.audio.tick(performance.now() / 1000, !document.hidden);
     game.music.tick();
   };
   startLoop({ update, render });

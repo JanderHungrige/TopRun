@@ -92,8 +92,9 @@ function crackle(ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: numbe
   src.stop(end + 0.03);
 }
 
-/** Aircraft-radio colouring: 300–3000 Hz band and light clipping; returns the node to feed. */
-function radioBand(ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: number, end: number): AudioNode {
+/** Aircraft-radio colouring: 300–3000 Hz band and light clipping (its oversampling set by the audio budget, doc 01);
+ *  returns the node to feed. */
+function radioBand(ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: number, end: number, oversample: OverSampleType): AudioNode {
   const input = gainNode(ctx, RADIO_DRIVE);
   const level = gainNode(ctx, RADIO_LEVEL);
   level.connect(out);
@@ -102,19 +103,20 @@ function radioBand(ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: num
   input
     .connect(filterNode(ctx, 'highpass', 300, 0.7))
     .connect(filterNode(ctx, 'highpass', 300, 0.7))
-    .connect(shaperNode(ctx, 2.5, lowpass));
+    .connect(shaperNode(ctx, 2.5, lowpass, oversample));
   crackle(ctx, noise, out, t, end);
   return input;
 }
 
-/** Schedules one babble syllable (60–140 ms) into `out` at `t`; returns when it has finished sounding. */
+/** Schedules one babble syllable (60–140 ms) into `out` at `t` — over the radio when `radio` gives the clipper's
+ *  oversampling; returns when it has finished sounding. */
 export function syllable(
-  ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: number, pitch: number, radio: boolean,
+  ctx: AudioContext, noise: AudioBuffer, out: AudioNode, t: number, pitch: number, radio: OverSampleType | null,
 ): number {
   const p = clamp(pitch, 0.4, 2.5);
   const dur = rand(0.06, 0.14);
   const end = t + dur;
-  const dest = radio ? radioBand(ctx, noise, out, t, end) : out;
+  const dest = radio ? radioBand(ctx, noise, out, t, end, radio) : out;
   const amp = envelope(ctx, dest, t, dur, LEVEL / Math.min(1, p)); // low voices have weaker formant harmonics
   const from = pickVowel();
   const to = Math.random() < 0.4 ? pickVowel() : from; // sometimes a diphthong

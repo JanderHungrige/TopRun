@@ -1,5 +1,4 @@
 import type { FleetKitId } from '../data/fleet';
-import { HELI_MODS, HELI_ROUNDS, type HeliMod, type HeliRounds } from '../data/heli-arms';
 import { EQUIPMENT, maxEquipmentLevel } from '../data/equipment';
 import { LIVERIES, type LiveryId } from '../data/liveries';
 import { PLANES } from '../data/planes';
@@ -8,7 +7,7 @@ import { SECONDARIES, secondaryAllowedOn } from '../data/weapons';
 import { afterAmmoBought, incendiaryPrice } from './ammo';
 import { ammoPrice } from './arsenal';
 import { equipmentPrice, gun2Price, gunCap, gunPrice, weaponOnSale } from './firepower';
-import { afterHeliRoundsBought, heliArmsOnSale, heliModPrice, heliRoundsPrice, withHeliLevel } from './heli-arms';
+import { afterGearRoundsBought, GEAR_MODS, GEAR_ROUNDS, gearOnSale, gearPrice, withGearLevel, type GearMod, type GearRounds } from './gear';
 import { hePrice } from './he-gun';
 import { jetOnSale } from './jets';
 import { payScale } from './map-two';
@@ -33,10 +32,11 @@ export type ShopItem =
   /** The Bofors 40 mm HE gun, levels 1–10 (doc 46). */
   | { type: 'he' }
   | { type: 'secondary'; id: SecondaryId }
-  /** The helicopters' Gatling Drive, Turret Link and door guns (doc 99). */
-  | { type: 'heliMod'; id: HeliMod }
-  /** The helicopters' three ammo types, one loaded per sortie (doc 99). */
-  | { type: 'heliRounds'; id: HeliRounds }
+  /** A fleet's gun upgrades: the helicopters' Gatling Drive, Turret Link, door guns (doc 99), the subs' Rapid Loader,
+   *  Homing Tips, Side Tubes (doc 101). */
+  | { type: 'mod'; id: GearMod }
+  /** A fleet's ammo types, one loaded per sortie (docs 99, 101). */
+  | { type: 'rounds'; id: GearRounds }
   | { type: 'equipment'; id: EquipmentId }
   /** Paint jobs are unlocked by the campaign, never bought (doc 09). */
   | { type: 'livery'; id: LiveryId };
@@ -57,8 +57,8 @@ export function priceOf(save: SaveData, item: ShopItem): number | null {
     case 'incendiary': return incendiaryPrice(save);
     case 'he': return hePrice(save);
     case 'secondary': return save.ownedSecondaries.includes(item.id) ? null : SECONDARIES[item.id].price;
-    case 'heliMod': return heliModPrice(save, item.id);
-    case 'heliRounds': return heliRoundsPrice(save, item.id);
+    case 'mod':
+    case 'rounds': return gearPrice(save, item.id);
     case 'equipment': return equipmentPrice(save, item.id);
     case 'livery': return null;
     default: throw new Error(`unhandled: ${item satisfies never}`);
@@ -73,8 +73,8 @@ function knownItem(item: ShopItem): boolean {
     case 'ammo':
     case 'incendiary':
     case 'he': return true;
-    case 'heliMod': return HELI_MODS.includes(item.id);
-    case 'heliRounds': return HELI_ROUNDS.includes(item.id);
+    case 'mod': return GEAR_MODS.includes(item.id);
+    case 'rounds': return GEAR_ROUNDS.includes(item.id);
     case 'secondary': return item.id in SECONDARIES;
     case 'equipment': return item.id in EQUIPMENT;
     case 'livery': return item.id in LIVERIES;
@@ -90,8 +90,8 @@ function onSale(save: SaveData, item: ShopItem): boolean {
     case 'gun2':
     case 'he': return jets && mapTwoOpen(save);
     case 'secondary': return weaponOnSale(save, item.id);
-    case 'heliMod':
-    case 'heliRounds': return heliArmsOnSale(save);
+    case 'mod':
+    case 'rounds': return gearOnSale(save, item.id);
     case 'ammo':
     case 'incendiary':
     case 'livery': return jets;
@@ -127,8 +127,8 @@ export function buy(save: SaveData, item: ShopItem): SaveData {
     case 'incendiary': next.incendiaryLevel = save.incendiaryLevel + 1; return afterAmmoBought(next, 'incendiary');
     case 'he': next.heLevel = save.heLevel + 1; break;
     case 'secondary': next.ownedSecondaries.push(item.id); break;
-    case 'heliMod': return withHeliLevel(next, item.id);
-    case 'heliRounds': return afterHeliRoundsBought(withHeliLevel(next, item.id), item.id);
+    case 'mod': return withGearLevel(next, item.id);
+    case 'rounds': return afterGearRoundsBought(withGearLevel(next, item.id), item.id);
     case 'equipment': next.equipment[item.id] = Math.min(maxEquipmentLevel(item.id), save.equipment[item.id] + 1); break;
     case 'livery': break;
     default: throw new Error(`unhandled: ${item satisfies never}`);

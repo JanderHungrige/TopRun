@@ -8,8 +8,9 @@ import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import { fireHe } from './shells';
 import { fireBeam, fireLance, lobShell } from './mech-mission';
-import { firePulse, gunRounds, gunSwivel, launchSwarm } from './heli-arms';
+import { firePulse, gunRounds, gunSwivel, launchSwarm, roundSpeed } from './heli-arms';
 import { fireWave } from './heli-waves';
+import { aimTarget, launchDecoy, throwNet } from './sub-arms';
 import { spinRate } from '../../game/heli-combat';
 import type { Missile, World } from './world';
 
@@ -25,11 +26,12 @@ export function firePlayerGun(world: World, p: Player, audio: AudioEngine): void
   p.gunCooldown = 1 / (gun.shotsPerSec * (gatling ? spinRate(p.spin, gatling.mul) : 1));
   const damage = gun.damage * p.stats.gunDamageMul;
   const swivel = gunSwivel(world, p);
+  const speed = GUN_SPEED * roundSpeed(p);
   for (const b of gun.pattern) {
     const a = b.angle + swivel;
     world.bullets.push({
-      kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(a) * GUN_SPEED, vy: -Math.cos(a) * GUN_SPEED,
-      damage, ttl: 1, dead: false, ...gunRounds(p), laser: !!p.stats.ship, harpoon: p.stats.plane.kind === 'sub',
+      kind: 'gun', x: p.x + b.dx, y: p.y - 24, vx: Math.sin(a) * speed, vy: -Math.cos(a) * speed,
+      damage, ttl: 1, dead: false, ...gunRounds(p), laser: !!p.stats.ship,
     });
   }
   if (world.targetsInView()) world.perf.shots += gun.pattern.length;
@@ -69,7 +71,7 @@ export function fireWingman(world: World, p: Player, dt: number): void {
 /** A player missile or rocket with the numbers of its weapon's mark (doc 43). */
 export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, dx: number, heading: number): Missile {
   if (kind === 'enemy') throw new Error('not a player missile');
-  const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind === 'drone' ? 'drones' : kind].hits;
+  const hits = SECONDARIES[kind === 'rocket' ? 'rockets' : kind === 'drone' ? 'drones' : kind === 'minitorp' ? 'torpswarm' : kind].hits;
   return {
     kind, x: p.x + dx, y: p.y - 6, heading, speed: kind === 'rocket' ? w.speed : 180, maxSpeed: w.speed,
     turnRate: w.turnRate, damage: w.damage, hits, target: null, decoy: null, ttl: 3.2, dead: false,
@@ -125,12 +127,21 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
       firePulse(world, slot.weapon, 8 * p.sideToggle);
       break;
     case 'wave':
-      fireWave(world, p, slot.weapon);
-      audio.play('sonic', { volume: 0.7 });
+      fireWave(world, p, slot.weapon, slot.id === 'sonarpulse');
+      audio.play(slot.id === 'sonarpulse' ? 'sonar' : 'sonic', { volume: 0.7 });
       break;
     case 'swarm':
-      launchSwarm(world, p, slot.weapon, 10 * p.sideToggle);
+    case 'torps':
+      launchSwarm(world, p, slot.weapon, 10 * p.sideToggle, def.behavior === 'torps');
       audio.play('drones');
+      break;
+    case 'decoy':
+      launchDecoy(world, p);
+      audio.play('drones', { pitch: 0.7 });
+      break;
+    case 'net':
+      throwNet(world, p, slot.weapon);
+      audio.play('splash', { volume: 0.5 });
       break;
     default:
       throw new Error(`unhandled: ${def.behavior satisfies never}`);
@@ -170,7 +181,8 @@ export function fireRing(world: World, s: FireSource, n: number, turn: number): 
 
 /** Fires an enemy weapon from a source at the player. */
 export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon, p: Player, audio: AudioEngine): void {
-  const aim = headingTo(s.x, s.y, p.x, p.y);
+  const at = aimTarget(world, s, p); // the subs' decoy drone draws the aim (doc 101)
+  const aim = headingTo(s.x, s.y, at.x, at.y);
   switch (weapon) {
     case 'none': return;
     case 'single': enemyBullet(world, s, Math.PI, 230, 8); break;
@@ -189,7 +201,7 @@ export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon
       fireRing(world, s, RING_SPORES, (s.t ?? 0) * RING_SPIN);
       break;
     case 'flak': {
-      const dist = Math.hypot(p.x - s.x, p.y - s.y);
+      const dist = Math.hypot(at.x - s.x, at.y - s.y);
       const speed = 300 * s.bulletSpeedMul;
       world.bullets.push({ kind: 'flak', x: s.x, y: s.y, vx: Math.sin(aim) * speed, vy: -Math.cos(aim) * speed, damage: 12, ttl: dist / speed, dead: false });
       break;

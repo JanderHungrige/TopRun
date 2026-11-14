@@ -22,12 +22,12 @@ export function plasmaBolt(ctx: CanvasRenderingContext2D, x: number, y: number, 
 }
 
 /** A harpoon bolt: a short steel dart with a barbed head and a thin line of bubbles behind. */
-export function harpoonBolt(ctx: CanvasRenderingContext2D, x: number, y: number): void {
+export function harpoonBolt(ctx: CanvasRenderingContext2D, x: number, y: number, tip = '#eef6fa'): void {
   ctx.fillStyle = 'rgba(220,245,255,0.45)';
   for (let k = 1; k <= 3; k++) ctx.fillRect(x - 0.5 + (k % 2), y + 4 + k * 4, 1.5, 1.5);
   ctx.fillStyle = '#c9d3da';
   ctx.fillRect(x - 1, y - 6, 2, 11);
-  ctx.fillStyle = '#eef6fa';
+  ctx.fillStyle = tip; // the loaded bolts' colour (doc 101)
   ctx.beginPath();
   ctx.moveTo(x, y - 10);
   ctx.lineTo(x + 2.5, y - 5);

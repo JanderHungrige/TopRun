@@ -7,7 +7,8 @@ import { SECONDARIES, secondaryAllowedOn } from '../../src/data/weapons';
 import { kitScore } from '../../src/game/challenge';
 import { buy, canBuy, priceOf } from '../../src/game/economy';
 import { weaponOnSale } from '../../src/game/firepower';
-import { canLoadHeliRounds, freshHeliArms, heliArmsStats, loadHeliRounds, parseHeliArms } from '../../src/game/heli-arms';
+import { freshHeliArms, heliArmsStats, parseHeliArms } from '../../src/game/heli-arms';
+import { canLoadGear, loadGear } from '../../src/game/gear';
 import { kitView } from '../../src/game/kit';
 import { derivePlayerStats } from '../../src/game/loadout';
 import { defaultSave, parseSave, type SaveData } from '../../src/game/save';
@@ -21,12 +22,12 @@ const heli = (money = 50_000_000): SaveData => kitView(mapThree({ ...defaultSave
 describe('Heli arsenal — on sale (doc 99)', () => {
   it('sells the gun upgrades and the ammo only in the helicopters\' hangar once map 3 is open', () => {
     const open = heli();
-    expect(canBuy(open, { type: 'heliMod', id: 'gatling' }).ok).toBe(true);
-    expect(canBuy(open, { type: 'heliRounds', id: 'tracer' }).ok).toBe(true);
+    expect(canBuy(open, { type: 'mod', id: 'gatling' }).ok).toBe(true);
+    expect(canBuy(open, { type: 'rounds', id: 'tracer' }).ok).toBe(true);
     const jets = mapThree({ ...defaultSave(), money: 50_000_000 });
-    expect(canBuy(jets, { type: 'heliMod', id: 'gatling' })).toEqual({ ok: false, reason: 'locked' });
+    expect(canBuy(jets, { type: 'mod', id: 'gatling' })).toEqual({ ok: false, reason: 'locked' });
     const closed = kitView({ ...defaultSave(), money: 50_000_000 }, 'heli');
-    expect(canBuy(closed, { type: 'heliRounds', id: 'hedp' })).toEqual({ ok: false, reason: 'locked' });
+    expect(canBuy(closed, { type: 'rounds', id: 'hedp' })).toEqual({ ok: false, reason: 'locked' });
   });
 
   it('adds the pulse laser, sonic cannon and drone swarm as helicopter station weapons', () => {
@@ -49,44 +50,44 @@ describe('Heli arsenal — buying (doc 99)', () => {
   it('climbs the Gatling Drive one level at a time at the listed prices, then stops', () => {
     let s = heli();
     for (const lvl of GATLING_LEVELS) {
-      expect(priceOf(s, { type: 'heliMod', id: 'gatling' })).toBe(lvl.price);
+      expect(priceOf(s, { type: 'mod', id: 'gatling' })).toBe(lvl.price);
       const before = s.money;
-      s = buy(s, { type: 'heliMod', id: 'gatling' });
+      s = buy(s, { type: 'mod', id: 'gatling' });
       expect(s.heliArms.gatling).toBe(lvl.level);
       expect(before - s.money).toBe(lvl.price);
     }
-    expect(priceOf(s, { type: 'heliMod', id: 'gatling' })).toBeNull();
-    expect(canBuy(s, { type: 'heliMod', id: 'gatling' })).toEqual({ ok: false, reason: 'max-level' });
+    expect(priceOf(s, { type: 'mod', id: 'gatling' })).toBeNull();
+    expect(canBuy(s, { type: 'mod', id: 'gatling' })).toEqual({ ok: false, reason: 'max-level' });
   });
 
   it('prices the turret link, the door guns and each ammo type by their tables', () => {
     const s = heli();
-    expect(priceOf(s, { type: 'heliMod', id: 'turret' })).toBe(TURRET_LEVELS[0]?.price);
-    expect(priceOf(s, { type: 'heliMod', id: 'doorGuns' })).toBe(DOOR_GUN_LEVELS[0]?.price);
+    expect(priceOf(s, { type: 'mod', id: 'turret' })).toBe(TURRET_LEVELS[0]?.price);
+    expect(priceOf(s, { type: 'mod', id: 'doorGuns' })).toBe(DOOR_GUN_LEVELS[0]?.price);
     expect(ROUNDS_PRICES).toEqual([90000, 200000, 360000]);
-    for (const id of ['tracer', 'hedp', 'incendiary'] as const) expect(priceOf(s, { type: 'heliRounds', id })).toBe(90000);
+    for (const id of ['tracer', 'hedp', 'incendiary'] as const) expect(priceOf(s, { type: 'rounds', id })).toBe(90000);
   });
 
   it('refuses a purchase the wallet can\'t cover', () => {
     const poor = heli(1000);
-    expect(canBuy(poor, { type: 'heliMod', id: 'turret' })).toEqual({ ok: false, reason: 'insufficient-funds' });
+    expect(canBuy(poor, { type: 'mod', id: 'turret' })).toEqual({ ok: false, reason: 'insufficient-funds' });
   });
 
   it('loads the first ammo type bought and never switches on a later purchase', () => {
-    let s = buy(heli(), { type: 'heliRounds', id: 'hedp' });
+    let s = buy(heli(), { type: 'rounds', id: 'hedp' });
     expect(s.heliArms.loaded).toBe('hedp');
-    s = buy(s, { type: 'heliRounds', id: 'tracer' });
+    s = buy(s, { type: 'rounds', id: 'tracer' });
     expect(s.heliArms).toMatchObject({ hedp: 1, tracer: 1, loaded: 'hedp' });
-    expect(canLoadHeliRounds(s, 'tracer')).toBe(true);
-    expect(canLoadHeliRounds(s, 'hedp')).toBe(false);
-    expect(canLoadHeliRounds(s, 'incendiary')).toBe(false);
-    expect(loadHeliRounds(s, 'tracer').heliArms.loaded).toBe('tracer');
-    expect(() => loadHeliRounds(s, 'incendiary')).toThrow();
+    expect(canLoadGear(s, 'tracer')).toBe(true);
+    expect(canLoadGear(s, 'hedp')).toBe(false);
+    expect(canLoadGear(s, 'incendiary')).toBe(false);
+    expect(loadGear(s, 'tracer').heliArms.loaded).toBe('tracer');
+    expect(() => loadGear(s, 'incendiary')).toThrow();
   });
 
   it('counts the gear in the helicopters\' kit score only', () => {
     const plain = heli();
-    const geared = buy(buy(plain, { type: 'heliMod', id: 'gatling' }), { type: 'heliRounds', id: 'tracer' });
+    const geared = buy(buy(plain, { type: 'mod', id: 'gatling' }), { type: 'rounds', id: 'tracer' });
     expect(kitScore(geared) - kitScore(plain)).toBe(20);
     const jetView = { ...geared, kit: 'jet' as const };
     expect(kitScore(jetView)).toBe(kitScore({ ...jetView, heliArms: freshHeliArms() }));
@@ -113,7 +114,7 @@ describe('Heli arsenal — mission numbers (doc 99)', () => {
     expect(st.gatling).toEqual({ mul: 1.45, spinUp: 0.6 });
     expect(st.swivel).toBeCloseTo((14 * Math.PI) / 180, 5);
     expect(st.doorGuns).toEqual({ range: 220, damage: 10 });
-    expect(heliArmsStats(freshHeliArms())).toMatchObject({ gatling: null, swivel: 0, doorGuns: null, rounds: null, paint: 0, splash: null, burn: 0 });
+    expect(heliArmsStats(freshHeliArms())).toMatchObject({ gatling: null, swivel: 0, doorGuns: null, rounds: null, paint: 0, splash: null, burn: 0, chain: null, pierce: null });
   });
 
   it('fires the loaded rounds only when that type is owned', () => {
@@ -129,7 +130,7 @@ describe('Heli arsenal — mission numbers (doc 99)', () => {
   it('hands the helicopter its arms and the recharge of its energy weapons per station', () => {
     let s = heli();
     s = buy(s, { type: 'secondary', id: 'pulselaser' });
-    s = buy(s, { type: 'heliRounds', id: 'incendiary' });
+    s = buy(s, { type: 'rounds', id: 'incendiary' });
     s = { ...s, loadout: { ...s.loadout, ah64: ['pulselaser', 'pulselaser', null, null] } };
     const st = derivePlayerStats(s);
     expect(st.arms?.rounds).toBe('incendiary');

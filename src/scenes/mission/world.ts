@@ -14,6 +14,7 @@ import { flightScroll } from '../../game/sub-flight';
 import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/canyon';
 import type { Beam, Lance } from './mech-mission';
 import type { Pulse, SonicWave, Zap } from './heli-arms';
+import type { Decoy, Net } from './sub-arms';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -57,6 +58,8 @@ export interface Enemy {
   /** Tracer rounds (doc 99): seconds it stays painted; stunned by the sonic wave: seconds it holds fire. */
   paintT: number;
   stun: number;
+  /** Caught in a drift net (doc 101): seconds it stays slowed. */
+  netT: number;
 }
 
 /** `cannon`: A-10 GAU-8 rounds (doc 36); `door`: the helicopters' door guns (doc 99). */
@@ -81,6 +84,10 @@ export interface Bullet {
   burnGround?: boolean;
   paint?: boolean;
   splash?: { share: number; radius: number } | null;
+  /** The subs' bolts (doc 101): an electric hit arcs on; a cavitation bolt passes through `pierce` more, skipping `hit`. */
+  chain?: { targets: number; reach: number; share: number; stun: number } | null;
+  pierce?: number;
+  hit?: number[];
   /** The spacecraft's laser bolts (doc 54). */
   laser?: boolean;
   /** The subs' harpoon bolts (doc 67). */
@@ -89,7 +96,7 @@ export interface Bullet {
 
 export type MissileKind =
   | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'seeker' | 'rocket' | 'drone'
-  | 'enemy';
+  | 'minitorp' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -190,6 +197,9 @@ export class World {
   pulses: Pulse[] = [];
   zaps: Zap[] = [];
   waves: SonicWave[] = [];
+  /** The subs' decoy drone and drift nets (doc 101). */
+  decoy: Decoy | null = null;
+  nets: Net[] = [];
   paintBonus = 0;
   bossPaintT = 0;
   private ids = 0;

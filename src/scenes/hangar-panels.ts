@@ -25,7 +25,7 @@ import {
 } from './hangar-items';
 import { equipmentEffectRow, planeStats, statRow } from './hangar-stats-view';
 import { guidanceKey, roundsLine } from './hangar-mech';
-import { heliLevel, heliMax, heliPicture, heliRows, heliSubtitle } from './hangar-heli';
+import { gearLevelOf, gearMaxOf, gearPicture, gearRows, gearSubtitle } from './hangar-gear';
 import { unlockText } from './hangar-paint';
 
 export const LIST = { x: 24, y: 132, w: 536, row: 68 };
@@ -85,7 +85,7 @@ function drawThumb(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
     case 'incendiary':
     case 'he': if (!drawItemPicture(ctx, item.type, x, y, true)) drawWeaponIcon(ctx, item.type, x, y, 0.8); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, x, y, true)) drawWeaponIcon(ctx, item.id, x, y, 0.7); return;
-    case 'heliMod': case 'heliRounds': if (!drawItemPicture(ctx, heliPicture(item), x, y, true)) drawWeaponIcon(ctx, heliPicture(item), x, y, 0.8); return;
+    case 'mod': case 'rounds': if (!drawItemPicture(ctx, gearPicture(item), x, y, true)) drawWeaponIcon(ctx, gearPicture(item), x, y, 0.8); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, x, y, true)) drawEquipmentIcon(ctx, item.id, x, y, 32); return;
     case 'livery': liveryThumb(ctx, save, item.id, x, y, t); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);
@@ -136,7 +136,7 @@ function subtitle(save: SaveData, item: ShopItem): string {
       const fan = SECONDARIES[item.id].behavior === 'fan' ? 5 : 1;
       return tr('hangar.secSub', { damage: w.damage * fan, ammo: w.ammoPerSlot, targets: secondaryTargets(item.id) });
     }
-    case 'heliMod': case 'heliRounds': return heliSubtitle(item);
+    case 'mod': case 'rounds': return gearSubtitle(item);
     case 'equipment': {
       // The level on sale next (doc 43: lists of up to seven levels no longer fit one line), else the current one.
       const texts = equipmentLevelText(item.id);
@@ -232,7 +232,7 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
     })), y, AMMO_ROWS);
     case 'he': return heStats(ctx, save.heLevel, y);
     case 'secondary': return weaponStatsRows(ctx, save, item.id, y);
-    case 'heliMod': case 'heliRounds': return levelRows(ctx, heliLevel(save, item), heliMax(item), heliRows(item), y, item.type === 'heliRounds' ? AMMO_ROWS : undefined);
+    case 'mod': case 'rounds': return levelRows(ctx, gearLevelOf(save, item), gearMaxOf(item), gearRows(item), y, item.type === 'rounds' ? AMMO_ROWS : undefined);
     case 'equipment': {
       const used = equipmentEffectRow(ctx, DETAIL, save, item.id, y);
       return levelRows(ctx, save.equipment[item.id], equipmentCap(save, item.id), equipmentLevelText(item.id), y + used * 30, { maxW: DETAIL.w - 48, rows: LEVEL_ROWS - used });
@@ -272,7 +272,7 @@ function drawPreview(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopIt
     case 'incendiary':
     case 'he': if (!drawItemPicture(ctx, item.type, cx, cy, false)) drawWeaponIcon(ctx, item.type, cx, cy, 3); return;
     case 'secondary': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawWeaponIcon(ctx, item.id, cx, cy, 3); return;
-    case 'heliMod': case 'heliRounds': if (!drawItemPicture(ctx, heliPicture(item), cx, cy, false)) drawWeaponIcon(ctx, heliPicture(item), cx, cy, 3); return;
+    case 'mod': case 'rounds': if (!drawItemPicture(ctx, gearPicture(item), cx, cy, false)) drawWeaponIcon(ctx, gearPicture(item), cx, cy, 3); return;
     case 'equipment': if (!drawItemPicture(ctx, item.id, cx, cy, false)) drawEquipmentIcon(ctx, item.id, cx, cy, 130); return;
     default: throw new Error(`unhandled: ${item satisfies never}`);
   }

@@ -54,6 +54,9 @@ export function guidanceKey(b: SecondaryBehavior): UiKey {
     case 'pulse': return 'heliarms.aimed';
     case 'wave': return 'heliarms.wave';
     case 'swarm': return 'heliarms.swarm';
+    case 'torps': return 'subarms.torps';
+    case 'decoy': return 'subarms.decoy';
+    case 'net': return 'subarms.net';
     default: throw new Error(`unhandled: ${b satisfies never}`);
   }
 }

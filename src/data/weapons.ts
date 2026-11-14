@@ -1,4 +1,5 @@
 import { HELI_PRICE } from './heli-kit';
+import { FLEET_SECONDARIES } from './weapons-fleet';
 import { SUB_PRICE } from './sub-kit';
 import { PLANES } from './planes';
 import { HELI_IDS, MECH_IDS, SUB_IDS, type CampaignId, type GunLevel, type PlaneId, type SecondaryId } from './types';
@@ -116,8 +117,9 @@ export function jetGunDef(level: number, twin: boolean): GunLevelDef {
 export type SecondaryHits = 'air' | 'ground' | 'any';
 /** `lob`: a mortar shell thrown ahead that bursts on the ground; `lance`: a slow bolt that burns through everything in
  *  its path; `beam`: an instant beam up the whole screen (the mech weapons, doc 79); `pulse`: a burst of laser pulses at
- *  the nearest target; `wave`: a sonic wave that stuns; `swarm`: three hunting drones (the helicopters', doc 99). */
-export type SecondaryBehavior = 'homing' | 'fan' | 'bomb' | 'lob' | 'lance' | 'beam' | 'pulse' | 'wave' | 'swarm';
+ *  the nearest target; `wave`: a sonic wave that stuns; `swarm`: three hunting drones (the helicopters', doc 99); `torps`:
+ *  a salvo of small homing torpedoes, `decoy`: a drone that draws fire, `net`: a drifting net that slows (the subs', doc 101). */
+export type SecondaryBehavior = 'homing' | 'fan' | 'bomb' | 'lob' | 'lance' | 'beam' | 'pulse' | 'wave' | 'swarm' | 'torps' | 'decoy' | 'net';
 
 /** Which weapon key fires it (doc 05): AIR (R) or GROUND (Q). */
 export type WeaponRole = 'air' | 'ground';
@@ -126,6 +128,7 @@ export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
   hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground', shkval: 'ground',
   pod: 'ground', seeker: 'air', mortar: 'ground', plasma: 'air', rail: 'ground', pulselaser: 'air', sonic: 'ground', drones: 'ground',
+  torpswarm: 'ground', sonarpulse: 'ground', decoy: 'air', net: 'ground',
 });
 
 export interface SecondaryDef {
@@ -203,25 +206,6 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     damage: 85, radius: 0, hits: 'air', behavior: 'homing', cooldown: 0.35, speed: 560,
     turnRate: 4.0, planes: HELI_IDS, description: 'Heat-seeking air-to-air missile for helicopters. Hunts gunships and jets.', campaign: 3,
   },
-  // The helicopters' new station weapons (doc 99): the laser and the sonic cannon run on energy that recharges; for the
-  // laser `damage` is one pulse's, for the sonic cannon `radius` is the wave's reach.
-  pulselaser: {
-    id: 'pulselaser', role: 'air', name: 'HEL Pulse Laser', short: 'LASER', price: 25000 * HELI_PRICE, ammoPerSlot: 5,
-    damage: 25, radius: 0, hits: 'any', behavior: 'pulse', cooldown: 0.4, speed: 0,
-    turnRate: 0, planes: HELI_IDS, description: 'Fires a burst of four laser pulses at the nearest target ahead. Never misses; runs on energy that recharges.', campaign: 3,
-    recharge: 3.5,
-  },
-  sonic: {
-    id: 'sonic', role: 'ground', name: 'Sonic Cannon', short: 'SONIC', price: 25000 * HELI_PRICE, ammoPerSlot: 4,
-    damage: 40, radius: 260, hits: 'any', behavior: 'wave', cooldown: 0.6, speed: 0,
-    turnRate: 0, planes: HELI_IDS, description: 'An ultrasonic wave that stuns everything ahead and wipes out enemy fire in its path. Recharges.', campaign: 3,
-    recharge: 4,
-  },
-  drones: {
-    id: 'drones', role: 'ground', name: 'Drone Swarm', short: 'DRONES', price: 20000 * HELI_PRICE, ammoPerSlot: 3,
-    damage: 90, radius: 0, hits: 'any', behavior: 'swarm', cooldown: 0.6, speed: 270,
-    turnRate: 5, planes: HELI_IDS, description: 'Launches three small drones that hunt down targets on their own, air or ground.', campaign: 3,
-  },
   // The spacecraft's rocket wings (doc 54, on the AIR key since doc 57) and torpedo bays carry these; never sold alone.
   spacerocket: {
     id: 'spacerocket', role: 'air', name: 'Space Rocket', short: 'ROCKETS', price: 0, ammoPerSlot: 6,
@@ -250,6 +234,7 @@ export const SECONDARIES: Readonly<Record<SecondaryId, SecondaryDef>> = Object.f
     damage: 30, radius: 0, hits: 'any', behavior: 'fan', cooldown: 0.45, speed: 700,
     turnRate: 0, planes: SUB_IDS, description: 'Supercavitating rocket torpedoes fired in a fan. Fast, unguided, they hit anything in the water.', campaign: 4,
   },
+  ...FLEET_SECONDARIES,
   // Mech weapons (doc 79): mechs only; the pod, the seeker and the mortar fire rounds of the base's magazine.
   pod: {
     id: 'pod', role: 'ground', name: 'Rocket Pod', short: 'POD', price: 0, ammoPerSlot: 8,

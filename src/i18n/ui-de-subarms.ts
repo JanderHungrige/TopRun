@@ -1,0 +1,31 @@
+import type { UI_EN_SUBARMS } from './ui-en-subarms';
+
+// Das Arsenal der U-Boote (Doc 101) — Deutsch; Schlüssel wie in ui-en-subarms.ts.
+export const UI_DE_SUBARMS: Readonly<Record<keyof typeof UI_EN_SUBARMS, string>> = {
+  'subarms.loaderName': 'Schnelllader',
+  'subarms.loaderDesc': 'Ein Motorlader füttert die Harpunenkanone immer schneller: Halt den Abzug gedrückt, dann steigt die Kadenz, und kurze Pausen halten sie oben.',
+  'subarms.loaderSub': 'Schnelleres Feuer · wird beim Schießen schneller',
+  'subarms.loaderRow': '×{mul} Kadenz auf voller Fahrt · in {spin} s auf Touren',
+  'subarms.homingName': 'Zielsuch-Spitzen',
+  'subarms.homingDesc': 'Kleine Flossen und ein Sonarsucher in jeder Harpune: Die Harpunen lenken zum nächsten Ziel voraus, damit weniger danebengeht.',
+  'subarms.homingSub': 'Harpunen lenken zum Ziel',
+  'subarms.homingRow': 'Lenkt bis {deg}° zum Ziel',
+  'subarms.tubesName': 'Seitenrohre',
+  'subarms.tubesDesc': 'Zwei kleine Rohre in den Flanken feuern von selbst auf alles neben dem U-Boot. Sie verschießen die geladenen Harpunen.',
+  'subarms.tubesSub': 'Automatisches Feuer zur Seite',
+  'subarms.tubesRow': '{range} px Reichweite · {damage} Schaden pro Harpune',
+  'subarms.explosiveName': 'Spreng-Spitzen',
+  'subarms.explosiveDesc': 'Jede Harpune platzt, und ein Teil des Treffers trifft jeden anderen Gegner in der Nähe. Räumt Schwärme von Drohnen und Fischen ab. Pro Einsatz wird eine Munitionsart geladen.',
+  'subarms.explosiveSub': 'Jede Harpune platzt · Splitterschaden',
+  'subarms.electricName': 'Elektro-Harpunen',
+  'subarms.electricDesc': 'Ein Treffer springt als Stromschlag auf die nächsten Gegner daneben über und lähmt sie kurz: Sie feuern nicht und treiben ab. Bosse nehmen nur den Treffer. Pro Einsatz wird eine Munitionsart geladen.',
+  'subarms.electricSub': 'Springt auf Gegner daneben über · lähmt',
+  'subarms.electricRow': 'Springt auf {n} Gegner über, {share} % · lähmt {stun} s',
+  'subarms.cavName': 'Kavitations-Spitzen',
+  'subarms.cavDesc': 'Superkavitations-Spitzen: Die Harpunen fliegen schneller und schlagen durch Gegner hindurch, auch die dahinter werden getroffen. Pro Einsatz wird eine Munitionsart geladen.',
+  'subarms.cavSub': 'Schneller · schlägt durch Gegner',
+  'subarms.cavRow': 'Durchschlägt {n} weitere · {speed} % schneller',
+  'subarms.torps': 'Torpedos, die selbst jagen',
+  'subarms.decoy': 'Köder: zieht Feuer und Torpedos auf sich',
+  'subarms.net': 'Treibnetz: bremst, was hineinschwimmt',
+};

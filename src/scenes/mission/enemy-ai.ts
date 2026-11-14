@@ -1,6 +1,7 @@
 import type { AudioEngine } from '../../core/audio';
 import { ENEMIES, SEA_KINDS } from '../../data/enemies';
 import { SONIC } from '../../data/heli-arms';
+import { NET } from '../../data/sub-arms';
 import type { Behavior, EnemyKind } from '../../data/types';
 import { LOITER, loiter, STEALTH } from '../../game/adversaries';
 import { clampToChannel } from '../../game/canyon';
@@ -22,7 +23,7 @@ export function spawnEnemy(world: World, kind: EnemyKind, spawnX: number, behavi
     fireT: 0.8 + Math.random() * sc.period, fire2T: 1.5 + Math.random() * Math.max(1, sc.period2),
     period: sc.period / world.ease, period2: sc.period2 / world.ease, bulletSpeedMul: sc.bulletSpeedMul * world.ease, bounty: Math.round(sc.bounty * payScale(world.mission.number)),
     flash: 0, heading: 0, aim: Math.PI, targetX: x, targetY: 160 + Math.random() * 120, dead: false, counted: false,
-    revealT: 0, escortT: 3, burn: { left: 0, t: 0 }, paintT: 0, stun: 0,
+    revealT: 0, escortT: 3, burn: { left: 0, t: 0 }, paintT: 0, stun: 0, netT: 0,
   };
   if (def.layer === 'ground') {
     e.y = y - def.radius;
@@ -143,7 +144,7 @@ export function updateEnemies(world: World, p: Player, dt: number, audio: AudioE
       e.aim = Math.atan2(p.x - e.x, -(p.y - e.y));
     } else {
       moveAir(e, dt, p);
-      const slow = e.stun > 0 ? SONIC.slow : 1; // a stunned plane drifts (doc 99)
+      const slow = e.stun > 0 ? SONIC.slow : e.netT > 0 ? NET.slow : 1; // stunned (doc 99) or netted (doc 101), it drifts
       e.x += e.vx * dt * slow;
       e.y += e.vy * dt * slow;
       // A loitering bomber keeps its nose down while it drifts sideways (doc 44).
@@ -152,6 +153,7 @@ export function updateEnemies(world: World, p: Player, dt: number, audio: AudioE
     e.revealT = Math.max(0, e.revealT - dt);
     e.paintT = Math.max(0, e.paintT - dt);
     e.stun = Math.max(0, e.stun - dt);
+    e.netT = Math.max(0, e.netT - dt);
     fire(e, dt, world, p, audio);
     launchEscort(e, dt, world);
     if (e.y > PF_H + 80 || e.x < -120 || e.x > PF_W + 120 || e.y < -400) e.dead = true;

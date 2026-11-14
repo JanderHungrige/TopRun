@@ -142,7 +142,7 @@ function decide(sc: MissionScene): Bot {
   const missile = w.missiles.some((m) => m.kind === 'enemy' && Math.hypot(m.x - p.x, m.y - p.y) < 160);
   const longbow = p.stats.plane.special === 'longbow';
   return {
-    dir: { x: dx, y: dy }, ground: ground.length > 0 || !!w.boss, air: air.length > 0, flare: missile,
+    dir: { x: dx, y: dy }, ground: ground.length > 0 || !!w.boss, air: air.length > 0 && !w.decoy, flare: missile, // one decoy at a time (doc 101)
     special: p.specialCooldown <= 0 && p.specialActive <= 0 && (!longbow || ground.length > 0),
   };
 }
@@ -217,6 +217,14 @@ export async function flySub(id: string, runs = 3, sub?: PlaneId): Promise<{ kit
   for (let i = 0; i < runs; i++) results.push(await run(id, s));
   const kit = `${s.selectedPlane}, gun ${s.gunLevel}, ${s.ownedSecondaries.filter((x) => SECONDARIES[x].campaign === 4).join('/') || 'no weapons'}, armour ${s.equipment.armor}`;
   return { kit, results };
+}
+
+/** Doc 101: `runs` runs of `id` with the buying pilot's sub kit changed by `tweak` (gear, weapons, mounts). */
+export async function flySubWith(id: string, runs: number, tweak: (s: SaveData) => SaveData): Promise<RunResult[]> {
+  const s = tweak(subKitAt(Number(id.slice(1))).save);
+  const results: RunResult[] = [];
+  for (let i = 0; i < runs; i++) results.push(await run(id, s));
+  return results;
 }
 
 // ---------- Map 5: the spacecraft (docs 54, 74) ----------

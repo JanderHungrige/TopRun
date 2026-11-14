@@ -23,7 +23,7 @@ interface Timing { at?: number; a?: number; h?: number; q?: number /* filter Q, 
 interface Env extends Timing { f: [number, number]; d: number; v: number }
 interface Tone extends Env { w: Wave }
 interface Hiss extends Env { n: BiquadFilterType }
-type Layer = Tone | Hiss;
+export type Layer = Tone | Hiss;
 
 /** Oscillator layer: wave, Hz from → to, decay s, volume, optional timing. */
 const tone = (w: Wave, f0: number, f1: number, d: number, v: number, x: Timing = {}): Tone =>
@@ -185,8 +185,19 @@ export function lowestHz(name: SfxName): number {
   return Math.min(Infinity, ...lows);
 }
 
-/** Where and when one SFX instance renders: its private output gain, start time and pitch multiplier. */
-export interface SfxTarget { ctx: AudioContext; noise: AudioBuffer; out: AudioNode; now: number; pitch: number }
+/** An effect's `max` loudest layers, in their own order (all of them when it has no more; the babble has none). */
+export function loudestLayers(name: SfxName, max: number): readonly Layer[] {
+  const all = layersOf(name);
+  if (all.length <= max) return all;
+  const keep = new Set([...all].sort((x, y) => y.v - x.v).slice(0, max));
+  return all.filter((l) => keep.has(l));
+}
+
+/** Where and when one SFX instance renders: its private output gain, start time and pitch multiplier, and what the
+ *  audio budget allows (doc 01, bug B1): the layers it may play and the radio clipper's oversampling. */
+export interface SfxTarget {
+  ctx: AudioContext; noise: AudioBuffer; out: AudioNode; now: number; pitch: number; layers: number; radio: OverSampleType;
+}
 
 const layerEnd = (l: Layer): number => (l.at ?? 0) + (l.a ?? 0.003) + (l.h ?? 0) + l.d;
 
@@ -223,9 +234,9 @@ function renderLayer(t: SfxTarget, l: Layer): void {
 /** Schedules one instance of `name` into `t.out`; returns the time it has finished sounding. */
 export function renderSfx(name: SfxName, t: SfxTarget): number {
   if (name === 'voice' || name === 'radioVoice') {
-    return syllable(t.ctx, t.noise, t.out, t.now, t.pitch, name === 'radioVoice');
+    return syllable(t.ctx, t.noise, t.out, t.now, t.pitch, name === 'radioVoice' ? t.radio : null);
   }
-  const layers = SFX[name];
+  const layers = loudestLayers(name, t.layers);
   for (const l of layers) renderLayer(t, l);
   return t.now + Math.max(...layers.map(layerEnd));
 }

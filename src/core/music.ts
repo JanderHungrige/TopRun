@@ -1,8 +1,9 @@
+import { budget } from './audio-health';
 import { clamp, whiteNoise } from './audio-nodes';
 import type { AudioEngine } from './audio';
 import { compileSong } from './music-patterns';
 import type { CompiledSong } from './music-patterns';
-import { createRig, impulse } from './music-rig';
+import { createRig, dropReverb, impulse } from './music-rig';
 import type { Rig } from './music-rig';
 import type { Synth } from './music-synth';
 import { VOICES } from './music-voices';
@@ -11,7 +12,6 @@ export type MusicMood = 'menu' | 'mission' | 'boss' | 'victory' | 'defeat';
 
 const LOOKAHEAD = 0.2;
 const FADE = 0.6;
-const REVERB_SECONDS = 2.2;
 
 interface Deck {
   mood: MusicMood; song: CompiledSong; rig: Rig;
@@ -38,6 +38,8 @@ export class Music {
   private fading: { nodes: AudioNode[]; until: number }[] = [];
   private noiseBuf: AudioBuffer | null = null;
   private irBuf: AudioBuffer | null = null;
+  /** The context the deck plays on: a rebuilt one (doc 01, bug B1) starts the mood again. */
+  private ctx: AudioContext | null = null;
 
   constructor(audio: AudioEngine) {
     this.audio = audio;
@@ -63,10 +65,12 @@ export class Music {
     const ctx = this.audio.context;
     const bus = this.audio.musicOut;
     if (!ctx || !bus || !this.audio.ready) return;
+    if (ctx !== this.ctx) this.adopt(ctx);
     if (this.wanted) this.start(ctx, bus, this.wanted);
     this.reap(ctx.currentTime);
     const d = this.deck;
     if (!d || d.done) return;
+    if (d.rig.conv && budget(this.audio.tier).reverb === 0) dropReverb(d.rig); // shedding load: no reverb
     if (d.next < ctx.currentTime) d.next = ctx.currentTime + 0.03; // stalled frame or hidden tab: resync, no burst
     this.noiseBuf ??= whiteNoise(ctx);
     const { out, echo, verb } = d.rig;
@@ -85,8 +89,9 @@ export class Music {
     this.fadeOut(ctx);
     const song = compileSong(mood);
     const stepDur = 15 / song.bpm;
-    this.irBuf ??= impulse(ctx, REVERB_SECONDS);
-    const rig = createRig(ctx, bus, this.irBuf, stepDur * 3, song.loop ? FADE : 0.03); // stingers hit immediately
+    const verb = budget(this.audio.tier).reverb;
+    if (verb > 0) this.irBuf ??= impulse(ctx, verb);
+    const rig = createRig(ctx, bus, verb > 0 ? this.irBuf : null, stepDur * 3, song.loop ? FADE : 0.03); // stingers hit immediately
     this.deck = {
       mood, song, rig, bar: 0, step: 0, next: ctx.currentTime + 0.05, stepDur,
       gate: clamp(stepDur * 1.8, 0.16, 0.3), done: false,
@@ -103,6 +108,17 @@ export class Music {
     g.linearRampToValueAtTime(0, t + FADE);
     this.fading.push({ nodes: d.rig.nodes, until: t + FADE + 0.5 });
     this.deck = null;
+  }
+
+  /** A new context: the old deck's nodes died with the old one; the song it played starts again on this one. */
+  private adopt(ctx: AudioContext): void {
+    const d = this.deck;
+    if (this.ctx && d && !d.done) this.wanted ??= d.mood;
+    this.deck = null;
+    this.fading = [];
+    this.noiseBuf = null;
+    this.irBuf = null;
+    this.ctx = ctx;
   }
 
   private reap(now: number): void {

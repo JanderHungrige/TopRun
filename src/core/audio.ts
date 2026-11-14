@@ -1,3 +1,4 @@
+import { budget, freshHealth, initialTier, stepHealth, type AudioHealth, type AudioTier } from './audio-health';
 import { clamp, filterNode, gainNode, noiseNode, oscNode, panTo, whiteNoise } from './audio-nodes';
 import { busGains, CEILING_RANGE, ceilingCurve, IMPACT_SHELF, LIMITER } from './audio-mix';
 import type { BusGains, Levels } from './audio-mix';
@@ -7,7 +8,6 @@ import type { SfxName, SfxOptions } from './sfx-recipes';
 export type { Levels } from './audio-mix';
 export type { SfxName, SfxOptions } from './sfx-recipes';
 
-const MAX_VOICES = 24;
 /** Bus gain glide time constant: switching a bus on/off never clicks. */
 const GLIDE = 0.04;
 
@@ -16,27 +16,27 @@ function audioCtor(): typeof AudioContext | undefined {
   return g.AudioContext ?? g.webkitAudioContext;
 }
 
-/** `impact` is the low-shelf bus heavy effects play into; it feeds `sfx`. */
-interface Graph { sfx: GainNode; impact: AudioNode; music: GainNode; noise: AudioBuffer }
+/** `impact` is the low-shelf bus heavy effects play into; it feeds `sfx`. `ceiling` is the master's safety shaper. */
+interface Graph { sfx: GainNode; impact: AudioNode; music: GainNode; noise: AudioBuffer; ceiling: WaveShaperNode }
 interface Voice { end: number; out: GainNode }
 type JetParam = 'gain' | 'cutoff' | 'roar' | 'rumble' | 'whine' | 'whineGain';
 type Jet = Record<JetParam, AudioParam>;
 
-/** Master → compressor → safety ceiling → speakers; returns the master input. */
-function masterChain(ctx: BaseAudioContext): GainNode {
+/** Master → compressor → safety ceiling → speakers; returns the master input and the ceiling. */
+function masterChain(ctx: BaseAudioContext, oversample: OverSampleType): { master: GainNode; ceiling: WaveShaperNode } {
   const master = gainNode(ctx, 1);
   const limiter = ctx.createDynamicsCompressor();
   for (const k of Object.keys(LIMITER) as (keyof typeof LIMITER)[]) limiter[k].value = LIMITER[k];
   const ceiling = ctx.createWaveShaper();
   ceiling.curve = ceilingCurve();
-  ceiling.oversample = '2x';
+  ceiling.oversample = oversample;
   master.connect(limiter).connect(gainNode(ctx, 1 / CEILING_RANGE)).connect(ceiling).connect(ctx.destination);
-  return master;
+  return { master, ceiling };
 }
 
 /** Builds the bus graph (exported for offline measurement in dev tools). */
-export function buildGraph(ctx: BaseAudioContext, gains: BusGains): Graph {
-  const master = masterChain(ctx);
+export function buildGraph(ctx: BaseAudioContext, gains: BusGains, oversample: OverSampleType = '2x'): Graph {
+  const { master, ceiling } = masterChain(ctx, oversample);
   const sfx = gainNode(ctx, gains.sfx);
   const music = gainNode(ctx, gains.music);
   const impact = filterNode(ctx, 'lowshelf', IMPACT_SHELF.frequency, 0);
@@ -44,7 +44,7 @@ export function buildGraph(ctx: BaseAudioContext, gains: BusGains): Graph {
   impact.connect(sfx);
   sfx.connect(master);
   music.connect(master);
-  return { sfx, impact, music, noise: whiteNoise(ctx) };
+  return { sfx, impact, music, noise: whiteNoise(ctx), ceiling };
 }
 
 const levelsOf = (l: Levels): Levels => ({ music: l.music, sfx: l.sfx, musicOn: l.musicOn, sfxOn: l.sfxOn });
@@ -57,12 +57,16 @@ export class AudioEngine {
   private voices: Voice[] = [];
   private last = new Map<SfxName, number>();
   private levels: Levels;
+  /** The load watch (doc 01, bug B1): the tier, kept across rebuilt contexts. */
+  private health: AudioHealth;
 
-  constructor(levels: Levels) {
+  constructor(levels: Levels, maxTouchPoints = 0) {
     this.levels = levelsOf(levels);
+    this.health = freshHealth(initialTier(maxTouchPoints), 0, 0);
   }
 
-  unlock(): void {
+  /** Every pointer or key press: starts the sound, resumes a suspended context, builds a stopped one anew. */
+  wake(): void {
     try {
       if (!this.ctx) this.init();
       const ctx = this.ctx;
@@ -72,8 +76,22 @@ export class AudioEngine {
     }
   }
 
+  /** Once a frame: watches the audio clock against the wall clock (s) and sheds load, resumes or rebuilds. */
+  tick(wall: number, visible: boolean): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const before = this.health.tier;
+    const r = stepHealth(this.health, { wall, audio: ctx.currentTime, state: ctx.state, visible });
+    this.health = r.health;
+    if (r.health.tier !== before) this.applyTier();
+    if (r.action === 'resume') ctx.resume().catch(() => undefined);
+    if (r.action === 'rebuild') this.drop();
+  }
+
   get ready(): boolean { return this.ctx !== null && this.ctx.state === 'running'; }
   get context(): AudioContext | null { return this.ctx; }
+  /** How much the sound may cost now (doc 01, bug B1). */
+  get tier(): AudioTier { return this.health.tier; }
   get musicOut(): GainNode | null { return this.graph ? this.graph.music : null; }
   /** Title MUSIC switch: the music scheduler skips notes while it is off. */
   get musicOn(): boolean { return this.levels.musicOn; }
@@ -90,7 +108,8 @@ export class AudioEngine {
     const out = gainNode(ctx, clamp(opts.volume ?? 1, 0, 2));
     out.connect(panTo(ctx, HEAVY.has(name) ? graph.impact : graph.sfx, opts.pan ?? 0));
     const pitch = clamp(opts.pitch ?? 1, 0.1, 4) * (spam !== undefined ? 0.97 + Math.random() * 0.06 : 1);
-    const end = renderSfx(name, { ctx, noise: graph.noise, out, now, pitch });
+    const { layers, radio } = budget(this.health.tier);
+    const end = renderSfx(name, { ctx, noise: graph.noise, out, now, pitch, layers, radio });
     this.voices.push({ end, out });
   }
 
@@ -123,14 +142,32 @@ export class AudioEngine {
     const Ctor = audioCtor();
     if (!Ctor) return;
     const ctx = new Ctor();
-    this.graph = buildGraph(ctx, busGains(this.levels));
+    this.graph = buildGraph(ctx, busGains(this.levels), budget(this.health.tier).ceiling);
     this.ctx = ctx;
+    this.health = freshHealth(this.health.tier, performance.now() / 1000, ctx.currentTime);
+  }
+
+  /** The context stopped for good: let it go; the next pointer or key press builds a new one (Safari needs it). */
+  private drop(): void {
+    const ctx = this.ctx;
+    this.ctx = null;
+    this.graph = null;
+    this.jet = null;
+    this.jetLevel = 0;
+    this.voices = [];
+    this.last.clear();
+    ctx?.close().catch(() => undefined);
+  }
+
+  /** Sheds load live: fewer voices take effect at the next claim; the ceiling stops oversampling. */
+  private applyTier(): void {
+    if (this.graph) this.graph.ceiling.oversample = budget(this.health.tier).ceiling;
   }
 
   /** Drops finished voices; at the cap, spam is refused and anything else steals the oldest voice. */
   private claimVoice(now: number, spam: boolean): boolean {
     this.voices = this.voices.filter((v) => v.end > now);
-    if (this.voices.length < MAX_VOICES) return true;
+    if (this.voices.length < budget(this.health.tier).voices) return true;
     if (spam) return false;
     this.voices.shift()?.out.gain.setTargetAtTime(0, now, 0.01);
     return true;

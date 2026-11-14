@@ -103,7 +103,8 @@ export class Input {
     target.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
-  onFirstGesture(cb: () => void): void {
+  /** Called on every key press and pointer down / up — where a browser lets a page start its sound (doc 01, bug B1). */
+  onGesture(cb: () => void): void {
     this.gestureCallbacks.push(cb);
   }
 
@@ -175,9 +176,7 @@ export class Input {
   }
 
   private gesture(): void {
-    const cbs = this.gestureCallbacks;
-    this.gestureCallbacks = [];
-    for (const cb of cbs) cb();
+    for (const cb of this.gestureCallbacks) cb();
   }
 
   private onKey(e: KeyboardEvent, down: boolean): void {
@@ -225,5 +224,6 @@ export class Input {
   private onPointerUp(e: PointerEvent): void {
     this.tracks.delete(e.pointerId);
     if (this.tracks.size === 0) this.pointer.down = false;
+    this.gesture(); // Safari lets a touch's end resume the sound
   }
 }

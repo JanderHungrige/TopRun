@@ -31,6 +31,9 @@ source_files:
   - src/core/music-voices.ts
   - src/core/music-rig.ts
   - src/core/sfx-recipes.ts
+  - src/core/audio-health.ts
+  - src/core/input.ts
+  - src/main.ts
   - src/game/save.ts
   - src/render/logo.ts
   - src/game/state.ts
@@ -48,6 +51,7 @@ test_files:
   - tests/unit/save.test.ts
   - tests/unit/joystick.test.ts
   - tests/unit/audio-mix.test.ts
+  - tests/unit/audio-health.test.ts
 data_flow: greenfield
 last_synced: 2026-10-25
 status: complete
@@ -62,6 +66,7 @@ integration_contracts:
     when: "all scene transitions go through the manager so fades and input resets happen"
 satisfies_contracts: []
 known_issues:
+  - "B1 (old iPads going silent) is verified on desktop by simulating Safari's suspend and close and the lite switch, and by offline render costs — not yet on a real old iPad"
   - "Joystick support verified with unit tests and a simulated controller (navigator.getGamepads stub) only; not yet tried with a physical flight stick / HOTAS"
   - "Phones held upright letterbox the 16:9 frame heavily; landscape is recommended (no portrait layout yet)"
   - "Synthesized SFX/music mix has not been tuned by ear yet — the 2026-10-25 bass pass was measured offline (OfflineAudioContext band energies and peaks), not listened to on real speakers"
@@ -256,6 +261,28 @@ None — the game is fully client-side. (Online leaderboard/cloud save would be 
     instead of hard-clipping. Worst-case check (3 s: gun stream, 14 small + 4 large + 2 huge explosions,
     40 hits, 2 missiles, player hit, special, loud music bed, full volume): compressor alone peaks at 1.03
     (clips); with the ceiling the output peaks at 0.98 and spends ~10 ms above 0.8.
+  - **Health and load (bug B1, 2026-11-14):** older iPads could not render the full graph when a lot was
+    happening — the sound stuttered, then Safari stopped the context and the game stayed silent, because the
+    audio was only unlocked on the very first gesture. Now (`src/core/audio-health.ts`, pure):
+    - **Tiers** set the cost: `full` (desktop: 24 voices, ceiling 2× oversampled, radio clipper 4×, reverb
+      2.2 s), `touch` (any device with more than one touch point, from the start: 16 voices, radio clipper 2×,
+      reverb 1.2 s) and `lite` (8 voices, no oversampling, no music reverb, each effect plays only its
+      two loudest layers). `initialTier` picks full or touch; `lite` is entered at run time and kept for the
+      session.
+    - **Watchdog**: every frame `AudioEngine.tick` compares the audio clock with the wall clock while the page is
+      visible (`stepHealth`, 0.5 s windows): audio advancing at < 92 % of real time for 1 s in all → `lite`
+      (the render thread cannot keep up: that is the stutter); audio clock standing (< 5 %) for 1.5 s while
+      the context says running, or a `closed` context → rebuild; `suspended` / `interrupted` → resume. A hidden
+      page resets the watch.
+    - **Recovery**: every pointer or key press now calls `audio.wake()` — it resumes a suspended context or
+      builds a new one (Safari needs the gesture); the music notices the new context and starts its mood again.
+    - **Measured** (offline render on the dev Mac, 4 s of a heavy fight — 160 effect triggers every 25 ms across
+      large/huge/small explosions, missiles, hits, guns, radio voice, enemy shots — plus the music reverb,
+      within each tier's voice cap): full 658 ms, touch 480 ms (−27 %), lite 150 ms (−77 %). An old iPad's CPU
+      is several times slower, so the full graph ran past real time there (the stutter); lite stays well under.
+    - Verified in the browser: a suspended context resumes on the next watch frame; a closed one is dropped and
+      the next click builds a new one, the menu music playing on it; switching to lite mid-song drops the
+      reverb live, the ceiling stops oversampling, 40 rapid effects keep at most 8 voices, no errors.
 - **Save**: every read from localStorage passes through `parseSave(raw: unknown)`, which never
   trusts the JSON shape. Corrupt / unparseable data → defaults + console warning, never a crash.
   `persistSave` swallows quota/privacy-mode errors (game keeps running with in-memory state).
@@ -296,4 +323,6 @@ calls, no cookies, no third-party scripts.
 
 ## Bugs
 
-(none yet — populated by /mdd bug when issues are reported)
+| ID | Description | Status | Fixed In | Reported | Fixed |
+|----|-------------|--------|----------|----------|-------|
+| B1 | Older iPads (Safari): the sound stutters when a lot is happening (many enemies, bosses, explosions, sustained fire) and then stops completely; the game keeps running silent until a reload (owner: "Auf älteren tablets stottert der sound und crashed dann komplett") | Completed | src/core/audio-health.ts:67 (watch), src/core/audio.ts (tick/wake/drop) | 2026-11-14 | 2026-11-14 |

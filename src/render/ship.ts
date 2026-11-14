@@ -39,7 +39,7 @@ const cy = (m: Placed, s: number): number => (m.row - GRID.core.row) * s;
 function paint(look: Look, d: ShipDraw): Paint {
   const solid = d.solid ?? null;
   return {
-    hull: solid ?? look.base, shade: solid ?? look.under, dark: solid ?? DARK, accent: solid ?? ACCENT,
+    hull: solid ?? look.base, shade: solid ?? look.under, dark: solid ?? DARK, accent: solid ?? look.trim ?? ACCENT, // trim: a paint job's (doc 100)
     glass: solid ?? GLASS, line: solid ?? look.ink, solid: solid !== null, t: d.t ?? 0, throttle: d.throttle ?? 0.6,
   };
 }

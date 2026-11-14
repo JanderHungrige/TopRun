@@ -1,5 +1,6 @@
 import type { Look } from '../livery-art';
-import { pairs, polys, reversed, stroke, sym, type Pts } from '../planes/geom';
+import { bounds, pairs, polys, reversed, stroke, sym, type Pts } from '../planes/geom';
+import { paintFleet, shapeKey } from '../fleet-paint';
 import { wheel } from '../planes/parts';
 import type { SideOpts, TopOpts } from '../planes/surface';
 import { rotorBar, rotorDisc, rotorEdge } from './rotor';
@@ -50,21 +51,6 @@ function paths(h: HeliTop): TopPaths {
 
 export const heliTopSilhouette = (h: HeliTop): Path2D => paths(h).silhouette;
 
-function camo(ctx: CanvasRenderingContext2D, look: Look, clip: Path2D, h: HeliTop): void {
-  if (!look.camo) return;
-  ctx.save();
-  ctx.clip(clip);
-  ctx.fillStyle = look.camo.colors[0] ?? look.base;
-  const y0 = h.body[1] ?? -20;
-  const y1 = h.body[h.body.length - 1] ?? 20;
-  for (let y = y0, k = look.camo.seed; y < y1; y += 5, k += 7) {
-    ctx.beginPath();
-    ctx.ellipse(((k * 13) % 9) - 4.5, y, 2.6 + (k % 3), 2 + (k % 2), 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
 export function drawHeliTop(ctx: CanvasRenderingContext2D, look: Look, o: TopOpts, h: HeliTop): void {
   const g = paths(h);
   const body = g.body;
@@ -74,7 +60,7 @@ export function drawHeliTop(ctx: CanvasRenderingContext2D, look: Look, o: TopOpt
   h.stores(ctx);
   ctx.fillStyle = look.base;
   ctx.fill(body);
-  camo(ctx, look, body, h);
+  paintFleet(ctx, look, body, bounds(sym(h.body)), shapeKey(h, 'top'), 'top'); // its paint job (doc 100)
   ctx.fillStyle = SHADE;
   ctx.fill(g.shade);
   if (h.nacelle) {
@@ -163,6 +149,7 @@ export function drawHeliSide(ctx: CanvasRenderingContext2D, look: Look, o: SideO
   ctx.fillStyle = look.base;
   ctx.fill(body);
   ctx.fill(polys(P(s.fin)));
+  paintFleet(ctx, look, body, bounds(P(s.top), P(s.bottom)), shapeKey(s, 'side'), 'side');
   ctx.fillStyle = 'rgba(0,0,0,0.16)';
   ctx.fill(polys([...P(s.bottom.map((v, i) => (i % 2 === 1 ? v + 0.35 : v))), ...reversed(P(s.bottom))]));
   ctx.fillStyle = look.base;

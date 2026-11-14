@@ -81,7 +81,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, v: YardView): void {
   ctx.save();
   const core = cellRect(GRID.core.col, GRID.core.row);
   ctx.translate(core.x + CELL / 2, core.y + CELL / 2);
-  drawShip(ctx, v.save.ship.modules, liveryLook('starship', 'standard'), { cell: CELL, t: v.time, throttle: 0.5 });
+  drawShip(ctx, v.save.ship.modules, liveryLook('starship', v.save.livery.starship), { cell: CELL, t: v.time, throttle: 0.5 });
   ctx.restore();
   if (v.mode === 'grid') {
     const c = cellRect(v.cursor.col, v.cursor.row);
@@ -119,7 +119,7 @@ const priceOf = (v: YardView, row: YardRow): number | null =>
   (row === 'power' || row === 'core' ? laserPrice(v.save) : modulePrice(v.save, row));
 
 function drawList(ctx: CanvasRenderingContext2D, v: YardView, rows: readonly YardRow[]): void {
-  const look = liveryLook('starship', 'standard');
+  const look = liveryLook('starship', v.save.livery.starship);
   rows.forEach((row, i) => {
     const r = rowRect(i);
     const on = i === v.rowIndex;

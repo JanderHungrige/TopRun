@@ -91,7 +91,7 @@ So the hangar, the shop and the loadout code run unchanged on either kit; only t
 
 ## The HELICOPTERS hangar (map 3)
 
-Opened from map 3 (LOADOUT), the hangar shows three tabs: **HELICOPTERS · WEAPONS · EQUIPMENT** (no PAINT yet).
+Opened from map 3 (LOADOUT), the hangar shows the tabs **HELICOPTERS · WEAPONS · EQUIPMENT · PAINT** (PAINT since doc 100).
 
 - **HELICOPTERS:** the helicopters on sale (map 3 open); the Apache owned from the start.
 - **WEAPONS:**

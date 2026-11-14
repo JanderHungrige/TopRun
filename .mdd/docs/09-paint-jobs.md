@@ -163,6 +163,12 @@ computes `newlyUnlocked` from the save before and after `applyResult`.
 The livery field comes from the untrusted profile store: parsed against the id list and the unlock
 rules (see Business Rules). No other input.
 
+## The fleet (doc 100)
+
+Maps 3–5 bring 30 more paint jobs for the helicopters, the subs and the spacecraft — a region camo and a 3★ reward per
+theater, worn only by that world's craft (`liveryKit`). A map's first region now opens with its map (`regionOpen` used to
+count maps 3–6's first theaters as open from the start).
+
 ## Known Issues
 
 (none yet)

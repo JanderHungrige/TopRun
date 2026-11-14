@@ -7,12 +7,14 @@ import { t } from '../i18n/i18n';
 import { PictureView } from '../ui/picture-view';
 import { hit } from '../ui/widgets';
 import { markName } from './hangar-items';
+import { PAINT_BTN, ShipPaint } from './shipyard-paint';
 import { BTN, cellAt, drawShipyard, drawYardBackdrop, familyOf, ROWS, rowRect, type YardView } from './shipyard-view';
 
 // The shipyard (doc 55): map 4's hangar. Buy modules into stock and laser power; place modules on the ship's grid.
 // List focus: ↑/↓ pick, ENTER buys, U buys the module's next mark (doc 57), E (or →) goes to the grid. Grid focus:
 // arrows move the cursor, ENTER places the picked module, X / Delete takes the one under the cursor off, E / ESC back
-// to the list. Tap a row, BUY, UPGRADE, or a cell. V or the eye shows the picture alone (doc 76).
+// to the list. Tap a row, BUY, UPGRADE, or a cell. V or the eye shows the picture alone (doc 76); P or PAINT opens the
+// ship's paint jobs (doc 100).
 
 export class ShipyardScene implements Scene {
   private time = 0;
@@ -22,9 +24,12 @@ export class ShipyardScene implements Scene {
   private note = '';
   private noteT = 0;
   private readonly picture: PictureView;
+  /** The ship's paint jobs (doc 100). */
+  private readonly paint: ShipPaint;
 
   constructor(private readonly game: GameContext) {
     this.picture = new PictureView(game.audio, BTN.eye, 'panel');
+    this.paint = new ShipPaint(game);
   }
 
   enter(): void {
@@ -40,7 +45,7 @@ export class ShipyardScene implements Scene {
     this.time += dt;
     this.noteT = Math.max(0, this.noteT - dt);
     const input = this.game.input;
-    if (this.picture.update(dt, input)) return;
+    if (this.picture.update(dt, input) || this.paint.update(input)) return;
     for (const tap of input.taps) this.tap(tap);
     if (input.pressed('base')) return this.leave('base');
     if (this.mode === 'grid') return this.updateGrid();
@@ -68,6 +73,7 @@ export class ShipyardScene implements Scene {
 
   private tap(p: { x: number; y: number }): void {
     if (hit(p, BTN.map)) return this.leave('map');
+    if (hit(p, PAINT_BTN)) return this.paint.toggle();
     if (hit(p, BTN.base)) return this.leave('base');
     if (hit(p, BTN.buy)) return this.buy();
     if (hit(p, BTN.mark)) return this.upgrade();
@@ -150,6 +156,7 @@ export class ShipyardScene implements Scene {
       note: this.noteT > 0 ? this.note : '', time: this.time,
     };
     drawShipyard(ctx, view);
+    this.paint.render(ctx, this.time);
     this.picture.draw(ctx, touch);
   }
 }

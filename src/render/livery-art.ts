@@ -2,6 +2,8 @@ import type { PlaneId } from '../data/types';
 import type { LiveryId } from '../data/liveries';
 import { drawCamo, noseBand, rayZones, showStripes, tigerZones, tipBands, trimLines } from './planes/livery-patterns';
 import type { Surface } from './planes/surface';
+import { FLEET_LOOKS } from './fleet-looks';
+import { look, tail, type Look } from './look';
 
 /**
  * How each paint job looks (doc 09). A Look is shared by all three jets; the airframe supplies the
@@ -9,52 +11,7 @@ import type { Surface } from './planes/surface';
  * livery onto it. No insignia, text or logos — generic scheme types only.
  */
 
-export type CamoKind = 'blobs' | 'splinter';
-
-export interface Camo {
-  kind: CamoKind;
-  colors: readonly string[];
-  cover: readonly number[]; // share of cells that get each colour
-  size: number; // multiplier on the surface's cell size
-  seed: number;
-}
-
-export type TailKind = 'none' | 'solid' | 'band' | 'chevrons' | 'skull' | 'rays' | 'tiger' | 'gold' | 'sweep';
-
-export interface TailArt {
-  kind: TailKind;
-  color: string; // fin base
-  mark: string; // chevrons / bones / rays / stripes / band
-  mark2: string;
-}
-
-export interface Look {
-  base: string; // upper surfaces
-  under: string; // lower surfaces (side view)
-  twoTone: string | null; // darker area of a two-tone factory scheme
-  radome: string | null;
-  camo: Camo | null;
-  tail: TailArt;
-  band: { kind: 'solid' | 'diagonal'; colors: readonly [string, string] } | null;
-  tips: readonly string[]; // wingtip bands, outermost first
-  tiger: readonly [string, string] | null; // orange, black over nose / wingtips / tails
-  rays: readonly [string, string] | null; // sunburst rays on the stabilators (top view)
-  stabs: string | null; // stabilator colour (top view) for liveries with coloured tails
-  stripes: readonly string[] | null; // show stripes, widest first
-  trim: string | null; // pinstripes
-  ink: string; // outline
-  panel: string; // panel lines
-  gloss: number; // highlight strength
-  swatch: readonly [string, string, string];
-}
-
-const NO_TAIL: TailArt = { kind: 'none', color: '', mark: '', mark2: '' };
-const tail = (kind: TailKind, color: string, mark = '', mark2 = ''): TailArt => ({ kind, color, mark, mark2 });
-
-const look = (base: string, swatch: readonly [string, string, string], extra: Partial<Look>): Look => ({
-  base, under: base, twoTone: null, radome: null, camo: null, tail: NO_TAIL, band: null, tips: [], tiger: null,
-  rays: null, stabs: null, stripes: null, trim: null, ink: 'rgba(18,24,32,0.55)', panel: 'rgba(18,24,32,0.26)', gloss: 1, swatch, ...extra,
-});
+export type { Camo, CamoKind, Look, TailArt, TailKind } from './look';
 
 const STANDARD_SWATCH = ['#b3bdc6', '#8a96a2', '#262a31'] as const;
 
@@ -181,6 +138,7 @@ const LOOKS: Readonly<Record<Exclude<LiveryId, 'standard'>, Look>> = {
     tail: tail('gold', '#d6ad45', '#8a6a1f'), stabs: '#d6ad45', trim: '#d6ad45', ink: 'rgba(120,95,35,0.8)', panel: 'rgba(214,173,69,0.14)', gloss: 1.7,
   }),
   ...MAP2_LOOKS,
+  ...FLEET_LOOKS,
 };
 
 export function liveryLook(plane: PlaneId, livery: LiveryId): Look {

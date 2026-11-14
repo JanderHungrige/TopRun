@@ -234,6 +234,7 @@ export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CE
 
 /** Duke's lines in a world's welcome film (doc 97), one per shot. */
 const INTRO_LINES: Readonly<Partial<Record<CampaignId, readonly LineKey[]>>> = {
+  2: ['duke.intro2a', 'duke.intro2b', 'duke.intro2c', 'duke.intro2d'],
   3: ['duke.intro3a', 'duke.intro3b', 'duke.intro3c', 'duke.intro3d'],
   4: ['duke.intro4a', 'duke.intro4b', 'duke.intro4c', 'duke.intro4d'],
   5: ['duke.intro5a', 'duke.intro5b', 'duke.intro5c', 'duke.intro5d'],

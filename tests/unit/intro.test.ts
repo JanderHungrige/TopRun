@@ -13,11 +13,11 @@ import { LINES_EN, type LineKey } from '../../src/i18n/lines-en';
 const SHOTS = ['a', 'b', 'c', 'd'] as const;
 
 describe('World intros (doc 97)', () => {
-  it('welcomes the pilot to worlds 3 to 6, once each', () => {
-    expect(INTRO_WORLDS).toEqual([3, 4, 5, 6]);
+  it('welcomes the pilot to worlds 2 to 6, once each', () => {
+    expect(INTRO_WORLDS).toEqual([2, 3, 4, 5, 6]);
     const save = defaultSave();
     expect(save.intros).toEqual([]);
-    expect(([1, 2, 3, 4, 5, 6] as CampaignId[]).map((w) => introDue(save, w))).toEqual([false, false, true, true, true, true]);
+    expect(([1, 2, 3, 4, 5, 6] as CampaignId[]).map((w) => introDue(save, w))).toEqual([false, true, true, true, true, true]);
     const seen = markIntroSeen(save, 6);
     expect(introDue(seen, 6)).toBe(false);
     expect(introDue(seen, 5)).toBe(true);
@@ -27,7 +27,7 @@ describe('World intros (doc 97)', () => {
 
   it('keeps only the welcome worlds from an untrusted save, each once', () => {
     const raw = JSON.parse(JSON.stringify(defaultSave())) as Record<string, unknown>;
-    expect(parseSave({ ...raw, intros: [6, 6, 2, 'x', 9, 3, null] })?.intros).toEqual([6, 3]);
+    expect(parseSave({ ...raw, intros: [6, 6, 1, 'x', 9, 3, null, 2] })?.intros).toEqual([6, 3, 2]);
     expect(parseSave({ ...raw, intros: 'all' })?.intros).toEqual([]);
     delete raw.intros;
     expect(parseSave(raw)?.intros).toEqual([]);
@@ -74,7 +74,7 @@ describe('World intros (doc 97)', () => {
   it('has four key frames per world and Duke in each world\'s outfit', () => {
     for (const w of INTRO_WORLDS) for (const s of SHOTS) expect(existsSync(`src/assets/intros/i${w}${s}.png`), `i${w}${s}`).toBe(true);
     expect(crewLook(3)).toBe('mountain');
-    for (const w of INTRO_WORLDS) {
+    for (const w of INTRO_WORLDS.filter((x) => crewLook(x) !== 'carrier')) { // the second front: Duke in his own flight gear
       const key = portraitKey('wingman', crewLook(w));
       expect(key).toBe(`wingman-${crewLook(w)}`);
       for (const f of ['', '-talk', '-half', '-blink']) expect(existsSync(`src/assets/portraits/${key}${f}.png`), key + f).toBe(true);

@@ -1,6 +1,10 @@
 // Duke's welcome to each new world (doc 97): one line per shot of the film, a to d — the welcome, the world, the enemies,
 // the send-off. {callsign} in the first; German in lines-intro-de.ts.
 export const INTRO_LINES_EN = {
+  'duke.intro2a': ["Welcome to the second front, {callsign}! Duke here. Same carrier, colder water, and a meaner enemy."],
+  'duke.intro2b': ['We get new birds for this one: the A-10, the F-35 and the Tornado. Each has a trick of its own. Learn them.'],
+  'duke.intro2c': ['North Sea rigs, the roof of the world, a green hell of a jungle and the desert at night. They guard every one with a monster.'],
+  'duke.intro2d': ["And somewhere in the storm waits their flying fortress, the Colossus. Let's go bring it down. Wheels up!"],
   'duke.intro3a': ["Welcome to low level, {callsign}! Duke here. Up north we fly under their radar, and that means helicopters."],
   'duke.intro3b': ["Fjords, mountain passes, a river delta, red mesas and an island buried in ash. Every one hides a forward base."],
   'duke.intro3c': ["They've tucked Hind gunships, Shilkas and SAM sites into every valley. Hug the ground and they won't see you coming."],

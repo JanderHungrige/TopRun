@@ -4,8 +4,8 @@ import type { SaveData } from './save';
 // A new world's welcome (doc 97): Duke's short film of four key frames, each panned slowly with his line in the speech
 // box, then the WELCOME TO card. It plays once when the map first shows the world, and again from the TV. Pure.
 
-/** The worlds that open with a welcome: every world after the first two. */
-export const INTRO_WORLDS: readonly CampaignId[] = Object.freeze([3, 4, 5, 6] as const);
+/** The worlds that open with a welcome: every world after the first (the second front since 2026-11-13). */
+export const INTRO_WORLDS: readonly CampaignId[] = Object.freeze([2, 3, 4, 5, 6] as const);
 
 export const INTRO = Object.freeze({
   /** Seconds per shot, the cross-fade between shots, when Duke's line comes up in a shot, the card's start, the end. */
@@ -69,6 +69,7 @@ type Pan = readonly [number, number, number, number];
 export const WINDOW = Object.freeze({ w: 256, h: 144, scale: 5 });
 
 const PANS: Readonly<Record<number, readonly Pan[]>> = {
+  2: [[56, 4, 10, 30], [0, 24, 64, 20], [0, 10, 60, 20], [32, 36, 32, 4]],
   3: [[0, 30, 56, 14], [60, 8, 10, 20], [32, 0, 32, 36], [0, 18, 64, 18]],
   4: [[20, 0, 40, 36], [0, 20, 64, 12], [64, 6, 14, 28], [32, 0, 32, 36]],
   5: [[8, 8, 56, 28], [64, 18, 0, 18], [0, 36, 60, 4], [10, 30, 54, 6]],

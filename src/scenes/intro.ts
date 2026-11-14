@@ -16,7 +16,7 @@ import { pilotContext, SpeechBox } from '../ui/speech';
 // next shot, ESC ends it. When it ends the world counts as welcomed.
 
 const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6' };
-const PLACE: Readonly<Partial<Record<CampaignId, UiKey>>> = { 3: 'intro.place3', 4: 'intro.place4', 5: 'intro.place5', 6: 'intro.place6' };
+const PLACE: Readonly<Partial<Record<CampaignId, UiKey>>> = { 2: 'intro.place2', 3: 'intro.place3', 4: 'intro.place4', 5: 'intro.place5', 6: 'intro.place6' };
 
 export class IntroScene implements Scene {
   private time = 0;

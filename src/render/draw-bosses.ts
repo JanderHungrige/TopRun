@@ -1,15 +1,13 @@
 import { BOSSES, type BossDef, type BossPartDef } from '../data/bosses';
-import { bossPal as pal, HULLS_LATER, LIGHTS_LATER, ORGANIC, organPart, PALS_LATER } from './bosses-later';
+import { bossPal as pal, CUSTOM_MOUNTS, HULLS_LATER, LIGHTS_LATER, ORGANIC, organPart, PALS_LATER } from './bosses-later';
 import type { BossId } from '../data/types';
 import { exhaust, fire, hash, roundel, scorch, smoke } from './draw-enemies';
 import { gunTurret, HL, missileRack, monoPal, rect, ring, SH, slab, twinGun, wake, type Pal } from './draw-ground-units';
 import { circle, ellipse, fillPair, fillPoly, fillSym } from './shapes';
 
 /** Boss art in the same local coordinates as data/bosses.ts (nose / bow points down, +y). */
-
 export interface BossPartView { id: string; alive: boolean; aim: number /* heading convention: 0 = up, clockwise */; flash: boolean }
 export interface BossDrawState { t: number; flash: boolean; parts: readonly BossPartView[]; damage: number; enraged: boolean }
-
 type Ctx = CanvasRenderingContext2D;
 type HullFn = (ctx: Ctx, p: Pal, s: BossDrawState) => void;
 
@@ -55,6 +53,8 @@ function ciws(ctx: Ctx, r: number, a: number, p: Pal): void {
 }
 
 function mount(ctx: Ctx, id: BossId, d: BossPartDef, a: number, p: Pal): void {
+  const custom = CUSTOM_MOUNTS[id];
+  if (custom) return custom(ctx, d, a, p); // the detailed bosses' own mounts (docs 116–120)
   const r = d.r;
   if (ORGANIC.has(id)) return organPart(ctx, r, d.weapon, p); // the sea monsters' organs (doc 70)
   if (BOSSES[id].layer === 'air') {

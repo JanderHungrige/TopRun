@@ -1,16 +1,18 @@
 import type { BossDrawState } from './draw-bosses';
-import { fire, smoke } from './enemies/fx';
-import { HL, rect, ring, SH, slab, type Pal } from './draw-ground-units';
+import type { Pal } from './draw-ground-units';
 import { bossPal } from './bosses-2';
-import { circle, ellipse, fillPoly, fillSym } from './shapes';
-import { TAU } from '../core/math';
+import { drawCached, variantOf, type Box } from './detail/sprite';
+import { shipMono, type ShipPal } from './enemies/space-pal';
 
-// Hulls of map 4's bosses (docs 56, 58) in data/bosses-4.ts's local coordinates; turrets, launchers, damage and warning
-// lights come from the shared boss renderer (draw-bosses.ts).
+// Space's bosses in detail (docs 56, 58, 119; the file keeps the world's old map number), in data/bosses-4.ts's local
+// coordinates, fronts down (+y): their palettes, warning lights, the boxes of their cached hulls and the helpers the
+// hulls share — the static hull is painted once per palette variant through the sprite cache (the flash is its
+// one-colour version), what moves or glows is drawn live. The hulls: HALO and QUARRY in bosses-4a.ts, CRATER and
+// TRIDENT in bosses-4b.ts (with the hull table), the ARK in bosses-4c.ts; the guns are the mounts of boss-mounts-4.ts.
 
 type Ctx = CanvasRenderingContext2D;
-type HullFn = (ctx: Ctx, p: Pal, s: BossDrawState) => void;
-type Map4Boss = 'halo' | 'quarry' | 'crater' | 'trident' | 'ark';
+export type HullFn = (ctx: Ctx, p: Pal, s: BossDrawState) => void;
+export type Map4Boss = 'halo' | 'quarry' | 'crater' | 'trident' | 'ark';
 
 export const PALS_4: Readonly<Record<Map4Boss, Pal>> = {
   halo: bossPal('#8d96a8', '#4c5466', '#c3cad8', '#5b7cff', '#9fd0ff'),
@@ -28,126 +30,38 @@ export const LIGHTS_4: Readonly<Record<Map4Boss, readonly number[]>> = {
   ark: [-160, 10, 160, 10, 0, 170, 0, -140, -90, 100, 90, 100],
 };
 
-// ---------- HALO: a ring battle station with four pods on spokes and a glowing hub ----------
-const halo: HullFn = (ctx, p, s) => {
-  ctx.save();
-  ctx.lineWidth = 22;
-  ctx.strokeStyle = p.dark;
-  ctx.beginPath();
-  ctx.arc(0, 0, 105, 0, TAU);
-  ctx.stroke();
-  ctx.lineWidth = 16;
-  ctx.strokeStyle = p.body;
-  ctx.stroke();
-  ctx.restore();
-  for (let k = 0; k < 4; k++) {
-    ctx.save();
-    ctx.rotate((k * TAU) / 4 + Math.PI / 4);
-    rect(ctx, -5, 30, 10, 70, p.dark);
-    ctx.restore();
-  }
-  for (const [x, y] of [[0, 105], [0, -105], [-105, 0], [105, 0]] as const) ring(ctx, x, y, 26, p.body, p.line);
-  ring(ctx, 0, 0, 44, p.body, p.line);
-  if (p.mono) return;
-  ctx.save();
-  ctx.rotate(s.t * 0.25);
-  for (let k = 0; k < 12; k++) {
-    const a = (k * TAU) / 12;
-    rect(ctx, Math.cos(a) * 105 - 2, Math.sin(a) * 105 - 2, 4, 4, k % 3 === 0 ? p.trim : HL);
-  }
-  ctx.restore();
-  circle(ctx, 0, 0, 30, p.light);
-  circle(ctx, 0, 0, 16 + Math.sin(s.t * 3) * 2, p.glass);
-  circle(ctx, 0, 0, 8, '#ffffff');
-  fillPoly(ctx, [-40, -6, 40, -6, 40, 6, -40, 6], SH);
+/** Half extents of each cached hull: they cover every hitbox and part (tested). */
+export const BOSS_BOX_4: Readonly<Record<Map4Boss, Box>> = {
+  halo: [140, 140], quarry: [116, 130], crater: [154, 154], trident: [104, 168], ark: [170, 178],
 };
 
-// ---------- QUARRY: a hollowed asteroid with gun pits, a mining drill at the front, glowing seams ----------
-const quarry: HullFn = (ctx, p, s) => {
-  fillPoly(ctx, [0, -112, 52, -100, 98, -62, 112, -4, 96, 52, 70, 86, 28, 118, -30, 116, -74, 90, -104, 40, -110, -18, -84, -74, -40, -106], p.body, p.line);
-  if (!p.mono) fillPoly(ctx, [-20, -96, 40, -90, 80, -52, 30, -60, -10, -70], p.light);
-  for (const [x, y] of [[-70, -40], [70, -40], [-60, 50], [60, 50]] as const) ring(ctx, x, y, 24, p.dark, p.line);
-  fillSym(ctx, [0, 126, 16, 104, 24, 78, 0, 72], p.dark, p.line);
-  if (p.mono) return;
-  for (const [x, y, r] of [[-30, -22, 14], [34, 6, 10], [-8, 40, 8], [22, -52, 7]] as const) {
-    circle(ctx, x, y, r, SH);
-    circle(ctx, x + 1.5, y + 1.5, r * 0.6, p.dark);
-  }
-  ctx.strokeStyle = `rgba(255,170,90,${(0.55 + Math.sin(s.t * 2) * 0.2).toFixed(2)})`;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(-52, -8);
-  ctx.lineTo(-12, 12);
-  ctx.lineTo(30, -4);
-  ctx.lineTo(62, 22);
-  ctx.stroke();
-  circle(ctx, 0, 0, 20, '#20242a');
-  circle(ctx, 0, 0, 9 + Math.sin(s.t * 3), p.glass);
-  if (p.live) smoke(ctx, -42, 72, 4, s.t, 2);
+const ENGINE: Readonly<Record<Map4Boss, string>> = {
+  halo: '#78beff', quarry: '#ffb070', crater: '#78beff', trident: '#ff7890', ark: '#ff8caa',
 };
 
-// ---------- CRATER: a domed citadel in a crater, four rim turrets and a missile silo ----------
-const crater: HullFn = (ctx, p, s) => {
-  if (!p.mono) {
-    circle(ctx, 0, 0, 150, 'rgba(0,0,0,0.22)');
-    ctx.strokeStyle = p.light;
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(0, 0, 146, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  slab(ctx, -110, -76, 220, 152, 18, p.dark, p.line);
-  for (const [x, y] of [[-95, -60], [95, -60], [-95, 60], [95, 60]] as const) ring(ctx, x, y, 26, p.body, p.line);
-  slab(ctx, -14, -126, 28, 44, 6, p.body, p.line);
-  ring(ctx, 0, 0, 62, p.body, p.line);
-  if (p.mono) return;
-  circle(ctx, 0, 0, 50, p.light);
-  for (let k = -2; k <= 2; k++) rect(ctx, k * 18 - 1, -48, 2, 96, SH);
-  circle(ctx, -14, -16, 14, 'rgba(255,255,255,0.35)');
-  circle(ctx, 0, 0, 12 + Math.sin(s.t * 4) * 1.5, p.glass);
-  rect(ctx, -60, 74, 120, 4, p.trim);
-  if (p.live) fire(ctx, 70, 10, 4, s.t, 3);
-};
+/** The hulls' own palettes: each boss's colours as a space ship's (plating, accent, glass, engine light). */
+export const SHIP_4: Readonly<Record<Map4Boss, ShipPal>> = Object.fromEntries(Object.entries(PALS_4).map(([id, p]) => [id, {
+  mono: false, hull: p.body, dark: p.dark, light: p.light, trim: p.trim, metal: '#5e6474', glass: p.glass,
+  engine: ENGINE[id as Map4Boss], cell: '#24407a', ink: 'rgba(8,10,16,0.88)',
+}])) as Record<Map4Boss, ShipPal>;
 
-// ---------- TRIDENT: a long central hull flanked by two shorter ones, joined by beams ----------
-const trident: HullFn = (ctx, p, s) => {
-  for (const y of [-40, 50]) rect(ctx, -72, y - 6, 144, 12, p.dark);
-  for (const sx of [-1, 1]) {
-    ctx.save();
-    ctx.translate(sx * 72, 20);
-    fillSym(ctx, [0, 96, 16, 70, 22, 10, 20, -60, 12, -84, 0, -88], p.body, p.line);
-    if (!p.mono) for (let y = -60; y < 60; y += 20) rect(ctx, -16, y, 32, 2, SH);
-    ctx.restore();
-  }
-  fillSym(ctx, [0, 160, 22, 128, 36, 60, 40, -80, 32, -132, 0, -142], p.body, p.line);
-  if (p.mono) return;
-  fillSym(ctx, [0, 150, 16, 124, 26, 64, 0, 60], p.light);
-  for (let y = -110; y < 50; y += 22) rect(ctx, -34, y, 68, 2, SH);
-  slab(ctx, -16, -20, 32, 40, 6, p.dark, p.line);
-  rect(ctx, -12, -8, 24, 5, p.glass);
-  for (const sx of [-1, 0, 1]) ellipse(ctx, sx * (sx === 0 ? 0 : 72), sx === 0 ? -146 : -72, 6, 8 + Math.sin(s.t * 30 + sx) * 2, 'rgba(255,120,140,0.6)');
-  rect(ctx, -2, 60, 4, 70, p.trim);
-  rect(ctx, -30, 0, 60, 2, HL);
-};
+/** The live palette for moving parts: the boss's own, or one colour while it flashes. */
+export const liveOf = (id: Map4Boss, p: Pal): ShipPal => (p.mono ? shipMono(p.body) : SHIP_4[id]);
 
-// ---------- ARK: the mothership — a broad hull with launch bays, broadside batteries and a glowing core ----------
-const ark: HullFn = (ctx, p, s) => {
-  fillSym(ctx, [0, 172, 40, 140, 100, 96, 160, 40, 168, -20, 140, -80, 70, -130, 30, -150, 0, -150], p.body, p.line);
-  for (const sx of [-1, 1]) slab(ctx, sx * 110 - 28, -84, 56, 48, 10, p.dark, p.line);
-  if (p.mono) return;
-  fillSym(ctx, [0, 160, 34, 130, 86, 92, 60, 60, 0, 70], p.light);
-  for (let y = -110; y < 120; y += 24) rect(ctx, -60, y, 120, 2, SH);
-  for (const sx of [-1, 1]) {
-    rect(ctx, sx * 110 - 20, -74, 40, 28, '#120e18');
-    for (let k = 0; k < 4; k++) rect(ctx, sx * 110 - 18 + k * 10, -48, 6, 2, p.trim);
-  }
-  const pulse = 0.65 + Math.sin(s.t * 2.5) * 0.25;
-  circle(ctx, 0, 0, 46, '#1a1420');
-  circle(ctx, 0, 0, 34, `rgba(255,106,138,${pulse.toFixed(2)})`);
-  circle(ctx, 0, 0, 16, p.glass);
-  circle(ctx, 0, 0, 7, '#ffffff');
-  for (const x of [-120, -60, 0, 60, 120]) ellipse(ctx, x, -150 + Math.abs(x) * 0.5, 7, 10 + Math.sin(s.t * 28 + x) * 2, 'rgba(255,140,170,0.55)');
-  if (p.live) smoke(ctx, 120, 40, 5, s.t, 4);
-};
+/** The static hull through the cache, in the variant the palette asks for. */
+export function cachedHull(ctx: Ctx, id: Map4Boss, p: Pal, paint: (g: Ctx, a: ShipPal) => void): void {
+  drawCached(ctx, `boss4-${id}`, BOSS_BOX_4[id], (g) => paint(g, SHIP_4[id]), variantOf(p));
+}
 
-export const HULLS_4: Readonly<Record<Map4Boss, HullFn>> = { halo, quarry, crater, trident, ark };
+/** A flat point list turned by `a` about the origin (parts laid out round a station). Pure. */
+export function turn(pts: readonly number[], a: number): number[] {
+  const c = Math.cos(a), s = Math.sin(a);
+  const out: number[] = [];
+  for (let i = 0; i < pts.length; i += 2) out.push((pts[i] ?? 0) * c - (pts[i + 1] ?? 0) * s, (pts[i] ?? 0) * s + (pts[i + 1] ?? 0) * c);
+  return out;
+}
+
+/** Points round a circle (an n-gon), for round plates and drop shadows. Pure. */
+export function roundPts(x: number, y: number, r: number, n = 24): number[] {
+  return Array.from({ length: n }, (_, k) => [x + Math.cos((k / n) * Math.PI * 2) * r, y + Math.sin((k / n) * Math.PI * 2) * r]).flat();
+}

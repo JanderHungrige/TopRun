@@ -49,16 +49,17 @@ describe('New adversaries (doc 44)', () => {
   });
 
   describe('mini-bosses', () => {
-    it('come halfway through every non-boss mission from the Arctic on, twice on map 2, once on map 3 from the highlands, on map 4 from the kelp, on map 5 from the belt and on map 6 from the canopy', () => {
+    it('come halfway through every non-boss mission from the Arctic on, twice on map 2, once on map 3 from the highlands, on map 4 from the kelp, on map 5 from the belt, on map 6 from the canopy and in the drives of map 7 from the salt flats', () => {
       for (const m of ALL_MISSIONS) {
         const mb = miniBosses(m);
         const late = (m.campaign === 3 && m.number < 67) || (m.campaign === 4 && m.number < 97) || (m.campaign === 5 && m.number < 127)
-          || (m.campaign === 6 && m.number < 157);
+          || (m.campaign === 6 && m.number < 157) || (m.campaign === 7 && (m.number < 187 || !!m.defend));
         if (m.objective.type === 'boss' || m.number < 13 || late) expect(mb).toEqual([]);
         else expect(mb.map((x) => x.at)).toEqual(m.campaign === 2 ? [0.4, 0.75] : [0.55]);
         if (m.campaign === 4) for (const x of mb) expect(x.kind).toBe('boomer');
         if (m.campaign === 5) for (const x of mb) expect(x.kind).toBe('warden');
         if (m.campaign === 6) for (const x of mb) expect(x.kind).toBe('brute');
+        if (m.campaign === 7) for (const x of mb) expect(x.kind).toBe('wartripod');
         for (const x of mb) {
           expect(MINI_BOSSES).toContain(x.kind);
           if (THEATERS[m.theater].base === 'land') expect(x.kind).not.toBe('cruiser');

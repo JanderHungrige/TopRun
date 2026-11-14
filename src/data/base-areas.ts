@@ -1,4 +1,4 @@
-import { CARRIER_AREAS, HELI_AREAS, JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS } from './base-docks';
+import { CARRIER_AREAS, HELI_AREAS, JUNGLE_AREAS, SEA_AREAS, SPACE_AREAS, STEPPE_AREAS } from './base-docks';
 import type { CampaignId } from './types';
 
 // Hangar base (doc 30): the areas of the home-base hangar — where each one is on the 1280 × 720 screen, which row
@@ -35,7 +35,8 @@ export interface BaseAreaDef {
 /** Left → right; ← / → step through this order (the areas a look has). */
 export const BASE_AREA_IDS: readonly BaseAreaId[] = Object.freeze(['fun', 'tv', 'locker', 'photos', 'jet', 'base', 'lab', 'ladder', 'chalk', 'exit'] as const);
 
-/** A look's areas: every look has the eight of the carrier hangar; the jungle base adds the ground base and the lab. */
+/** A look's areas: every look has the eight of the carrier hangar; the jungle base adds the ground base and the lab, the
+ *  steppe tent the lab (doc 111). */
 export type AreaTable = Readonly<Partial<Record<BaseAreaId, BaseAreaDef>>>;
 
 /** One area of a look; throws for an area the look doesn't have (only ids from `areaIds` are asked for). */
@@ -74,11 +75,14 @@ export const STRIDE_PX = 120;
 export const WALK_FRAMES = 8;
 
 /** The base's look: the carrier lounge on maps 1–2 (doc 91), the helicopter base's hangar corner on map 3 (doc 92), the
- *  underwater dock on map 4, the space-station dock on map 5 (doc 74), the jungle base on map 6 (doc 86). */
-export type BaseLook = 'carrier' | 'heli' | 'space' | 'sea' | 'jungle';
+ *  underwater dock on map 4, the space-station dock on map 5 (doc 74), the jungle base on map 6 (doc 86), the steppe
+ *  outpost's command tent on map 7 (doc 111). */
+export type BaseLook = 'carrier' | 'heli' | 'space' | 'sea' | 'jungle' | 'steppe';
 
-const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = { 1: 'carrier', 2: 'carrier', 3: 'heli', 4: 'sea', 5: 'space', 6: 'jungle' };
+const LOOK_OF: Readonly<Record<CampaignId, BaseLook>> = {
+  1: 'carrier', 2: 'carrier', 3: 'heli', 4: 'sea', 5: 'space', 6: 'jungle', 7: 'steppe',
+};
 export const baseLookOf = (c: CampaignId): BaseLook => LOOK_OF[c];
 
-const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: CARRIER_AREAS, heli: HELI_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS };
+const AREAS_OF: Readonly<Record<BaseLook, AreaTable>> = { carrier: CARRIER_AREAS, heli: HELI_AREAS, space: SPACE_AREAS, sea: SEA_AREAS, jungle: JUNGLE_AREAS, steppe: STEPPE_AREAS };
 export const baseAreas = (look: BaseLook): AreaTable => AREAS_OF[look];

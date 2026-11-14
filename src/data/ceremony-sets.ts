@@ -35,5 +35,14 @@ export const CEREMONY_SETS = {
    'y': 91
   },
   'stars': []
+ },
+ 'steppe': {
+  'plate': 'steppe',
+  'crew': {
+   'file': 'steppe-crew-salute',
+   'x': 57,
+   'y': 80
+  },
+  'stars': []
  }
 } as const satisfies Record<string, CeremonySetBox>;

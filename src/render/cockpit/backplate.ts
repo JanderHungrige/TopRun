@@ -108,6 +108,23 @@ function grid(ctx: Ctx, x: number, seed: number): void {
 }
 
 /** The mech's hazard stripes along the console's foot (doc 80). */
+/** The tanks (doc 104): a strip of track links along the bottom edge, dust in the corners. */
+function treads(ctx: Ctx, x: number): void {
+  ctx.fillStyle = '#2a251a';
+  ctx.fillRect(x, 698, 320, 22);
+  for (let k = 0; k < 20; k++) {
+    ctx.fillStyle = '#5c5440';
+    ctx.fillRect(x + k * 16 + 2, 701, 12, 16);
+    ctx.fillStyle = '#857a5c';
+    ctx.fillRect(x + k * 16 + 4, 703, 8, 3);
+  }
+  const g = ctx.createLinearGradient(x, 560, x, 700);
+  g.addColorStop(0, 'rgba(200,170,110,0)');
+  g.addColorStop(1, 'rgba(200,170,110,0.16)');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, 560, 320, 140);
+}
+
 function hazard(ctx: Ctx, x: number): void {
   ctx.save();
   ctx.beginPath();
@@ -151,6 +168,11 @@ export function backplate(ctx: Ctx, x: number, seed: number, seamX: number): voi
     case 'mech':
       worn(ctx, x, seed);
       hazard(ctx, x);
+      break;
+    case 'tank':
+      streaks(ctx, x, seed, 0.5);
+      worn(ctx, x, seed);
+      treads(ctx, x);
       break;
     default:
       throw new Error(`unhandled: ${SK.id satisfies never}`);

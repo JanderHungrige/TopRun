@@ -21,4 +21,8 @@ export const INTRO_LINES_EN = {
   'duke.intro6b': ["No runways, no ocean, just jungle: the canopy, a mangrove swamp, temple ruins, and the hive at the heart of it."],
   'duke.intro6c': ["Walkers and hover tanks hold the clearings, and the planet itself wants us gone: spore pods, lasher vines, acid toads."],
   'duke.intro6d': ["We walk in mechs here, one theater at a time, right up to the queen in her hive. Stay on my wing."],
+  'duke.intro7a': ["Welcome to Kharsa, {callsign}! Duke here. Grass to the horizon and a moon the size of a hangar door. Pretty, isn't it?"],
+  'duke.intro7b': ["This is our field camp: tents, a radio mast, and the motor pool. Out here we fight on tracks and wheels, tanks and buggies."],
+  'duke.intro7c': ["And that's who we're up against: an invasion army marching in columns. Crawlers, riders, tripods with heat rays, saucers overhead."],
+  'duke.intro7d': ["Their mothership sits in the crater where they came down. We hold the outposts, we drive them back, and then we go knock on its door."],
 } as const satisfies Record<string, readonly string[]>;

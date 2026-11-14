@@ -26,6 +26,7 @@ STAGES = {
     'pier': {'crop': (48, 192), 'window': None},
     'hangar': {'crop': (48, 228), 'window': (122, 46, 100, 66)},  # the battle-station hangar's opening (doc 98)
     'camp': {'crop': (60, 204), 'window': None},  # the jungle camp (doc 98)
+    'steppe': {'crop': (110, 186), 'window': None},  # the steppe field camp at golden hour (map 7)
 }
 
 

@@ -7,6 +7,7 @@ import {
 } from '../data/weapons';
 import { fleetOf } from './kit';
 import { knownWeapons } from './lab';
+import { tankKnownWeapons } from './steppe-lab';
 import { bayEquipmentCap, bayGunCap } from './outpost';
 import { mapOpen, mapTwoOpen } from './progress';
 import type { SaveData } from './save';
@@ -44,6 +45,7 @@ export function weaponOnSale(save: SaveData, id: SecondaryId): boolean {
   const c = SECONDARIES[id].campaign;
   const fleet = fleetOf(save);
   if (fleet?.kit === 'mech') return c === fleet.campaign && knownWeapons(save.outpost).includes(id); // invented, never bought (doc 83)
+  if (fleet?.kit === 'tank') return c === fleet.campaign && tankKnownWeapons(save).includes(id); // the steppe lab's (doc 107)
   if (fleet) return c === fleet.campaign && mapOpen(save, c);
   return c === 1 || (c === 2 && mapTwoOpen(save));
 }

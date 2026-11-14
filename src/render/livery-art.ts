@@ -54,6 +54,17 @@ const STANDARD: Readonly<Record<PlaneId, Look>> = {
   ranger: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
   hornet: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
   titan: look('#4e6b2e', STANDARD_SWATCH, { ink: 'rgba(14,18,8,0.7)', gloss: 0.3 }),
+  // Map-7 tanks and buggies (doc 104): sand khaki with a darker brown blotch; their paint jobs come with doc 112.
+  jackal: look('#b49a62', STANDARD_SWATCH, { under: '#8a7448', ink: 'rgba(30,22,10,0.7)', panel: 'rgba(30,22,10,0.22)', gloss: 0.25 }),
+  lynx: look('#a8935c', STANDARD_SWATCH, {
+    under: '#7e6c44', camo: { kind: 'blobs', colors: ['#6e5a34'], cover: [0.35], size: 1.2, seed: 71 },
+    ink: 'rgba(30,22,10,0.7)', panel: 'rgba(30,22,10,0.24)', gloss: 0.25,
+  }),
+  viper: look('#bfa46a', STANDARD_SWATCH, { under: '#8a7448', ink: 'rgba(30,22,10,0.7)', panel: 'rgba(30,22,10,0.22)', gloss: 0.25 }),
+  bison: look('#9a8656', STANDARD_SWATCH, {
+    under: '#74643e', camo: { kind: 'blobs', colors: ['#64522e'], cover: [0.4], size: 1.5, seed: 74 },
+    ink: 'rgba(30,22,10,0.72)', panel: 'rgba(30,22,10,0.26)', gloss: 0.22,
+  }),
 };
 
 const DARK_PANEL = 'rgba(200,210,200,0.12)';

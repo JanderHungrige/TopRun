@@ -7,14 +7,15 @@ import { SONAR, sonarHits, sonarRadius } from '../../game/sub-flight';
 import { ageDrain, agingJet, CANNON, cannonDamage, NUKE } from '../../game/jets';
 import type { Player } from './player';
 import { damageEnemy, killEnemy } from './projectiles';
-import type { WingmanRadio } from './radio';
+import type { Radio } from './radio';
 import { GUN_SPEED, playerMissile } from './weapons-fire';
+import { dropSentry, fireMainGun } from './tank-mission';
 import { PF_H, type World } from './world';
 
 // Every jet's E ability (docs 05, 36) — activation and what it does each tick — and the Tornado's age drain.
 
 /** E pressed: starts the jet's special if it is charged. */
-export function activateSpecial(world: World, p: Player, audio: AudioEngine, radio: WingmanRadio): void {
+export function activateSpecial(world: World, p: Player, audio: AudioEngine, radio: Radio): void {
   const plane = p.stats.plane;
   if (!p.alive || p.specialCooldown > 0 || p.specialActive > 0) return;
   p.specialCooldown = plane.specialCooldown;
@@ -58,6 +59,18 @@ export function activateSpecial(world: World, p: Player, audio: AudioEngine, rad
     case 'sonar':
       world.sonar = { x: p.x, y: p.y, t: 0 };
       audio.play('sonar');
+      break;
+    case 'nitro': // the burst runs in the player's move and tickTank (doc 104)
+      p.rammed = [];
+      world.addShake(4);
+      audio.play('special');
+      break;
+    case 'sentry':
+      dropSentry(world, p);
+      audio.play('special');
+      break;
+    case 'maingun':
+      fireMainGun(world, p, audio);
       break;
     default:
       throw new Error(`unhandled: ${plane.special satisfies never}`);

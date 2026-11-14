@@ -7,6 +7,7 @@ import { LOITER, loiter, STEALTH } from '../../game/adversaries';
 import { clampToChannel } from '../../game/canyon';
 import { scaleEnemy, steerHoming } from '../../game/combat';
 import { mapTwoHp, payScale } from '../../game/map-two';
+import { spawnDue } from '../../game/steppe-army';
 import type { Player } from './player';
 import { fireEnemyWeapon } from './weapons-fire';
 import { PF_H, PF_W, type Enemy, type World } from './world';
@@ -131,14 +132,26 @@ function launchEscort(e: Enemy, dt: number, world: World): void {
   spawnEnemy(world, 'drone', e.x + (Math.random() < 0.5 ? -30 : 30), 'kamikaze', e.y + 20);
 }
 
+/** The invasion's spawners (doc 105): a landing pod lets out a trooper every few seconds; what a brood carrier let loose
+ *  when it died comes down now. */
+function spawners(world: World, dt: number): void {
+  for (const b of world.brood.splice(0)) spawnEnemy(world, b.kind, b.x, 'ground', b.y);
+  for (const e of world.enemies) {
+    const s = e.def.spawn;
+    if (!s || e.dead || e.y < 0 || !spawnDue(e.def, e.t, dt)) continue;
+    spawnEnemy(world, s.kind, e.x + (Math.random() - 0.5) * 30, 'ground', e.y + e.radius);
+  }
+}
+
 export function updateEnemies(world: World, p: Player, dt: number, audio: AudioEngine): void {
+  spawners(world, dt);
   const scroll = world.scrollSpeed;
   for (const e of world.enemies) {
     if (e.dead) continue;
     e.t += dt;
     e.flash = Math.max(0, e.flash - dt);
     if (e.layer === 'ground') {
-      const drift = e.def.speed > 0 ? e.def.speed * 0.4 : 0;
+      const drift = e.def.speed > 0 && !world.defence?.marches(e.id) ? e.def.speed * 0.4 : 0; // a defence's units march their lane (doc 106)
       e.y += (scroll + drift) * dt;
       e.x += Math.sin(e.t * 0.6 + e.phase) * drift * 0.3 * dt;
       e.aim = Math.atan2(p.x - e.x, -(p.y - e.y));

@@ -39,4 +39,9 @@ export const PHOTO_TIMES: Readonly<Record<TheaterId, readonly TimeOfDay[]>> = Ob
   swamp: ['storm', 'dawn', 'day', 'dusk', 'night', 'storm'],
   ruins: ['dawn', 'day', 'day', 'dusk', 'day', 'dusk'],
   hive: ['dusk', 'night', 'night', 'dusk', 'night', 'night'],
+  grass: ['dawn', 'day', 'day', 'dusk', 'day', 'dusk'],
+  saltflats: ['day', 'day', 'dusk', 'day', 'day', 'dusk'],
+  badlands: ['dawn', 'day', 'dusk', 'day', 'dusk', 'dusk'],
+  barrows: ['dusk', 'day', 'storm', 'storm', 'day', 'dusk'],
+  impact: ['night', 'dusk', 'night', 'night', 'night', 'night'],
 });

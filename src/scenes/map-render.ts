@@ -47,13 +47,19 @@ const LABELS: Readonly<Record<TheaterId, { x: number; y: number }>> = {
   swamp: { x: 790, y: 384 },
   ruins: { x: 430, y: 214 },
   hive: { x: 310, y: 104 },
+  // The alien steppe, map 7 (doc 102).
+  grass: { x: 255, y: 690 },
+  saltflats: { x: 646, y: 684 },
+  badlands: { x: 760, y: 262 },
+  barrows: { x: 410, y: 206 },
+  impact: { x: 300, y: 98 },
 };
 
 /** Map 2 is a darker, colder sea (doc 35); map 3 a grey-green northern one (doc 48); map 4 a deep teal chart
- *  (docs 65, 74), map 5 the night of space, map 6 the jungle's dark canopy (doc 78). */
+ *  (docs 65, 74), map 5 the night of space, map 6 the jungle's dark canopy (doc 78), map 7 the steppe's dry gold (doc 102). */
 const SEA: Readonly<Record<CampaignId, readonly [string, string]>> = {
   1: ['#123653', '#0b2235'], 2: ['#1c2a40', '#0d1522'], 3: ['#1d3340', '#0f1c24'], 4: ['#0b4452', '#03161e'], 5: ['#090c1c', '#03040b'],
-  6: ['#1c3a1a', '#0c1a0c'],
+  6: ['#1c3a1a', '#0c1a0c'], 7: ['#6a5426', '#3a2c12'],
 };
 
 const cached = new Map<CampaignId, HTMLCanvasElement>();

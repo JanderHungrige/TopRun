@@ -18,8 +18,8 @@ export interface PlaneDef {
   /** 1 = sold from the start; 2 = sold once map 2 is open (doc 36); 3 = a map-3 helicopter (doc 49); 5 = a sub (doc 66). */
   campaign: CampaignId;
   /** Jets fly maps 1–2, helicopters map 3 (doc 49), the subs map 4 (doc 66), the spacecraft map 5 (doc 54), the mechs
-   *  walk map 6 (doc 79); a mech's price is in alloy. */
-  kind: 'jet' | 'heli' | 'ship' | 'sub' | 'mech';
+   *  walk map 6 (doc 79; a mech's price is in alloy), the tanks and buggies drive map 7 (doc 103). */
+  kind: 'jet' | 'heli' | 'ship' | 'sub' | 'mech' | 'tank';
 }
 
 export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
@@ -159,9 +159,38 @@ export const PLANES: Readonly<Record<PlaneId, PlaneDef>> = Object.freeze({
     description: 'Heavy assault mech. Four hardpoints, thick armour and a few seconds where nothing gets through. Slow on its feet.',
     campaign: 6, kind: 'mech',
   },
+  // Map 7 (doc 103): the tanks and buggies, bought with money in the MOTOR POOL; the Jackal is free.
+  jackal: {
+    id: 'jackal', name: 'Jackal', short: 'JACKAL', nickname: 'Jackal',
+    price: 0, hull: 120, speed: 300, hardpoints: 2, gunDamageMul: 1.0,
+    special: 'nitro', specialName: 'Nitro', specialCooldown: 10, specialDuration: 1.2,
+    description: 'Open combat buggy with a roll cage and a pintle gun. Fast, light, and a nitro burst rams through anything small.',
+    campaign: 7, kind: 'tank',
+  },
+  lynx: {
+    id: 'lynx', name: 'Lynx', short: 'LYNX', nickname: 'Lynx',
+    price: 1600000, hull: 200, speed: 235, hardpoints: 3, gunDamageMul: 1.15,
+    special: 'sentry', specialName: 'Sentry Drop', specialCooldown: 16, specialDuration: 12,
+    description: 'Light tank on wide tracks. Its turret follows the target, and the sentry drop leaves a gun behind.',
+    campaign: 7, kind: 'tank',
+  },
+  viper: {
+    id: 'viper', name: 'Viper', short: 'VIPER', nickname: 'Viper',
+    price: 2600000, hull: 140, speed: 285, hardpoints: 3, gunDamageMul: 1.1,
+    special: 'longbow', specialName: 'Rocket Salvo', specialCooldown: 14, specialDuration: 0.4,
+    description: 'Long-wheelbase buggy with a rocket rack over the rear axle. The salvo finds every target in sight.',
+    campaign: 7, kind: 'tank',
+  },
+  bison: {
+    id: 'bison', name: 'Bison', short: 'BISON', nickname: 'Bison',
+    price: 4200000, hull: 340, speed: 170, hardpoints: 4, gunDamageMul: 1.3,
+    special: 'maingun', specialName: 'Main Gun', specialCooldown: 8, specialDuration: 0.3,
+    description: 'Heavy tank, slow and nearly unstoppable. Its turret follows the target, and the main gun fires one shell that cracks a tripod.',
+    campaign: 7, kind: 'tank',
+  },
 });
 
-/** A record with one entry per plane (jets, helicopters, the ship, the subs and the mechs), built from PLANE_IDS. */
+/** A record with one entry per plane (jets, helicopters, the ship, the subs, the mechs and the tanks), built from PLANE_IDS. */
 export function perPlane<T>(make: (id: PlaneId) => T): Record<PlaneId, T> {
   return Object.fromEntries(PLANE_IDS.map((id) => [id, make(id)])) as Record<PlaneId, T>;
 }

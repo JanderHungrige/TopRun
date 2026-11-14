@@ -15,6 +15,7 @@ import { DISPLAY_SHIP, drawShip, shipSilhouette } from './ship';
 import { drawU212Top, u212Silhouette } from './subs/u212';
 import { AKULA_SUB, drawSubTop, SEAWOLF_SUB, subSilhouette, VIRGINIA_SUB } from './subs/fleet';
 import { drawMechTop, mechTopSilhouette } from './mechs/mech-top';
+import { drawBuggyTop, drawTankTop, isTankBody, tankTopSilhouette } from './tanks/tank-top';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 
@@ -30,6 +31,10 @@ export interface PlaneDrawOpts {
   stride?: number;
   leap?: number;
   paint?: string | null;
+  /** A tank's or buggy's hull lean (rad), its turret relative to the hull and the ground it covered (doc 104). */
+  yaw?: number;
+  turret?: number;
+  driven?: number;
 }
 
 const SHADOW = 'rgba(0,0,0,0.28)';
@@ -55,6 +60,10 @@ function silhouette(id: PlaneId, sweep: number): Path2D {
     case 'ranger':
     case 'hornet':
     case 'titan': return mechTopSilhouette(id);
+    case 'jackal':
+    case 'lynx':
+    case 'viper':
+    case 'bison': return tankTopSilhouette(id);
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }
@@ -79,6 +88,7 @@ export function drawPlaneTop(
   const bank = Math.max(-1, Math.min(1, o.bank ?? 0));
   ctx.save();
   ctx.translate(x, y);
+  ctx.rotate(o.yaw ?? 0); // a tank leans into its course instead of banking (doc 104)
   ctx.scale(scale * (1 - Math.abs(bank) * 0.32), scale);
   if (o.shadow || o.flash) {
     ctx.fillStyle = o.shadow ? SHADOW : '#ffffff';
@@ -110,6 +120,15 @@ export function drawPlaneTop(
     case 'ranger':
     case 'hornet':
     case 'titan': drawMechTop(ctx, id, { t: opts.t, stride: o.stride ?? 0, leap: o.leap ?? 0, paint: o.paint ?? null }); break;
+    case 'jackal':
+    case 'lynx':
+    case 'viper':
+    case 'bison': {
+      const v = { t: opts.t, driven: o.driven ?? opts.t * 60, turret: o.turret ?? 0 };
+      if (isTankBody(id)) drawTankTop(ctx, id, look, v);
+      else drawBuggyTop(ctx, id, look, v);
+      break;
+    }
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

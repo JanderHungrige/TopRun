@@ -35,7 +35,7 @@ export class HangarChief {
 
   greet(save: SaveData): void {
     this.box.look = kitCrewLook(save.kit); // in the SUB PEN in his submariner's coverall (doc 76)
-    const ev = save.kit === 'heli' ? 'helloHelis' : save.kit === 'sub' ? 'helloSubs' : save.kit === 'mech' ? 'helloMechs' : newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
+    const ev = save.kit === 'heli' ? 'helloHelis' : save.kit === 'sub' ? 'helloSubs' : save.kit === 'mech' ? 'helloMechs' : save.kit === 'tank' ? 'helloTanks' : newJetsWaiting(save) ? 'helloNewJets' : save.money >= RICH ? 'helloRich' : save.money < BROKE ? 'helloBroke' : 'hello';
     this.box.say(chiefLine(ev));
   }
 

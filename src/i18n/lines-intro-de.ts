@@ -22,4 +22,8 @@ export const INTRO_LINES_DE: Readonly<Record<keyof typeof INTRO_LINES_EN, readon
   'duke.intro6b': ['Keine Startbahn, kein Meer, nur Dschungel: das Blätterdach, ein Mangrovensumpf, Tempelruinen und mittendrin der Brutstock.'],
   'duke.intro6c': ['Walker und Schwebepanzer halten die Lichtungen, und der Planet selbst will uns loswerden: Sporenkapseln, Peitschenranken, Säurekröten.'],
   'duke.intro6d': ['Hier laufen wir in Mechs, ein Gebiet nach dem anderen, bis zur Königin in ihrem Brutstock. Bleib an meinem Flügel.'],
+  'duke.intro7a': ['Willkommen auf Kharsa, {callsign}! Hier Duke. Gras bis zum Horizont und ein Mond so groß wie ein Hangartor. Hübsch, oder?'],
+  'duke.intro7b': ['Das ist unser Feldlager: Zelte, ein Funkmast und der Fuhrpark. Hier kämpfen wir auf Ketten und Rädern, mit Panzern und Buggys.'],
+  'duke.intro7c': ['Und das ist der Gegner: eine Invasionsarmee, die in Kolonnen marschiert. Krabbler, Reiter, Dreibeine mit Hitzestrahlen, oben die Untertassen.'],
+  'duke.intro7d': ['Ihr Mutterschiff sitzt im Krater, wo sie gelandet sind. Wir halten die Außenposten, drängen sie zurück und dann klopfen wir bei ihm an.'],
 };

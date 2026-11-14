@@ -119,7 +119,9 @@ export type SecondaryHits = 'air' | 'ground' | 'any';
  *  its path; `beam`: an instant beam up the whole screen (the mech weapons, doc 79); `pulse`: a burst of laser pulses at
  *  the nearest target; `wave`: a sonic wave that stuns; `swarm`: three hunting drones (the helicopters', doc 99); `torps`:
  *  a salvo of small homing torpedoes, `decoy`: a drone that draws fire, `net`: a drifting net that slows (the subs', doc 101). */
-export type SecondaryBehavior = 'homing' | 'fan' | 'bomb' | 'lob' | 'lance' | 'beam' | 'pulse' | 'wave' | 'swarm' | 'torps' | 'decoy' | 'net';
+export type SecondaryBehavior = 'homing' | 'fan' | 'bomb' | 'lob' | 'lance' | 'beam' | 'pulse' | 'wave' | 'swarm' | 'torps' | 'decoy' | 'net'
+  // The tanks' (doc 108): a mine laid on the ground, a cone of fire, a bolt jumping from enemy to enemy.
+  | 'mine' | 'flame' | 'chain';
 
 /** Which weapon key fires it (doc 05): AIR (R) or GROUND (Q). */
 export type WeaponRole = 'air' | 'ground';
@@ -128,7 +130,8 @@ export const SECONDARY_ROLES: Readonly<Record<SecondaryId, WeaponRole>> = Object
   aim9: 'air', aim54: 'air', rockets: 'ground', mk82: 'ground', agm65: 'ground', aim120: 'air', jdam: 'ground',
   hydra: 'ground', hellfire: 'ground', stinger: 'air', spacerocket: 'air', torpedo: 'ground', mk48: 'air', depthmine: 'ground', shkval: 'ground',
   pod: 'ground', seeker: 'air', mortar: 'ground', plasma: 'air', rail: 'ground', pulselaser: 'air', sonic: 'ground', drones: 'ground',
-  torpswarm: 'ground', sonarpulse: 'ground', decoy: 'air', net: 'ground',
+  torpswarm: 'ground', sonarpulse: 'ground', decoy: 'air', net: 'ground', grenade: 'ground', aarocket: 'air', atgm: 'ground',
+  mines: 'ground', flamer: 'ground', tesla: 'air',
 });
 
 export interface SecondaryDef {
@@ -148,7 +151,8 @@ export interface SecondaryDef {
   planes: readonly PlaneId[] | null;
   description: string;
   /** 1 = sold from the start; 2 = once map 2 is open (doc 37); 3 = a helicopter weapon (doc 49); 4 = a sub weapon (doc 66);
-   *  6 = a mech weapon (doc 79), known from the start or invented in the lab, never bought. */
+   *  6 = a mech weapon (doc 79), known from the start or invented in the lab, never bought; 7 = a tank weapon (doc 103),
+   *  likewise known or invented in the steppe lab. */
   campaign: CampaignId;
   /** An energy weapon (doc 99): seconds one charge takes to come back in the mission; absent = rounds. */
   recharge?: number;

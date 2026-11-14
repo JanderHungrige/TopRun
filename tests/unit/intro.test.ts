@@ -14,7 +14,7 @@ const SHOTS = ['a', 'b', 'c', 'd'] as const;
 
 describe('World intros (doc 97)', () => {
   it('welcomes the pilot to worlds 2 to 6, once each', () => {
-    expect(INTRO_WORLDS).toEqual([2, 3, 4, 5, 6]);
+    expect(INTRO_WORLDS).toEqual([2, 3, 4, 5, 6, 7]);
     const save = defaultSave();
     expect(save.intros).toEqual([]);
     expect(([1, 2, 3, 4, 5, 6] as CampaignId[]).map((w) => introDue(save, w))).toEqual([false, true, true, true, true, true]);
@@ -97,7 +97,7 @@ describe('World intros (doc 97)', () => {
 
   it('puts both recordings of a world on its tape: the welcome once seen, the victory once finished', () => {
     const shelf = tapeShelf(markIntroSeen(defaultSave(), 6));
-    expect(shelf.map((tp) => tp.world)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(shelf.map((tp) => tp.world)).toEqual([1, 2, 3, 4, 5, 6, 7]);
     const jungle = shelf[5];
     if (!jungle) throw new Error('no jungle tape');
     expect(jungle).toEqual({ world: 6, finished: false, welcome: true });

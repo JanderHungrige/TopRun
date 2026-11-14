@@ -6,6 +6,7 @@ import { gunDef, powerCap } from '../../game/firepower';
 import { isFleet } from '../../data/fleet';
 import { DRIFT, fleetVelocity } from '../../game/sub-flight';
 import { gaitSpeed } from '../../game/mech-walk';
+import { driveAccel, NITRO } from '../../game/tank-drive';
 import { shipGun, touchesShip } from '../../game/ship-loadout';
 import { CELL_PX, SHIELD } from '../../data/ship-modules';
 import { circleHit } from '../../game/combat';
@@ -76,6 +77,13 @@ export class Player {
   stride = 0;
   leap = 0;
   jumping = false;
+  /** A tank's drive (doc 104): ground covered, the hull's lean and bob, what the nitro has rammed this burst. */
+  driven = 0;
+  yaw = 0;
+  /** Where the turret points (rad from straight up, world frame). */
+  turret = 0;
+  bob = 0;
+  rammed: number[] = [];
   /** Rounds fired per weapon, taken from the base's magazine in the debrief (doc 79). */
   readonly spent: Partial<Record<SecondaryId, number>> = {};
   /** The spacecraft's shield points and the time since the last hit (doc 54). */
@@ -123,6 +131,11 @@ export class Player {
     return ship ? touchesShip(ship, this.x, this.y, x, y, r, CELL_PX) : circleHit(x, y, r, this.x, this.y, PLAYER_RADIUS + inset);
   }
 
+  /** The Jackal's nitro doubles its speed while it burns (doc 104). */
+  private get nitro(): number {
+    return this.specialActive > 0 && this.stats.plane.special === 'nitro' ? NITRO.speed : 1;
+  }
+
   get hullRatio(): number {
     return clamp(this.hull / this.maxHull, 0, 1);
   }
@@ -142,8 +155,9 @@ export class Player {
   move(dir: { x: number; y: number }, drag: { x: number; y: number }, dt: number): void {
     const dash = this.dashVX * dt;
     const kind = this.stats.plane.kind;
-    const speed = kind === 'mech' ? this.speed * gaitSpeed(this.stride) : this.speed; // a mech surges with every step (doc 80)
-    const v = isFleet(kind) ? fleetVelocity(this.drift, dir, speed, DRIFT[kind], dt) : { x: dir.x * speed, y: dir.y * speed };
+    const speed = kind === 'mech' ? this.speed * gaitSpeed(this.stride) : this.speed * this.nitro; // a mech surges with every step (doc 80)
+    const accel = kind === 'tank' ? driveAccel(this.stats.plane.id) : isFleet(kind) ? DRIFT[kind] : 0; // buggy or tank (doc 104)
+    const v = isFleet(kind) ? fleetVelocity(this.drift, dir, speed, accel, dt) : { x: dir.x * speed, y: dir.y * speed };
     this.drift = v;
     this.x = clamp(this.x + v.x * dt + drag.x + dash, 24, PF_W - 24);
     this.y = clamp(this.y + v.y * dt + drag.y, 70, PF_H - 40);

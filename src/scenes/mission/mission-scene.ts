@@ -4,9 +4,8 @@ import type { MissionDef, MissionResult, TakeoffRating } from '../../data/types'
 import { isMiniBoss } from '../../data/reinforcements';
 import { holdsScroll, jamming, MINI_HOLD_SCROLL } from '../../game/adversaries';
 import { missionTuning } from '../../game/challenge';
-import { hitScale } from '../../game/combat';
 import { crewLook } from '../../game/crew-looks';
-import { mapTwoHit, mapTwoHp, payScale } from '../../game/map-two';
+import { mapTwoHp, payScale } from '../../game/map-two';
 import { canSwitch, derivePlayerStats } from '../../game/loadout';
 import { isMissionOver, objectiveMet } from '../../game/objectives';
 import type { GameContext } from '../../game/state';
@@ -23,9 +22,17 @@ import { cockpitButtons, cockpitKeys, cockpitLabels, leftView, rightView } from 
 import { clipPlayfield, renderWorld } from './mission-render';
 import { updatePickups } from './pickups';
 import { Player } from './player';
-import { WingmanRadio } from './radio';
+import { WingmanRadio, type Radio } from './radio';
+import { OutpostRadio } from './outpost-radio';
+import { Defence, type DefenceEvent } from './defence-mission';
+import { defenceInput } from './defence-input';
+import { hitPlayer } from './player-hit';
+import { isDefenceOver } from '../../game/defence';
+import { knownTowers, towerMark } from '../../game/steppe-lab';
+import { renderDefenceHud } from '../../render/defence-hud';
 import { activateSpecial, tickSpecials } from './specials';
 import { tickMech } from './mech-mission';
+import { tickTank } from './tank-mission';
 import { tickHeliArms } from './heli-arms';
 import { updateCombat } from './projectiles';
 import { drawSwitchCallout, switchGroundWeapon } from './weapon-switch';
@@ -45,7 +52,9 @@ export class MissionScene implements Scene {
     { id: 'resume', label: t('mission.resume'), x: 520, y: 330, w: 240, h: 48, primary: true },
     { id: 'abort', label: t('mission.abort'), x: 520, y: 392, w: 240, h: 48 },
   ]);
-  private readonly radio: WingmanRadio;
+  private readonly radio: Radio;
+  /** Captain Ortega in a defence (doc 106), who takes the radio. */
+  private readonly post: OutpostRadio | null;
   /** Stable per language: the cockpit caches its painted plates by label identity. */
   private labels = cockpitLabels();
   private labelsLang = getLang();
@@ -58,7 +67,9 @@ export class MissionScene implements Scene {
     this.world = new World({ ...mission, difficulty: mission.difficulty + tuning.difficulty }, tuning.ease);
     this.player = new Player(derivePlayerStats(game.save));
     this.banner = { title: missionName(mission).toUpperCase(), sub: objectiveText(mission.objective), color: COLORS.ink, time: 3 };
-    this.radio = new WingmanRadio(game.audio, pilotContext(game), crewLook(mission.campaign));
+    if (mission.defend) this.world.defence = new Defence(this.world, knownTowers(game.save), (id) => towerMark(game.save, id));
+    this.post = this.world.defence ? new OutpostRadio(game.audio, pilotContext(game)) : null;
+    this.radio = this.post ?? new WingmanRadio(game.audio, pilotContext(game), crewLook(mission.campaign));
   }
 
   enter(): void {
@@ -108,11 +119,12 @@ export class MissionScene implements Scene {
     if (!p.alive) return;
     const touch = input.device === 'touch';
     p.move(input.moveVector(), input.dragDelta(PLAYFIELD), dt);
+    const picking = this.world.defence ? defenceInput(this.world.defence, p, input, this.game.audio) : false;
     const autofire = this.game.settings.autofire || (touch && input.touchingIn(PLAYFIELD));
     if (input.held('fire') || autofire) firePlayerGun(this.world, p, this.game.audio);
     if (input.held('secondary')) fireSecondary(this.world, p, this.game.audio, 'air');
     if (input.held('groundWeapon')) fireSecondary(this.world, p, this.game.audio, 'ground');
-    if (input.pressed('weaponSwitch')) switchGroundWeapon(p, this.game.audio);
+    if (input.pressed('weaponSwitch') && !picking) switchGroundWeapon(p, this.game.audio);
     if (input.pressed('flare')) dropFlare(this.world, p, this.game.audio);
     if (input.pressed('special')) this.activateSpecial();
     this.cockpitClicks();
@@ -146,11 +158,13 @@ export class MissionScene implements Scene {
     p.tick(dt);
     tickSpecials(w, p, dt, this.game.audio);
     tickMech(w, p, dt, this.game.audio);
+    tickTank(w, p, dt, this.game.audio);
+    if (w.defence) this.defenceEvents(w.defence.tick(dt, this.game.audio));
     tickHeliArms(w, p, dt, this.game.audio);
     fireWingman(w, p, dt);
-    const dashing = p.specialActive > 0 && p.stats.plane.special === 'dash';
+    const dashing = p.specialActive > 0 && (p.stats.plane.special === 'dash' || p.stats.plane.special === 'nitro');
     const holdForBoss = w.boss?.def.id === 'sandstorm' && w.boss.phase !== 'enter';
-    const hold = holdForBoss ? 0 : holdsScroll(w.enemies, PF_H, isMiniBoss) ? MINI_HOLD_SCROLL : 1;
+    const hold = holdForBoss || w.defence ? 0 : holdsScroll(w.enemies, PF_H, isMiniBoss) ? MINI_HOLD_SCROLL : 1;
     w.scrollMul = approach(w.scrollMul, dashing ? 3 : hold, dt * 3);
     w.jammed = jamming(w.enemies, PF_H);
     this.spawnEvents();
@@ -159,7 +173,7 @@ export class MissionScene implements Scene {
     for (const wr of w.wrecks) wr.y += w.scrollSpeed * dt;
     updateEnemies(w, p, dt, this.game.audio);
     w.boss?.update(dt, w, p, this.game.audio);
-    updateCombat(w, p, dt, { audio: this.game.audio, onPlayerHit: (n) => this.playerHit(n) });
+    updateCombat(w, p, dt, { audio: this.game.audio, onPlayerHit: (n) => hitPlayer(w, p, n, this.game.audio) });
     updatePickups(w, p, dt, this.game.audio);
     w.particles.update(dt, w.scrollSpeed);
     w.shake = Math.max(0, w.shake - dt * 25);
@@ -175,9 +189,24 @@ export class MissionScene implements Scene {
         if (isMiniBoss(ev.kind)) this.warn(t('mission.miniBoss', { name: enemyName(ev.kind) }), enemyName(ev.kind));
       } else {
         w.boss = new Boss(ev.boss, w.mission.difficulty, w.ease, mapTwoHp(w.mission.number));
-        this.warn(t('mission.bossApproaching', { boss: w.boss.def.name, title: bossTitle(w.boss.def.id) }), w.boss.def.name);
-        this.game.music.play('boss');
+        this.bossArrives();
       }
+    }
+  }
+
+  private bossArrives(): void {
+    const b = this.world.boss;
+    if (!b) return;
+    this.warn(t('mission.bossApproaching', { boss: b.def.name, title: bossTitle(b.def.id) }), b.def.name);
+    this.game.music.play('boss');
+  }
+
+  /** What a defence's tick reports: the boss's arrival warns, the rest goes to Captain Ortega (doc 106). */
+  private defenceEvents(evs: readonly DefenceEvent[]): void {
+    const d = this.world.defence;
+    for (const ev of evs) {
+      if (ev === 'boss') this.bossArrives();
+      else if (d) this.post?.event(ev, d.wave, d.total);
     }
   }
 
@@ -194,25 +223,6 @@ export class MissionScene implements Scene {
     this.radio.bossWarning(name);
   }
 
-  /** Every enemy hit lands here; its damage grows with the mission's difficulty (doc 43). */
-  private playerHit(base: number): void {
-    const p = this.player;
-    const w = this.world;
-    if (!p.alive || p.invulnerable) return;
-    const amount = base * hitScale(w.mission.difficulty) * mapTwoHit(w.mission.number);
-    w.perf.damage += amount;
-    const died = p.damage(amount);
-    w.particles.sparks(p.x, p.y, 8, '#ffb070', 200);
-    if (died) {
-      w.particles.explosion(p.x, p.y, 'huge');
-      this.game.audio.play('explosionHuge');
-      w.addShake(14);
-    } else {
-      this.game.audio.play('playerHit');
-      w.addShake(4);
-    }
-  }
-
   private checkEnd(): void {
     const w = this.world;
     const p = this.player;
@@ -224,7 +234,7 @@ export class MissionScene implements Scene {
       w.collected += bounty;
       w.particles.popup(w.boss.x, w.boss.y, `+$${bounty}`, '#5be37d');
     }
-    const over = isMissionOver({
+    const over = w.defence ? isDefenceOver(w.tally, w.defence.total, bossMission, !p.alive) : isMissionOver({
       playerDead: !p.alive, bossMission, bossKilled: w.tally.bossKilled, t: w.t, length: this.mission.length,
       enemiesOnScreen: w.liveEnemies(), overtime: Math.max(0, w.t - this.mission.length),
     });
@@ -233,7 +243,7 @@ export class MissionScene implements Scene {
     this.ending = { success, timer: 0 };
     p.invuln = 99;
     this.game.music.play(success ? 'victory' : 'defeat');
-    const reason = t(w.crashed ? 'mission.crashed' : !p.alive ? 'mission.shotDown' : 'mission.objectiveMissed');
+    const reason = t(w.crashed ? 'mission.crashed' : !p.alive ? 'mission.shotDown' : w.tally.outpostLost ? 'mission.outpostLost' : 'mission.objectiveMissed');
     this.banner = success
       ? { title: t('mission.complete'), sub: t('mission.returnToCarrier'), color: COLORS.gold, time: 99 }
       : { title: t('mission.failed'), sub: reason, color: COLORS.red, time: 99 };
@@ -272,6 +282,7 @@ export class MissionScene implements Scene {
     clipPlayfield(ctx);
     if (w.shake > 0) ctx.translate((Math.random() - 0.5) * w.shake, (Math.random() - 0.5) * w.shake);
     renderWorld(ctx, w, this.player, this.t);
+    if (w.defence) renderDefenceHud(ctx, w.defence, this.player, this.t);
     drawSwitchCallout(ctx, this.player);
     ctx.restore();
     renderBanner(ctx, this.banner, this.t);

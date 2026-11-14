@@ -13,6 +13,9 @@ import { JUNGLE_UNITS } from './enemies/jungle';
 import { JUNGLE_CREATURES, junglePals } from './enemies/jungle-creatures';
 import { ALIEN_GROUND, alienGroundPals } from './enemies/alien-ground';
 import { ALIEN_AIR, alienAirPals } from './enemies/alien-air';
+import { STEPPE_ARMY, steppeArmyPals } from './enemies/steppe-army';
+import { STEPPE_MACHINES, steppeMachinePals } from './enemies/steppe-machines';
+import { STEPPE_AIR, steppeAirPals } from './enemies/steppe-air';
 
 export { exhaust, fire, hash, roundel, scorch, smoke } from './enemies/fx';
 
@@ -71,6 +74,10 @@ const PALS: Readonly<Record<EnemyKind, Pal>> = {
   ...junglePals(pal),
   ...alienGroundPals(pal),
   ...alienAirPals(pal),
+  // The alien steppe's invasion army (doc 105).
+  ...steppeArmyPals(pal),
+  ...steppeMachinePals(pal),
+  ...steppeAirPals(pal),
 };
 const FLASH = monoPal('#ffffff', true);
 const SILHOUETTE = monoPal('#000000', false);
@@ -78,7 +85,7 @@ const BURNT: Pal = { ...pal('#2e2a26', '#1a1816', '#3e3933', '#25221f', '#141312
 
 const DRAW: Readonly<Record<EnemyKind, UnitFn>> = {
   ...AIR_UNITS, ...GROUND_UNITS, ...GROUND_UNITS_2, ...SPACE_UNITS, ...SEA_UNITS, ...SEA_UNITS_2, ...CREATURES, ...JUNGLE_UNITS, ...JUNGLE_CREATURES,
-  ...ALIEN_GROUND, ...ALIEN_AIR,
+  ...ALIEN_GROUND, ...ALIEN_AIR, ...STEPPE_ARMY, ...STEPPE_MACHINES, ...STEPPE_AIR,
 };
 
 const sprites = new Map<EnemyKind, HTMLCanvasElement>();

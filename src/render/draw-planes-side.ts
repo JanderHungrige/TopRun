@@ -15,6 +15,7 @@ import { drawShipSide } from './ship';
 import { drawU212Side } from './subs/u212';
 import { AKULA_SUB, drawSubSide, SEAWOLF_SUB, VIRGINIA_SUB } from './subs/fleet';
 import { drawMechSide } from './mechs/mech-side';
+import { drawBuggySide, drawTankSide, isTankSide } from './tanks/tank-side';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
 
@@ -61,10 +62,17 @@ export function drawPlaneSide(
     case 'ranger':
     case 'hornet':
     case 'titan': drawMechSide(ctx, id, { t: opts.t, paint: o.paint ?? null, stride: o.stride ?? 0 }); break;
+    case 'jackal':
+    case 'lynx':
+    case 'viper':
+    case 'bison':
+      if (isTankSide(id)) drawTankSide(ctx, id, look, opts.t);
+      else drawBuggySide(ctx, id, look, opts.t);
+      break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();
 }
 
 /** Nozzle x offset (unscaled) for exhaust heat / steam effects. */
-export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21, starship: -40, u212: -56, seawolf: -58, virginia: -57, akula: -57, strider: -14, ranger: -16, hornet: -14, titan: -20 };
+export const SIDE_TAIL_X: Readonly<Record<PlaneId, number>> = { f16: -44, f14: -46, sr71: -52, a10: -34, f35: -44, tornado: -41, ah64: -23, tiger: -20, rah66: -22, mi24: -21, starship: -40, u212: -56, seawolf: -58, virginia: -57, akula: -57, strider: -14, ranger: -16, hornet: -14, titan: -20, jackal: -22, lynx: -27, viper: -26, bison: -32 };

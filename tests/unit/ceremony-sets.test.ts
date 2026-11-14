@@ -4,15 +4,15 @@ import { CAMPAIGN_IDS } from '../../src/data/types';
 import { ceremonySet } from '../../src/game/ceremony-stage';
 
 // World ceremonies (doc 75): the deck on maps 1–3, a submarine pier on map 4, a space hangar on map 5, the jungle camp on
-// map 6 (doc 98).
+// map 6 (doc 98), the steppe field camp on map 7 (doc 110).
 
 describe('World ceremonies (doc 75)', () => {
   it('holds the ceremony where the pilot\'s world is', () => {
-    expect(CAMPAIGN_IDS.map(ceremonySet)).toEqual(['deck', 'deck', 'deck', 'pier', 'hangar', 'camp']);
+    expect(CAMPAIGN_IDS.map(ceremonySet)).toEqual(['deck', 'deck', 'deck', 'pier', 'hangar', 'camp', 'steppe']);
   });
 
   it('has a picture and a saluting crew row for each new stage, on the 320 × 180 grid; stars only in the hangar', () => {
-    for (const set of ['pier', 'hangar', 'camp'] as const) {
+    for (const set of ['pier', 'hangar', 'camp', 'steppe'] as const) {
       const s = CEREMONY_SETS[set];
       expect(s.plate).toBe(set);
       expect(s.crew).not.toBeNull();

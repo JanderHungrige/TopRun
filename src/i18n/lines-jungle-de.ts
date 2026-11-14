@@ -1,7 +1,9 @@
 import type { JUNGLE_LINES_EN } from './lines-jungle-en';
+import { STEPPE_LINES_DE } from './lines-steppe-de';
 
 // The jungle planet's lines in German (docs 78, 82, 83); same {placeholders} as English.
 export const JUNGLE_LINES_DE: Readonly<Record<keyof typeof JUNGLE_LINES_EN, readonly string[]>> = {
+  ...STEPPE_LINES_DE,
   'adm.jungle': [
     'Und noch eine Welt, {callsign}: ein Dschungelplanet. Keine Startbahn, kein Wasser, also wird gelaufen. Deine Mechs warten. Schau auf den Globus.',
   ],

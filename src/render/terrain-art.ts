@@ -1,15 +1,19 @@
 import { TAU } from '../core/math';
 import { createRng } from '../core/rng';
-import { jungle, underwater, type TerrainStyle, type TheaterPalette } from '../data/theaters';
+import { jungle, steppe, underwater, type TerrainStyle, type TheaterPalette } from '../data/theaters';
 import { drawJungleFeature, makeJungleTile, type JungleFeature } from './jungle-floor';
 import { drawReefFeature, makeReefTile } from './sea-floor';
+import { makeSteppeTile, type SteppeFeature } from './steppe-floor';
+import { drawSteppeFeature } from './steppe-features';
 
 export type FeatureType =
   | 'island' | 'reef' | 'floe' | 'dune' | 'rock' | 'road' | 'mesa' | 'whitecap' | 'oasis' | 'pad' | 'crater'
   // Under the sea (doc 68).
   | 'coral' | 'kelp' | 'stone' | 'drop' | 'wreck' | 'vent'
   // The jungle planet (doc 81).
-  | JungleFeature;
+  | JungleFeature
+  // The alien steppe (doc 105).
+  | SteppeFeature;
 
 export interface Feature {
   type: FeatureType;
@@ -168,6 +172,20 @@ export function drawFeature(ctx: CanvasRenderingContext2D, f: Feature, style: Te
     case 'root':
       drawJungleFeature(ctx, f.type, f.x, f.y, f.r, Math.floor(f.rot * 1e5), t, p);
       return;
+    case 'tussock':
+    case 'boulder':
+    case 'bones':
+    case 'scorch':
+    case 'trail':
+    case 'saltpool':
+    case 'gully':
+    case 'barrow':
+    case 'menhir':
+    case 'henge':
+    case 'pylon':
+    case 'shard':
+      drawSteppeFeature(ctx, f.type, f.x, f.y, f.r, Math.floor(f.rot * 1e5), t, p);
+      return;
     default:
       throw new Error(`unhandled: ${f.type satisfies never}`);
   }
@@ -207,6 +225,7 @@ export function makeBaseTile(style: TerrainStyle, p: TheaterPalette): HTMLCanvas
   if (!g) return c;
   if (underwater(style)) return makeReefTile(p);
   if (jungle(style)) return makeJungleTile(style, p);
+  if (steppe(style)) return makeSteppeTile(style, p);
   const land = style === 'desert' || style === 'canyon' || style === 'lunar';
   g.fillStyle = land ? p.land : p.sea;
   g.fillRect(0, 0, TILE, TILE);

@@ -10,6 +10,7 @@ import { paintedDamage } from '../../game/heli-combat';
 import { passesThrough, roundEffects } from './heli-arms';
 import { updatePointDefence } from './point-defence';
 import { updateShells } from './shells';
+import { deathBrood, shieldShare } from '../../game/steppe-army';
 import { fireRing } from './weapons-fire';
 import { PLAYER_RADIUS, type Player } from './player';
 import { PF_H, PF_W, type Enemy, type Missile, type World } from './world';
@@ -38,6 +39,7 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
   world.tally.killsByKind[e.kind] = (world.tally.killsByKind[e.kind] ?? 0) + 1;
   if (e.layer === 'ground') world.wrecks.push({ kind: e.kind, x: e.x, y: e.y });
   if (e.def.burst && !quiet) fireRing(world, e, e.def.burst, e.t); // the spore balloon bursts (doc 96)
+  if (e.def.spawn?.count && !quiet) for (const at of deathBrood(e.def, e.x, e.y)) world.brood.push({ kind: e.def.spawn.kind, ...at }); // doc 105
   const drop = rollDrop(Math.random());
   if (drop) world.perf.drops += 1;
   if (drop) world.pickups.push({ kind: drop, x: e.x, y: e.y, value: Math.max(25, Math.round(e.bounty * 0.5)), t: 0, dead: false });
@@ -49,7 +51,8 @@ export function killEnemy(world: World, e: Enemy, audio: AudioEngine, quiet = fa
 export const hidden = (e: Enemy, p: Player): boolean => cloaked(!!e.def.stealth, e.revealT, Math.hypot(e.x - p.x, e.y - p.y));
 
 export function damageEnemy(world: World, e: Enemy, amount: number, audio: AudioEngine): void {
-  e.hp -= paintedDamage(amount, e.paintT, world.paintBonus); // painted by tracer rounds (doc 99)
+  const cover = e.def.layer === 'ground' ? shieldShare(e, world.enemies) : 1; // a shield bearer's cover (doc 105)
+  e.hp -= paintedDamage(amount * cover, e.paintT, world.paintBonus); // painted by tracer rounds (doc 99)
   e.flash = 0.06;
   if (e.hp <= 0) killEnemy(world, e, audio);
   else audio.play('hit', { volume: 0.25 });
@@ -60,7 +63,7 @@ function updatePlayerBullets(world: World, dt: number, audio: AudioEngine): void
     if (b.dead || b.kind === 'enemy' || b.kind === 'flak') continue;
     b.x += b.vx * dt;
     b.y += b.vy * dt;
-    if (b.y < -20 || b.x < -20 || b.x > PF_W + 20) {
+    if (b.y < -20 || b.y > PF_H + 20 || b.x < -20 || b.x > PF_W + 20) { // a tower's rounds can fly down (doc 106)
       b.dead = true;
       continue;
     }

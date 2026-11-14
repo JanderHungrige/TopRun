@@ -3,8 +3,9 @@ import type { Pix } from '../pixel/raster';
 
 // Talking portraits (doc 06, pixel look doc 20): types shared by the character modules and the avatars.
 
-/** The jungle base's Major "Dozer" Brennan and Dr. Ada "Flask" Moreau (docs 82, 83) besides the carrier's cast. */
-export type CharacterId = 'admiral' | 'chief' | 'shooter' | 'wingman' | 'major' | 'doc';
+/** The jungle base's Major "Dozer" Brennan and Dr. Ada "Flask" Moreau (docs 82, 83) and the steppe's Captain Rosa "Bastion"
+ *  Ortega and Dr. Ilya "Sparks" Novak (docs 106, 107) besides the carrier's cast. */
+export type CharacterId = 'admiral' | 'chief' | 'shooter' | 'wingman' | 'major' | 'doc' | 'ortega' | 'novak';
 export type Mood = 'neutral' | 'happy' | 'stern' | 'worried';
 export type Gesture = 'none' | 'thumbsUp' | 'point' | 'salute' | 'facepalm';
 export interface Box { x: number; y: number; w: number; h: number }

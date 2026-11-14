@@ -21,6 +21,8 @@ import { isLiveryUnlocked, parseLiveries } from './liveries';
 import { parseMinigames, type MinigameRecords } from './minigames/core';
 import { freshOutpost, parseOutpost, type Outpost } from './outpost';
 import { parsePaints, type Paint } from './mech-paint';
+import { freshSteppeLab, parseSteppeLab, type SteppeLab } from './steppe-lab';
+import { freshTankArms, parseTankArms, type TankArms } from './tank-arms';
 import { emptyRecord, parseRecord, type ServiceRecord } from './service-record';
 import { reorderWorlds, WORLD_ORDER } from './world-order';
 
@@ -92,6 +94,10 @@ export interface SaveData {
   outpost: Outpost;
   /** Each mech's hand-painted camo (doc 87); a mech missing here wears its default. */
   mechPaint: Partial<Record<MechId, Paint>>;
+  /** The tanks' and buggies' own kit (doc 103), their gun upgrades and ammo (doc 108), the steppe lab (doc 107). */
+  tank: FleetKit;
+  tankArms: TankArms;
+  steppeLab: SteppeLab;
   /** The worlds whose welcome film the pilot has seen (doc 97). */
   intros: CampaignId[];
 }
@@ -147,6 +153,9 @@ export function defaultSave(): SaveData {
     mech: freshFleetKit('mech'),
     outpost: freshOutpost(),
     mechPaint: {},
+    tank: freshFleetKit('tank'),
+    tankArms: freshTankArms(),
+    steppeLab: freshSteppeLab(),
     intros: [],
   };
 }
@@ -263,6 +272,9 @@ export function parseSave(input: unknown): SaveData | null {
     mech: parseFleetKit('mech', raw.mech),
     outpost: parseOutpost(raw.outpost),
     mechPaint: parsePaints(raw.mechPaint),
+    tank: parseFleetKit('tank', raw.tank),
+    tankArms: parseTankArms(raw.tankArms),
+    steppeLab: parseSteppeLab(raw.steppeLab),
     intros: ids(raw.intros, INTRO_WORLDS),
   };
 }

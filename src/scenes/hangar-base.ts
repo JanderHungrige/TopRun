@@ -133,8 +133,16 @@ export class HangarBaseScene implements Scene {
     this.game.go({ to: 'map' });
   }
 
+  /** The mech bay on the jungle base (doc 79), the motor pool and Dr. Novak's lab in the steppe tent (doc 111). */
+  private hintKey(): UiKey {
+    if (this.focus === 'jet' && this.look === 'jungle') return 'hbase.hint.mech';
+    if (this.focus === 'jet' && this.look === 'steppe') return 'hbase.hint.tank';
+    if (this.focus === 'lab' && this.look === 'steppe') return 'hbase.hint.steppeLab';
+    return HINT_KEY[this.focus];
+  }
+
   private text(): HangarText {
-    const hint = this.look === 'jungle' && this.focus === 'jet' ? 'hbase.hint.mech' : HINT_KEY[this.focus]; // the mech bay (doc 79)
+    const hint = this.hintKey();
     return { names: this.names, hint: t(hint), keys: t('hbase.keys'), title: t('hbase.title') };
   }
 

@@ -11,8 +11,17 @@ import { PF_X, type World } from './world';
 const START_DELAY = 1.2;
 const HULL_LOW = 0.3;
 
+/** Who talks on the mission's radio: Duke on a sortie, Captain Ortega in a defence (doc 106). */
+export interface Radio {
+  bossWarning(boss: string): void;
+  special(): void;
+  victory(): void;
+  update(dt: number, world: World, p: Player, input: Input): void;
+  render(ctx: CanvasRenderingContext2D): void;
+}
+
 /** Lt. "Duke" Carter on the radio: calls out mission events once each (doc 06), in the world's outfit (doc 97). */
-export class WingmanRadio {
+export class WingmanRadio implements Radio {
   private readonly box: SpeechBox;
   private readonly said = new Set<WingmanEvent | 'start'>();
 

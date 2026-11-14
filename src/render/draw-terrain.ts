@@ -2,10 +2,13 @@ import { TAU } from '../core/math';
 import { createRng, type Rng } from '../core/rng';
 import type { TheaterDef } from '../data/theaters';
 import { asSea, Water } from './water';
-import { jungle } from '../data/theaters';
+import { jungle, steppe } from '../data/theaters';
 import { Footprints } from './footprints';
+import { TrackMarks } from './track-marks';
 import { JungleCanopy, jungleRow } from './jungle-canopy';
 import { seabedRow } from './sea-floor';
+import { steppeRow } from './steppe-floor';
+import { SteppeWind } from './steppe-wind';
 import { drawFeature, makeBaseTile, makeBlob, type Feature, type FeatureType } from './terrain-art';
 
 const W = 640;
@@ -32,6 +35,9 @@ export class Terrain {
   /** On the jungle planet (doc 81): the canopy overhead and the mechs' footprints. */
   private readonly canopy: JungleCanopy | null;
   readonly prints = new Footprints();
+  /** On the alien steppe (doc 104): the vehicles' tracks and tyre marks. */
+  readonly marks = new TrackMarks();
+  private readonly wind: SteppeWind | null;
   private time = 0;
   lightning = 0;
 
@@ -40,6 +46,7 @@ export class Terrain {
     const sea = asSea(theater.terrain);
     this.water = sea ? new Water(sea, seed + 1) : null;
     this.canopy = jungle(theater.terrain) ? new JungleCanopy(theater.terrain, theater.palette, seed + 2) : null;
+    this.wind = steppe(theater.terrain) ? new SteppeWind(theater.terrain) : null;
     for (let y = -ROW; y < H; y += ROW) this.spawnRow(y);
     for (let i = 0; i < 4; i++) this.spawnCloud(this.rng.range(0, H));
   }
@@ -55,6 +62,7 @@ export class Terrain {
     this.water?.update(dt, dy);
     this.canopy?.update(dt, dy);
     this.prints.update(dt, dy);
+    this.marks.update(dt, dy);
     for (const f of this.features) f.y += dy;
     for (const c of this.clouds) c.y += dy * 1.7;
     this.features = this.features.filter((f) => f.y - f.r * 4 < H + 40);
@@ -82,12 +90,15 @@ export class Terrain {
     const style = this.theater.terrain;
     for (const f of this.features) drawFeature(ctx, f, style, this.theater.palette, this.time);
     this.prints.render(ctx);
+    this.marks.render(ctx);
+    this.wind?.renderGround(ctx, this.time, this.distance);
     this.water?.renderFloor(ctx, this.distance);
   }
 
   renderSky(ctx: CanvasRenderingContext2D, t: number): void {
     if (this.water) return this.water.renderOverlay(ctx);
     if (this.canopy) return this.canopy.render(ctx);
+    this.wind?.renderSky(ctx, t);
     // Each cloud is filled as one shape so overlapping puffs keep a single, even transparency.
     ctx.fillStyle = this.theater.palette.cloud;
     ctx.globalAlpha = 0.7;
@@ -245,6 +256,13 @@ export class Terrain {
       case 'ruins':
       case 'hive':
         jungleRow(this.theater.terrain, add, r);
+        return;
+      case 'grass':
+      case 'salt':
+      case 'badlands':
+      case 'barrows':
+      case 'impact':
+        steppeRow(this.theater.terrain, add, r);
         return;
       default:
         throw new Error(`unhandled: ${this.theater.terrain satisfies never}`);

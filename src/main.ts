@@ -55,8 +55,7 @@ class Game implements GameContext {
   get save(): SaveData {
     const p = activeProfile(this.store);
     if (!p) return kitView(this.scratch, this.kit);
-    const view = kitView(p.save, this.kit);
-    return isAdminPilot(p) ? adminView(view) : view;
+    return kitView(isAdminPilot(p) ? adminView(p.save) : p.save, this.kit); // the admin's labs first, so the kits see their inventions
   }
 
   setKit(kit: Kit): void {

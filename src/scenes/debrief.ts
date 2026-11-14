@@ -8,7 +8,8 @@ import { debriefScript } from '../game/dialogue-scripts';
 import { missionScore } from '../game/score';
 import { applyResult, type Payout } from '../game/economy';
 import type { DayReport } from '../game/outpost-day';
-import { drawBaseReport } from './debrief-base';
+import { drawBaseReport, drawLabReport } from './debrief-base';
+import type { SteppeDayReport } from '../game/steppe-lab';
 import { newlyUnlocked } from '../game/liveries';
 import { offerAfterMission } from '../game/minigames/core';
 import { earnedMedals, newMedals } from '../game/medals';
@@ -30,6 +31,7 @@ import { ButtonGroup, drawPanel } from '../ui/widgets';
 /** The gold banner when a map's finale is won (docs 35, 48, 65). */
 const FINALE_BANNER: Readonly<Record<CampaignId, UiKey>> = {
   1: 'debrief.finale', 2: 'debrief.finale2', 3: 'debrief.finale3', 4: 'debrief.finale4', 5: 'debrief.finale5', 6: 'debrief.finale6',
+  7: 'debrief.finale7',
 };
 
 const TAKEOFF_LABEL: Readonly<Record<TakeoffRating, UiKey>> = {
@@ -61,6 +63,8 @@ export class DebriefScene implements Scene {
   private readonly medals: MedalId[];
   /** What the ground base made during a map-6 sortie (doc 82). */
   private readonly base: DayReport | null;
+  /** What the steppe lab made during a map-7 sortie (doc 107). */
+  private readonly lab: SteppeDayReport | null;
 
   constructor(private readonly game: GameContext, private readonly mission: MissionDef, private readonly result: MissionResult) {
     const before = game.save.progress[mission.id]?.stars ?? 0;
@@ -80,6 +84,7 @@ export class DebriefScene implements Scene {
     game.setBaseLight(lightAfterMission(mission.campaign, game.baseLight, Math.random())); // the carrier base's light (doc 91)
     this.payout = applied.payout;
     this.base = applied.base;
+    this.lab = applied.lab;
     this.stars = applied.stars;
     this.newBest = result.success && applied.stars > before;
     const last = campaignMissions(mission.campaign).at(-1);
@@ -202,6 +207,7 @@ export class DebriefScene implements Scene {
     text(ctx, formatMoney(p.total * reveal), right, PAY.y + 236, { size: 28, display: true, align: 'right', color: COLORS.green });
     text(ctx, t('debrief.account', { money: formatMoney(this.game.save.money) }), right, PAY.y + PAY.h + 26, { size: 14, align: 'right', color: COLORS.dim });
     if (this.base && this.time > COUNT_UP) drawBaseReport(ctx, this.base, right, PAY.y + PAY.h + 50, this.time);
+    if (this.lab && this.time > COUNT_UP) drawLabReport(ctx, this.lab, right, PAY.y + PAY.h + 50, this.time);
   }
 
   private renderStars(ctx: CanvasRenderingContext2D): void {

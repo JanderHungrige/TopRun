@@ -27,15 +27,19 @@ const PANEL = { x: 882, y: 76, w: 378, h: 628 };
 const MENU_BTN = { x: 1150, y: 14, w: 110, h: 44 };
 /** Left edge of the callsign and money in the top bar; the avatar sits just left of it. */
 const PILOT_X = 860;
-const TITLE: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6' };
+const TITLE: Readonly<Record<CampaignId, UiKey>> = {
+  1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6', 7: 'map.title7',
+};
 const WON: Readonly<Record<CampaignId, UiKey>> = {
   1: 'map.campaignComplete', 2: 'map.campaign2Complete', 3: 'map.campaign3Complete', 4: 'map.campaign4Complete', 5: 'map.campaign5Complete',
-  6: 'map.campaign6Complete',
+  6: 'map.campaign6Complete', 7: 'map.campaign7Complete',
 };
 /** Threat triangles: red on map 1, violet on map 2 (doc 35), orange on map 3 (doc 48). */
-const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#5ff0e0', 5: '#7fb4ff', 6: '#c8ff6a' };
+const THREAT_COLOR: Readonly<Record<CampaignId, string>> = { 1: COLORS.red, 2: '#c27bff', 3: '#ff8a3d', 4: '#5ff0e0', 5: '#7fb4ff', 6: '#c8ff6a', 7: '#ffcf5a' };
 /** The briefing's craft line by map (docs 49, 66); map 5 shows the ship instead (doc 74). */
-const YOUR: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.yourJet', 2: 'map.yourJet', 3: 'map.yourHeli', 4: 'map.yourSub', 5: 'map.yourShip', 6: 'map.yourMech' };
+const YOUR: Readonly<Record<CampaignId, UiKey>> = {
+  1: 'map.yourJet', 2: 'map.yourJet', 3: 'map.yourHeli', 4: 'map.yourSub', 5: 'map.yourShip', 6: 'map.yourMech', 7: 'map.yourTank',
+};
 
 export class MapScene implements Scene {
   private t = 0;

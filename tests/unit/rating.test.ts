@@ -13,18 +13,18 @@ describe('Pilot rating', () => {
     expect(pilotRating({ ...zero, golds: 1, silvers: 1, bronzes: 1, score: 0 })).toBe(150 + 80 + 40);
   });
 
-  it('caps every ingredient so grinding cannot dominate, max 90 750 with six maps, their medals and the mission score (docs 35, 39, 48, 58, 62, 72, 85)', () => {
+  it('caps every ingredient so grinding cannot dominate, max 104 500 with seven maps, their medals and the mission score (docs 35, 39, 48, 58, 62, 72, 85, 110)', () => {
     expect(pilotRating({ ...zero, kills: 99999 })).toBe(4000);
     expect(pilotRating({ stars: 999, medals: 99, kills: 99999, golds: 99, silvers: 0, bronzes: 0, score: 999999 })).toBe(maxRating());
-    expect(maxRating()).toBe(90750);
-    expect(pilotRating({ ...zero, stars: 540 })).toBe(54000);
-    expect(pilotRating({ ...zero, stars: 600 })).toBe(54000);
+    expect(maxRating()).toBe(104500);
+    expect(pilotRating({ ...zero, stars: 630 })).toBe(63000);
+    expect(pilotRating({ ...zero, stars: 700 })).toBe(63000);
   });
 
-  it('adds the best mission scores ÷ 10, capped at 180 missions × 1000 (docs 39, 48, 58, 72, 85)', () => {
+  it('adds the best mission scores ÷ 10, capped at 210 missions × 1000 (docs 39, 48, 58, 72, 85, 110)', () => {
     expect(pilotRating({ ...zero, score: 734 })).toBe(73);
-    expect(pilotRating({ ...zero, score: 180000 })).toBe(18000);
-    expect(pilotRating({ ...zero, score: 189999 })).toBe(18000);
+    expect(pilotRating({ ...zero, score: 210000 })).toBe(21000);
+    expect(pilotRating({ ...zero, score: 219999 })).toBe(21000);
     expect(clampStats({ ...zero, score: -3 }).score).toBe(0);
   });
 
@@ -34,7 +34,7 @@ describe('Pilot rating', () => {
   });
 
   it('maps ratings to naval ranks', () => {
-    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'deepadm', 'staradm', 'junglemarshal']);
+    expect(RANK_IDS).toEqual(['ensign', 'ltjg', 'lt', 'lcdr', 'cdr', 'capt', 'radm', 'adm', 'fadm', 'legend', 'ace', 'deepadm', 'staradm', 'junglemarshal', 'steppemarshal']);
     expect(rankFor(35999)).toBe('legend');
     expect(rankFor(36000)).toBe('ace');
     expect(rankFor(47999)).toBe('ace');
@@ -43,7 +43,9 @@ describe('Pilot rating', () => {
     expect(rankFor(60000)).toBe('staradm');
     expect(rankFor(71999)).toBe('staradm');
     expect(rankFor(72000)).toBe('junglemarshal');
-    expect(rankFor(maxRating())).toBe('junglemarshal');
+    expect(rankFor(83999)).toBe('junglemarshal');
+    expect(rankFor(84000)).toBe('steppemarshal');
+    expect(rankFor(maxRating())).toBe('steppemarshal');
     expect(rankFor(0)).toBe('ensign');
     expect(rankFor(799)).toBe('ensign');
     expect(rankFor(800)).toBe('ltjg');

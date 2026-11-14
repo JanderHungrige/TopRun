@@ -21,12 +21,14 @@ export interface PortraitState {
 }
 
 /** Per-character phase so the cast never blinks or bobs in sync. */
-const SEED: Readonly<Record<CharacterId, number>> = { admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6, major: 2.5, doc: 5.3 };
-const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman', 'major', 'doc'];
-/** The crew's other outfits (docs 76, 86, 97); a missing one falls back to the carrier's. */
+const SEED: Readonly<Record<CharacterId, number>> = {
+  admiral: 0.3, chief: 1.9, shooter: 3.1, wingman: 4.6, major: 2.5, doc: 5.3, ortega: 0.9, novak: 3.7,
+};
+const CAST: readonly CharacterId[] = ['admiral', 'shooter', 'chief', 'wingman', 'major', 'doc', 'ortega', 'novak'];
+/** The crew's other outfits (docs 76, 86, 97, 111); a missing one falls back to the carrier's. */
 const OUTFITS: readonly string[] = [
-  'chief-sea', 'chief-space', 'chief-jungle', 'shooter-sea', 'shooter-space', 'shooter-jungle',
-  'wingman-mountain', 'wingman-sea', 'wingman-space', 'wingman-jungle',
+  'chief-sea', 'chief-space', 'chief-jungle', 'chief-steppe', 'shooter-sea', 'shooter-space', 'shooter-jungle', 'shooter-steppe',
+  'wingman-mountain', 'wingman-sea', 'wingman-space', 'wingman-jungle', 'wingman-steppe',
 ];
 
 /** Starts loading the portraits of the cast and of the preset pilots (called once at boot). */

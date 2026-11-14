@@ -3,13 +3,18 @@ import type { CharacterId } from '../render/portraits/types';
 import type { Kit } from './kit';
 
 // The crew in each world's outfit (doc 76): Chief "Wrench" Kowalski and Lt. "Shooter" Reyes keep their faces, but under
-// the sea they wear submariners' clothes, in space station clothes and on the jungle planet jungle kit (doc 86). Maps 1–2
+// the sea they wear submariners' clothes, in space station clothes, on the jungle planet jungle kit (doc 86) and on the
+// steppe steppe kit (doc 111; until its portraits exist the carrier's stand in). Maps 1–2
 // are the carrier's; map 3's mountain look is Duke's alone so far (doc 97), the others wear the carrier's there. Pure.
 
-export type CrewLook = 'carrier' | 'mountain' | 'sea' | 'space' | 'jungle';
+export type CrewLook = 'carrier' | 'mountain' | 'sea' | 'space' | 'jungle' | 'steppe';
 
-const LOOK_OF: Readonly<Record<CampaignId, CrewLook>> = { 1: 'carrier', 2: 'carrier', 3: 'mountain', 4: 'sea', 5: 'space', 6: 'jungle' };
-const KIT_LOOK: Readonly<Record<Kit, CrewLook>> = { jet: 'carrier', heli: 'carrier', sub: 'sea', ship: 'space', mech: 'jungle' };
+const LOOK_OF: Readonly<Record<CampaignId, CrewLook>> = {
+  1: 'carrier', 2: 'carrier', 3: 'mountain', 4: 'sea', 5: 'space', 6: 'jungle', 7: 'steppe',
+};
+const KIT_LOOK: Readonly<Record<Kit, CrewLook>> = {
+  jet: 'carrier', heli: 'carrier', sub: 'sea', ship: 'space', mech: 'jungle', tank: 'steppe',
+};
 
 /** The outfit of a world's crew. */
 export const crewLook = (world: CampaignId): CrewLook => LOOK_OF[world];

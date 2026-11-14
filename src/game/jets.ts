@@ -39,6 +39,7 @@ export function specialRules(special: SpecialId): SpecialRules {
     case 'roll':
     case 'dash':
     case 'jumpjet':
+    case 'nitro':
     case 'armour': return { invulnerable: true, stealth: false };
     case 'stealth': return { invulnerable: false, stealth: true };
     case 'wingman':
@@ -46,6 +47,8 @@ export function specialRules(special: SpecialId): SpecialRules {
     case 'nuke':
     case 'longbow':
     case 'gunpods':
+    case 'sentry':
+    case 'maingun':
     case 'sonar': return { invulnerable: false, stealth: false };
     default: throw new Error(`unhandled: ${special satisfies never}`);
   }

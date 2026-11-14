@@ -22,12 +22,14 @@ const STRIPES: Readonly<Record<RankId, readonly Stripe[]>> = {
   deepadm: ['wide', 'wide', 'wide', 'wide'],
   staradm: ['wide', 'wide', 'wide', 'wide', 'wide'],
   junglemarshal: ['wide', 'wide', 'wide', 'wide', 'wide', 'mid'],
+  steppemarshal: ['wide', 'wide', 'wide', 'wide', 'wide', 'wide'],
 };
 
 export const RANK_KEY: Readonly<Record<RankId, UiKey>> = {
   ensign: 'rank.ensign', ltjg: 'rank.ltjg', lt: 'rank.lt', lcdr: 'rank.lcdr',
   cdr: 'rank.cdr', capt: 'rank.capt', radm: 'rank.radm', adm: 'rank.adm', fadm: 'rank.fadm', legend: 'rank.legend', ace: 'rank.ace',
   staradm: 'rank.staradm', deepadm: 'rank.deepadm', junglemarshal: 'rank.junglemarshal',
+  steppemarshal: 'rank.steppemarshal',
 };
 
 const HEIGHT: Readonly<Record<Stripe, number>> = { wide: 5, mid: 2, thin: 1 };

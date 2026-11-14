@@ -4,6 +4,7 @@ import { MISSIONS_3 } from './missions-3';
 import { MISSIONS_4 } from './missions-4';
 import { MISSIONS_5 } from './missions-5';
 import { MISSIONS_6 } from './missions-6';
+import { MISSIONS_7 } from './missions-7';
 import type { CampaignId, MissionDef, TheaterId } from './types';
 
 // Map 1 (doc 03): missions m01–m30 in five theaters. Map 2 (m31–m60) lives in missions-2.ts (doc 35).
@@ -60,8 +61,8 @@ export const MISSIONS: readonly MissionDef[] = Object.freeze(buildCampaign({
   campaign: 1, first: 1, seeds: ORDER.map((id): [TheaterId, readonly MissionSeed[]] => [id, SEEDS[id]]), length: (n, boss) => (boss ? 45 + n : 70 + Math.round((n - 1) * 2.1)),
 }));
 
-/** Every map, m01–m180. */
-export const ALL_MISSIONS: readonly MissionDef[] = Object.freeze([...MISSIONS, ...MISSIONS_2, ...MISSIONS_3, ...MISSIONS_4, ...MISSIONS_5, ...MISSIONS_6]);
+/** Every map, m01–m210. */
+export const ALL_MISSIONS: readonly MissionDef[] = Object.freeze([...MISSIONS, ...MISSIONS_2, ...MISSIONS_3, ...MISSIONS_4, ...MISSIONS_5, ...MISSIONS_6, ...MISSIONS_7]);
 
 export function campaignMissions(c: CampaignId): readonly MissionDef[] {
   switch (c) {
@@ -71,6 +72,7 @@ export function campaignMissions(c: CampaignId): readonly MissionDef[] {
     case 4: return MISSIONS_4;
     case 5: return MISSIONS_5;
     case 6: return MISSIONS_6;
+    case 7: return MISSIONS_7;
     default: throw new Error(`unhandled: ${c satisfies never}`);
   }
 }

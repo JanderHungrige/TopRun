@@ -8,28 +8,29 @@ import { defaultSave, type SaveData } from '../../src/game/save';
 import { LOCKER_CHEST, uniformLayout } from '../../src/game/uniform-layout';
 import { MEDALS_DE } from '../../src/i18n/medals-de';
 
-// World medals (docs 62, 72, 85): maps 2–6 get campaign ribbons, a victory medal and a golden star like map 1.
+// World medals (docs 62, 72, 85, 110): maps 2–7 get campaign ribbons, a victory medal and a golden star like map 1.
 
-const MAP_MEDALS: Readonly<Record<2 | 3 | 4 | 5 | 6, readonly MedalId[]>> = {
+const MAP_MEDALS: Readonly<Record<2 | 3 | 4 | 5 | 6 | 7, readonly MedalId[]>> = {
   2: ['northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead', 'victory2', 'allstars2'],
   3: ['fjords', 'highlands', 'delta', 'mesa', 'ashfall', 'victory3', 'allstars3'],
   4: ['reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5'], // the ids keep the sea's old map number (doc 74)
   5: ['orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4'],
   6: ['landing', 'canopy', 'swamp', 'ruins', 'hive', 'victory6', 'allstars6'],
+  7: ['grass', 'saltflats', 'badlands', 'barrows', 'impact', 'victory7', 'allstars7'],
 };
 
 const flown = (c: CampaignId, stars: number, upTo = 30): SaveData['progress'] =>
   Object.fromEntries(campaignMissions(c).slice(0, upTo).map((m) => [m.id, { stars }]));
 
 describe('World medals (doc 62)', () => {
-  it('adds 35 campaign medals after map 1\'s, in catalogue order, with German names', () => {
-    expect(MEDAL_IDS).toHaveLength(53);
+  it('adds 42 campaign medals after map 1\'s, in catalogue order, with German names', () => {
+    expect(MEDAL_IDS).toHaveLength(60);
     const campaign = MEDAL_IDS.filter((id) => MEDALS[id].group === 'campaign');
     expect(campaign).toEqual([
-      'pacific', 'gulf', 'arctic', 'canyon', 'leviathan', 'victory', 'allstars', ...MAP_MEDALS[2], ...MAP_MEDALS[3], ...MAP_MEDALS[4], ...MAP_MEDALS[5], ...MAP_MEDALS[6],
+      'pacific', 'gulf', 'arctic', 'canyon', 'leviathan', 'victory', 'allstars', ...MAP_MEDALS[2], ...MAP_MEDALS[3], ...MAP_MEDALS[4], ...MAP_MEDALS[5], ...MAP_MEDALS[6], ...MAP_MEDALS[7],
     ]);
     for (const id of campaign) expect(MEDALS_DE[id].name.length).toBeGreaterThan(3);
-    for (const c of [2, 3, 4, 5, 6] as const) {
+    for (const c of [2, 3, 4, 5, 6, 7] as const) {
       expect(MAP_MEDALS[c].slice(0, 5).every((id) => MEDALS[id].look.shape === 'ribbon')).toBe(true);
       expect(MEDALS[MAP_MEDALS[c][4] ?? 'victory'].look.metal).toBe('gold');
     }
@@ -57,13 +58,13 @@ describe('World medals (doc 62)', () => {
     expect(got).not.toContain('allstars');
   });
 
-  it('counts every medal for the rating and fits 30 ribbons on the dress whites, five smaller ones a row', () => {
-    expect(RATING.maxMedals).toBe(53);
-    expect(maxRating()).toBe(77500 + 53 * RATING.medal);
+  it('counts every medal for the rating and fits 35 ribbons on the dress whites, five smaller ones a row', () => {
+    expect(RATING.maxMedals).toBe(60);
+    expect(maxRating()).toBe(89500 + 60 * RATING.medal);
     const ribbons = MEDAL_IDS.filter((id) => MEDALS[id].look.shape === 'ribbon');
-    expect(ribbons).toHaveLength(30);
+    expect(ribbons).toHaveLength(35);
     const slots = uniformLayout(ribbons).slots;
-    expect(new Set(slots.map((s) => s.row)).size).toBe(6);
+    expect(new Set(slots.map((s) => s.row)).size).toBe(7);
     expect(Math.min(...slots.map((s) => s.y))).toBeGreaterThanOrEqual(LOCKER_CHEST.minTop);
     // The rack stays as wide as three full bars: five a row are smaller bars, still readable (doc 72).
     const left = Math.min(...slots.map((s) => s.box.x));

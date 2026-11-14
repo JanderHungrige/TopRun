@@ -111,8 +111,20 @@ const MECH: CockpitSkin = {
   sky: '#5a8a5a', ground: '#6a4a2a', horizon: '#f2eedc', symbol: '#ffd23a', toggle: '#3a3624', corner: 'chamfer', edgeGlow: null,
 };
 
-export const COCKPIT_SKINS: Readonly<Record<CockpitSkinId, CockpitSkin>> = Object.freeze({ jet: JET, heli: HELI, ship: SHIP, sub: SUB, mech: MECH });
-export const COCKPIT_SKIN_IDS: readonly CockpitSkinId[] = Object.freeze(['jet', 'heli', 'ship', 'sub', 'mech'] as const);
+/** The tanks and buggies (doc 104): dusty sand-coloured steel with rivets, amber screens behind a periscope frame. */
+const TANK: CockpitSkin = {
+  id: 'tank', back: ['#8a7a58', '#6a5c40', '#3c3424'], streak: '250,235,200', scratch: 'rgba(250,230,190,0.16)',
+  seam: '#1c170e', seamHi: 'rgba(255,190,90,0.3)', bevelHi: '#a8966c', bevelLo: '#1e190f', sunkHi: '#8a7a56', sunkLo: '#140f08',
+  plate: '#6e6046', namePlate: '#c8a050', nameInk: '#1e1608', nameHi: 'rgba(255,245,215,0.5)', legend: '#f4e8c8',
+  fastener: 'rivet', metal: ['#1e190f', '#9a8a62', '#cdbb8a'], bezel: ['#9a8a62', '#3e3624', '#16120a'], bezelRing: '#221c10',
+  housing: '#2a2418', well: '#120f08', capDark: '#342c1c', mfd: '#2a2418', screenBg: '#140c02',
+  ink: '#ffb84a', inkDim: 'rgba(255,184,74,0.45)', inkRgb: '255,184,74', scope: ['#3a2406', '#120a02'],
+  lampPanel: '#241f15', lampOff: '#30291b', lampLegend: '#8a7c5c', dialFace: '#161208', lcd: '#140c02',
+  sky: '#c8a860', ground: '#7a5a2a', horizon: '#fff2d0', symbol: '#ff7a3a', toggle: '#463c28', corner: 'chamfer', edgeGlow: null,
+};
+
+export const COCKPIT_SKINS: Readonly<Record<CockpitSkinId, CockpitSkin>> = Object.freeze({ jet: JET, heli: HELI, ship: SHIP, sub: SUB, mech: MECH, tank: TANK });
+export const COCKPIT_SKIN_IDS: readonly CockpitSkinId[] = Object.freeze(['jet', 'heli', 'ship', 'sub', 'mech', 'tank'] as const);
 
 /** The skin being painted (a live binding: importers always see the current one). */
 export let SK: CockpitSkin = JET;

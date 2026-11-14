@@ -3,13 +3,15 @@ import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, type CampaignId, type EquipmentId, type GunLevel, type PlaneId } from '../data/types';
 import { knownWeapons, researchedMark } from './lab';
+import { tankKnownWeapons, tankMark } from './steppe-lab';
 import type { SaveData } from './save';
 import type { Route } from './state';
 
-// One wallet, several kits (docs 49, 66, 74, 79): the jets fly maps 1–2, the helicopters map 3, the subs map 4, the ship
-// map 5, the mechs map 6; the helicopters, the subs and the mechs are fleet kits of their own that start from zero. The
-// scenes see a kit view of the save — for a fleet kit the jet-kit fields are swapped for the fleet's — so the hangar, the
-// shop and the loadout code work unchanged on every kit. The mechs' weapons and marks come from the lab (doc 83). Pure.
+// One wallet, several kits (docs 49, 66, 74, 79, 103): the jets fly maps 1–2, the helicopters map 3, the subs map 4, the
+// ship map 5, the mechs map 6, the tanks map 7; the helicopters, the subs, the mechs and the tanks are fleet kits of their
+// own that start from zero. The scenes see a kit view of the save — for a fleet kit the jet-kit fields are swapped for the
+// fleet's — so the hangar, the shop and the loadout code work unchanged on every kit. The mechs' weapons and marks come
+// from the lab (doc 83), the tanks' from the steppe lab (doc 107). Pure.
 
 export type Kit = 'jet' | FleetKitId | 'ship';
 
@@ -20,9 +22,12 @@ export interface FleetKit {
   equipment: Record<EquipmentId, number>;
 }
 
-const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'sub', 5: 'ship', 6: 'mech' };
+const KIT_OF: Readonly<Record<CampaignId, Kit>> = { 1: 'jet', 2: 'jet', 3: 'heli', 4: 'sub', 5: 'ship', 6: 'mech', 7: 'tank' };
 
 export const kitOf = (c: CampaignId): Kit => KIT_OF[c];
+
+/** The kits whose weapons and marks come from a lab, never from the shop: the mechs (doc 83), the tanks (doc 107). */
+export const labKit = (kit: Kit): boolean => kit === 'mech' || kit === 'tank';
 
 const noEquipment = (): Record<EquipmentId, number> =>
   Object.fromEntries(EQUIPMENT_IDS.map((id) => [id, 0])) as Record<EquipmentId, number>;
@@ -60,7 +65,17 @@ export function kitView(save: SaveData, kit: Kit): SaveData {
   }
   const k = save[kit];
   const view = { ...save, ...jetOnly, kit, ownedPlanes: owning(save, FLEET[kit].starter), selectedPlane: k.selectedPlane, gunLevel: k.gunLevel, equipment: k.equipment };
-  return kit === 'mech' ? withLab(view) : view;
+  if (kit === 'mech') return withLab(view);
+  return kit === 'tank' ? withTankWeapons(view) : view;
+}
+
+/** The tank kit's weapons: the grenade launcher known from the start (doc 103), the rest invented in the steppe lab, each
+ *  at its invented mark (doc 107). */
+function withTankWeapons(view: SaveData): SaveData {
+  const known = tankKnownWeapons(view);
+  const weaponLevels = { ...view.weaponLevels };
+  for (const id of known) weaponLevels[id] = tankMark(view, id);
+  return { ...view, ownedSecondaries: [...view.ownedSecondaries.filter((id) => !known.includes(id)), ...known], weaponLevels };
 }
 
 /** The mech kit's weapons are the lab's: every known one owned, each at its invented mark (doc 83). */
@@ -77,7 +92,7 @@ export function fromKitView(stored: SaveData, view: SaveData): SaveData {
   const own = (kit: FleetKitId): FleetKit =>
     (view.kit === kit ? { selectedPlane: view.selectedPlane, gunLevel: view.gunLevel, equipment: view.equipment } : view[kit]);
   return {
-    ...view, kit: 'jet', heli: own('heli'), sub: own('sub'), mech: own('mech'), selectedPlane: stored.selectedPlane, gunLevel: stored.gunLevel,
+    ...view, kit: 'jet', heli: own('heli'), sub: own('sub'), mech: own('mech'), tank: own('tank'), selectedPlane: stored.selectedPlane, gunLevel: stored.gunLevel,
     equipment: stored.equipment, gun2Level: stored.gun2Level, ammoLevel: stored.ammoLevel, incendiaryLevel: stored.incendiaryLevel,
     ammoType: stored.ammoType, heLevel: stored.heLevel, twinSecondaries: stored.twinSecondaries,
   };

@@ -23,6 +23,8 @@ export const SPEAKER_NAMES: Readonly<Record<CharacterId, string>> = {
   wingman: 'LT. "DUKE" CARTER',
   major: 'MAJ. TOM "DOZER" BRENNAN',
   doc: 'DR. ADA "FLASK" MOREAU',
+  ortega: 'CPT. ROSA "BASTION" ORTEGA',
+  novak: 'DR. ILYA "SPARKS" NOVAK',
 };
 
 const VOICE: Readonly<Record<CharacterId, { pitch: number; radio: boolean }>> = {
@@ -32,6 +34,8 @@ const VOICE: Readonly<Record<CharacterId, { pitch: number; radio: boolean }>> = 
   wingman: { pitch: 1.05, radio: true },
   major: { pitch: 0.7, radio: false },
   doc: { pitch: 1.2, radio: false },
+  ortega: { pitch: 1.1, radio: true },
+  novak: { pitch: 0.95, radio: false },
 };
 
 export interface SpeechLayout {

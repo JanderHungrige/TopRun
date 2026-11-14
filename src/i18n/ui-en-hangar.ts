@@ -47,6 +47,7 @@ export const UI_EN_HANGAR = {
   'intro.place4': 'THE SEA-FLOOR BASE',
   'intro.place5': 'STATION AURORA',
   'intro.place6': 'PLANET X354b',
+  'intro.place7': 'PLANET KHARSA',
   'intro.world': 'WORLD {n} · {name}',
   'intro.keys': 'ENTER next  ·  ESC skip',
   // Picture mode (doc 76).

@@ -3,7 +3,8 @@ import { WINDOW } from '../game/intro';
 
 // Duke's welcome film (doc 97): the generated key frames (320 × 180 art) drawn at 5 logical px per art px, so the screen
 // shows a 256 × 144 window that pans over the plate in whole logical px, and each world's overlay on the same coarse
-// grid — rain at the second front, snow in the mountains, bubbles under the sea, specks of starlight in space, fireflies and spores in the jungle.
+// grid — rain at the second front, snow in the mountains, bubbles under the sea, specks of starlight in space, fireflies and spores in the jungle, dust
+// drifting over the steppe.
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -68,6 +69,7 @@ const FIELDS: Readonly<Record<number, Field>> = {
   4: { n: 40, colour: () => 'rgba(190,240,255,0.55)', size: 1, vx: 0, vy: -38, sway: 6 },
   5: { n: 46, colour: (i, t) => `rgba(220,235,255,${(0.25 + 0.6 * Math.max(0, Math.sin(t * 1.7 + i))).toFixed(2)})`, size: 1, vx: -6, vy: 0, sway: 2 },
   6: { n: 34, colour: (i, t) => (i % 3 === 0 ? 'rgba(220,200,255,0.5)' : `rgba(210,255,120,${(0.3 + 0.7 * Math.max(0, Math.sin(t * 2.3 + i * 1.7))).toFixed(2)})`), size: 1, vx: 4, vy: -8, sway: 14 },
+  7: { n: 60, colour: (i) => (i % 4 === 0 ? 'rgba(255,236,190,0.55)' : 'rgba(214,180,120,0.4)'), size: 1, vx: 34, vy: 3, sway: 6 },
 };
 
 /** The world's drifting overlay over the whole screen. */

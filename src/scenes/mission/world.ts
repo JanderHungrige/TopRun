@@ -15,6 +15,9 @@ import { canyonPlan, channel, type CanyonPlan, type Channel } from '../../game/c
 import type { Beam, Lance } from './mech-mission';
 import type { Pulse, SonicWave, Zap } from './heli-arms';
 import type { Decoy, Net } from './sub-arms';
+import type { Sentry } from './tank-mission';
+import type { Mine } from './tank-weapons';
+import type { Defence } from './defence-mission';
 
 export { PF_W, PF_H };
 export const PF_X = 320;
@@ -92,11 +95,13 @@ export interface Bullet {
   laser?: boolean;
   /** The subs' harpoon bolts (doc 67). */
   harpoon?: boolean;
+  /** A tripod's heat-ray bolt: overheats a tower it hits (doc 106). */
+  heat?: boolean;
 }
 
 export type MissileKind =
   | 'aim9' | 'aim54' | 'aim120' | 'agm65' | 'hellfire' | 'stinger' | 'spacerocket' | 'torpedo' | 'mk48' | 'seeker' | 'rocket' | 'drone'
-  | 'minitorp' | 'enemy';
+  | 'minitorp' | 'aarocket' | 'atgm' | 'enemy';
 
 export interface Missile {
   kind: MissileKind;
@@ -156,6 +161,9 @@ export interface Shell {
   damage: number;
   radius: number;
   dead: boolean;
+  /** The Bison's main-gun shell (doc 104): its own speed, and the hit on the first thing it meets. */
+  speed?: number;
+  direct?: number;
 }
 
 /** All mutable state of a running mission (playfield-local coordinates). */
@@ -200,6 +208,13 @@ export class World {
   /** The subs' decoy drone and drift nets (doc 101). */
   decoy: Decoy | null = null;
   nets: Net[] = [];
+  /** The Lynx's sentry drop (doc 104); what spawners let loose when they died, spawned on the next tick (doc 105). */
+  sentry: Sentry | null = null;
+  brood: Array<{ kind: EnemyKind; x: number; y: number }> = [];
+  /** The mine layer's mines on the ground (doc 108). */
+  mines: Mine[] = [];
+  /** A defence on map 7 (doc 106): the outpost, its towers and the waves; null on a drive. */
+  defence: Defence | null = null;
   paintBonus = 0;
   bossPaintT = 0;
   private ids = 0;
@@ -217,7 +232,7 @@ export class World {
   crashed = false;
 
   constructor(readonly mission: MissionDef, readonly ease = 1) {
-    this.timeline = generateTimeline(mission);
+    this.timeline = mission.defend ? [] : generateTimeline(mission); // a defence sends its own waves (doc 106)
     this.terrain = new Terrain(THEATERS[mission.theater], mission.number * 31 + 7);
     this.canyon = canyonPlan(mission);
     this.canyonTotal = (this.canyon?.seconds ?? 0) * BASE_SCROLL * flightScroll(mission.campaign);

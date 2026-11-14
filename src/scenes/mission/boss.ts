@@ -36,11 +36,14 @@ export class Boss {
   escortT = 3;
   dyingT = 0;
   readonly parts: PartState[];
+  /** Where it stops coming down; a defence's boss marches on into the towers' reach (doc 106). */
+  settleY: number;
   private readonly bulletSpeedMul: number;
 
   /** `ease` < 1: Rookie — slower bullets, less fire (doc 38); `tough`: map 2's extra HP (wave 3, doc 43). */
   constructor(id: BossId, difficulty: number, private readonly ease = 1, tough = 1) {
     this.def = BOSSES[id];
+    this.settleY = this.def.settleY;
     this.maxHp = Math.round(scaleBossHp(this.def.coreHp, difficulty) * tough);
     this.hp = this.maxHp;
     this.bulletSpeedMul = (1 + 0.015 * (difficulty - 1)) * ease;
@@ -63,7 +66,7 @@ export class Boss {
     this.flash = Math.max(0, this.flash - dt);
     if (this.phase === 'enter') {
       this.y += 70 * dt;
-      if (this.y >= this.def.settleY) this.phase = 'fight';
+      if (this.y >= this.settleY) this.phase = 'fight';
     } else if (this.phase === 'fight') {
       this.fightT += dt;
       this.x = PF_W / 2 + Math.sin(this.fightT * this.def.swaySpeed) * this.def.sway;

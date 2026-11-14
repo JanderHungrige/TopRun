@@ -1,131 +1,261 @@
-import type { Pal, UnitFn } from '../draw-ground-units';
-import { circle, ellipse } from '../shapes';
+import type { UnitFn } from '../draw-ground-units';
+import { plateShell, shell } from '../detail/organic';
+import { glow, path, sym } from '../detail/parts';
+import { detailUnit } from '../detail/unit';
+import { art } from './sea-kit';
+import { flesh, ribbon, smooth } from './sea-flesh';
+import { ANGLER, SQUID } from './sea-fish';
+import { hullInk, rgb, rgba, type SeaPal } from './sea-pal';
 
-// Map 5's sea creatures (docs 68, 70), heads down (+y): the jellyfish, the electric eel, the squid and the anglerfish.
-// They pulse and wriggle with time; flashed or as a shadow they keep the same outline.
+// The sea's creatures in detail (docs 68, 70, 120), heads down (+y), light from the upper left: the jellyfish — a glassy
+// dome with its four gonads, radial canals and a gloss, the frilled margin pulsing round it, frilly oral arms and
+// stinging tentacles trailing behind, bioluminescent spots breathing; the electric eel — a long olive body rounded by
+// the light and mottled, a fin ribbon along it, swimming in waves behind its flat head with yellow eyes, its electric
+// organ glowing along the flanks and sparks crackling at its snout when it charges. The squid and the anglerfish are in
+// sea-fish.ts.
 
-type CreatureKind = 'jelly' | 'eel' | 'squid' | 'angler';
+type Ctx = CanvasRenderingContext2D;
 
-/** A translucent bell that pulses, a frilled rim and tentacles trailing behind (up). */
-const jelly: UnitFn = (ctx, p, t) => {
+const bell = (t: number): { rx: number; ry: number } => {
   const pulse = Math.sin(t * 3.2);
-  const ry = 9 + pulse * 1.6;
-  const rx = 13 - pulse * 1.4;
+  return { rx: 13 - pulse * 1.4, ry: 9 + pulse * 1.6 };
+};
+
+/** Tentacles and frilly oral arms trailing behind (up), waving; one colour in silhouettes. */
+function jellyTentacles(ctx: Ctx, p: SeaPal, t: number): void {
   ctx.lineCap = 'round';
-  ctx.lineWidth = 1.6;
-  ctx.strokeStyle = p.mono ? p.body : 'rgba(255,170,215,0.55)';
-  for (let i = 0; i < 6; i++) {
-    const x0 = -9 + i * 3.6;
+  for (let i = 0; i < 8; i++) { // stinging tentacles from the margin, fine and long
+    const x0 = -10.5 + i * 3;
+    const pts: number[] = [x0, 2];
+    for (let k = 1; k <= 7; k++) pts.push(x0 * (1 - k * 0.04) + Math.sin(t * 4 + i * 1.3 + k * 0.9) * (0.8 + k * 0.22), 2 - k * 3.6);
+    ctx.lineWidth = i % 3 === 1 ? 1.1 : 0.6;
+    ctx.strokeStyle = p.mono ? p.hull : 'rgba(255,190,225,0.6)';
+    ctx.stroke(smooth(pts));
+  }
+  for (let i = 0; i < 4; i++) { // the oral arms: frilled translucent ribbons
+    const x0 = -3.6 + i * 2.4;
+    const pts: number[] = [];
+    for (let k = 0; k <= 5; k++) pts.push(x0 + Math.sin(t * 2.6 + i * 1.7 + k * 0.8) * (0.5 + k * 0.4), 3 - k * 3.4);
+    const arm = ribbon(pts, 2.6, 1.2);
+    ctx.fillStyle = p.mono ? p.hull : rgba(p.hull, 0.42);
+    ctx.fill(arm);
+    if (p.mono) continue;
+    ctx.strokeStyle = rgba(p.trim, 0.55);
+    ctx.lineWidth = 0.35;
+    ctx.setLineDash([0.6, 0.5]);
+    ctx.stroke(arm);
+    ctx.setLineDash([]);
+  }
+}
+
+/** The frilled margin of the bell at its pulsing size: scallops round the edge. */
+function margin(ctx: Ctx, p: SeaPal, t: number): void {
+  const { rx, ry } = bell(t);
+  const pts: number[] = [];
+  for (let k = 0; k < 48; k++) {
+    const a = (k / 48) * Math.PI * 2, f = 1 + 0.045 * Math.abs(Math.sin(a * 8));
+    pts.push(Math.cos(a) * rx * f, 4 + Math.sin(a) * ry * f);
+  }
+  const edge = path(pts);
+  if (p.mono) {
+    ctx.fillStyle = p.hull;
+    ctx.fill(edge);
+    return;
+  }
+  const g = ctx.createRadialGradient(0, 4, 4, 0, 4, rx);
+  g.addColorStop(0, rgba(p.hull, 0.2));
+  g.addColorStop(1, rgba(p.hull, 0.6));
+  ctx.fillStyle = g;
+  ctx.fill(edge);
+  ctx.strokeStyle = rgba(p.light, 0.75);
+  ctx.lineWidth = 0.5;
+  ctx.stroke(edge);
+}
+
+function jellyDome(ctx: Ctx, p: SeaPal): void {
+  const g = ctx.createRadialGradient(-3.4, 1.6, 0.5, 0, 4, 11.5);
+  g.addColorStop(0, rgba('#fff4fa', 0.95));
+  g.addColorStop(0.3, rgba(p.light, 0.8));
+  g.addColorStop(0.7, rgba(p.hull, 0.66));
+  g.addColorStop(1, rgba(p.dark, 0.85));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 11.2, 7.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = rgba(p.dark, 0.55); // the shaded far rim
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 10.8, 6.8, 0, -0.3, Math.PI * 0.9);
+  ctx.stroke();
+  ctx.strokeStyle = rgba(p.dark, 0.5); // the radial canals and the ring canal
+  ctx.lineWidth = 0.3;
+  for (let k = 0; k < 16; k++) {
+    const a = (k / 16) * Math.PI * 2;
+    ctx.stroke(path([Math.cos(a) * 3, 4 + Math.sin(a) * 2, Math.cos(a) * 10.4, 4 + Math.sin(a) * 6.6], false));
+  }
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 10.2, 6.5, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let k = 0; k < 4; k++) { // the four gonads, horseshoes round the centre
+    const a = (k / 4) * Math.PI * 2 + Math.PI / 4;
+    const x = Math.cos(a) * 3.6, y = 4 + Math.sin(a) * 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = rgba(p.trim, 0.8);
     ctx.beginPath();
-    ctx.moveTo(x0, 0);
-    for (let k = 1; k <= 6; k++) ctx.lineTo(x0 + Math.sin(t * 4 + i + k * 0.9) * 1.8, -k * 4);
+    ctx.ellipse(x, y, 1.9, 1.3, a, Math.PI * 0.2, Math.PI * 1.8);
+    ctx.stroke();
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(255,230,245,0.8)';
     ctx.stroke();
   }
-  ellipse(ctx, 0, 4, rx, ry, p.mono ? p.body : 'rgba(255,140,200,0.55)');
-  if (p.mono) return;
-  ellipse(ctx, 0, 6, rx * 0.6, ry * 0.55, 'rgba(255,215,240,0.6)');
-  ellipse(ctx, -4, 8, 3, 2, 'rgba(255,255,255,0.45)');
-  for (let i = -2; i <= 2; i++) circle(ctx, i * 4.4, 4 - ry * 0.15, 1.1, 'rgba(255,90,170,0.7)');
-};
+  plateShell(ctx, [0, 2.6, 1, 4, 0, 5.4, -1, 4], { base: p.dark, dark: p.dark, light: p.light, ink: rgba(p.dark, 0.8) }, 0.3);
+  jellyGloss(ctx);
+}
 
-/** A long green-brown body that wriggles, a pale belly line, and blue sparks crackling at the head when it charges. */
-const eel: UnitFn = (ctx, p, t) => {
-  const pts: Array<[number, number]> = [];
-  for (let k = 0; k <= 10; k++) {
-    const y = 16 - k * 4.4;
-    pts.push([Math.sin(t * 7 - k * 0.8) * (1 + k * 0.5), y]);
+/** The dome's gloss: a soft highlight, a lit rim arc and a glint. */
+function jellyGloss(ctx: Ctx): void {
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath();
+  ctx.ellipse(-4.4, 1.2, 4.2, 1.9, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 0.45;
+  ctx.beginPath();
+  ctx.ellipse(0, 4, 10.4, 6.6, 0, Math.PI * 1.05, Math.PI * 1.55);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.beginPath();
+  ctx.ellipse(-5.6, 0.9, 1.2, 0.5, -0.35, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/** A cheap round light: a faint halo and a bright core (no gradient — jellies come in swarms). */
+function dot(ctx: Ctx, x: number, y: number, r: number, colour: string, a: number): void {
+  ctx.fillStyle = rgba(colour, a * 0.3);
+  ctx.beginPath();
+  ctx.arc(x, y, r * 2.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = rgba(colour, a);
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/** Bioluminescent spots on the rim and across the dome, breathing in turn. */
+function jellyLights(ctx: Ctx, p: SeaPal, t: number): void {
+  if (p.mono) return;
+  const { rx, ry } = bell(t);
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2 + 0.26, on = 0.4 + 0.6 * Math.max(0, Math.sin(t * 3 + k * 1.1));
+    dot(ctx, Math.cos(a) * rx * 0.97, 4 + Math.sin(a) * ry * 0.97, 0.55, '#ffe6f4', on);
   }
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  for (const [w, color] of [[9, p.mono ? p.body : p.line], [7, p.body], [2, p.mono ? p.body : p.light]] as const) {
-    for (let k = 0; k < pts.length - 1; k++) {
-      const a = pts[k];
-      const b = pts[k + 1];
-      if (!a || !b) continue;
-      ctx.lineWidth = w * (1 - k * 0.07);
-      ctx.strokeStyle = color;
+  for (let i = -2; i <= 2; i++) dot(ctx, i * 4.4, 4 - ry * 0.15, 0.7, p.trim, 0.55 + 0.25 * Math.sin(t * 2 + i));
+}
+
+const JELLY = art('jelly', {
+  under: (ctx, p, t) => {
+    jellyTentacles(ctx, p, t);
+    margin(ctx, p, t);
+  },
+  body: jellyDome,
+  over: jellyLights,
+});
+
+/** The eel's spine: the head held still, waves growing toward the tail. */
+function eelSpine(t: number): number[] {
+  const pts: number[] = [];
+  for (let k = 0; k <= 10; k++) pts.push(Math.sin(t * 7 - k * 0.8) * k * 0.55, 15 - k * 4.3);
+  return pts;
+}
+
+function eelBody(ctx: Ctx, p: SeaPal, t: number): void {
+  const pts = eelSpine(t);
+  if (!p.mono) { // the fin ribbon along the body
+    const fin = ribbon(pts, 11, 4.4);
+    ctx.fillStyle = rgba(p.light, 0.2);
+    ctx.fill(fin);
+    ctx.strokeStyle = rgba(p.dark, 0.55);
+    ctx.lineWidth = 0.35;
+    ctx.stroke(fin);
+  }
+  flesh(ctx, pts, 7.2, 2, hullInk(p), p.mono);
+  if (p.mono) return;
+  const charge = Math.max(0, Math.sin(t * 11));
+  if (charge > 0.3) { // the electric organ lighting the flanks
+    ctx.strokeStyle = rgba(p.glow, charge * 0.45);
+    ctx.lineWidth = 1.4;
+    ctx.stroke(ribbon(pts, 7.6, 2.4));
+  }
+  for (let k = 1; k < 10; k++) {
+    const x = pts[k * 2] ?? 0, y = pts[k * 2 + 1] ?? 0, w = (7.2 - k * 0.5) / 2;
+    ctx.fillStyle = 'rgba(20,28,10,0.45)'; // mottles
+    ctx.beginPath();
+    ctx.ellipse(x + (k % 2 ? 1 : -1) * w * 0.35, y, w * 0.32, 1, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = rgba(p.glow, 0.3 + charge * 0.6); // the organ's cells along the flanks
+    for (const s of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(a[0], a[1]);
-      ctx.lineTo(b[0], b[1]);
-      ctx.stroke();
+      ctx.arc(x + s * w * 0.72, y + 1, 0.32, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
-  const head = pts[0] ?? [0, 16];
-  ellipse(ctx, head[0], head[1] + 2, 4.6, 5.4, p.body);
-  if (p.mono) return;
-  circle(ctx, head[0] - 2, head[1] + 4, 0.9, '#ffe27a');
-  circle(ctx, head[0] + 2, head[1] + 4, 0.9, '#ffe27a');
-  if (p.live && Math.sin(t * 11) > 0.4) sparks(ctx, p, head[0], head[1] + 4, t);
-};
+}
 
-function sparks(ctx: CanvasRenderingContext2D, p: Pal, x: number, y: number, t: number): void {
-  ctx.strokeStyle = p.glass;
-  ctx.lineWidth = 1;
+function eelHead(ctx: Ctx, p: SeaPal): void {
+  for (const s of [-1, 1]) { // pectoral fins
+    ctx.fillStyle = rgba(p.light, 0.45);
+    ctx.beginPath();
+    ctx.ellipse(s * 5.2, 13.6, 2.2, 1.1, s * -0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  plateShell(ctx, sym([0, 24.4, 1.6, 24, 3.2, 22.6, 4.4, 20.4, 4.9, 17.6, 4.7, 15, 4, 13.2, 2.8, 12.2, 0, 11.8]), hullInk(p), 0.6);
+  shell(ctx, -0.6, 17.6, 3.2, 4.4, { base: p.hull, dark: p.dark, light: p.light, ink: 'rgba(0,0,0,0)' }, 0);
+  ctx.fillStyle = 'rgba(20,28,10,0.4)';
+  for (const [x, y] of [[-1.8, 15], [1.6, 16.4], [-0.4, 19.6], [2.6, 13.4]] as const) ctx.fillRect(x, y, 0.9, 0.7);
+  ctx.strokeStyle = 'rgba(10,14,6,0.8)'; // gill slits and the mouth
+  ctx.lineWidth = 0.4;
+  for (const s of [-1, 1]) ctx.stroke(path([s * 3.4, 13.4, s * 4.2, 14.6, s * 3.6, 15.8], false));
+  ctx.stroke(path([-2, 23, 0, 23.8, 2, 23], false));
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = '#0a0c06';
+    ctx.beginPath();
+    ctx.arc(s * 2.3, 20.4, 1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = p.glass;
+    ctx.beginPath();
+    ctx.arc(s * 2.3, 20.4, 0.75, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#0a0c06';
+    ctx.fillRect(s * 2.3 - 0.15, 19.8, 0.3, 1.2);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillRect(s * 2.3 - 0.5, 19.9, 0.3, 0.3);
+  }
+}
+
+function sparks(ctx: Ctx, p: SeaPal, t: number): void {
+  if (p.mono || Math.sin(t * 11) <= 0.4) return;
+  glow(ctx, 0, 24, 7, rgb(p.glow), 0.4);
+  ctx.strokeStyle = p.glow;
+  ctx.lineWidth = 0.8;
   ctx.beginPath();
   for (let i = 0; i < 3; i++) {
     const a = t * 13 + i * 2.1;
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + Math.cos(a) * 5, y + Math.sin(a) * 5);
-    ctx.lineTo(x + Math.cos(a + 0.6) * 9, y + Math.sin(a + 0.6) * 9);
+    ctx.moveTo(0, 24);
+    ctx.lineTo(Math.cos(a) * 5, 24 + Math.sin(a) * 5);
+    ctx.lineTo(Math.cos(a + 0.6) * 9, 24 + Math.sin(a + 0.6) * 9);
   }
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+  ctx.lineWidth = 0.3;
   ctx.stroke();
 }
 
-/** A pale torpedo body with side fins at the tail end (up), tentacles trailing forward-down, ink at the back. */
-const squid: UnitFn = (ctx, p, t) => {
-  ctx.lineCap = 'round';
-  ctx.lineWidth = 1.6;
-  ctx.strokeStyle = p.mono ? p.body : p.dark;
-  for (let i = -3; i <= 3; i++) {
-    ctx.beginPath();
-    ctx.moveTo(i * 1.4, 8);
-    ctx.lineTo(i * 2.2 + Math.sin(t * 9 + i) * 1.6, 15);
-    ctx.lineTo(i * 2.6 + Math.sin(t * 9 + i + 1) * 2.4, 21);
-    ctx.stroke();
-  }
-  const flap = Math.sin(t * 7) * 2;
-  ctx.fillStyle = p.mono ? p.body : p.dark;
-  ctx.beginPath();
-  ctx.moveTo(0, -18);
-  ctx.lineTo(9 + flap, -10);
-  ctx.lineTo(0, -4);
-  ctx.lineTo(-9 - flap, -10);
-  ctx.closePath();
-  ctx.fill();
-  ellipse(ctx, 0, -2, 5.5, 13, p.body);
-  if (p.mono) return;
-  ellipse(ctx, -1.5, -6, 2, 6, 'rgba(255,255,255,0.3)');
-  for (const sx of [-3, 3]) circle(ctx, sx, 7, 1.3, '#1a1a22');
-};
+const EEL = art('eel', { under: eelBody, body: eelHead, over: sparks });
 
-/** A dark gaping fish: a big head, needle teeth, a stalk with a glowing lure swinging ahead of it. */
-const angler: UnitFn = (ctx, p, t) => {
-  const sway = Math.sin(t * 2.4) * 4;
-  ctx.strokeStyle = p.mono ? p.body : p.light;
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.moveTo(0, 6);
-  ctx.quadraticCurveTo(sway, 18, sway * 1.5, 24);
-  ctx.stroke();
-  ctx.fillStyle = p.mono ? p.body : p.dark;
-  ctx.beginPath();
-  ctx.moveTo(0, -20);
-  ctx.lineTo(7, -26);
-  ctx.lineTo(4, -14);
-  ctx.lineTo(-4, -14);
-  ctx.lineTo(-7, -26);
-  ctx.closePath();
-  ctx.fill();
-  ellipse(ctx, 0, 0, 14, 16, p.body);
-  if (p.mono) return;
-  ellipse(ctx, 0, 9, 10, 5, '#0a0a10');
-  ctx.fillStyle = '#e8e8f0';
-  for (let i = -4; i <= 4; i++) ctx.fillRect(i * 2.2 - 0.4, 6, 0.8, 3);
-  for (const sx of [-6, 6]) circle(ctx, sx, 1, 1.6, '#c8e8ff');
-  if (p.live) {
-    circle(ctx, sway * 1.5, 25, 6, 'rgba(95,240,224,0.25)');
-    circle(ctx, sway * 1.5, 25, 2.4, p.glass);
-  }
+export const CREATURES: Readonly<Record<'jelly' | 'eel' | 'squid' | 'angler', UnitFn>> = {
+  jelly: detailUnit('jelly', JELLY),
+  eel: detailUnit('eel', EEL),
+  squid: detailUnit('squid', SQUID),
+  angler: detailUnit('angler', ANGLER),
 };
-
-export const CREATURES: Readonly<Record<CreatureKind, UnitFn>> = { jelly, eel, squid, angler };

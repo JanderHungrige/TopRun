@@ -15,7 +15,8 @@ import { drawShipSide } from './ship';
 import { drawU212Side } from './subs/u212';
 import { AKULA_SUB, drawSubSide, SEAWOLF_SUB, VIRGINIA_SUB } from './subs/fleet';
 import { drawMechSide } from './mechs/mech-side';
-import { drawBuggySide, drawTankSide, isTankSide } from './tanks/tank-side';
+import { drawBuggySide } from './tanks/buggy-side';
+import { drawTankSide, isTankSide } from './tanks/tank-side';
 
 /** Side-view jets for the carrier scene. Nose points right; origin is the main-gear deck contact point. */
 

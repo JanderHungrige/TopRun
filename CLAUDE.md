@@ -15,6 +15,9 @@ files from an nginx container behind the owner's reverse proxy.
 - Anything that decides an outcome (economy, save parsing, waves, takeoff rating, damage,
   objectives) is a pure function in `src/game/` with a Vitest test in `tests/unit/`.
 - Scenes (`src/scenes/`) orchestrate; drawing lives in `src/render/`; static tables in `src/data/`.
+- Unit and vehicle art uses the detail kit (`src/render/detail/`, doc 113): a `DetailArt` behind `detailUnit`, the
+  static body cached through `drawCached` (flash, shadow and wreck come from the cache), moving parts drawn live and
+  checking `p.mono` before any fixed colour, glow or gradient. Preview: `dev/art-detail.html?world=N`, `dev/art-vehicles.html`.
 - All drawing is in logical 1280×720 units — never read `canvas.width` in game code.
 - Persist only through `GameContext.setSave()` (active pilot) and `setSettings()` (device-wide) —
   both write the profile store via `persistStore()`; never touch `localStorage` elsewhere.

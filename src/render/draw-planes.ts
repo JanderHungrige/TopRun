@@ -15,7 +15,8 @@ import { DISPLAY_SHIP, drawShip, shipSilhouette } from './ship';
 import { drawU212Top, u212Silhouette } from './subs/u212';
 import { AKULA_SUB, drawSubTop, SEAWOLF_SUB, subSilhouette, VIRGINIA_SUB } from './subs/fleet';
 import { drawMechTop, mechTopSilhouette } from './mechs/mech-top';
-import { drawBuggyTop, drawTankTop, isTankBody, tankTopSilhouette } from './tanks/tank-top';
+import { drawBuggyTop } from './tanks/buggy-top';
+import { drawTankTop, isTankBody, tankTopSilhouette } from './tanks/tank-top';
 
 /** Top-down player jets, nose pointing up (-y), drawn around (0, 0). Airframes live in ./planes/. */
 

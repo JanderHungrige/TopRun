@@ -15,10 +15,15 @@ export function isCleared(save: SaveData, mission: MissionDef): boolean {
  *  map 4 after m90, map 5 after m120 (doc 74), map 6 after m150 (doc 78). A map stays open once any of its missions is cleared — a pilot who flew
  *  space when it was map 4 keeps it (doc 74). Map 1 is always open, and the admin has every map (doc 47). */
 export function mapOpen(save: SaveData, c: CampaignId): boolean {
-  if (c === 1 || save.admin) return true;
+  return save.admin || mapOpenIn(save.progress, c);
+}
+
+/** mapOpen on the progress alone (the paint jobs, doc 100). */
+export function mapOpenIn(progress: SaveData['progress'], c: CampaignId): boolean {
+  if (c === 1) return true;
   const prev = campaignMissions(PREVIOUS[c]);
   const last = prev[prev.length - 1];
-  return (last !== undefined && isCleared(save, last)) || campaignMissions(c).some((m) => isCleared(save, m));
+  return (last !== undefined && last.id in progress) || campaignMissions(c).some((m) => m.id in progress);
 }
 
 export const mapTwoOpen = (save: SaveData): boolean => mapOpen(save, 2);

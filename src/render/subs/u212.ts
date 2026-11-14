@@ -1,5 +1,6 @@
 import type { Look } from '../livery-art';
 import { lazy, lines, pairs, polys, reversed, stroke, sym, type Pts } from '../planes/geom';
+import { paintFleet } from '../fleet-paint';
 import type { SideOpts, TopOpts } from '../planes/surface';
 
 /**
@@ -58,6 +59,7 @@ export function drawU212Top(ctx: CanvasRenderingContext2D, look: Look, o: TopOpt
   screw(ctx, o.t);
   ctx.fillStyle = look.base;
   ctx.fill(g.hull);
+  paintFleet(ctx, look, g.hull, { x: -7, y: -38, w: 14, h: 76 }, 'u212-top', 'top'); // its paint job (doc 100)
   // Rolling into a turn shows the darker flank on the outside.
   ctx.fillStyle = 'rgba(0,0,0,0.22)';
   ctx.fill(polys(wide(o.bank >= 0 ? [1.2, -30, 5.6, -18, 5.6, 6, 3.6, 22, 0.8, 30] : [-1.2, -30, -5.6, -18, -5.6, 6, -3.6, 22, -0.8, 30])));
@@ -96,6 +98,7 @@ export function drawU212Side(ctx: CanvasRenderingContext2D, look: Look, o: SideO
   stroke(ctx, s.fins, look.ink, 0.6);
   ctx.fillStyle = look.base;
   ctx.fill(s.hull);
+  paintFleet(ctx, look, s.hull, { x: -56, y: -14, w: 112, h: 14 }, 'u212-side', 'side');
   ctx.fillStyle = 'rgba(0,0,0,0.2)';
   ctx.fill(polys([56, -6.5, 54.6, -3.2, 51, -0.9, 44, 0, -30, 0, -40, -1.2, -48, -3.2, -53, -5, -56, -6, -30, -5, 44, -5]));
   stroke(ctx, s.seams, look.panel, 0.5);

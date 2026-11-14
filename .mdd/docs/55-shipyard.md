@@ -101,3 +101,7 @@ pilot on a grid (doc 54). When the active kit is the ship (`kitOf(4)`, doc 49), 
 - The mission's stats come from `shipPlayerStats` (`src/game/ship-loadout.ts`): hull, speed, the barrels as the gun
   pattern at the laser level (`shipGun`), the rocket station, the capsule's radar as early warning.
 - The map's mission panel shows "YOUR SHIP: N modules · hull · laser LV" on map 4.
+
+## Paint (doc 100)
+
+The shipyard's PAINT button (key P) opens map 5's paint jobs for the ship.

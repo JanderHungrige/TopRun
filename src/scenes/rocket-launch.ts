@@ -141,7 +141,7 @@ export class RocketLaunchScene implements Scene {
 
   render(ctx: CanvasRenderingContext2D): void {
     this.renderWorld(ctx);
-    const look = liveryLook('starship', 'standard');
+    const look = liveryLook('starship', this.game.save.livery.starship);
     for (const f of this.falling) drawFalling(ctx, f.piece, f.x, f.y, f.rot, look);
     const nose = this.noseY(this.s);
     const free = this.s.phase === 'orbit' || this.s.phase === 'done';

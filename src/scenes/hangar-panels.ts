@@ -21,11 +21,12 @@ import { drawPanel, type Rect } from '../ui/widgets';
 import { equipmentLevelText, planeSpecialName } from '../i18n/content';
 import { t as tr } from '../i18n/i18n';
 import {
-  FLEET_UI, gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, unlockText, weaponNowNext,
+  FLEET_UI, gunSummary, itemDescription, itemName, itemStatus, markName, secondaryTargets, statusIsOwned, weaponNowNext,
 } from './hangar-items';
 import { equipmentEffectRow, planeStats, statRow } from './hangar-stats-view';
 import { guidanceKey, roundsLine } from './hangar-mech';
 import { heliLevel, heliMax, heliPicture, heliRows, heliSubtitle } from './hangar-heli';
+import { unlockText } from './hangar-paint';
 
 export const LIST = { x: 24, y: 132, w: 536, row: 68 };
 export const DETAIL: Rect = { x: 584, y: 76, w: 672, h: 628 };

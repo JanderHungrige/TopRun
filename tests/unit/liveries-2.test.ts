@@ -12,7 +12,7 @@ const MAP2 = MISSIONS_2.map((m) => m.id);
 
 describe('Map-2 paint jobs (doc 09, Second Front wave 4)', () => {
   it('adds a region camo and a 3★ reward for each map-2 theater', () => {
-    expect(LIVERY_IDS).toHaveLength(21);
+    expect(LIVERY_IDS).toHaveLength(51); // the jets' 21 and the fleet's 30 (doc 100)
     for (const theater of ['northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead'] as const) {
       const kinds = LIVERY_IDS.map((id) => LIVERIES[id].unlock).filter((u) => u?.theater === theater).map((u) => u?.kind);
       expect(kinds.sort(), theater).toEqual(['region', 'stars']);

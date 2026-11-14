@@ -153,7 +153,7 @@ function drawBombs(ctx: CanvasRenderingContext2D, world: World): void {
 
 /** The spacecraft (doc 54): drawn from its modules, a shadow below, the shield as a glow around it. */
 function drawShipPlayer(ctx: CanvasRenderingContext2D, p: Player, ship: ShipStats, t: number): void {
-  const look = liveryLook('starship', 'standard');
+  const look = liveryLook('starship', p.stats.livery); // its paint job (doc 100)
   const blink = p.invuln > 0 && p.invuln < 0.6 && Math.floor(t * 20) % 2 === 0;
   ctx.save();
   ctx.translate(p.x + SHADOW_DX, p.y + SHADOW_DY);

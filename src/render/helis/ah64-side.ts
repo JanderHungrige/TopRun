@@ -2,6 +2,7 @@ import type { Look } from '../livery-art';
 import { lazy, lines, polys, reversed, stroke, type Pts } from '../planes/geom';
 import { wheel } from '../planes/parts';
 import type { SideOpts } from '../planes/surface';
+import { paintFleet } from '../fleet-paint';
 import { rotorDisc, rotorEdge } from './rotor';
 
 /**
@@ -60,6 +61,9 @@ export function drawAh64Side(ctx: CanvasRenderingContext2D, look: Look, o: SideO
   ctx.fillStyle = look.base;
   ctx.fill(g.body);
   ctx.fill(g.fin);
+  const [bx, by] = at(16.5, 4.6);
+  const [ex, ey] = at(0, 0);
+  paintFleet(ctx, look, g.body, { x: bx, y: by, w: ex - bx, h: ey - by }, 'ah64-side', 'side'); // its paint job (doc 100)
   ctx.fillStyle = 'rgba(0,0,0,0.18)';
   ctx.fill(polys(P([0.3, 0.95, 4.6, 0.85, 9.4, 1.55, 14.0, 1.5, 14.0, 1.75, 9.0, 1.85, 4.6, 1.2, 0.3, 1.25])));
   ctx.fillStyle = look.base;

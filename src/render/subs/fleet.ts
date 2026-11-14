@@ -1,5 +1,6 @@
 import type { Look } from '../livery-art';
-import { lines, pairs, polys, reversed, stroke, sym, type Pts } from '../planes/geom';
+import { bounds, lines, pairs, polys, reversed, stroke, sym, type Pts } from '../planes/geom';
+import { paintFleet, shapeKey } from '../fleet-paint';
 import type { SideOpts, TopOpts } from '../planes/surface';
 
 /**
@@ -115,6 +116,7 @@ export function drawSubTop(ctx: CanvasRenderingContext2D, s: SubSpec, look: Look
   stern(ctx, s, o.t);
   ctx.fillStyle = look.base;
   ctx.fill(g.hull);
+  paintFleet(ctx, look, g.hull, { x: -9, y: -40, w: 18, h: 80 }, shapeKey(s, 'top'), 'top'); // its paint job (doc 100)
   ctx.fillStyle = 'rgba(0,0,0,0.22)';
   ctx.fill(polys(o.bank >= 0 ? [1.2, -30, 8, -19, 8, 8, 5, 24, 1, 31] : [-1.2, -30, -8, -19, -8, 8, -5, 24, -1, 31]));
   ctx.fillStyle = 'rgba(255,255,255,0.1)';
@@ -132,6 +134,7 @@ export function drawSubSide(ctx: CanvasRenderingContext2D, s: SubSpec, look: Loo
   ctx.fill(polys(s.sideFins.slice(0, 8), s.sideFins.slice(8)));
   if (s.pod) ctx.fill(polys(s.pod));
   ctx.fill(hull);
+  paintFleet(ctx, look, hull, bounds(s.sideTop, s.sideBottom), shapeKey(s, 'side'), 'side');
   ctx.fillStyle = 'rgba(0,0,0,0.2)';
   ctx.fill(polys([...s.sideBottom, -50, -5, 46, -5]));
   stroke(ctx, hull, look.ink, 0.7);

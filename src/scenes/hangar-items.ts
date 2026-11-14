@@ -1,6 +1,3 @@
-import { BOSSES } from '../data/bosses';
-import { LIVERIES, LIVERY_IDS, type LiveryId } from '../data/liveries';
-import { ALL_MISSIONS } from '../data/missions';
 import { PLANES } from '../data/planes';
 import { EQUIPMENT_IDS, PLANE_IDS, SECONDARY_IDS } from '../data/types';
 import { FLEET, isFleet, type FleetKitId } from '../data/fleet';
@@ -13,16 +10,17 @@ import { canBuyTwin, equipmentCap, gunCap, weaponOnSale } from '../game/firepowe
 import { jetOnSale } from '../game/jets';
 import { wallet } from '../game/outpost';
 import { mapTwoOpen } from '../game/progress';
-import { isLiveryUnlocked, liveryOnShow } from '../game/liveries';
+import { isLiveryUnlocked } from '../game/liveries';
 import type { SaveData } from '../game/save';
 import {
-  equipmentDescription, equipmentName, liveryName, planeDescription, secondaryDescription, secondaryName, theaterName,
+  equipmentDescription, equipmentName, liveryName, planeDescription, secondaryDescription, secondaryName,
 } from '../i18n/content';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import { bayShort, buyKey, mechCraft, mechWeapons, priceText } from './hangar-mech';
 import { heliDescription, heliGear, heliLevel, heliLoadAction, heliName, heliStatus } from './hangar-heli';
 import { canLoadHeliRounds, loadHeliRounds } from '../game/heli-arms';
+import { paintTab, unlockText } from './hangar-paint';
 
 export interface Tab {
   name: UiKey;
@@ -47,8 +45,8 @@ export const FLEET_UI: Readonly<Record<FleetKitId, {
   },
 };
 
-/** A fleet kit's hangar (docs 49, 66): its craft, its gun and weapons, equipment — no paint yet. The mech bay lists every
- *  mech and every mech weapon, the ones it can't build yet too (doc 79). */
+/** A fleet kit's hangar (docs 49, 66): its craft, its gun and weapons, equipment, and — for the helicopters and subs — their
+ *  paint jobs (doc 100). The mech bay lists every mech and every mech weapon, the ones it can't build yet too (doc 79). */
 function fleetTabs(save: SaveData, fleet: FleetKitId): readonly Tab[] {
   const mech = fleet === 'mech';
   const craft = mech ? mechCraft() : PLANE_IDS.filter((id) => jetOnSale(save, id));
@@ -57,6 +55,7 @@ function fleetTabs(save: SaveData, fleet: FleetKitId): readonly Tab[] {
     { name: FLEET_UI[fleet].tab, items: craft.map((id) => ({ type: 'plane', id })) },
     { name: 'hangar.tabWeapons', items: [{ type: 'gun', fleet }, ...heliGear(save), ...weapons.map((id) => ({ type: 'secondary' as const, id }))] },
     { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
+    ...(mech ? [] : [paintTab(save)]),
   ];
 }
 
@@ -72,7 +71,7 @@ export const tabs = (save: SaveData): readonly Tab[] => (isFleet(save.kit) ? fle
     ],
   },
   { name: 'hangar.tabEquipment', items: EQUIPMENT_IDS.map((id) => ({ type: 'equipment', id })) },
-  { name: 'hangar.tabPaint', items: LIVERY_IDS.filter((id) => liveryOnShow(save.progress, id)).map((id) => ({ type: 'livery', id })) },
+  paintTab(save),
 ]);
 
 export type ActionKind = 'buy' | 'select' | 'mount' | 'paint' | 'none';
@@ -272,17 +271,6 @@ export function markAction(save: SaveData, item: ShopItem): { label: string; ena
 export function weaponNowNext(save: SaveData, id: (typeof SECONDARY_IDS)[number]): { now: WeaponStats; next: WeaponStats | null } {
   const mark = markOf(save, id);
   return { now: weaponStats(SECONDARIES[id], mark), next: mark < markCap(save) ? weaponStats(SECONDARIES[id], toMark(mark + 1)) : null };
-}
-
-/** How a paint job is earned: "Beat IRONCLAD — Pacific …" / "3★ on every … mission". */
-export function unlockText(id: LiveryId): string {
-  const u = LIVERIES[id].unlock;
-  if (!u) return '';
-  const theater = theaterName(u.theater);
-  if (u.kind === 'stars') return t('hangar.unlockStars', { theater });
-  if (u.kind === 'region') return t('hangar.unlockRegion', { theater });
-  const o = ALL_MISSIONS.find((m) => m.theater === u.theater && m.objective.type === 'boss')?.objective;
-  return t('hangar.unlockBoss', { boss: o?.type === 'boss' ? BOSSES[o.boss].name : '', theater });
 }
 
 /** Gun level line for the detail panel; `twin`: a new jet's gun (own numbers above level 7, doc 43); `fleet`: a fleet

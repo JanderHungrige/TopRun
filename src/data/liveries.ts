@@ -5,11 +5,18 @@ import type { TheaterId } from './types';
 export type LiveryId =
   | 'standard' | 'gullgray' | 'blackflag' | 'desert' | 'sunburst' | 'arctic' | 'aggressor'
   | 'woodland' | 'tiger' | 'airshow' | 'blackgold'
-  | 'seagrey' | 'deepblue' | 'snowrock' | 'polarred' | 'jungle' | 'emerald' | 'nightops' | 'nighthawk' | 'stormgrey' | 'legend';
+  | 'seagrey' | 'deepblue' | 'snowrock' | 'polarred' | 'jungle' | 'emerald' | 'nightops' | 'nighthawk' | 'stormgrey' | 'legend'
+  // The fleet's (doc 100): map 3 the helicopters, map 4 the subs, map 5 the spacecraft.
+  | 'fjordsplinter' | 'northlights' | 'snowfield' | 'rescue' | 'deltaswamp' | 'swamptiger' | 'mesasand' | 'redrock' | 'ashgrey' | 'lava'
+  | 'reefblue' | 'coral' | 'kelpgreen' | 'serpent' | 'rusthulk' | 'ghostship' | 'trenchblack' | 'angler' | 'abyssviolet' | 'kraken'
+  | 'orbitalwhite' | 'stationstripes' | 'asteroid' | 'prospector' | 'lunardust' | 'moonshot' | 'ringgold' | 'saturn' | 'deepspace' | 'nebula';
 
 export const LIVERY_IDS: readonly LiveryId[] = Object.freeze([
   'standard', 'gullgray', 'blackflag', 'desert', 'sunburst', 'arctic', 'aggressor', 'woodland', 'tiger', 'airshow', 'blackgold',
   'seagrey', 'deepblue', 'snowrock', 'polarred', 'jungle', 'emerald', 'nightops', 'nighthawk', 'stormgrey', 'legend',
+  'fjordsplinter', 'northlights', 'snowfield', 'rescue', 'deltaswamp', 'swamptiger', 'mesasand', 'redrock', 'ashgrey', 'lava',
+  'reefblue', 'coral', 'kelpgreen', 'serpent', 'rusthulk', 'ghostship', 'trenchblack', 'angler', 'abyssviolet', 'kraken',
+  'orbitalwhite', 'stationstripes', 'asteroid', 'prospector', 'lunardust', 'moonshot', 'ringgold', 'saturn', 'deepspace', 'nebula',
 ] as const);
 
 /**
@@ -50,4 +57,35 @@ export const LIVERIES: Readonly<Record<LiveryId, LiveryDef>> = Object.freeze({
   nighthawk: def('nighthawk', 'Night Hawk', { theater: 'nightfall', kind: 'stars' }),
   stormgrey: def('stormgrey', 'Storm Ghost', { theater: 'thunderhead', kind: 'region' }),
   legend: def('legend', 'Top Gun Legend', { theater: 'thunderhead', kind: 'stars' }),
+  // Doc 100: the fleet's, for the craft of the theater's world.
+  fjordsplinter: def('fjordsplinter', 'Fjord Splinter', { theater: 'fjords', kind: 'region' }),
+  northlights: def('northlights', 'Northern Lights', { theater: 'fjords', kind: 'stars' }),
+  snowfield: def('snowfield', 'Snowfield', { theater: 'highlands', kind: 'region' }),
+  rescue: def('rescue', 'Mountain Rescue', { theater: 'highlands', kind: 'stars' }),
+  deltaswamp: def('deltaswamp', 'Delta Swamp', { theater: 'delta', kind: 'region' }),
+  swamptiger: def('swamptiger', 'Swamp Tiger', { theater: 'delta', kind: 'stars' }),
+  mesasand: def('mesasand', 'Mesa Sand', { theater: 'mesa', kind: 'region' }),
+  redrock: def('redrock', 'Red Rock', { theater: 'mesa', kind: 'stars' }),
+  ashgrey: def('ashgrey', 'Ash Grey', { theater: 'ashfall', kind: 'region' }),
+  lava: def('lava', 'Lava', { theater: 'ashfall', kind: 'stars' }),
+  reefblue: def('reefblue', 'Reef Blue', { theater: 'reef', kind: 'region' }),
+  coral: def('coral', 'Coral', { theater: 'reef', kind: 'stars' }),
+  kelpgreen: def('kelpgreen', 'Kelp Green', { theater: 'kelp', kind: 'region' }),
+  serpent: def('serpent', 'Sea Serpent', { theater: 'kelp', kind: 'stars' }),
+  rusthulk: def('rusthulk', 'Rust Hulk', { theater: 'wrecks', kind: 'region' }),
+  ghostship: def('ghostship', 'Ghost Ship', { theater: 'wrecks', kind: 'stars' }),
+  trenchblack: def('trenchblack', 'Trench Black', { theater: 'trench', kind: 'region' }),
+  angler: def('angler', 'Angler', { theater: 'trench', kind: 'stars' }),
+  abyssviolet: def('abyssviolet', 'Abyss Violet', { theater: 'abyss', kind: 'region' }),
+  kraken: def('kraken', 'Kraken', { theater: 'abyss', kind: 'stars' }),
+  orbitalwhite: def('orbitalwhite', 'Orbital White', { theater: 'orbit', kind: 'region' }),
+  stationstripes: def('stationstripes', 'Station Stripes', { theater: 'orbit', kind: 'stars' }),
+  asteroid: def('asteroid', 'Asteroid Grey', { theater: 'belt', kind: 'region' }),
+  prospector: def('prospector', 'Prospector', { theater: 'belt', kind: 'stars' }),
+  lunardust: def('lunardust', 'Lunar Dust', { theater: 'moon', kind: 'region' }),
+  moonshot: def('moonshot', 'Moonshot', { theater: 'moon', kind: 'stars' }),
+  ringgold: def('ringgold', 'Ring Gold', { theater: 'rings', kind: 'region' }),
+  saturn: def('saturn', 'Saturn', { theater: 'rings', kind: 'stars' }),
+  deepspace: def('deepspace', 'Deep Space', { theater: 'deep', kind: 'region' }),
+  nebula: def('nebula', 'Nebula', { theater: 'deep', kind: 'stars' }),
 });

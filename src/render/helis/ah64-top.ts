@@ -1,6 +1,7 @@
 import type { Look } from '../livery-art';
 import { lazy, lines, pairs, polys, stroke, sym, type Pts } from '../planes/geom';
 import type { TopOpts } from '../planes/surface';
+import { paintFleet } from '../fleet-paint';
 import { rotorBar, rotorDisc } from './rotor';
 
 /**
@@ -69,6 +70,7 @@ export function drawAh64Top(ctx: CanvasRenderingContext2D, look: Look, o: TopOpt
   stores(ctx);
   ctx.fillStyle = look.base;
   ctx.fill(g.body);
+  paintFleet(ctx, look, g.body, { x: -4, y: -26, w: 8, h: 60 }, 'ah64-top', 'top'); // its paint job (doc 100)
   ctx.fillStyle = shade;
   ctx.fill(polys([0.9, -12, 2.3, -6, 2.6, -2, 2.6, 4, 2.3, 8, 1.6, 12, 1.2, 16, 1.0, 24, 0.9, 30, 0, 32, 0, -12]));
   ctx.fillStyle = look.base;

@@ -47,6 +47,7 @@ export const UI_DE_HANGAR = {
   'intro.place4': 'IN DER MEERESGRUND-BASIS',
   'intro.place5': 'AUF STATION AURORA',
   'intro.place6': 'AUF PLANET X354b',
+  'intro.place7': 'AUF PLANET KHARSA',
   'intro.world': 'WELT {n} · {name}',
   'intro.keys': 'ENTER weiter  ·  ESC überspringen',
   // Bildmodus (doc 76).

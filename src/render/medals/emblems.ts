@@ -5,6 +5,7 @@ import { map, quadPts, solid, stroke, val, type EmblemInk, type Painter } from '
 import { EXTRA_PAINTERS } from './emblems-2';
 import { DEEP_PAINTERS } from './emblems-3';
 import { JUNGLE_PAINTERS } from './emblems-4';
+import { STEPPE_PAINTERS } from './emblems-5';
 import { poly, starPath } from './metal';
 import { BASE, D1, L1, L2, type Ramp } from './palette';
 
@@ -171,6 +172,7 @@ const PAINTERS: Readonly<Record<EmblemId, Painter>> = {
   ...EXTRA_PAINTERS,
   ...DEEP_PAINTERS,
   ...JUNGLE_PAINTERS,
+  ...STEPPE_PAINTERS,
 };
 
 /** Paints emblem `id` of radius r (frame units) at (x, y), inside `clip`. Too small to read → nothing. */

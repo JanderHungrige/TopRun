@@ -1,7 +1,10 @@
 // The jungle planet's lines (docs 78, 82, 83): the admiral opening and closing map 6, Major "Dozer" Brennan at the
 // ground base, Dr. Ada "Flask" Moreau in the lab, the chief in the mech bay. Same {placeholders} in every variant;
-// German in lines-jungle-de.ts.
+// German in lines-jungle-de.ts. The alien steppe's lines (doc 102) are nested here.
+import { STEPPE_LINES_EN } from './lines-steppe-en';
+
 export const JUNGLE_LINES_EN = {
+  ...STEPPE_LINES_EN,
   'adm.jungle': [
     "And one more world, {callsign}: a jungle planet. No runway, no water, so we walk. Your mechs are waiting. Check the globe.",
   ],

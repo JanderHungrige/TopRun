@@ -1,3 +1,4 @@
+import { tankArmsLevels } from './tank-arms';
 import { PLANES } from '../data/planes';
 import type { MissionDef, MissionResult } from '../data/types';
 import { marksBought } from './arsenal';
@@ -48,7 +49,8 @@ export const freshChallenge = (): ChallengeState => ({ level: 0, wins: 0, fails:
 /** Everything bought raises it: guns, both ammo types, equipment, weapons and their marks, twin pods, a pricier jet. */
 export function kitScore(save: SaveData): number {
   const equipment = Object.values(save.equipment).reduce((a, b) => a + b, 0);
-  const heliGear = save.kit === 'heli' ? heliArmsLevels(save.heliArms) : save.kit === 'sub' ? subArmsLevels(save.subArms) : 0; // docs 99, 101
+  const heliGear = save.kit === 'heli' ? heliArmsLevels(save.heliArms) : save.kit === 'sub' ? subArmsLevels(save.subArms)
+    : save.kit === 'tank' ? tankArmsLevels(save.tankArms) : 0; // docs 99, 101, 108
   const guns = save.gunLevel + save.gun2Level + save.heLevel + save.ammoLevel + save.incendiaryLevel + heliGear;
   return guns * 10 + equipment * 5 + save.ownedSecondaries.length * 4
     + marksBought(save) * 4 + save.twinSecondaries.length * 4 + Math.round(PLANES[save.selectedPlane].price / 10000);

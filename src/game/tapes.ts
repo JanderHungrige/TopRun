@@ -15,7 +15,7 @@ export interface Tape {
 /** A tape's two recordings. */
 export type TapeSide = 'welcome' | 'victory';
 
-export const WORLDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5, 6] as const);
+export const WORLDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5, 6, 7] as const);
 
 export const tapeShelf = (save: SaveData): Tape[] => WORLDS.map((world) => ({
   world, finished: campaignComplete(save, world), welcome: INTRO_WORLDS.includes(world) && save.intros.includes(world),

@@ -13,8 +13,8 @@ import { makeCanvas } from './pixel/post';
 // when they salute) and the pilot and admiral cut-outs on top, composed on the 320 × 180 art grid (4 logical px per
 // art px) and blitted once. The pilot's skin and hair are recoloured to the player's look; a few gulls glide by. Map 4's
 // and map 5's ceremonies stand on a submarine pier and in a space hangar (doc 75): their own picture and crew salute,
-// the same officers; the hangar's window stars twinkle instead of gulls. In the hangar and the jungle camp the officers
-// wear that world's uniform: each cut-out's -space / -jungle variant (doc 98).
+// the same officers; the hangar's window stars twinkle instead of gulls. In the hangar and the jungle and steppe camps the
+// officers wear that world's uniform: each cut-out's -space / -jungle / -steppe variant (docs 98, 110).
 
 /** A cut-out's name in the layer table (camelCase of its file). */
 type Key = string;
@@ -54,6 +54,7 @@ const SETS: Readonly<Record<CeremonySet, SetLook>> = {
   pier: { ...CEREMONY_SETS.pier, gulls: true },
   hangar: { ...CEREMONY_SETS.hangar, gulls: false },
   camp: { ...CEREMONY_SETS.camp, gulls: false },
+  steppe: { ...CEREMONY_SETS.steppe, gulls: false },
 };
 
 const images = new Map<string, HTMLImageElement>();

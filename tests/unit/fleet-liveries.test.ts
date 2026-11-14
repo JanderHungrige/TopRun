@@ -115,3 +115,48 @@ describe('Fleet liveries — wearing them (doc 100)', () => {
     expect(tabs(kitView(save(), 'mech')).some((tab) => tab.name === 'hangar.tabPaint')).toBe(false);
   });
 });
+
+describe('Tank liveries (doc 112)', () => {
+  const TANK = LIVERY_IDS.filter((id) => liveryKit(id) === 'tank');
+  const save = (stars = 3): SaveData => ({ ...defaultSave(), progress: through(7, stars) });
+
+  it('adds ten for the tanks and buggies, a region camo and a 3★ reward per theater of map 7, each with a look and a German name', () => {
+    expect(TANK).toEqual(['steppegold', 'grassfire', 'saltcrust', 'mirage', 'reddust', 'raider', 'barrowmoss', 'runestone', 'craterash', 'starfall']);
+    for (const th of new Set(campaignMissions(7).map((m) => m.theater))) {
+      const kinds = TANK.filter((id) => LIVERIES[id].unlock?.theater === th).map((id) => LIVERIES[id].unlock?.kind).sort();
+      expect(kinds, th).toEqual(['region', 'stars']);
+    }
+    for (const id of TANK) {
+      expect(LIVERIES_DE[id], id).toBeTruthy();
+      expect(liverySwatch(id)).toHaveLength(3);
+      expect(liveryLook('lynx', id).base).toMatch(/^#/);
+    }
+    expect(liveriesFor('tank')).toEqual(['standard', ...TANK]);
+  });
+
+  it('opens Steppe Gold with map 7 and pays Grass Fire for three stars on the Sea of Grass', () => {
+    expect(isLiveryUnlocked(through(5), 'steppegold')).toBe(false);
+    expect(isLiveryUnlocked(through(6), 'steppegold')).toBe(true);
+    expect(isLiveryUnlocked(through(7, 2), 'grassfire')).toBe(false);
+    expect(isLiveryUnlocked(through(7, 3), 'grassfire')).toBe(true);
+    expect(liveryOnShow(through(5), 'starfall')).toBe(false);
+    expect(liveryOnShow(through(6), 'starfall')).toBe(true);
+  });
+
+  it('paints only the tanks and buggies with them, and keeps other paint off the tanks', () => {
+    const s = save();
+    expect(applyLivery(s, 'jackal', 'steppegold').livery.jackal).toBe('steppegold');
+    expect(applyLivery(s, 'ah64', 'steppegold')).toBe(s);
+    expect(applyLivery(s, 'bison', 'lava')).toBe(s);
+    expect(liveryFits('viper', 'runestone')).toBe(true);
+    const parsed = parseLiveries({ lynx: 'grassfire', jackal: 'reefblue' }, through(7, 2));
+    expect([parsed.lynx, parsed.jackal]).toEqual(['standard', 'standard']);
+  });
+
+  it('gives the MOTOR POOL a PAINT tab with the steppe paint jobs, and drives the vehicle in its paint', () => {
+    const paint = tabs(kitView(save(), 'tank')).find((tab) => tab.name === 'hangar.tabPaint');
+    expect(paint?.items.map((i) => (i.type === 'livery' ? i.id : ''))).toEqual(liveriesFor('tank'));
+    const s = kitView({ ...save(), livery: { ...save().livery, lynx: 'raider' } }, 'tank');
+    expect(derivePlayerStats({ ...s, selectedPlane: 'lynx' }).livery).toBe('raider');
+  });
+});

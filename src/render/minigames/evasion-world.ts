@@ -43,6 +43,11 @@ const SPAWNS: Readonly<Record<TerrainStyle, readonly Spawn[]>> = {
   swamp: [['pool', 0.4, 30, 70], ['root', 0.3, 18, 34]],
   ruins: [['pillar', 0.3, 12, 26], ['tree', 0.25, 34, 60]],
   hive: [['pod', 0.4, 14, 26], ['root', 0.2, 16, 30]],
+  grass: [['mud', 0.2, 20, 40], ['stone', 0.25, 10, 24]],
+  salt: [['pool', 0.3, 30, 60], ['stone', 0.15, 10, 20]],
+  badlands: [['stone', 0.5, 12, 30]],
+  barrows: [['stone', 0.3, 10, 24], ['mud', 0.2, 20, 40]],
+  impact: [['vent', 0.2, 14, 26], ['stone', 0.3, 10, 24]],
 };
 
 interface Cloud { x: number; y: number; puffs: Array<{ dx: number; dy: number; r: number }> }

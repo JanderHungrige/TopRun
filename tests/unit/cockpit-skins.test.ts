@@ -21,7 +21,7 @@ describe('Cockpit skins (doc 61)', () => {
     expect(COCKPIT_SKINS.heli.ink).toBe('#ffb347');
     expect(COCKPIT_SKINS.ship.ink).toBe('#5fe3ff');
     expect(COCKPIT_SKINS.sub.ink).toBe('#6ff5d2');
-    expect(new Set(COCKPIT_SKIN_IDS.map((id) => COCKPIT_SKINS[id].back.join()))).toHaveProperty('size', 5);
+    expect(new Set(COCKPIT_SKIN_IDS.map((id) => COCKPIT_SKINS[id].back.join()))).toHaveProperty('size', 6);
   });
 
   it('cuts the spacecraft panels at an angle and fastens the others: screws on jets, rivets on helicopters', () => {

@@ -1,14 +1,17 @@
 // Jungle Planet UI strings (docs 78–80) — German; keys must match ui-en-jungle.ts.
 import { UI_DE_OUTPOST } from './ui-de-outpost';
+import { UI_DE_STEPPE } from './ui-de-steppe';
 
 export const UI_DE_JUNGLE = {
   ...UI_DE_OUTPOST,
+  ...UI_DE_STEPPE,
   'map.title6': 'DSCHUNGELPLANET',
   'map.campaign6Complete': '🎖 DSCHUNGELPLANET GEWONNEN',
   'map.globeLocked6': 'Öffnet nach Mission 150',
   'map.yourMech': 'DEIN MECH',
   'debrief.finale6': '🎖  DSCHUNGELPLANET GEWONNEN  🎖',
   'rank.junglemarshal': 'Dschungelmarschall',
+  'rank.steppemarshal': 'Steppenmarschall',
   'hangar.titleMechs': 'MECH-HANGAR',
   'hangar.tabMechs': 'MECHS',
   'hangar.mechGunName': 'Maschinenkanone',

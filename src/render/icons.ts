@@ -21,8 +21,8 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     case 'aim120': missile(ctx, 66, 3.5, '#eef0f2', '#4c5a7a', '#b9bfc6'); break;
     case 'jdam': jdam(ctx); break;
     case 'hydra': rocketPod(ctx, '#4f5a3a', '#e0e0d8'); break;
-    case 'hellfire': missile(ctx, 44, 3.5, '#6b7350', '#c8b25a', '#2a2e26'); break;
-    case 'stinger': missile(ctx, 40, 2.6, '#c9cbbf', '#3f6b8a', '#e0e2da'); break;
+    case 'hellfire': case 'atgm': missile(ctx, 44, 3.5, '#6b7350', '#c8b25a', '#2a2e26'); break;
+    case 'stinger': case 'aarocket': missile(ctx, 40, 2.6, '#c9cbbf', '#3f6b8a', '#e0e2da'); break;
     case 'spacerocket': missile(ctx, 38, 3, '#dfe6f2', '#5b7cff', '#9fb6ff'); break;
     case 'torpedo': missile(ctx, 54, 6, '#3a4256', '#ff8a3d', '#ffd27a'); break;
     case 'mk48': case 'decoy': mk48(ctx); break;
@@ -31,22 +31,22 @@ export function drawWeaponIcon(ctx: CanvasRenderingContext2D, id: SecondaryId | 
     // The mech weapons (doc 79) until their pictures load.
     case 'pod': rocketPod(ctx, '#4e5a2e', '#e86a3a'); break;
     case 'seeker': missile(ctx, 40, 4, '#4e5a2e', '#1a1a1a', '#ff5a3a'); break;
-    case 'mortar': case 'sonarpulse': case 'net': depthMine(ctx); break;
+    case 'mortar': case 'sonarpulse': case 'net': case 'grenade': case 'mines': depthMine(ctx); break;
     case 'plasma': missile(ctx, 50, 3, '#d8e0d8', '#6aff8a', '#9affb0'); break;
     case 'rail': missile(ctx, 56, 3, '#3a4048', '#5ab8ff', '#a8e0ff'); break;
     case 'gun': gun(ctx); break;
     case 'gun2': twinGun(ctx); break;
     case 'ammo': ammoBelt(ctx, '#59604f', '#8c957c'); break;
-    case 'incendiary': ammoBelt(ctx, '#b5371f', '#ff8a4a'); break;
+    case 'incendiary': case 'thermite': ammoBelt(ctx, '#b5371f', '#ff8a4a'); break;
     case 'he': bofors(ctx); break;
-    case 'pulselaser': missile(ctx, 46, 4, '#cfd6dc', '#ff5ac8', '#ffd0f0'); break;
-    case 'sonic': depthMine(ctx); break;
+    case 'pulselaser': case 'flamer': missile(ctx, 46, 4, '#cfd6dc', '#ff5ac8', '#ffd0f0'); break;
+    case 'sonic': case 'tesla': depthMine(ctx); break;
     case 'drones': case 'torpswarm': missile(ctx, 30, 3, '#3a4048', '#ff4040', '#5a6068'); break;
-    case 'gatling': case 'turret': case 'loader': case 'homing': gun(ctx); break;
-    case 'doorguns': case 'sidetubes': twinGun(ctx); break;
+    case 'gatling': case 'turret': case 'loader': case 'homing': case 'autoloader': case 'stabiliser': gun(ctx); break;
+    case 'doorguns': case 'sidetubes': case 'coaxmg': twinGun(ctx); break;
     case 'tracer': ammoBelt(ctx, '#c02020', '#ff6a6a'); break;
-    case 'hedp': case 'explosive': ammoBelt(ctx, '#5a6030', '#e8d040'); break;
-    case 'electric': case 'cavitation': ammoBelt(ctx, '#2a5fd0', '#9ad8ff'); break;
+    case 'hedp': case 'explosive': case 'hefrag': ammoBelt(ctx, '#5a6030', '#e8d040'); break;
+    case 'electric': case 'cavitation': case 'apds': ammoBelt(ctx, '#2a5fd0', '#9ad8ff'); break;
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
   ctx.restore();

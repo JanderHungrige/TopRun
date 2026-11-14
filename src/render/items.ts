@@ -7,14 +7,19 @@ import { EQUIPMENT_IDS, SECONDARY_IDS } from '../data/types';
 
 /** `ammo`: the uranium ammo (doc 43); `incendiary` (doc 45, the helicopters' too); `he`: the Bofors 40 mm (doc 46);
  *  `chaingun`: the helicopters' M230 (doc 49); `harpoon`: the subs' harpoon gun (doc 66); `autocannon`: the mechs' gun
- *  (doc 79); the fleets' gun upgrades and ammo types (docs 99, 101). */
+ *  (doc 79); `turretgun`: the tanks' turret cannon (doc 103); the fleets' gun upgrades and ammo types (docs 99, 101). */
 /** The fleets' gun upgrades and ammo types (docs 99, 101). */
 export type GearPicture = 'gatling' | 'turret' | 'doorguns' | 'tracer' | 'hedp' | 'incendiary'
-  | 'loader' | 'homing' | 'sidetubes' | 'explosive' | 'electric' | 'cavitation';
-export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'he' | 'chaingun' | 'harpoon' | 'autocannon' | GearPicture;
+  | 'loader' | 'homing' | 'sidetubes' | 'explosive' | 'electric' | 'cavitation'
+  | 'autoloader' | 'stabiliser' | 'coaxmg' | 'apds' | 'hefrag' | 'thermite';
+/** The defences' towers (doc 106), for the steppe lab (doc 107). */
+export type TowerPicture = 'mgnest' | 'flaktower' | 'mortarpit' | 'teslatower' | 'jammer' | 'rocketbattery';
+export type ItemId = SecondaryId | EquipmentId | 'gun' | 'ammo' | 'he' | 'chaingun' | 'harpoon' | 'autocannon' | 'turretgun' | GearPicture | TowerPicture;
 export const ITEM_IDS: readonly ItemId[] = Object.freeze([
-  ...SECONDARY_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', 'harpoon', 'autocannon', ...EQUIPMENT_IDS,
+  ...SECONDARY_IDS, 'gun', 'ammo', 'incendiary', 'he', 'chaingun', 'harpoon', 'autocannon', 'turretgun', ...EQUIPMENT_IDS,
   'gatling', 'turret', 'doorguns', 'tracer', 'hedp', 'loader', 'homing', 'sidetubes', 'explosive', 'electric', 'cavitation',
+  'autoloader', 'stabiliser', 'coaxmg', 'apds', 'hefrag', 'thermite',
+  'mgnest', 'flaktower', 'mortarpit', 'teslatower', 'jammer', 'rocketbattery',
 ]);
 
 const FILES = import.meta.glob<string>('../assets/items/*.png', { eager: true, query: '?url', import: 'default' });

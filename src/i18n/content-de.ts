@@ -1,4 +1,5 @@
 import type { BossId, EnemyKind, EquipmentId, PlaneId, SecondaryId, TheaterId } from '../data/types';
+import * as S from './content-de-steppe';
 
 // German content for the data tables (English lives in src/data). Proper names stay untranslated.
 
@@ -33,6 +34,7 @@ export const THEATERS_DE: Readonly<Record<TheaterId, { name: string; tagline: st
   swamp: { name: 'Mangrovensumpf', tagline: 'Schlamm bis zu den Knien' },
   ruins: { name: 'Tempelruinen', tagline: 'Steine, die zurückschießen' },
   hive: { name: 'Der Bau', tagline: 'Hinein ins Nest' },
+  ...S.STEPPE_THEATERS_DE,
 };
 
 export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; description: string }>> = {
@@ -99,6 +101,7 @@ export const PLANES_DE: Readonly<Record<PlaneId, { specialName: string; descript
   strider: { specialName: 'Sprungdüsen', description: 'Leichter Späher-Mech. Flink auf den Beinen, eine Maschinenkanone an jedem Arm und Sprungdüsen, die über das Feuer springen und zertrampeln, was darunter ist.' },
   ranger: { specialName: 'Raketenhagel', description: 'Mittlerer Linien-Mech. Drei Waffenstationen und ein Hagel aus Lenkraketen auf jedes Bodenziel in Sicht.' },
   hornet: { specialName: 'Tarnfeld', description: 'Schneller Jagd-Mech. Harte Kanonen und ein Tarnfeld, das ihn im Grün versteckt: Der Feind stellt das Feuer ein.' },
+  ...S.STEPPE_PLANES_DE,
   titan: { specialName: 'Bollwerk', description: 'Schwerer Sturm-Mech. Vier Waffenstationen, dicke Panzerung und ein paar Sekunden, in denen nichts durchkommt. Langsam auf den Beinen.' },
 };
 
@@ -130,6 +133,7 @@ export const SECONDARIES_DE: Readonly<Record<SecondaryId, { name: string; descri
   sonarpulse: { name: 'Sonar-Puls', description: 'Eine Druckwelle rund um das U-Boot, die alles betäubt, was sie trifft, und feindliche Torpedos auslöscht. Lädt sich wieder auf.' },
   decoy: { name: 'Köder-Drohne', description: 'Eine kleine Drohne, die vorausschwimmt und wie ein U-Boot klingt: Feindliche Geschütze und Torpedos nehmen sie statt dich ins Visier.' },
   net: { name: 'Treibnetz', description: 'Ein nach vorn geworfenes Netz, das langsam absinkt. Was hineinschwimmt, wird stark gebremst.' },
+  ...S.STEPPE_SECONDARIES_DE,
 };
 
 export const EQUIPMENT_DE: Readonly<Record<EquipmentId, { name: string; description: string; levelText: readonly string[] }>> = {
@@ -194,7 +198,7 @@ export const ENEMIES_EN_PLURAL: Readonly<Record<EnemyKind, string>> = {
   raptor: 'Raptors', beetle: 'Armoured Beetles', spitter: 'Spitter Plants', wasp: 'Giant Wasps', brute: 'Brute Walkers',
   sporepod: 'Spore Pods', lasher: 'Lasher Vines', rhino: 'Rhino Crawlers', toad: 'Acid Toads', spire: 'Brood Spires',
   totem: 'Crystal Totems', lurker: 'Swamp Lurkers', glider: 'Glider Rays', leatherwing: 'Leatherwings',
-  dragonfly: 'Giant Dragonflies', balloon: 'Spore Balloons', skyjelly: 'Sky Jellies',
+  dragonfly: 'Giant Dragonflies', balloon: 'Spore Balloons', skyjelly: 'Sky Jellies', ...S.STEPPE_ENEMIES_EN_PLURAL,
 };
 
 export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
@@ -254,7 +258,7 @@ export const ENEMIES_DE: Readonly<Record<EnemyKind, Forms>> = {
   rhino: ['Panzernashorn', 'Panzernashörner'], toad: ['Säurekröte', 'Säurekröten'], spire: ['Brutturm', 'Bruttürme'],
   totem: ['Kristalltotem', 'Kristalltotems'], lurker: ['Sumpflauerer', 'Sumpflauerer'], glider: ['Gleitrochen', 'Gleitrochen'],
   leatherwing: ['Lederschwinge', 'Lederschwingen'], dragonfly: ['Riesenlibelle', 'Riesenlibellen'],
-  balloon: ['Sporenballon', 'Sporenballons'], skyjelly: ['Himmelsqualle', 'Himmelsquallen'],
+  balloon: ['Sporenballon', 'Sporenballons'], skyjelly: ['Himmelsqualle', 'Himmelsquallen'], ...S.STEPPE_ENEMIES_DE,
 };
 
 export const BOSSES_DE: Readonly<Record<BossId, string>> = {
@@ -288,4 +292,5 @@ export const BOSSES_DE: Readonly<Record<BossId, string>> = {
   basilisk: 'Sumpfbestie',
   sentinel: 'Tempelwächter',
   queen: 'Mutter des Baus',
+  ...S.STEPPE_BOSSES_DE,
 };

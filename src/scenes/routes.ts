@@ -31,9 +31,11 @@ import { ShipyardScene } from './shipyard';
 import { TapesScene } from './tapes';
 import { DiveLaunchScene } from './dive-launch';
 import { DropLaunchScene } from './drop-launch';
+import { RampStartScene } from './ramp-start';
 import { LabScene } from './lab';
 import { OutpostScene } from './outpost';
 import { PaintShopScene } from './paint-shop';
+import { SteppeLabScene } from './steppe-lab';
 
 // Which scene each route opens (docs 01, 53, 55, 56, 59, 63, 64, 71).
 
@@ -41,6 +43,7 @@ import { PaintShopScene } from './paint-shop';
  *  dives out of the well deck (doc 71), a mech drops from a dropship (doc 84). */
 function takeoffScene(game: GameContext, mission: MissionDef): Scene {
   if (mission.campaign === 6) return new DropLaunchScene(game, mission); // mechs drop from a dropship (doc 84)
+  if (mission.campaign === 7) return new RampStartScene(game, mission); // tanks roll off a lander's ramp (doc 109)
   if (mission.campaign === 4) return new DiveLaunchScene(game, mission);
   if (mission.campaign === 5) return new RocketLaunchScene(game, mission);
   return mission.campaign === 3 ? new LiftoffScene(game, mission) : new TakeoffScene(game, mission);
@@ -60,7 +63,7 @@ export function createScene(game: GameContext, route: Route): Scene {
     case 'hangar': return game.save.kit === 'ship' ? new ShipyardScene(game) : new HangarScene(game); // map 5: the shipyard (docs 55, 74)
     case 'base': return new HangarBaseScene(game);
     case 'outpost': return new OutpostScene(game);
-    case 'lab': return new LabScene(game);
+    case 'lab': return game.home === 7 ? new SteppeLabScene(game) : new LabScene(game); // the steppe lab on map 7 (doc 107)
     case 'paintShop': return new PaintShopScene(game, route.mech);
     case 'recRoom': return new BaseHubScene(game);
     case 'locker': return new LockerScene(game);

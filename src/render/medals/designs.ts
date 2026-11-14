@@ -11,7 +11,9 @@ export type EmblemId =
   // Map 5's medals (doc 72).
   | 'coral' | 'kelp' | 'anchor' | 'chevron' | 'lure' | 'sub'
   // Map 6's medals (doc 85).
-  | 'boot' | 'palmtree' | 'eye' | 'pyramid' | 'hive' | 'mech';
+  | 'boot' | 'palmtree' | 'eye' | 'pyramid' | 'hive' | 'mech'
+  // Map 7's medals (doc 110).
+  | 'tuft' | 'crystal' | 'butte' | 'stone' | 'crater' | 'tank';
 
 /** A paint for emblem parts: a hex colour or the medal's own metal. */
 export type Paint = string | 'metal';
@@ -82,6 +84,13 @@ export const DESIGNS: Readonly<Record<MedalId, Design>> = {
   hive: { emblem: 'hive', enamel: '#2a1a2a', mark: '#a06a90', accent: '#ff7ad2' },
   victory6: { emblem: 'mech', enamel: '#2f6a1e', mark: 'metal', accent: '#c8ff6a', rivets: true },
   allstars6: { emblem: 'stars3', enamel: '#2f6a1e', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
+  grass: { emblem: 'tuft', enamel: '#6a5a24', mark: '#e8d48a', accent: '#c98a3a' },
+  saltflats: { emblem: 'crystal', enamel: '#4a6a80', mark: '#eef2f2', accent: '#bfe6ff' },
+  badlands: { emblem: 'butte', enamel: '#5a2a1a', mark: '#c4603a', accent: '#ffd25a' },
+  barrows: { emblem: 'stone', enamel: '#3a4030', mark: '#a8a890', accent: '#7affc8' },
+  impact: { emblem: 'crater', enamel: '#1e1a2a', mark: '#7a6a5a', accent: '#b07aff' },
+  victory7: { emblem: 'tank', enamel: '#8a6a2a', mark: 'metal', accent: '#e8d48a', rivets: true },
+  allstars7: { emblem: 'stars3', enamel: '#8a6a2a', mark: 'metal', accent: 'metal', points: 8, rays: 'radiant' },
   ace: { emblem: 'star', enamel: '#2f3f66', mark: '#f2f2ee', accent: '#f2f2ee', tiers: 2 },
   topace: { emblem: 'star', enamel: '#b8202a', mark: 'metal', accent: 'metal', tiers: 3 },
   giant: { emblem: 'sword', enamel: '#5b2a86', field: '#f2f2ee', mark: '#5b2a86', accent: '#c88c28' },

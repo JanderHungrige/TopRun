@@ -1,3 +1,4 @@
+import { ENEMIES_7 } from './enemies-7';
 import type { Behavior, EnemyKind, EnemyWeapon, Layer } from './types';
 
 export interface EnemyDef {
@@ -14,6 +15,10 @@ export interface EnemyDef {
   stealth?: boolean;
   /** Spores thrown round it when it is killed (the spore balloon, doc 96). */
   burst?: number;
+  /** Lets others out (doc 105): one of `kind` every `every` s while it lives, or `count` of them when it dies. */
+  spawn?: { kind: EnemyKind; every?: number; count?: number };
+  /** Others within `reach` take `share` of the damage while it lives (the shield bearer, doc 105). */
+  shield?: { reach: number; share: number };
   weapon: EnemyWeapon;
   period: number;
   weapon2: EnemyWeapon;
@@ -102,6 +107,8 @@ export const ENEMIES: Readonly<Record<EnemyKind, EnemyDef>> = Object.freeze({
   dragonfly: def('dragonfly', 'Giant Dragonfly', 'air', 26, 260, 13, 30, 'aimed', 1.4, ['swoop', 'sine']),
   balloon: { ...def('balloon', 'Spore Balloon', 'air', 45, 50, 20, 40, 'single', 1.8, ['straight']), burst: 10 },
   skyjelly: def('skyjelly', 'Sky Jelly', 'air', 70, 60, 22, 50, 'none', 0, ['sine']),
+  // The alien steppe's invasion army (doc 105).
+  ...ENEMIES_7,
 });
 
 export const AIR_KINDS: readonly EnemyKind[] = Object.freeze(

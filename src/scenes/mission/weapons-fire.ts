@@ -4,6 +4,7 @@ import { jetGunDef, SECONDARIES, type WeaponRole } from '../../data/weapons';
 import { slotFor } from '../../game/loadout';
 import { headingTo } from '../../game/combat';
 import { RING_SPIN, RING_SPORES, ringHeadings } from '../../game/spores';
+import { RAY } from '../../game/steppe-army';
 import type { WeaponStats } from '../../game/arsenal';
 import type { Player } from './player';
 import { fireHe } from './shells';
@@ -11,6 +12,7 @@ import { fireBeam, fireLance, lobShell } from './mech-mission';
 import { firePulse, gunRounds, gunSwivel, launchSwarm, roundSpeed } from './heli-arms';
 import { fireWave } from './heli-waves';
 import { aimTarget, launchDecoy, throwNet } from './sub-arms';
+import { fireChain, fireFlame, layMine } from './tank-weapons';
 import { spinRate } from '../../game/heli-combat';
 import type { Missile, World } from './world';
 
@@ -80,7 +82,7 @@ export function playerMissile(p: Player, kind: Missile['kind'], w: WeaponStats, 
 
 const homingKind = (id: SecondaryId): Missile['kind'] | null =>
   (id === 'aim9' || id === 'aim54' || id === 'aim120' || id === 'agm65' || id === 'hellfire' || id === 'stinger' || id === 'spacerocket'
-    || id === 'torpedo' || id === 'mk48' || id === 'seeker' ? id : null);
+    || id === 'torpedo' || id === 'mk48' || id === 'seeker' || id === 'aarocket' || id === 'atgm' ? id : null);
 
 /**
  * AIR or GROUND key: fires the picked ground weapon, else the first of that role with ammo (doc 05). Twin pods
@@ -143,6 +145,16 @@ export function fireSecondary(world: World, p: Player, audio: AudioEngine, role:
       throwNet(world, p, slot.weapon);
       audio.play('splash', { volume: 0.5 });
       break;
+    case 'mine': // the tanks' (doc 108)
+      layMine(world, p, slot.weapon);
+      audio.play('bombDrop', { volume: 0.6 });
+      break;
+    case 'flame':
+      fireFlame(world, p, slot.weapon, audio);
+      break;
+    case 'chain':
+      fireChain(world, p, slot.weapon, audio);
+      break;
     default:
       throw new Error(`unhandled: ${def.behavior satisfies never}`);
   }
@@ -167,10 +179,10 @@ export interface FireSource {
   t?: number;
 }
 
-function enemyBullet(world: World, s: FireSource, heading: number, speed: number, damage: number): void {
+function enemyBullet(world: World, s: FireSource, heading: number, speed: number, damage: number, heat = false): void {
   world.bullets.push({
     kind: 'enemy', x: s.x, y: s.y, vx: Math.sin(heading) * speed * s.bulletSpeedMul, vy: -Math.cos(heading) * speed * s.bulletSpeedMul,
-    damage, ttl: 5, dead: false,
+    damage, ttl: 5, dead: false, ...(heat ? { heat } : {}),
   });
 }
 
@@ -181,7 +193,8 @@ export function fireRing(world: World, s: FireSource, n: number, turn: number): 
 
 /** Fires an enemy weapon from a source at the player. */
 export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon, p: Player, audio: AudioEngine): void {
-  const at = aimTarget(world, s, p); // the subs' decoy drone draws the aim (doc 101)
+  const tower = weapon === 'ray' ? world.defence?.rayTarget(s) : null; // a tripod's ray goes for a tower half the time (doc 106)
+  const at = tower ?? aimTarget(world, s, p); // the subs' decoy drone draws the aim (doc 101)
   const aim = headingTo(s.x, s.y, at.x, at.y);
   switch (weapon) {
     case 'none': return;
@@ -199,6 +212,11 @@ export function fireEnemyWeapon(world: World, s: FireSource, weapon: EnemyWeapon
       return;
     case 'ring':
       fireRing(world, s, RING_SPORES, (s.t ?? 0) * RING_SPIN);
+      break;
+    case 'ray': // a tripod's heat ray (doc 105): six bolts in a line, like a beam travelling
+      for (let k = 0; k < RAY.bolts; k++) {
+        enemyBullet(world, { ...s, x: s.x + Math.sin(aim) * k * RAY.gap, y: s.y - Math.cos(aim) * k * RAY.gap }, aim, RAY.speed, RAY.damage, true);
+      }
       break;
     case 'flak': {
       const dist = Math.hypot(at.x - s.x, at.y - s.y);

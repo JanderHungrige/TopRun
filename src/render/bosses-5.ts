@@ -32,7 +32,7 @@ export const LIGHTS_5: Readonly<Record<Map5Boss, readonly number[]>> = {
 export const ORGANIC: ReadonlySet<BossId> = new Set<BossId>(['medusa', 'goliath', 'jormungand']);
 
 const ORGAN: Readonly<Record<EnemyWeapon, string>> = {
-  none: '#ffffff', single: '#ffe27a', aimed: '#ffe27a', spread3: '#ff7ad9', missile: '#ff5a4a', flak: '#9aff8a', ring: '#c8ff6a',
+  none: '#ffffff', single: '#ffe27a', aimed: '#ffe27a', spread3: '#ff7ad9', missile: '#ff5a4a', flak: '#9aff8a', ring: '#c8ff6a', ray: '#ff6a3a',
 };
 
 /** A sea monster's weak point: a fleshy bulb with a core glowing in its weapon's colour. */

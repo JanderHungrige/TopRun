@@ -57,6 +57,7 @@ const SPARKS: Readonly<Record<CampaignId, readonly string[]>> = {
   4: ['#5ff0e0', '#ffd25a', '#ff8a78', '#e8fbff'],
   5: ['#5fe3ff', '#ff6a8a', '#b088e8', '#fff4d0'],
   6: ['#c8ff6a', '#ffd25a', '#ff7ad2', '#6affd0'],
+  7: ['#ffcf5a', '#c77dff', '#ff8a3d', '#fff4d0'],
 };
 
 /** Bursts launched every 0.55 s at hash-picked spots in the sky; rays fall a little and fade. Under the sea (world 4's
@@ -115,11 +116,13 @@ export function drawConfetti(ctx: Ctx, t: number): void {
 let craftCanvas: HTMLCanvasElement | null = null;
 
 /** The player's craft crossing the sky left to right (u 0…1), drawn at a quarter size and blown up: pixel art. A mech
- *  walks across the ground instead (doc 85). */
+ *  walks across the ground instead (doc 85), a tank or buggy drives across it (doc 110). */
 export function drawFlyby(ctx: Ctx, plane: PlaneId, livery: LiveryId, u: number, t: number, paint: string | null = null): void {
   const W = 80;
   const H = 40;
-  const mech = PLANES[plane].kind === 'mech';
+  const kind = PLANES[plane].kind;
+  const mech = kind === 'mech';
+  const ground = mech || kind === 'tank';
   craftCanvas ??= document.createElement('canvas');
   craftCanvas.width = W;
   craftCanvas.height = H;
@@ -127,9 +130,10 @@ export function drawFlyby(ctx: Ctx, plane: PlaneId, livery: LiveryId, u: number,
   if (!g) return;
   g.clearRect(0, 0, W, H);
   if (mech) drawPlaneSide(g, plane, W / 2, H - 2, 0.42, { t, paint, stride: u * 14 });
+  else if (ground) drawPlaneSide(g, plane, W / 2, H - 6, 0.42, { t: u * 20, livery });
   else drawPlaneSide(g, plane, W / 2, H / 2 + 4, 0.42, { gear: 0, t, livery, throttle: 1, pitch: 0.06 });
-  const x = mech ? -200 + u * 1700 : -260 + u * 1800;
-  const y = mech ? 600 : 210 - Math.sin(u * Math.PI) * 60;
+  const x = ground ? -200 + u * 1700 : -260 + u * 1800;
+  const y = ground ? 600 : 210 - Math.sin(u * Math.PI) * 60;
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(craftCanvas, snap(x - (W * ART) / 2), snap(y - (H * ART) / 2), W * ART, H * ART);

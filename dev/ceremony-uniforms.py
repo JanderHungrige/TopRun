@@ -1,4 +1,4 @@
-"""The officers in each world's uniform (doc 98): every admiral and pilot cut-out -> its -space and -jungle variant.
+"""The officers in each world's uniform (doc 98): every admiral and pilot cut-out -> its -space, -jungle and -steppe variant.
 
 usage: python3 -I dev/ceremony-uniforms.py src/data/ceremony-layers.ts src/assets/ceremony
 The clothes are found by colour: the admiral's navy (blue clearly over red, dark, below the head), the pilot's whites
@@ -6,8 +6,9 @@ The clothes are found by colour: the admiral's navy (blue clearly over red, dark
 keeps its shading — its brightness within the clothes — and takes the outfit's colour: for space the admiral's suit goes
 grey and the pilot's orange with a light-grey cap; for the jungle both wear a blotchy woodland camouflage that sits on
 the figure (its pattern counted from the cut-out's foot point, so it stays put from pose to pose), with faded patches
-and mud towards the boots. Skin, hair, shoes, buttons, glasses and badges stay. Writes <file>-space.png and
-<file>-jungle.png beside each cut-out.
+and mud towards the boots; for the steppe (map 7) a clean, brighter desert camouflage — a sand ground with khaki
+blotches and smaller brown and olive ones — with a little light dust towards the boots. Skin, hair, shoes, buttons,
+glasses and badges stay. Writes <file>-space.png, <file>-jungle.png and <file>-steppe.png beside each cut-out.
 """
 import json
 import math
@@ -24,6 +25,9 @@ CAP = ['#6f7681', '#9aa1ac', '#c2c8d0', '#e2e6ea']
 CAMO = ['#283019', '#3e4c24', '#5f6c34', '#7a663e']  # black-green, dark green, olive, brown
 FADED = (138, 136, 104)
 MUD = (86, 64, 42)
+# The steppe's desert camouflage: sand ground, khaki blotches, brown and olive spots; light dust at the boots.
+SAND, KHAKI, BROWN, OLIVE = '#c8b48a', '#9a8458', '#6a5034', '#7a7a4a'
+DUST = (216, 202, 168)
 
 
 def layers(ts_path):
@@ -112,6 +116,32 @@ def jungle(px, m, v, box):
     return out
 
 
+def steppe_colour(bx, by):
+    """The desert camouflage at a figure point: brown and olive spots over khaki blotches over the sand ground."""
+    spot = noise(bx + 91, by + 47, 3.6)
+    if spot > 0.74:
+        return hexrgb(BROWN)
+    if spot < 0.24:
+        return hexrgb(OLIVE)
+    blotch = 0.65 * noise(bx + 13, by + 5, 6.5) + 0.35 * noise(bx + 52, by + 29, 3.0)
+    return hexrgb(KHAKI if blotch > 0.56 else SAND)
+
+
+def steppe(px, m, v, box):
+    out = px.copy()
+    h = px.shape[0]
+    top = int(np.nonzero(m.any(axis=1))[0].min()) if m.any() else 0
+    for y, x in zip(*np.nonzero(m)):
+        bx, by = box['x'] + x - box['footX'], box['y'] + y - box['footY']
+        k = 0.78 + 0.34 * v[y, x]
+        rgb = [min(255, int(ch * k)) for ch in steppe_colour(bx, by)]
+        depth = (y - top) / max(1, h - top)
+        if depth > 0.78 and noise(bx * 2.3 + 5, by * 2.3, 1.5) < (depth - 0.78) * 2.6:  # a little dust at the boots
+            rgb = [int(0.6 * a + 0.4 * f) for a, f in zip(rgb, DUST)]
+        out[y, x, :3] = rgb
+    return out
+
+
 def main(ts_path, out_dir):
     for box in layers(ts_path).values():
         f = box['file']
@@ -121,7 +151,8 @@ def main(ts_path, out_dir):
         admiral = f.startswith('admiral')
         m = clothes(px, box, admiral)
         v = shade(px, m)
-        for name, img in (('space', space(px, m, v, admiral)), ('jungle', jungle(px, m, v, box))):
+        looks = (('space', space(px, m, v, admiral)), ('jungle', jungle(px, m, v, box)), ('steppe', steppe(px, m, v, box)))
+        for name, img in looks:
             dest = os.path.join(out_dir, f'{f}-{name}.png')
             Image.fromarray(img.astype('uint8'), 'RGBA').save(dest, optimize=True)
         print(f, int(m.sum()), 'clothes px')

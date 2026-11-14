@@ -1,10 +1,10 @@
 import { PILOT_FLOOR_Y, type AreaRect, type AreaTable, type BaseAreaDef, type BaseAreaId } from './base-areas';
 
-// The home base's picture looks (docs 73, 76, 91–95): the carrier lounge (maps 1–2), the helicopter base (map 3), the sea
-// lounge (map 4), the space lounge (map 5) and the jungle camp (map 6), each a generated picture with every area's hotspot,
+// The home base's picture looks (docs 73, 76, 91–95, 111): the carrier lounge (maps 1–2), the helicopter base (map 3), the
+// sea lounge (map 4), the space lounge (map 5), the jungle camp (map 6) and the steppe tent (map 7), each a generated picture with every area's hotspot,
 // name plate and stand point placed on the picture's own objects, and the places the game draws over it — the flip board,
 // the chalkboard's slate, the TV cart or the TV's picture, the neon sign. The way to the map is the carrier's opening onto
-// the flight deck, the helicopter base's and the jungle camp's map tables, the sea lounge's globe and the space lounge's
+// the flight deck, the helicopter base's, the jungle camp's and the steppe tent's map tables, the sea lounge's globe and the space lounge's
 // holo table.
 
 const area = (id: BaseAreaId, row: BaseAreaDef['row'], hot: AreaRect, plate: { x: number; y: number }, standX: number, deep?: { y: number; via?: number }): BaseAreaDef =>
@@ -188,4 +188,34 @@ export const JUNGLE_LAYOUT: DockLayout = {
   pilot: 0.95,
   front: true,
   horizon: 370,
+};
+
+/** The steppe outpost's command tent (map 7, doc 111): canvas, poles and string lights — the arcade's pink corner, the
+ *  lockers and their cork board, the scoreboard over the chalkboard, the lab container's door with its violet window, the
+ *  tent flap open onto the motor pool's tank (the craft), the map table (the way to the map) and the TV on crates. The
+ *  pilot walks behind the table and the sofa (doc 92): the left corner is a step back up the lane by the sofa, the lab
+ *  door and the flap further back up the lane by the TV. */
+export const STEPPE_AREAS: AreaTable = Object.freeze({
+  fun: area('fun', 'floor', { x: 70, y: 326, w: 112, h: 236 }, { x: 126, y: 314 }, 150, { y: 560, via: 292 }),
+  tv: area('tv', 'floor', { x: 1034, y: 398, w: 246, h: 322 }, { x: 1157, y: 386 }, 985),
+  locker: area('locker', 'floor', { x: 180, y: 330, w: 110, h: 226 }, { x: 235, y: 318 }, 236, { y: 560, via: 292 }),
+  photos: area('photos', 'wall', { x: 182, y: 248, w: 62, h: 72 }, { x: 213, y: 236 }, 214, { y: 560, via: 292 }),
+  jet: area('jet', 'wall', { x: 836, y: 176, w: 404, h: 228 }, { x: 1038, y: 164 }, 935, { y: 500, via: 935 }),
+  lab: area('lab', 'mid', { x: 540, y: 242, w: 190, h: 222 }, { x: 635, y: 230 }, 640, { y: 474, via: 935 }),
+  ladder: area('ladder', 'wall', { x: 254, y: 190, w: 230, h: 62 }, { x: 369, y: 178 }, 296, { y: 560, via: 292 }),
+  chalk: area('chalk', 'mid', { x: 248, y: 254, w: 238, h: 144 }, { x: 367, y: 242 }, 298, { y: 560, via: 292 }),
+  exit: area('exit', 'floor', { x: 320, y: 450, w: 548, h: 262 }, { x: 594, y: 438 }, 600),
+});
+
+export const STEPPE_LAYOUT: DockLayout = {
+  board: { x: 264, y: 198, w: 212, h: 48 },
+  boardRows: 3,
+  slate: { x: 290, y: 265, w: 186, h: 124 },
+  tv: null,
+  picturedTv: { screen: { x: 1058, y: 458, w: 104, h: 124 }, clock: { x: 1068, y: 652 } },
+  neon: { x: 74, y: 288, w: 102, h: 30 },
+  globe: null,
+  pilot: 0.92,
+  front: true,
+  horizon: 300,
 };

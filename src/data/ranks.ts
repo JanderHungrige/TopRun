@@ -2,7 +2,7 @@
 // Shared with the ladder service, so this file imports nothing.
 
 export type RankId =
-  | 'ensign' | 'ltjg' | 'lt' | 'lcdr' | 'cdr' | 'capt' | 'radm' | 'adm' | 'fadm' | 'legend' | 'ace' | 'staradm' | 'deepadm' | 'junglemarshal';
+  | 'ensign' | 'ltjg' | 'lt' | 'lcdr' | 'cdr' | 'capt' | 'radm' | 'adm' | 'fadm' | 'legend' | 'ace' | 'staradm' | 'deepadm' | 'junglemarshal' | 'steppemarshal';
 
 export interface Rank {
   id: RankId;
@@ -30,6 +30,8 @@ export const RANKS: readonly Rank[] = Object.freeze([
   { id: 'staradm', from: 60000 },
   // Above Star Admiral once map-6 stars count — the jungle planet (doc 85).
   { id: 'junglemarshal', from: 72000 },
+  // Above Jungle Marshal once map-7 stars count — the alien steppe (doc 110).
+  { id: 'steppemarshal', from: 84000 },
 ]);
 
 export const RANK_IDS: readonly RankId[] = Object.freeze(RANKS.map((r) => r.id));

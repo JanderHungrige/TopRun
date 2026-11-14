@@ -24,6 +24,11 @@ const SKY: Readonly<Record<TerrainStyle, readonly [string, string, string]>> = {
   swamp: ['#3a5040', '#7a9078', '#b8c8a8'],
   ruins: ['#6a9070', '#b8c898', '#f0d890'],
   hive: ['#3a2440', '#7a4a6a', '#c88aa0'],
+  grass: ['#6a9ac8', '#c8d8d8', '#f4e2a8'],
+  salt: ['#8ab8e0', '#e0ecf0', '#ffffff'],
+  badlands: ['#7a8ab0', '#e0a878', '#ffd09a'],
+  barrows: ['#6a7a8a', '#b8b49a', '#e8dcb0'],
+  impact: ['#1c1428', '#4a3060', '#a070c0'],
 };
 
 /** Cloud shade, body and sunlit top per style. */

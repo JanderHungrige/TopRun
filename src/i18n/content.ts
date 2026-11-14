@@ -50,6 +50,7 @@ export function objectiveText(o: Objective): string {
     case 'intercept': return t('objective.intercept', { n: o.count });
     case 'strike': return t('objective.strike', { n: o.count, targets: enemyName(o.target, o.count) });
     case 'boss': return t('objective.boss', { boss: BOSSES[o.boss].name, title: bossTitle(o.boss) });
+    case 'defend': return t('objective.defend', { n: o.waves });
     default: throw new Error(`unhandled: ${o satisfies never}`);
   }
 }

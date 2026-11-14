@@ -119,9 +119,9 @@ function loadOut(save: SaveData): SaveData {
 
 export interface RunResult { hullsPerMin: number; killShare: number; objective: boolean; bossSec: number | null; minutes: number; crashed: boolean }
 
-interface Bot { dir: { x: number; y: number }; ground: boolean; air: boolean; special: boolean; flare: boolean }
+export interface Bot { dir: { x: number; y: number }; ground: boolean; air: boolean; special: boolean; flare: boolean }
 
-function decide(sc: MissionScene): Bot {
+export function decide(sc: MissionScene): Bot {
   const w = sc.world;
   const p = sc.player;
   const seen = w.enemies.filter((e) => !e.dead && e.y > 20 && e.y < PF_H - 20);

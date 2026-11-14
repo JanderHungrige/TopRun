@@ -8,10 +8,12 @@ import { CUSTOM_KEYS, customFrames, customUrls, fixedFrames } from '../../src/re
 // image — and the renderer finds them. Checked on every file in src/assets/portraits/, so new images are covered.
 
 const FILES = import.meta.glob<string>('../../src/assets/portraits/**/*.png', { eager: true, query: '?inline', import: 'default' });
-// The chief and Shooter also come in the sea's and space's outfits (doc 76), Duke in each new world's (doc 97).
+// The chief and Shooter also come in the sea's and space's outfits (doc 76), Duke in each new world's (doc 97); the steppe
+// brings Ortega and Novak (doc 111).
 const FIXED_NAMES = [
   'admiral', 'shooter', 'chief', 'wingman', 'chief-sea', 'chief-space', 'shooter-sea', 'shooter-space', 'chief-jungle', 'shooter-jungle',
-  'wingman-mountain', 'wingman-sea', 'wingman-space', 'wingman-jungle', 'major', 'doc', ...AVATAR_IDS,
+  'chief-steppe', 'shooter-steppe', 'wingman-mountain', 'wingman-sea', 'wingman-space', 'wingman-jungle', 'wingman-steppe',
+  'major', 'doc', 'ortega', 'novak', ...AVATAR_IDS,
 ];
 
 /** The bytes of a bundled PNG (Vite inlines it as a base64 data URL here). */

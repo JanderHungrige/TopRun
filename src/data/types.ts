@@ -14,10 +14,13 @@ export const SUB_IDS: readonly SubId[] = Object.freeze(['u212', 'seawolf', 'virg
 /** The map-6 mechs: the Strider (free), then the Ranger, Hornet and Titan (doc 79). */
 export type MechId = 'strider' | 'ranger' | 'hornet' | 'titan';
 export const MECH_IDS: readonly MechId[] = Object.freeze(['strider', 'ranger', 'hornet', 'titan'] as const);
-/** Everything the pilot can fly: jets, helicopters, the ship, the subs and the mechs share the loadout, paint and
- *  progress records. */
-export type PlaneId = JetId | HeliId | ShipId | SubId | MechId;
-export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS, 'starship', ...SUB_IDS, ...MECH_IDS]);
+/** The map-7 tanks and buggies: the Jackal (free), then the Lynx, Viper and Bison (doc 103). */
+export type TankId = 'jackal' | 'lynx' | 'viper' | 'bison';
+export const TANK_IDS: readonly TankId[] = Object.freeze(['jackal', 'lynx', 'viper', 'bison'] as const);
+/** Everything the pilot can fly: jets, helicopters, the ship, the subs, the mechs and the tanks share the loadout, paint
+ *  and progress records. */
+export type PlaneId = JetId | HeliId | ShipId | SubId | MechId | TankId;
+export const PLANE_IDS: readonly PlaneId[] = Object.freeze([...JET_IDS, ...HELI_IDS, 'starship', ...SUB_IDS, ...MECH_IDS, ...TANK_IDS]);
 
 export const isJet = (id: PlaneId): id is JetId => (JET_IDS as readonly PlaneId[]).includes(id);
 /** A plane as a jet, for what only jets do (minigames, photos, the hangar base): a helicopter reads as the F-16. */
@@ -31,11 +34,13 @@ export type SecondaryId =
   // The mechs' weapons (doc 79): the rocket pod from the start, the rest invented in the lab (doc 82).
   | 'pod' | 'seeker' | 'mortar' | 'plasma' | 'rail'
   // The helicopters' station weapons of doc 99, the subs' of doc 101.
-  | 'pulselaser' | 'sonic' | 'drones' | 'torpswarm' | 'sonarpulse' | 'decoy' | 'net';
+  | 'pulselaser' | 'sonic' | 'drones' | 'torpswarm' | 'sonarpulse' | 'decoy' | 'net'
+  // The tanks' grenade launcher (doc 103) and the steppe lab's inventions (docs 107, 108).
+  | 'grenade' | 'aarocket' | 'atgm' | 'mines' | 'flamer' | 'tesla';
 export const SECONDARY_IDS: readonly SecondaryId[] = Object.freeze([
   'aim9', 'rockets', 'mk82', 'agm65', 'aim54', 'aim120', 'jdam', 'hydra', 'hellfire', 'stinger', 'spacerocket', 'torpedo',
   'mk48', 'depthmine', 'shkval', 'pod', 'seeker', 'mortar', 'plasma', 'rail', 'pulselaser', 'sonic', 'drones',
-  'torpswarm', 'sonarpulse', 'decoy', 'net',
+  'torpswarm', 'sonarpulse', 'decoy', 'net', 'grenade', 'aarocket', 'atgm', 'mines', 'flamer', 'tesla',
 ] as const);
 
 export type EquipmentId = 'armor' | 'engine' | 'flares' | 'ecm' | 'damageControl' | 'magnet' | 'radar';
@@ -46,13 +51,15 @@ export const EQUIPMENT_IDS: readonly EquipmentId[] = Object.freeze([
 export type SpecialId =
   | 'roll' | 'wingman' | 'dash' | 'cannon' | 'stealth' | 'nuke' | 'longbow' | 'gunpods' | 'armour' | 'sonar'
   /** The Strider's jump jets: a leap over everything and a stomp on landing (doc 80). */
-  | 'jumpjet';
+  | 'jumpjet'
+  /** The tanks' specials (doc 104): the Jackal's nitro, the Lynx's sentry drop, the Bison's main gun. */
+  | 'nitro' | 'sentry' | 'maingun';
 
 /** Map 1 (m01–m30), map 2 (m31–m60, doc 35), map 3 (m61–m90, helicopters, doc 48), map 4 (m91–m120, under the sea,
  *  doc 65), map 5 (m121–m150, space, doc 56) — in that order since doc 74 — and map 6 (m151–m180, the jungle planet,
- *  doc 78). */
-export type CampaignId = 1 | 2 | 3 | 4 | 5 | 6;
-export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5, 6] as const);
+ *  doc 78) and map 7 (m181–m210, the alien steppe, doc 102). */
+export type CampaignId = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export const CAMPAIGN_IDS: readonly CampaignId[] = Object.freeze([1, 2, 3, 4, 5, 6, 7] as const);
 
 export type TheaterId =
   | 'pacific' | 'gulf' | 'arctic' | 'canyon' | 'leviathan'
@@ -60,7 +67,8 @@ export type TheaterId =
   | 'fjords' | 'highlands' | 'delta' | 'mesa' | 'ashfall'
   | 'reef' | 'kelp' | 'wrecks' | 'trench' | 'abyss'
   | 'orbit' | 'belt' | 'moon' | 'rings' | 'deep'
-  | 'landing' | 'canopy' | 'swamp' | 'ruins' | 'hive';
+  | 'landing' | 'canopy' | 'swamp' | 'ruins' | 'hive'
+  | 'grass' | 'saltflats' | 'badlands' | 'barrows' | 'impact';
 export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'pacific', 'gulf', 'arctic', 'canyon', 'leviathan',
   'northsea', 'himalaya', 'jungle', 'nightfall', 'thunderhead',
@@ -68,6 +76,7 @@ export const THEATER_IDS: readonly TheaterId[] = Object.freeze([
   'reef', 'kelp', 'wrecks', 'trench', 'abyss',
   'orbit', 'belt', 'moon', 'rings', 'deep',
   'landing', 'canopy', 'swamp', 'ruins', 'hive',
+  'grass', 'saltflats', 'badlands', 'barrows', 'impact',
 ] as const);
 
 export type EnemyKind =
@@ -86,7 +95,10 @@ export type EnemyKind =
   | 'walker' | 'hovertank' | 'artillery' | 'gundrone' | 'dropship' | 'raptor' | 'beetle' | 'spitter' | 'wasp' | 'brute'
   // The jungle planet's alien creatures and plants (doc 96).
   | 'sporepod' | 'lasher' | 'rhino' | 'toad' | 'spire' | 'totem' | 'lurker'
-  | 'glider' | 'leatherwing' | 'dragonfly' | 'balloon' | 'skyjelly';
+  | 'glider' | 'leatherwing' | 'dragonfly' | 'balloon' | 'skyjelly'
+  // Map 7, the alien steppe's invasion army (doc 105); the war tripod is map 7's mini-boss.
+  | 'crawler' | 'trooper' | 'rider' | 'landingpod' | 'scoutdisc' | 'discfighter'
+  | 'tripod' | 'siegebug' | 'shieldbearer' | 'broodcarrier' | 'plasmagun' | 'manta' | 'wartripod';
 
 export type Layer = 'air' | 'ground';
 
@@ -95,8 +107,9 @@ export type Behavior =
   /** The Backfire mini-boss: holds the top of the screen, then leaves (doc 44). */
   | 'loiter';
 
-/** 'ring': a ring of spores round the source, turned with its age (doc 96). */
-export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak' | 'ring';
+/** 'ring': a ring of spores round the source, turned with its age (doc 96); 'ray': a tripod's heat ray, a stream of
+ *  six bolts (doc 105). */
+export type EnemyWeapon = 'none' | 'single' | 'aimed' | 'spread3' | 'missile' | 'flak' | 'ring' | 'ray';
 
 export type BossId =
   | 'ironclad' | 'sandstorm' | 'blackjack' | 'typhoon' | 'leviathan'
@@ -104,7 +117,8 @@ export type BossId =
   | 'glacier' | 'citadel' | 'caiman' | 'mammoth' | 'behemoth'
   | 'halo' | 'quarry' | 'crater' | 'trident' | 'ark'
   | 'barracuda' | 'medusa' | 'bastion' | 'goliath' | 'jormungand'
-  | 'ravager' | 'mantis' | 'basilisk' | 'sentinel' | 'queen';
+  | 'ravager' | 'mantis' | 'basilisk' | 'sentinel' | 'queen'
+  | 'harvester' | 'longshanks' | 'juggernaut' | 'dreadnought' | 'mothership';
 
 export type TakeoffRating = 'perfect' | 'good' | 'early' | 'late' | 'skipped';
 
@@ -112,7 +126,9 @@ export type Objective =
   | { type: 'patrol' }
   | { type: 'intercept'; count: number }
   | { type: 'strike'; target: EnemyKind; count: number }
-  | { type: 'boss'; boss: BossId };
+  | { type: 'boss'; boss: BossId }
+  /** Hold the outpost for that many waves (doc 106). */
+  | { type: 'defend'; waves: number };
 
 export interface MissionDef {
   id: string;
@@ -127,6 +143,8 @@ export interface MissionDef {
   length: number;
   pool: readonly EnemyKind[];
   map: { x: number; y: number };
+  /** A tower-defence mission (doc 106): the waves to hold before it is won (or the boss comes). Missing on drives. */
+  defend?: number;
 }
 
 export interface MissionResult {

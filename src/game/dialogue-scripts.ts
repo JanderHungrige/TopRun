@@ -22,7 +22,9 @@ export interface LineRef {
 }
 
 /** The admiral's line when a map's finale is won (docs 35, 48, 65). */
-const FINALE: Readonly<Record<CampaignId, LineKey>> = { 1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4', 5: 'adm.finale5', 6: 'adm.finale6' };
+const FINALE: Readonly<Record<CampaignId, LineKey>> = {
+  1: 'adm.finale', 2: 'adm.finale2', 3: 'adm.finale3', 4: 'adm.finale4', 5: 'adm.finale5', 6: 'adm.finale6', 7: 'adm.finale7',
+};
 
 const ref = (speaker: CharacterId, key: LineKey, mood: Mood, gesture: Gesture, params?: Params): LineRef =>
   ({ speaker, key, mood, gesture, ...(params ? { params } : {}) });
@@ -72,7 +74,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
   }
   if (d.challengeUp) lines.push(ref('admiral', 'adm.challengeUp', 'stern', 'point'));
   const list = campaignMissions(m.campaign);
-  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, …, m180
+  if (r.success && d.campaignDone && m.id === list[list.length - 1]?.id && m.number % 30 === 0) { // a map ends at m30, m60, …, m210
     lines.push(ref('admiral', FINALE[m.campaign], 'happy', 'salute'));
     if (m.campaign === 1) {
       lines.push(ref('admiral', 'adm.globe', 'neutral', 'point')); // map 2 is open now (doc 35)
@@ -82,6 +84,7 @@ export function debriefScript(d: DebriefInput): LineRef[] {
     if (m.campaign === 3) lines.push(ref('admiral', 'adm.deepWater', 'neutral', 'point')); // map 4, under the sea, is open now (doc 74)
     if (m.campaign === 4) lines.push(ref('admiral', 'adm.space', 'neutral', 'point')); // map 5, space, is open now (doc 74)
     if (m.campaign === 5) lines.push(ref('admiral', 'adm.jungle', 'neutral', 'point')); // map 6, the jungle planet (doc 78)
+    if (m.campaign === 6) lines.push(ref('admiral', 'adm.steppe', 'neutral', 'point')); // map 7, the alien steppe (doc 102)
   } else if (r.success && m.objective.type === 'boss') {
     const next = list[list.indexOf(m) + 1];
     if (next) lines.push(ref('admiral', 'adm.nextTheater', 'neutral', 'salute', { theater: theaterName(next.theater) }));
@@ -96,7 +99,7 @@ export function medalLine(index: number, medal: MedalId): LineRef {
 }
 
 export type ChiefEvent =
-  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'helloSubs' | 'helloMechs' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
+  | 'hello' | 'helloRich' | 'helloBroke' | 'helloNewJets' | 'helloHelis' | 'helloSubs' | 'helloMechs' | 'helloTanks' | 'buyPlane' | 'buyGun' | 'buySecondary' | 'buyEquipment'
   | 'mount' | 'unmount' | 'select' | 'denied' | 'restricted' | 'idle' | 'painted';
 
 export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
@@ -107,6 +110,7 @@ export const CHIEF_EVENTS: Readonly<Record<ChiefEvent, { key: LineKey; mood: Moo
   helloHelis: { key: 'chief.helloHelis', mood: 'happy', gesture: 'point' },
   helloSubs: { key: 'chief.helloSubs', mood: 'happy', gesture: 'point' },
   helloMechs: { key: 'chief.helloMechs', mood: 'happy', gesture: 'point' },
+  helloTanks: { key: 'chief.helloTanks', mood: 'happy', gesture: 'thumbsUp' },
   buyPlane: { key: 'chief.buyPlane', mood: 'happy', gesture: 'thumbsUp' },
   buyGun: { key: 'chief.buyGun', mood: 'happy', gesture: 'point' },
   buySecondary: { key: 'chief.buySecondary', mood: 'happy', gesture: 'none' },
@@ -127,6 +131,10 @@ export function chiefLine(ev: ChiefEvent, params?: Params): LineRef {
 
 /** Major Brennan at the ground base and Dr. Moreau in the lab (docs 82, 83). */
 export const majorLine = (key: LineKey, params?: Params): LineRef => ref('major', key, 'happy', 'point', params);
+/** Captain Ortega on the radio in a defence (doc 106). */
+export const ortegaLine = (key: LineKey, params?: Params): LineRef => ref('ortega', key, 'stern', 'point', params);
+/** Dr. Novak in the steppe lab (doc 107). */
+export const novakLine = (key: LineKey, params?: Params): LineRef => ref('novak', key, 'happy', 'none', params);
 export const docLine = (key: LineKey, params?: Params): LineRef => ref('doc', key, 'happy', 'none', params);
 
 export type ShooterEvent =
@@ -135,7 +143,9 @@ export type ShooterEvent =
   | 'flood' | 'dive' | 'divePerfect' | 'diveGood' | 'diveShallow' | 'diveDeep'
   | 'countdown' | 'liftoff' | 'sepPerfect' | 'sepGood' | 'sepEarly' | 'sepLate' | 'orbit'
   // the mech's drop (map 6), doc 84
-  | 'bayOpen' | 'drop' | 'dropPerfect' | 'dropGood' | 'dropEarly' | 'dropLate';
+  | 'bayOpen' | 'drop' | 'dropPerfect' | 'dropGood' | 'dropEarly' | 'dropLate'
+  // the ramp start (map 7), doc 109
+  | 'rampOpen' | 'rampLights' | 'rampPerfect' | 'rampGood' | 'rampEarly' | 'rampLate';
 
 export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood: Mood; gesture: Gesture }>> = {
   spool: { key: 'sh.spool', mood: 'neutral', gesture: 'point' },
@@ -168,6 +178,12 @@ export const SHOOTER_EVENTS: Readonly<Record<ShooterEvent, { key: LineKey; mood:
   dropGood: { key: 'sh.dropGood', mood: 'happy', gesture: 'salute' },
   dropEarly: { key: 'sh.dropEarly', mood: 'worried', gesture: 'none' },
   dropLate: { key: 'sh.dropLate', mood: 'worried', gesture: 'none' },
+  rampOpen: { key: 'sh.rampOpen', mood: 'neutral', gesture: 'point' },
+  rampLights: { key: 'sh.rampLights', mood: 'stern', gesture: 'none' },
+  rampPerfect: { key: 'sh.rampPerfect', mood: 'happy', gesture: 'thumbsUp' },
+  rampGood: { key: 'sh.rampGood', mood: 'happy', gesture: 'salute' },
+  rampEarly: { key: 'sh.rampEarly', mood: 'worried', gesture: 'none' },
+  rampLate: { key: 'sh.rampLate', mood: 'worried', gesture: 'none' },
 };
 
 export function shooterLine(ev: ShooterEvent): LineRef {
@@ -181,7 +197,7 @@ export const SEPARATION_CALL: Readonly<Record<SeparationGrade, ShooterEvent>> = 
 export const DROP_CALL: Readonly<Record<DropGrade, ShooterEvent>> = { perfect: 'dropPerfect', good: 'dropGood', early: 'dropEarly', late: 'dropLate' };
 
 export type WingmanEvent =
-  | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'halfway' | 'objectiveDone'
+  | 'startPatrol' | 'startIntercept' | 'startStrike' | 'startBoss' | 'startDefend' | 'halfway' | 'objectiveDone'
   | 'bossWarning' | 'hullLow' | 'special' | 'victory'
   /** First jammer / stealth fighter of the sortie (doc 44). */
   | 'jammer' | 'stealth'
@@ -192,6 +208,7 @@ export const WINGMAN_EVENTS: Readonly<Record<WingmanEvent, { key: LineKey; mood:
   startIntercept: { key: 'wing.startIntercept', mood: 'neutral', gesture: 'none' },
   startStrike: { key: 'wing.startStrike', mood: 'neutral', gesture: 'point' },
   startBoss: { key: 'wing.startBoss', mood: 'stern', gesture: 'none' },
+  startDefend: { key: 'wing.startDefend', mood: 'stern', gesture: 'point' },
   halfway: { key: 'wing.halfway', mood: 'happy', gesture: 'none' },
   objectiveDone: { key: 'wing.objectiveDone', mood: 'happy', gesture: 'thumbsUp' },
   bossWarning: { key: 'wing.bossWarning', mood: 'worried', gesture: 'point' },
@@ -221,13 +238,14 @@ export function wingmanStart(o: Objective): LineRef {
     case 'intercept': return wingmanLine('startIntercept', { n: o.count });
     case 'strike': return wingmanLine('startStrike', { n: o.count, targets: enemyName(o.target, o.count) });
     case 'boss': return wingmanLine('startBoss', { boss: BOSSES[o.boss].name });
+    case 'defend': return wingmanLine('startDefend', { n: o.waves });
     default: throw new Error(`unhandled: ${o satisfies never}`);
   }
 }
 
 /** The admiral at a world's celebration (doc 64). */
 const CELEBRATE: Readonly<Record<CampaignId, LineKey>> = {
-  1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4', 5: 'adm.celebrate5', 6: 'adm.celebrate6',
+  1: 'adm.celebrate1', 2: 'adm.celebrate2', 3: 'adm.celebrate3', 4: 'adm.celebrate4', 5: 'adm.celebrate5', 6: 'adm.celebrate6', 7: 'adm.celebrate7',
 };
 export const celebrationLine = (world: CampaignId): LineRef => ref('admiral', CELEBRATE[world], 'happy', 'salute');
 
@@ -239,6 +257,7 @@ const INTRO_LINES: Readonly<Partial<Record<CampaignId, readonly LineKey[]>>> = {
   4: ['duke.intro4a', 'duke.intro4b', 'duke.intro4c', 'duke.intro4d'],
   5: ['duke.intro5a', 'duke.intro5b', 'duke.intro5c', 'duke.intro5d'],
   6: ['duke.intro6a', 'duke.intro6b', 'duke.intro6c', 'duke.intro6d'],
+  7: ['duke.intro7a', 'duke.intro7b', 'duke.intro7c', 'duke.intro7d'],
 };
 /** Duke's line for shot `shot` (0–3) of a world's welcome film; null where there is none. */
 export function introLine(world: CampaignId, shot: number): LineRef | null {

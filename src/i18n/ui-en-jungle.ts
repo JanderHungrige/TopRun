@@ -1,14 +1,17 @@
 // Jungle Planet UI strings (docs 78–80): map 6, the MECH BAY, the jungle base's new areas.
 import { UI_EN_OUTPOST } from './ui-en-outpost';
+import { UI_EN_STEPPE } from './ui-en-steppe';
 
 export const UI_EN_JUNGLE = {
   ...UI_EN_OUTPOST,
+  ...UI_EN_STEPPE,
   'map.title6': 'JUNGLE PLANET',
   'map.campaign6Complete': '🎖 JUNGLE PLANET WON',
   'map.globeLocked6': 'Opens after mission 150',
   'map.yourMech': 'YOUR MECH',
   'debrief.finale6': '🎖  JUNGLE PLANET WON  🎖',
   'rank.junglemarshal': 'Jungle Marshal',
+  'rank.steppemarshal': 'Steppe Marshal',
   'hangar.titleMechs': 'MECH BAY',
   'hangar.tabMechs': 'MECHS',
   'hangar.mechGunName': 'Autocannon',

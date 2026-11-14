@@ -13,6 +13,7 @@ const THEATER_MEDAL: Readonly<Partial<Record<MedalId, TheaterId>>> = {
   orbit: 'orbit', belt: 'belt', moon: 'moon', rings: 'rings', deep: 'deep',
   reef: 'reef', kelp: 'kelp', wrecks: 'wrecks', trench: 'trench', abyss: 'abyss',
   landing: 'landing', canopy: 'canopy', swamp: 'swamp', ruins: 'ruins', hive: 'hive',
+  grass: 'grass', saltflats: 'saltflats', badlands: 'badlands', barrows: 'barrows', impact: 'impact',
 };
 
 /** Each map's victory medal and golden star (doc 62). */
@@ -23,6 +24,7 @@ const MAP_MEDAL: Readonly<Partial<Record<MedalId, { map: CampaignId; kind: 'vict
   victory5: { map: 4, kind: 'victory' }, allstars5: { map: 4, kind: 'stars' }, // the sea's: map 4 since doc 74
   victory4: { map: 5, kind: 'victory' }, allstars4: { map: 5, kind: 'stars' }, // space's: map 5 since doc 74
   victory6: { map: 6, kind: 'victory' }, allstars6: { map: 6, kind: 'stars' }, // the jungle planet (doc 85)
+  victory7: { map: 7, kind: 'victory' }, allstars7: { map: 7, kind: 'stars' }, // the alien steppe (doc 110)
 };
 
 const bossCleared = (progress: SaveData['progress'], theater: TheaterId): boolean =>

@@ -5,7 +5,9 @@ import { pollGamepad } from './gamepad';
 
 export type Action =
   | 'up' | 'down' | 'left' | 'right' | 'fire' | 'secondary' | 'groundWeapon' | 'weaponSwitch' | 'flare' | 'special'
-  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete' | 'globe' | 'upgrade' | 'view';
+  | 'confirm' | 'back' | 'pause' | 'mute' | 'skip' | 'hangar' | 'base' | 'delete' | 'globe' | 'upgrade' | 'view'
+  // A defence (doc 106): build or upgrade on a pad, call the next wave, pick a tower.
+  | 'build' | 'nextWave' | 'pick1' | 'pick2' | 'pick3' | 'pick4' | 'pick5' | 'pick6';
 
 export type Device = 'keyboard' | 'mouse' | 'touch' | 'gamepad' | 'joystick';
 
@@ -17,10 +19,11 @@ const KEYMAP: Readonly<Record<string, readonly Action[]>> = {
   KeyR: ['secondary'], KeyK: ['secondary'], // never Shift: 5× Shift opens the Windows Sticky Keys prompt
   // L is also the LOADOUT key (action 'hangar', doc 02) on the map and the debrief; no mission reads 'hangar'.
   KeyQ: ['groundWeapon'], KeyL: ['groundWeapon', 'hangar'], KeyX: ['weaponSwitch'], KeyO: ['weaponSwitch'], KeyF: ['flare'], KeyE: ['special'],
-  Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base'],
+  Escape: ['back', 'pause'], Backspace: ['back'], Delete: ['delete'], KeyP: ['pause'], KeyM: ['mute'], KeyH: ['hangar'], KeyB: ['base', 'build'],
   KeyG: ['globe'], // the campaign map's globe: switch between map 1 and map 2 (doc 35)
   KeyU: ['upgrade'], // the LOADOUT's weapon mark upgrade (doc 43)
   KeyV: ['view'], // picture mode: hide the panels over a screen's picture (doc 76)
+  KeyN: ['nextWave'], Digit1: ['pick1'], Digit2: ['pick2'], Digit3: ['pick3'], Digit4: ['pick4'], Digit5: ['pick5'], Digit6: ['pick6'],
 };
 
 /** Pure action bookkeeping: sources (keys, pad buttons) map to actions; presses are latched per tick. */

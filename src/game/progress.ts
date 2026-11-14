@@ -5,7 +5,7 @@ import type { SaveData } from './save';
 // Campaign progress on every map (docs 03, 35). Pure.
 
 /** The map whose finale opens a map; map 1 is always open. */
-const PREVIOUS: Readonly<Record<CampaignId, CampaignId>> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 };
+const PREVIOUS: Readonly<Record<CampaignId, CampaignId>> = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6 };
 
 export function isCleared(save: SaveData, mission: MissionDef): boolean {
   return mission.id in save.progress;

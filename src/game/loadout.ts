@@ -15,6 +15,7 @@ import { CHALLENGE } from './challenge';
 import { doubleFirepower, jetGunLevel } from './firepower';
 import { heliArmsStats, type ArmsStats } from './heli-arms';
 import { subArmsStats } from './sub-arms';
+import { tankArmsStats } from './tank-arms';
 import type { SaveData } from './save';
 import type { ShipStats } from './ship';
 import { shipPlayerStats } from './ship-loadout';
@@ -97,7 +98,8 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
   shareRecharge(secondaries, save.loadout[plane.id]);
   if (plane.kind === 'mech') loadFromMagazine(secondaries, save.outpost.magazine);
   const rounds = loadedRounds(save);
-  const arms = plane.kind === 'heli' ? heliArmsStats(save.heliArms) : plane.kind === 'sub' ? subArmsStats(save.subArms) : null;
+  const arms = plane.kind === 'heli' ? heliArmsStats(save.heliArms) : plane.kind === 'sub' ? subArmsStats(save.subArms)
+    : plane.kind === 'tank' ? tankArmsStats(plane.id, save.tankArms) : null;
   return {
     plane,
     maxHull: Math.round(plane.hull * (1 + atLevel(ARMOR_BONUS, eq.armor)) * (save.rookie ? CHALLENGE.rookie.hullMul : 1)),
@@ -107,7 +109,7 @@ export function derivePlayerStats(save: SaveData): PlayerStats {
     gunDamageMul: plane.gunDamageMul * rounds.damageMul,
     gunGround: isFleet(plane.kind) ? 1 : rounds.groundFactor, // the chain gun and the harpoon gun hit the ground fully (docs 49, 66)
     gunBurn: arms ? arms.burn : rounds.burn,
-    burnGround: plane.kind === 'heli',
+    burnGround: plane.kind === 'heli' || (plane.kind === 'tank' && save.tankArms.loaded === 'thermite'), // thermite burns on the ground (doc 108)
     rounds: arms ? arms.rounds : rounds.type,
     arms,
     heLevel: save.heLevel,

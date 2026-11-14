@@ -6,20 +6,23 @@ import type { Beat } from './ceremony';
 // where the admiral stands. Pure; positions are art pixels on the 320 × 180 grid of the key frame.
 
 /** Where the ceremony is held (docs 75, 98): the carrier deck, a submarine pier (map 4), a battle-station hangar (map 5),
- *  the run-down jungle camp (map 6). */
-export type CeremonySet = 'deck' | 'pier' | 'hangar' | 'camp';
-const SET_OF: Readonly<Record<CampaignId, CeremonySet>> = { 1: 'deck', 2: 'deck', 3: 'deck', 4: 'pier', 5: 'hangar', 6: 'camp' };
+ *  the run-down jungle camp (map 6), the steppe field camp at golden hour (map 7, doc 110). */
+export type CeremonySet = 'deck' | 'pier' | 'hangar' | 'camp' | 'steppe';
+const SET_OF: Readonly<Record<CampaignId, CeremonySet>> = {
+  1: 'deck', 2: 'deck', 3: 'deck', 4: 'pier', 5: 'hangar', 6: 'camp', 7: 'steppe',
+};
 /** The stage of the world the pilot is on. */
 export const ceremonySet = (world: CampaignId): CeremonySet => SET_OF[world];
 
 /** What the admiral and the pilot wear (doc 98): dress uniforms, the space kit (a grey uniform, an orange flight suit) or
- *  worn jungle camouflage. */
-export type StageOutfit = 'dress' | 'space' | 'jungle';
+ *  worn jungle camouflage or the steppe's sand camouflage (doc 110). */
+export type StageOutfit = 'dress' | 'space' | 'jungle' | 'steppe';
 export function stageOutfit(set: CeremonySet): StageOutfit {
   switch (set) {
     case 'deck': case 'pier': return 'dress';
     case 'hangar': return 'space';
     case 'camp': return 'jungle';
+    case 'steppe': return 'steppe';
     default: throw new Error(`unhandled: ${set satisfies never}`);
   }
 }

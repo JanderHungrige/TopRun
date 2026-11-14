@@ -3,13 +3,16 @@ import { THEATERS_3 } from './theaters-3';
 import { THEATERS_4 } from './theaters-4';
 import { THEATERS_5 } from './theaters-5';
 import { THEATERS_6 } from './theaters-6';
+import { THEATERS_7 } from './theaters-7';
 import { THEATER_IDS, type CampaignId, type TheaterId } from './types';
 
 export type TerrainStyle =
   | 'ocean' | 'desert' | 'ice' | 'canyon' | 'storm' | 'space' | 'belt' | 'lunar'
   | 'reef' | 'kelp' | 'wreck' | 'trench' | 'abyss'
   // The jungle planet (doc 81).
-  | 'clearing' | 'rainforest' | 'swamp' | 'ruins' | 'hive';
+  | 'clearing' | 'rainforest' | 'swamp' | 'ruins' | 'hive'
+  // The alien steppe (doc 105).
+  | 'grass' | 'salt' | 'badlands' | 'barrows' | 'impact';
 
 const UNDERWATER: readonly TerrainStyle[] = ['reef', 'kelp', 'wreck', 'trench', 'abyss'];
 const JUNGLE: readonly TerrainStyle[] = ['clearing', 'rainforest', 'swamp', 'ruins', 'hive'];
@@ -19,6 +22,11 @@ export const underwater = (style: TerrainStyle): boolean => UNDERWATER.includes(
 
 /** The jungle planet's floors (doc 81): walked by the mechs, under a canopy instead of clouds. */
 export const jungle = (style: TerrainStyle): boolean => JUNGLE.includes(style);
+
+const STEPPE: readonly TerrainStyle[] = ['grass', 'salt', 'badlands', 'barrows', 'impact'];
+
+/** The alien steppe's floors (doc 105): driven by the tanks and buggies, dust instead of clouds. */
+export const steppe = (style: TerrainStyle): boolean => STEPPE.includes(style);
 
 export interface TheaterPalette {
   sea: string;
@@ -88,7 +96,7 @@ const THEATERS_1 = {
   },
 } satisfies Record<string, TheaterDef>;
 
-export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4, ...THEATERS_5, ...THEATERS_6 });
+export const THEATERS: Readonly<Record<TheaterId, TheaterDef>> = Object.freeze({ ...THEATERS_1, ...THEATERS_2, ...THEATERS_3, ...THEATERS_4, ...THEATERS_5, ...THEATERS_6, ...THEATERS_7 });
 
 /** The theaters of one campaign map, in route order. */
 export const campaignTheaters = (c: CampaignId): TheaterId[] => THEATER_IDS.filter((id) => THEATERS[id].campaign === c);

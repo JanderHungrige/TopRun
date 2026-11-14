@@ -14,14 +14,17 @@ import { hit, type Rect } from '../ui/widgets';
 // world's welcome film once seen (doc 97), side B its celebration once finished (doc 64); a blank one is "not recorded
 // yet". ↑/↓ pick a tape, ←/→ or a tap on a side label pick the side, ENTER / tap plays, ESC or BACK back to the base.
 
-const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = { 1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6' };
-const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0b5a66', 5: '#0a1630', 6: '#2f6a1e' };
+const WORLD_NAME: Readonly<Record<CampaignId, UiKey>> = {
+  1: 'map.title', 2: 'map.title2', 3: 'map.title3', 4: 'map.title4', 5: 'map.title5', 6: 'map.title6', 7: 'map.title7',
+};
+const SLEEVE: Readonly<Record<CampaignId, string>> = { 1: '#b8202a', 2: '#5b2a86', 3: '#3a4a2a', 4: '#0b5a66', 5: '#0a1630', 6: '#2f6a1e', 7: '#a8741e' };
 const SCREEN: Rect = { x: 160, y: 168, w: 400, h: 225 };
 
-const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700, y: 112 + i * 84, w: 470, h: 72 });
+/** Seven tapes in a column (doc 110): 70 px a row, so the last one ends above the floor. */
+const tapeRect = (i: number, picked: boolean): Rect => ({ x: picked ? 676 : 700, y: 100 + i * 70, w: 470, h: 62 });
 const SIDE_KEY: Readonly<Record<TapeSide, UiKey>> = { welcome: 'tapes.welcome', victory: 'tapes.victory' };
 /** A side's label on the tape (it picks the side when tapped). */
-const sideRect = (r: Rect, k: number): Rect => ({ x: r.x + 136 + k * 150, y: r.y + 44, w: 142, h: 22 });
+const sideRect = (r: Rect, k: number): Rect => ({ x: r.x + 136 + k * 150, y: r.y + 35, w: 142, h: 20 });
 
 export class TapesScene implements Scene {
   private time = 0;
@@ -150,19 +153,19 @@ export class TapesScene implements Scene {
     ctx.fillStyle = recorded ? SLEEVE[tape.world] : '#3a3f48';
     ctx.fillRect(r.x, r.y, r.w, r.h);
     ctx.fillStyle = recorded ? '#f0efea' : '#8a90aa';
-    ctx.fillRect(r.x + 120, r.y + 10, r.w - 140, r.h - 20);
+    ctx.fillRect(r.x + 120, r.y + 6, r.w - 140, r.h - 12);
     ctx.fillStyle = '#120b14';
-    ctx.fillRect(r.x + 16, r.y + 14, 88, 44);
+    ctx.fillRect(r.x + 16, r.y + 9, 88, 44);
     for (const cx of [r.x + 38, r.x + 82]) {
       ctx.fillStyle = '#f0efea';
       ctx.beginPath();
-      ctx.arc(cx, r.y + 36, 11, 0, Math.PI * 2);
+      ctx.arc(cx, r.y + 31, 11, 0, Math.PI * 2);
       ctx.fill();
     }
     const ink = recorded ? '#120b14' : '#3a3f48';
     const title = recorded ? `${t('tapes.world', { n: tape.world })} · ${t(WORLD_NAME[tape.world])}` : t('tapes.world', { n: tape.world });
-    text(ctx, title, r.x + 136, r.y + 32, { size: 18, display: true, color: ink, maxWidth: r.w - 170 });
-    if (!recorded) text(ctx, t('tapes.blank'), r.x + 136, r.y + 56, { size: 14, color: ink, maxWidth: r.w - 170 });
+    text(ctx, title, r.x + 136, r.y + 27, { size: 18, display: true, color: ink, maxWidth: r.w - 170 });
+    if (!recorded) text(ctx, t('tapes.blank'), r.x + 136, r.y + 49, { size: 14, color: ink, maxWidth: r.w - 170 });
     sides.forEach((sd, k) => this.drawSide(ctx, sideRect(r, k), sd, on && sides[Math.min(this.side, sides.length - 1)] === sd));
     if (on) {
       ctx.strokeStyle = COLORS.gold;
@@ -174,7 +177,7 @@ export class TapesScene implements Scene {
   private drawSide(ctx: CanvasRenderingContext2D, r: Rect, side: TapeSide, lit: boolean): void {
     ctx.fillStyle = lit ? COLORS.gold : 'rgba(18,11,20,0.12)';
     ctx.fillRect(r.x, r.y, r.w, r.h);
-    text(ctx, t(SIDE_KEY[side]), r.x + r.w / 2, r.y + 16, { size: 12, display: true, align: 'center', color: '#120b14', maxWidth: r.w - 8 });
+    text(ctx, t(SIDE_KEY[side]), r.x + r.w / 2, r.y + 15, { size: 12, display: true, align: 'center', color: '#120b14', maxWidth: r.w - 8 });
   }
 
   render(ctx: CanvasRenderingContext2D): void {

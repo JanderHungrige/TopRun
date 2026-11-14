@@ -23,12 +23,13 @@ export function fireHe(world: World, p: Player, audio: AudioEngine): void {
 export function updateShells(world: World, dt: number, audio: AudioEngine, hurt: Hurt): void {
   for (const s of world.shells) {
     if (s.dead) continue;
-    s.y -= HE_SHELL.speed * dt;
+    s.y -= (s.speed ?? HE_SHELL.speed) * dt;
     s.ttl -= dt;
     if (Math.random() < 0.5) world.particles.trail(s.x, s.y + 10, 'rgba(200,190,170,1)');
-    const touched = world.enemies.some((e) => !e.dead && circleHit(s.x, s.y, 5, e.x, e.y, e.radius));
+    const touched = world.enemies.find((e) => !e.dead && circleHit(s.x, s.y, 5, e.x, e.y, e.radius));
     const boss = world.boss;
-    const bossHit = !touched && !!boss && boss.hitAt(s.x, s.y, 5, s.damage, world, audio);
+    const bossHit = !touched && !!boss && boss.hitAt(s.x, s.y, 5, s.direct ?? s.damage, world, audio);
+    if (touched && s.direct) hurt(touched, s.direct - s.damage); // the main gun's hard hit (doc 104), the burst adds the rest
     if (touched || bossHit || s.ttl <= 0 || s.y < -20) burst(world, s, !bossHit, audio, hurt);
   }
 }

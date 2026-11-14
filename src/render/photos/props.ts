@@ -110,6 +110,12 @@ const SHAPES: Readonly<Record<BossId, { shape: Shape; air: boolean; s: number }>
   basilisk: { shape: battleship, air: false, s: 0.75 },
   sentinel: { shape: fortress, air: false, s: 0.7 },
   queen: { shape: fortress, air: false, s: 0.7 },
+  // Map 7 (doc 105): stand-ins as well.
+  harvester: { shape: fortress, air: false, s: 0.65 },
+  longshanks: { shape: fortress, air: false, s: 0.6 },
+  juggernaut: { shape: fortress, air: false, s: 0.7 },
+  dreadnought: { shape: battleship, air: false, s: 0.75 },
+  mothership: { shape: supercarrier, air: false, s: 0.75 },
 };
 
 export interface PropsView { horizon: number; time: TimeOfDay; facing: 1 | -1 }

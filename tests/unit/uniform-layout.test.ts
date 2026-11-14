@@ -14,6 +14,7 @@ const WORLD: readonly MedalId[] = [
   'mesa', 'ashfall', 'victory3', 'allstars3', 'orbit', 'belt', 'moon', 'rings', 'deep', 'victory4', 'allstars4',
   'reef', 'kelp', 'wrecks', 'trench', 'abyss', 'victory5', 'allstars5',
   'landing', 'canopy', 'swamp', 'ruins', 'hive', 'victory6', 'allstars6',
+  'grass', 'saltflats', 'badlands', 'barrows', 'impact', 'victory7', 'allstars7',
 ];
 const MAP1 = MEDAL_IDS.filter((id) => !WORLD.includes(id));
 const rowsOf = (l: UniformLayout, kind: SlotKind): MedalId[][] => {

@@ -1,4 +1,5 @@
 import { look } from './look';
+import { TANK_LOOKS } from './tank-looks';
 
 // The fleet's paint jobs (doc 100): two per theater of maps 3–5 — a region camo once the theater opens, the 3★ reward —
 // for the helicopters, the subs and the spacecraft. Generic schemes, no insignia. The helicopters and subs take the base,
@@ -91,4 +92,4 @@ const SHIP = {
   nebula: look('#3b2357', ['#3b2357', '#e24bd1', '#28173d'], { under: '#28173d', trim: '#e24bd1', ink: 'rgba(230,180,240,0.5)', gloss: 1 }),
 };
 
-export const FLEET_LOOKS = { ...HELI, ...SUB, ...SHIP };
+export const FLEET_LOOKS = { ...HELI, ...SUB, ...SHIP, ...TANK_LOOKS };

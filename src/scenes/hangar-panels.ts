@@ -246,7 +246,9 @@ function drawStats(ctx: CanvasRenderingContext2D, save: SaveData, item: ShopItem
 }
 
 function showcase(ctx: CanvasRenderingContext2D, plane: PlaneId, livery: LiveryId, cx: number, cy: number, t: number, paint: string | null = null): void {
-  if (PLANES[plane].kind === 'mech') return drawPlaneSide(ctx, plane, cx, cy + 82, 2.6, { t, paint, stride: t * 0.8 }); // a mech walks (doc 80)
+  if (PLANES[plane].kind === 'mech' || PLANES[plane].kind === 'tank') { // a mech walks (doc 80), a tank drives by (doc 104)
+    return drawPlaneSide(ctx, plane, cx, cy + 82, 2.6, { t, paint, stride: t * 0.8, livery });
+  }
   const bob = Math.sin(t * 1.4) * 4;
   drawPlaneTop(ctx, plane, cx + 20, cy + 22 + bob, 3, { shadow: true });
   drawPlaneTop(ctx, plane, cx, cy + bob, 3, {

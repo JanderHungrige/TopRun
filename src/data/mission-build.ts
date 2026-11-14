@@ -9,11 +9,14 @@ export interface MissionSeed {
   objective: Objective;
   pool: readonly EnemyKind[];
   briefing: string;
+  /** A tower-defence mission (doc 106): the waves to hold. */
+  defend?: number;
 }
 
 export const patrol: Objective = { type: 'patrol' };
 export const intercept = (count: number): Objective => ({ type: 'intercept', count });
 export const strike = (target: EnemyKind, count: number): Objective => ({ type: 'strike', target, count });
+export const defend = (waves: number): Objective => ({ type: 'defend', waves });
 
 export const round100 = (v: number): number => Math.round(v / 100) * 100;
 
@@ -64,6 +67,7 @@ export function buildCampaign(spec: CampaignSpec): MissionDef[] {
         length: spec.length(n, isBoss),
         pool: Object.freeze([...seed.pool]),
         map: nodePosition(theater, k),
+        ...(seed.defend ? { defend: seed.defend } : {}),
       });
     });
   }

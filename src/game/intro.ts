@@ -5,7 +5,7 @@ import type { SaveData } from './save';
 // box, then the WELCOME TO card. It plays once when the map first shows the world, and again from the TV. Pure.
 
 /** The worlds that open with a welcome: every world after the first (the second front since 2026-11-13). */
-export const INTRO_WORLDS: readonly CampaignId[] = Object.freeze([2, 3, 4, 5, 6] as const);
+export const INTRO_WORLDS: readonly CampaignId[] = Object.freeze([2, 3, 4, 5, 6, 7] as const);
 
 export const INTRO = Object.freeze({
   /** Seconds per shot, the cross-fade between shots, when Duke's line comes up in a shot, the card's start, the end. */
@@ -74,6 +74,7 @@ const PANS: Readonly<Record<number, readonly Pan[]>> = {
   4: [[20, 0, 40, 36], [0, 20, 64, 12], [64, 6, 14, 28], [32, 0, 32, 36]],
   5: [[8, 8, 56, 28], [64, 18, 0, 18], [0, 36, 60, 4], [10, 30, 54, 6]],
   6: [[32, 0, 32, 34], [0, 24, 64, 14], [60, 30, 4, 10], [10, 4, 54, 30]],
+  7: [[56, 0, 24, 30], [0, 22, 64, 26], [0, 4, 56, 32], [32, 36, 32, 0]],
 };
 
 const ease = (u: number): number => u * u * (3 - 2 * u);

@@ -1,5 +1,5 @@
 import { areaDef, type AreaTable } from '../../data/base-areas';
-import { CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT, scaleAt, SEA_LAYOUT, SPACE_LAYOUT, type DockLayout } from '../../data/base-docks';
+import { CARRIER_LAYOUT, HELI_LAYOUT, JUNGLE_LAYOUT, scaleAt, SEA_LAYOUT, SPACE_LAYOUT, STEPPE_LAYOUT, type DockLayout } from '../../data/base-docks';
 import type { BaseLook } from '../../data/base-areas';
 import type { BaseLight } from '../../game/base-light';
 import { artGrid, type Grid } from '../ceremony-set';
@@ -16,6 +16,7 @@ import { drawFront, frontLayer } from './dock-front';
 import { onWall } from './dock-wall';
 import { jungleAmbient } from './dock-jungle';
 import { seaAmbient } from './dock-sea';
+import { steppeAmbient } from './dock-steppe';
 import type { HangarView } from './index';
 import { drawLabels } from './labels';
 import { NEON, PILOT_SCALE, TV_CART } from './layout';
@@ -32,7 +33,7 @@ import { neonSprite } from './sprites';
 export type DockLook = BaseLook;
 
 const FILES = import.meta.glob<string>('../../assets/docks/*.png', { eager: true, query: '?url', import: 'default' });
-const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { carrier: CARRIER_LAYOUT, heli: HELI_LAYOUT, space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT };
+const LAYOUT: Readonly<Record<DockLook, DockLayout>> = { carrier: CARRIER_LAYOUT, heli: HELI_LAYOUT, space: SPACE_LAYOUT, sea: SEA_LAYOUT, jungle: JUNGLE_LAYOUT, steppe: STEPPE_LAYOUT };
 const images = new Map<string, HTMLImageElement>();
 const masks = new Map<DockLook, Mask>();
 const layers = new SpriteCache(4);
@@ -118,6 +119,7 @@ function ambient(g: CanvasRenderingContext2D, G: number, look: DockLook, v: Hang
     case 'space': spaceAmbient(g, G, t, masks.get(look) ?? null); return;
     case 'sea': seaAmbient(g, G, t, back); return;
     case 'jungle': jungleAmbient(g, G, t); return;
+    case 'steppe': steppeAmbient(g, G, t); return;
     default: throw new Error(`unhandled: ${look satisfies never}`);
   }
 }

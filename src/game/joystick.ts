@@ -59,7 +59,7 @@ export const MAX_INDEX = 63;
 // Standard gamepad mapping: 0 A, 1 B, 2 X, 3 Y, 4 LB, 5 RB, 8 Back, 9 Start, 12–15 d-pad.
 const STANDARD_BUTTONS: Readonly<Record<number, readonly Action[]>> = {
   0: ['fire', 'confirm'], 1: ['secondary', 'back'], 2: ['flare'], 3: ['special'],
-  4: ['weaponSwitch'], 5: ['groundWeapon'], 8: ['back'], 9: ['pause'],
+  4: ['weaponSwitch'], 5: ['groundWeapon'], 6: ['build'], 7: ['nextWave'], 8: ['back'], 9: ['pause'],
   12: ['up'], 13: ['down'], 14: ['left'], 15: ['right'],
 };
 

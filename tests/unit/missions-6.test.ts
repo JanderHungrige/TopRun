@@ -30,7 +30,7 @@ describe('Sixth map: the jungle planet (doc 78)', () => {
     expect(MISSIONS_6[0]?.difficulty).toBe(2);
     expect(MISSIONS_6[0]?.reward).toBe(1200);
     expect(campaignMissions(6)).toEqual(MISSIONS_6);
-    expect(ALL_MISSIONS.slice(150)).toEqual(MISSIONS_6);
+    expect(ALL_MISSIONS.slice(150, 180)).toEqual(MISSIONS_6);
     expect(kitOf(6)).toBe('mech');
   });
 

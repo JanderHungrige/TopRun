@@ -4,7 +4,7 @@ import { CEREMONY_LAYERS } from '../../src/data/ceremony-layers';
 import { CEREMONY_SETS } from '../../src/data/ceremony-sets';
 import { stageOutfit, type CeremonySet } from '../../src/game/ceremony-stage';
 
-// Ceremony looks (doc 98): the jungle camp and the battle-station hangar, the officers in each world's uniform.
+// Ceremony looks (docs 98, 110): the jungle and steppe camps and the battle-station hangar, the officers in each world's uniform.
 
 /** A PNG's width and height from its header. */
 function pngSize(path: string): { w: number; h: number } {
@@ -16,15 +16,15 @@ const OFFICERS = Object.values(CEREMONY_LAYERS).map((box) => box.file).filter((f
 
 describe('Ceremony looks (doc 98)', () => {
   it('dresses the officers by the stage: dress uniforms on the deck and the pier, space and jungle kit elsewhere', () => {
-    const sets: CeremonySet[] = ['deck', 'pier', 'hangar', 'camp'];
-    expect(sets.map(stageOutfit)).toEqual(['dress', 'dress', 'space', 'jungle']);
+    const sets: CeremonySet[] = ['deck', 'pier', 'hangar', 'camp', 'steppe'];
+    expect(sets.map(stageOutfit)).toEqual(['dress', 'dress', 'space', 'jungle', 'steppe']);
   });
 
-  it('has every admiral and pilot cut-out in the space and the jungle uniform, the same size as the dress one', () => {
+  it('has every admiral and pilot cut-out in the space, jungle and steppe uniform, the same size as the dress one', () => {
     expect(OFFICERS.length).toBeGreaterThanOrEqual(11);
     for (const f of OFFICERS) {
       const base = pngSize(`src/assets/ceremony/${f}.png`);
-      for (const outfit of ['space', 'jungle']) {
+      for (const outfit of ['space', 'jungle', 'steppe']) {
         const path = `src/assets/ceremony/${f}-${outfit}.png`;
         expect(existsSync(path), path).toBe(true);
         expect(pngSize(path), path).toEqual(base);

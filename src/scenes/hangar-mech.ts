@@ -19,7 +19,10 @@ export const buyKey = (save: SaveData): UiKey => (save.kit === 'mech' ? 'mechbay
 
 /** The mech bay's lists: every mech, every mech weapon (doc 79). */
 export const mechCraft = (): PlaneId[] => [...MECH_IDS];
-export const mechWeapons = (): SecondaryId[] => (Object.keys(SECONDARIES) as SecondaryId[]).filter((id) => SECONDARIES[id].campaign === 6);
+export const mechWeapons = (): SecondaryId[] => labWeapons(6);
+/** Every weapon of a lab kit's map, invented or not: the mechs' (doc 79), the tanks' (doc 107). */
+export const labWeapons = (campaign: number): SecondaryId[] =>
+  (Object.keys(SECONDARIES) as SecondaryId[]).filter((id) => SECONDARIES[id].campaign === campaign);
 
 /** Why the mech bay can't build a mech yet: the level it needs; null when it can. */
 export function bayShort(save: SaveData, id: PlaneId): number | null {
@@ -57,6 +60,9 @@ export function guidanceKey(b: SecondaryBehavior): UiKey {
     case 'torps': return 'subarms.torps';
     case 'decoy': return 'subarms.decoy';
     case 'net': return 'subarms.net';
+    case 'mine': return 'motorpool.mine';
+    case 'flame': return 'motorpool.flame';
+    case 'chain': return 'motorpool.chain';
     default: throw new Error(`unhandled: ${b satisfies never}`);
   }
 }

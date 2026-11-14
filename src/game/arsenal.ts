@@ -3,6 +3,7 @@ import { isFleet } from '../data/fleet';
 import type { SecondaryId } from '../data/types';
 import { SECONDARIES, type SecondaryDef } from '../data/weapons';
 import { weaponOnSale } from './firepower';
+import { labKit } from './kit';
 import { spend, wallet } from './outpost';
 import { mapTwoOpen } from './progress';
 import type { SaveData } from './save';
@@ -28,9 +29,9 @@ export function gunAmmo(level: number): { damageMul: number; groundFactor: numbe
 export const markOf = (save: SaveData, id: SecondaryId): Mark => toMark(save.weaponLevels[id]);
 
 /** Top mark on sale for a weapon: Mk II on map 1, Mk VI once map 2 is open; Mk III for the fleet kits (docs 49, 66); none
- *  for the mechs, whose marks are invented in the lab (doc 83). */
+ *  for the mechs and the tanks, whose marks are invented in a lab (docs 83, 107). */
 export function markCap(save: SaveData): Mark {
-  if (save.kit === 'mech') return 1;
+  if (labKit(save.kit)) return 1;
   if (isFleet(save.kit)) return FLEET_MARK;
   return mapTwoOpen(save) ? MAX_MARK : MAP1_MARK;
 }

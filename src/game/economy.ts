@@ -1,3 +1,4 @@
+import { steppeDay, type SteppeDayReport } from './steppe-lab';
 import type { FleetKitId } from '../data/fleet';
 import { EQUIPMENT, maxEquipmentLevel } from '../data/equipment';
 import { LIVERIES, type LiveryId } from '../data/liveries';
@@ -199,7 +200,7 @@ export function computeStars(result: MissionResult): number {
  *  data when `now` is given. */
 export function applyResult(
   save: SaveData, mission: MissionDef, result: MissionResult, now?: number,
-): { save: SaveData; payout: Payout; stars: number; base: DayReport | null } {
+): { save: SaveData; payout: Payout; stars: number; base: DayReport | null; lab: SteppeDayReport | null } {
   const firstClear = !(mission.id in save.progress);
   const payout = computePayout(mission, result, firstClear);
   const stars = computeStars(result);
@@ -211,6 +212,8 @@ export function applyResult(
   next.sorties = logged.sorties;
   const day = runDay(save.outpost, mission, result);
   if (day) next.outpost = day.outpost;
+  const lab = steppeDay(save.steppeLab, mission, result); // the steppe lab's research (doc 107)
+  if (lab) next.steppeLab = lab.lab;
   if (result.success) {
     const prev = save.progress[mission.id];
     const better = !prev || stars >= prev.stars;
@@ -219,5 +222,5 @@ export function applyResult(
       ? { stars: Math.max(stars, prev?.stars ?? 0), at: now, plane: save.selectedPlane, livery: save.livery[save.selectedPlane], score }
       : { ...(prev ?? {}), stars: Math.max(stars, prev?.stars ?? 0), score };
   }
-  return { save: next, payout, stars, base: day?.report ?? null };
+  return { save: next, payout, stars, base: day?.report ?? null, lab: lab ? { research: lab.research, invented: lab.invented } : null };
 }

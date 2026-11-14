@@ -5,9 +5,13 @@ export interface MissionTally {
   airKills: number;
   killsByKind: Partial<Record<EnemyKind, number>>;
   bossKilled: boolean;
+  /** A defence (doc 106): the waves held so far, and whether the outpost fell. */
+  wavesHeld: number;
+  outpostLost: boolean;
 }
 
-export const emptyTally = (): MissionTally => ({ kills: 0, airKills: 0, killsByKind: {}, bossKilled: false });
+export const emptyTally = (): MissionTally =>
+  ({ kills: 0, airKills: 0, killsByKind: {}, bossKilled: false, wavesHeld: 0, outpostLost: false });
 
 export function objectiveProgress(o: Objective, tally: MissionTally): { current: number; required: number } {
   switch (o.type) {
@@ -15,13 +19,14 @@ export function objectiveProgress(o: Objective, tally: MissionTally): { current:
     case 'intercept': return { current: tally.airKills, required: o.count };
     case 'strike': return { current: tally.killsByKind[o.target] ?? 0, required: o.count };
     case 'boss': return { current: tally.bossKilled ? 1 : 0, required: 1 };
+    case 'defend': return { current: tally.wavesHeld, required: o.waves };
     default: throw new Error(`unhandled: ${o satisfies never}`);
   }
 }
 
-/** Whether the objective is fulfilled. Patrol is fulfilled by surviving. */
+/** Whether the objective is fulfilled. Patrol is fulfilled by surviving; nothing is once the outpost fell (doc 106). */
 export function objectiveMet(o: Objective, tally: MissionTally, alive: boolean): boolean {
-  if (!alive) return false;
+  if (!alive || tally.outpostLost) return false;
   if (o.type === 'patrol') return true;
   const p = objectiveProgress(o, tally);
   return p.current >= p.required;

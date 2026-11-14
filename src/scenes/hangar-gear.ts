@@ -1,16 +1,18 @@
 import { DOOR_GUN_LEVELS, GATLING_LEVELS, HEDP, HELI_INCENDIARY, TRACER, TURRET_LEVELS } from '../data/heli-arms';
 import { CAVITATION, ELECTRIC, EXPLOSIVE, HOMING_LEVELS, LOADER_LEVELS, SIDE_TUBE_LEVELS } from '../data/sub-arms';
+import { APDS, AUTOLOADER_LEVELS, COAX_LEVELS, HEFRAG, STABILISER_LEVELS, THERMITE } from '../data/tank-arms';
 import type { ShopItem } from '../game/economy';
-import { canLoadGear, gearLevel, gearMax, gearOnSale, type GearId, type GearRounds } from '../game/gear';
+import { canLoadGear, gearLevel, gearMax, gearOnSale, type GearId, type GearKit, type GearMod, type GearRounds } from '../game/gear';
 import type { SaveData } from '../game/save';
 import { t } from '../i18n/i18n';
 import type { UiKey } from '../i18n/ui-en';
 import type { GearPicture } from '../render/items';
 import { priceText } from './hangar-mech';
 
-// The fleets' gun upgrades and ammo types in their hangars (docs 99, 101): the helicopters' Gatling Drive, Turret Link,
-// door guns, tracer, HEDP and incendiary; the subs' Rapid Loader, Homing Tips, Side Tubes, explosive, electric and
-// cavitation bolts — their words, list status, level rows, pictures and the LOAD button.
+// The fleets' gun upgrades and ammo types in their hangars (docs 99, 101, 108): the helicopters' Gatling Drive, Turret
+// Link, door guns, tracer, HEDP and incendiary; the subs' Rapid Loader, Homing Tips, Side Tubes, explosive, electric and
+// cavitation bolts; the tanks' Autoloader, Gun Stabiliser, Coax MG, APDS, HE-Frag and Thermite — their words, list status,
+// level rows, pictures and the LOAD button.
 
 export type GearItem = Extract<ShopItem, { type: 'mod' | 'rounds' }>;
 
@@ -29,19 +31,26 @@ const WORDS: Readonly<Record<GearId, Words>> = {
   explosive: { name: 'subarms.explosiveName', desc: 'subarms.explosiveDesc', sub: 'subarms.explosiveSub', picture: 'explosive' },
   electric: { name: 'subarms.electricName', desc: 'subarms.electricDesc', sub: 'subarms.electricSub', picture: 'electric' },
   cavitation: { name: 'subarms.cavName', desc: 'subarms.cavDesc', sub: 'subarms.cavSub', picture: 'cavitation' },
+  autoloader: { name: 'tankarms.loaderName', desc: 'tankarms.loaderDesc', sub: 'tankarms.loaderSub', picture: 'autoloader' },
+  stabiliser: { name: 'tankarms.stabName', desc: 'tankarms.stabDesc', sub: 'tankarms.stabSub', picture: 'stabiliser' },
+  coaxmg: { name: 'tankarms.coaxName', desc: 'tankarms.coaxDesc', sub: 'tankarms.coaxSub', picture: 'coaxmg' },
+  apds: { name: 'tankarms.apdsName', desc: 'tankarms.apdsDesc', sub: 'tankarms.apdsSub', picture: 'apds' },
+  hefrag: { name: 'tankarms.fragName', desc: 'tankarms.fragDesc', sub: 'tankarms.fragSub', picture: 'hefrag' },
+  thermite: { name: 'tankarms.thermName', desc: 'tankarms.thermDesc', sub: 'tankarms.thermSub', picture: 'thermite' },
 };
 
-const mod = (id: GearItem['id'] & ('gatling' | 'turret' | 'doorGuns' | 'loader' | 'homing' | 'sideTubes')): GearItem => ({ type: 'mod', id });
+const mod = (id: GearItem['id'] & GearMod): GearItem => ({ type: 'mod', id });
 const rounds = (id: GearRounds): GearItem => ({ type: 'rounds', id });
 
 /** The WEAPONS tab's rows after the kit's gun: upgrades, the ammo types, then the side guns. */
-const LISTS: Readonly<Record<'heli' | 'sub', readonly GearItem[]>> = {
+const LISTS: Readonly<Record<GearKit, readonly GearItem[]>> = {
   heli: [mod('gatling'), mod('turret'), rounds('tracer'), rounds('hedp'), rounds('incendiary'), mod('doorGuns')],
   sub: [mod('loader'), mod('homing'), rounds('explosive'), rounds('electric'), rounds('cavitation'), mod('sideTubes')],
+  tank: [mod('autoloader'), mod('stabiliser'), rounds('apds'), rounds('hefrag'), rounds('thermite'), mod('coaxmg')],
 };
 
 export const gearItems = (save: SaveData): GearItem[] =>
-  (save.kit === 'heli' || save.kit === 'sub' ? LISTS[save.kit].filter((i) => gearOnSale(save, i.id)) : []);
+  (save.kit === 'heli' || save.kit === 'sub' || save.kit === 'tank' ? LISTS[save.kit].filter((i) => gearOnSale(save, i.id)) : []);
 
 export const gearName = (item: GearItem): string => t(WORDS[item.id].name);
 export const gearDescription = (item: GearItem): string => t(WORDS[item.id].desc);
@@ -77,6 +86,12 @@ export function gearRows(item: GearItem): string[] {
     case 'explosive': return EXPLOSIVE.share.map((s, i) => t('heliarms.hedpRow', { share: pct(s), radius: EXPLOSIVE.radius[i] ?? 0 }));
     case 'electric': return ELECTRIC.targets.map((n, i) => t('subarms.electricRow', { n, share: pct(ELECTRIC.share[i] ?? 0), stun: ELECTRIC.stun[i] ?? 0 }));
     case 'cavitation': return CAVITATION.pierce.map((n) => t('subarms.cavRow', { n, speed: pct(CAVITATION.speed - 1) }));
+    case 'autoloader': return AUTOLOADER_LEVELS.map((l) => t('tankarms.loaderRow', { mul: l.mul.toFixed(2) }));
+    case 'stabiliser': return STABILISER_LEVELS.map((l) => t('tankarms.stabRow', { deg: degs(l.swivel) }));
+    case 'coaxmg': return COAX_LEVELS.map((l) => t('subarms.tubesRow', { range: l.range, damage: l.damage }));
+    case 'apds': return APDS.pierce.map((n) => t('tankarms.apdsRow', { n }));
+    case 'hefrag': return HEFRAG.share.map((s, i) => t('heliarms.hedpRow', { share: pct(s), radius: HEFRAG.radius[i] ?? 0 }));
+    case 'thermite': return THERMITE.burn.map((b) => t('heliarms.incRow', { burn: pct(b) }));
     default: throw new Error(`unhandled: ${id satisfies never}`);
   }
 }

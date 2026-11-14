@@ -9,7 +9,9 @@ export type LiveryId =
   // The fleet's (doc 100): map 3 the helicopters, map 4 the subs, map 5 the spacecraft.
   | 'fjordsplinter' | 'northlights' | 'snowfield' | 'rescue' | 'deltaswamp' | 'swamptiger' | 'mesasand' | 'redrock' | 'ashgrey' | 'lava'
   | 'reefblue' | 'coral' | 'kelpgreen' | 'serpent' | 'rusthulk' | 'ghostship' | 'trenchblack' | 'angler' | 'abyssviolet' | 'kraken'
-  | 'orbitalwhite' | 'stationstripes' | 'asteroid' | 'prospector' | 'lunardust' | 'moonshot' | 'ringgold' | 'saturn' | 'deepspace' | 'nebula';
+  | 'orbitalwhite' | 'stationstripes' | 'asteroid' | 'prospector' | 'lunardust' | 'moonshot' | 'ringgold' | 'saturn' | 'deepspace' | 'nebula'
+  // Map 7's, the tanks and buggies (doc 112).
+  | 'steppegold' | 'grassfire' | 'saltcrust' | 'mirage' | 'reddust' | 'raider' | 'barrowmoss' | 'runestone' | 'craterash' | 'starfall';
 
 export const LIVERY_IDS: readonly LiveryId[] = Object.freeze([
   'standard', 'gullgray', 'blackflag', 'desert', 'sunburst', 'arctic', 'aggressor', 'woodland', 'tiger', 'airshow', 'blackgold',
@@ -17,6 +19,7 @@ export const LIVERY_IDS: readonly LiveryId[] = Object.freeze([
   'fjordsplinter', 'northlights', 'snowfield', 'rescue', 'deltaswamp', 'swamptiger', 'mesasand', 'redrock', 'ashgrey', 'lava',
   'reefblue', 'coral', 'kelpgreen', 'serpent', 'rusthulk', 'ghostship', 'trenchblack', 'angler', 'abyssviolet', 'kraken',
   'orbitalwhite', 'stationstripes', 'asteroid', 'prospector', 'lunardust', 'moonshot', 'ringgold', 'saturn', 'deepspace', 'nebula',
+  'steppegold', 'grassfire', 'saltcrust', 'mirage', 'reddust', 'raider', 'barrowmoss', 'runestone', 'craterash', 'starfall',
 ] as const);
 
 /**
@@ -88,4 +91,14 @@ export const LIVERIES: Readonly<Record<LiveryId, LiveryDef>> = Object.freeze({
   saturn: def('saturn', 'Saturn', { theater: 'rings', kind: 'stars' }),
   deepspace: def('deepspace', 'Deep Space', { theater: 'deep', kind: 'region' }),
   nebula: def('nebula', 'Nebula', { theater: 'deep', kind: 'stars' }),
+  steppegold: def('steppegold', 'Steppe Gold', { theater: 'grass', kind: 'region' }),
+  grassfire: def('grassfire', 'Grass Fire', { theater: 'grass', kind: 'stars' }),
+  saltcrust: def('saltcrust', 'Salt Crust', { theater: 'saltflats', kind: 'region' }),
+  mirage: def('mirage', 'Mirage', { theater: 'saltflats', kind: 'stars' }),
+  reddust: def('reddust', 'Red Dust', { theater: 'badlands', kind: 'region' }),
+  raider: def('raider', 'Mesa Raider', { theater: 'badlands', kind: 'stars' }),
+  barrowmoss: def('barrowmoss', 'Barrow Moss', { theater: 'barrows', kind: 'region' }),
+  runestone: def('runestone', 'Rune Stone', { theater: 'barrows', kind: 'stars' }),
+  craterash: def('craterash', 'Crater Ash', { theater: 'impact', kind: 'region' }),
+  starfall: def('starfall', 'Starfall', { theater: 'impact', kind: 'stars' }),
 });
